@@ -1,3 +1,10 @@
 {
-  "orders": []
+  "orders": [
+    {
+      "weekOf": "2026-08-03",
+      "orderedAt": "2026-08-03",
+      "store": "carrefour-livraison-lyon-7",
+      "items": 34
+    }
+  ]
 }
