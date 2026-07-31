@@ -59,9 +59,9 @@ test('the skip link is the first stop and becomes visible on focus', async ({ pa
 
 test('the day cards announce whether they are open', async ({ page }) => {
   await page.goto('/');
-  // Which card is open is decided client-side; [data-today] only exists once
-  // hydration has picked the current day, so the state is trustworthy after it.
-  await page.locator('[data-today]').waitFor();
+  // Which card is open is decided client-side; [data-hydrated] appears once the
+  // date-dependent state has settled, so the toggle state is trustworthy after it.
+  await page.locator('[data-hydrated]').waitFor();
 
   // Anchored on the control itself: a role filter on `expanded` would resolve to
   // a different card once the state flips.
@@ -77,9 +77,12 @@ test('the day cards announce whether they are open', async ({ page }) => {
 
 test('a picked shopping item reports its state', async ({ page }) => {
   await page.goto('/courses');
-  const item = page.getByRole('button', { pressed: false }).first();
+  // Scoped to the content: the header's theme toggle is also an aria-pressed
+  // button, and it sits before any shopping item in the accessibility tree.
+  const content = page.getByRole('main');
+  const item = content.getByRole('button', { pressed: false }).first();
 
   await item.click();
 
-  await expect(page.getByRole('button', { pressed: true }).first()).toBeVisible();
+  await expect(content.getByRole('button', { pressed: true }).first()).toBeVisible();
 });

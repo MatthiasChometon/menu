@@ -72,6 +72,12 @@
       "gram": "g",
       "minute": "min"
     },
-    "today": "Aujourd'hui"
+    "today": "Aujourd'hui",
+    "status": {
+      "upcoming": "Ce menu démarre lundi",
+      "past": "Cette semaine est passée",
+      "deliveryOn": "Courses livrées",
+      "beforeStart": "D'ici là, fais avec ce que tu as déjà."
+    }
   }
 }

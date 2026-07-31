@@ -47,9 +47,24 @@ def current_menu() -> tuple[str, dict]:
     return menu["weekOf"], menu
 
 
+def pantry_stock(week: str) -> dict[str, float]:
+    """Ce qui reste des semaines precedentes, a ne pas racheter."""
+    path = CONTENT / "pantry.json"
+    if not path.exists():
+        return {}
+
+    pantry = load_json(path)
+    # Le stock decrit l'apres d'une semaine : il ne vaut que pour les suivantes.
+    if pantry.get("afterWeek", "") >= week:
+        return {}
+
+    return pantry.get("items", {})
+
+
 def shopping_lines() -> tuple[str, list[dict]]:
     week, menu = current_menu()
     foods = load_json(CONTENT / "foods.json")
+    stock = pantry_stock(week)
 
     grams: dict[str, float] = {}
     for day in menu["days"].values():
@@ -58,8 +73,12 @@ def shopping_lines() -> tuple[str, list[dict]]:
                 grams[food_id] = grams.get(food_id, 0) + amount
 
     lines = []
-    for food_id, needed in grams.items():
+    for food_id, raw_need in grams.items():
         food = foods[food_id]
+        in_stock = stock.get(food_id, 0)
+        needed = max(0, raw_need - in_stock)
+        if needed == 0:
+            continue
         unit = food.get("unit", "g")
         pack = food.get("pack")
         piece = food.get("pieceWeight")
@@ -78,6 +97,7 @@ def shopping_lines() -> tuple[str, list[dict]]:
                 "name": food["name"]["fr"],
                 "aisle": food.get("aisle", "grocery"),
                 "needed": rounded,
+                "inStock": round(in_stock),
                 "unit": unit,
                 "pack": pack,
                 "quantity": quantity,
@@ -92,6 +112,9 @@ def shopping_lines() -> tuple[str, list[dict]]:
 
 def describe(line: dict) -> str:
     needed = f"{line['needed']} {line['unit']}"
+    if line.get("inStock"):
+        needed += f", {line['inStock']} deja en stock"
+
     if line["kind"] == "pack":
         return f"{line['quantity']} x {line['pack']} {line['unit']} (besoin {needed})"
     if line["kind"] == "piece":

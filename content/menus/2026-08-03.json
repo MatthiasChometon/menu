@@ -1,12 +1,17 @@
 {
   "weekOf": "2026-08-03",
+  "deliveryAt": "2026-08-01T06:30",
   "targets": {
     "kcal": 3150,
     "protein": 165,
     "fat": 80,
     "carbs": 445,
     "fiber": 56,
-    "tolerancePct": { "default": 5, "kcal": 4, "fiber": 12 }
+    "tolerancePct": {
+      "default": 5,
+      "kcal": 4,
+      "fiber": 12
+    }
   },
   "days": {
     "monday": {
@@ -24,7 +29,12 @@
       },
       "postWorkout": {
         "recipe": "bananaHoneyShake",
-        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+        "foods": {
+          "semiSkimmedMilk": 250,
+          "whey": 18,
+          "banana": 130,
+          "honey": 20
+        }
       },
       "lunch": {
         "recipe": "chiliChicken",
@@ -75,7 +85,12 @@
       },
       "postWorkout": {
         "recipe": "bananaHoneyShake",
-        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+        "foods": {
+          "semiSkimmedMilk": 250,
+          "whey": 18,
+          "banana": 130,
+          "honey": 20
+        }
       },
       "lunch": {
         "recipe": "beefLentilBolognese",
@@ -91,7 +106,13 @@
       },
       "snack": {
         "recipe": "skyrAlmondRaisin",
-        "foods": { "skyr": 150, "almonds": 25, "raisins": 35, "honey": 10, "apple": 200 }
+        "foods": {
+          "skyr": 150,
+          "almonds": 25,
+          "raisins": 35,
+          "honey": 10,
+          "apple": 200
+        }
       },
       "dinner": {
         "recipe": "chiliChicken",
@@ -121,11 +142,22 @@
       },
       "postWorkout": {
         "recipe": "skyrOatBowl",
-        "foods": { "skyr": 150, "oats": 50, "frozenBerries": 100, "honey": 20, "chiaSeeds": 6 }
+        "foods": {
+          "skyr": 150,
+          "oats": 50,
+          "frozenBerries": 100,
+          "honey": 20,
+          "chiaSeeds": 6
+        }
       },
       "lunch": {
         "recipe": "salmonRiceBroccoli",
-        "foods": { "salmon": 120, "brownRice": 150, "broccoli": 200, "oliveOil": 4 }
+        "foods": {
+          "salmon": 120,
+          "brownRice": 150,
+          "broccoli": 200,
+          "oliveOil": 4
+        }
       },
       "snack": {
         "recipe": "peanutBananaToast",
@@ -164,7 +196,12 @@
       },
       "postWorkout": {
         "recipe": "bananaHoneyShake",
-        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+        "foods": {
+          "semiSkimmedMilk": 250,
+          "whey": 18,
+          "banana": 130,
+          "honey": 20
+        }
       },
       "lunch": {
         "recipe": "chiliChicken",
@@ -216,7 +253,12 @@
       },
       "postWorkout": {
         "recipe": "hamQuarkToast",
-        "foods": { "wholegrainBread": 100, "ham": 50, "quark": 100, "honey": 12 }
+        "foods": {
+          "wholegrainBread": 100,
+          "ham": 50,
+          "quark": 100,
+          "honey": 12
+        }
       },
       "lunch": {
         "recipe": "beefLentilBolognese",
@@ -232,7 +274,13 @@
       },
       "snack": {
         "recipe": "skyrAlmondRaisin",
-        "foods": { "skyr": 150, "almonds": 25, "raisins": 35, "honey": 10, "apple": 200 }
+        "foods": {
+          "skyr": 150,
+          "almonds": 25,
+          "raisins": 35,
+          "honey": 10,
+          "apple": 200
+        }
       },
       "dinner": {
         "recipe": "chiliChicken",
@@ -273,7 +321,12 @@
       },
       "lunch": {
         "recipe": "salmonRiceBroccoli",
-        "foods": { "salmon": 120, "brownRice": 150, "broccoli": 200, "oliveOil": 4 }
+        "foods": {
+          "salmon": 120,
+          "brownRice": 150,
+          "broccoli": 200,
+          "oliveOil": 4
+        }
       },
       "snack": {
         "recipe": "eggBreadChocolate",
@@ -314,7 +367,12 @@
       },
       "postWorkout": {
         "recipe": "bananaHoneyShake",
-        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+        "foods": {
+          "semiSkimmedMilk": 250,
+          "whey": 18,
+          "banana": 130,
+          "honey": 20
+        }
       },
       "lunch": {
         "recipe": "chiliChicken",

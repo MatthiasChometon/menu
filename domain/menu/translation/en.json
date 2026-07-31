@@ -72,6 +72,12 @@
       "gram": "g",
       "minute": "min"
     },
-    "today": "Today"
+    "today": "Today",
+    "status": {
+      "upcoming": "This menu starts on Monday",
+      "past": "This week is over",
+      "deliveryOn": "Groceries delivered",
+      "beforeStart": "Until then, work with what you already have."
+    }
   }
 }

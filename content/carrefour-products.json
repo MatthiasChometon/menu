@@ -1,0 +1,142 @@
+{
+  "_comment": "Produits Carrefour retenus pour la semaine 2026-08-03. 'size' = contenu utilisable d'une unite (g ou ml), 'units' = nombre mis au panier. Sert a calculer le reste apres la semaine et a retrouver le meme produit la prochaine fois.",
+
+  "brownRice": { "name": "Riz Complet CARREFOUR CLASSIC'", "size": 500, "units": 2, "price": 1.79 },
+  "wholewheatPasta": {
+    "name": "Pates penne ble complet CARREFOUR EXTRA",
+    "size": 500,
+    "units": 2,
+    "price": 1.64
+  },
+  "oats": {
+    "name": "Flocons d'avoine integrale CARREFOUR ORIGINAL",
+    "size": 500,
+    "units": 2,
+    "price": 0.89
+  },
+  "wholegrainBread": {
+    "name": "Pain de mie American sandwich complet HARRYS",
+    "size": 900,
+    "units": 1,
+    "price": 2.64
+  },
+  "crushedTomatoes": {
+    "name": "Pulpe de tomates au jus CARREFOUR CLASSIC' (3x400 g)",
+    "size": 1200,
+    "units": 2,
+    "price": 2.49
+  },
+  "kidneyBeans": {
+    "name": "Haricots rouges CARREFOUR CLASSIC' (net egoutte)",
+    "size": 500,
+    "units": 2,
+    "price": 1.69
+  },
+  "cookedLentils": { "name": "Lentilles cuites BONDUELLE", "size": 265, "units": 2, "price": 1.43 },
+  "honey": { "name": "Miel de fleurs CARREFOUR CLASSIC'", "size": 500, "units": 1, "price": 3.7 },
+  "almonds": {
+    "name": "Amandes decortiquees CARREFOUR LE MARCHE",
+    "size": 200,
+    "units": 1,
+    "price": 2.9
+  },
+  "peanutButter": {
+    "name": "Pur beurre de cacahuetes sans sucre CARREFOUR BIO",
+    "size": 350,
+    "units": 1,
+    "price": 3.38
+  },
+  "raisins": {
+    "name": "Raisins secs Golden CARREFOUR LE MARCHE",
+    "size": 250,
+    "units": 1,
+    "price": 2.09
+  },
+  "oliveOil": {
+    "name": "Huile d'olive vierge extra CARREFOUR EXTRA",
+    "size": 500,
+    "units": 1,
+    "price": 6.35
+  },
+  "darkChocolate": { "name": "Chocolat noir 70% POULAIN", "size": 100, "units": 1, "price": 2.22 },
+  "cocoaPowder": {
+    "name": "Cacao en poudre 100% CARREFOUR ORIGINAL",
+    "size": 250,
+    "units": 1,
+    "price": 3.45
+  },
+  "chiaSeeds": {
+    "name": "Graines de chia JARDIN BIO ETIC",
+    "size": 250,
+    "units": 1,
+    "price": 3.76
+  },
+  "salmon": {
+    "name": "Paves de saumon FILIERE QUALITE CARREFOUR (2x120 g)",
+    "size": 240,
+    "units": 1,
+    "price": 6.59
+  },
+  "ham": {
+    "name": "Jambon de dinde nature halal ISLA MONDIAL (4 tranches)",
+    "size": 100,
+    "units": 1,
+    "price": 2.64
+  },
+  "chickenBreast": {
+    "name": "Filets de poulet en lanieres",
+    "size": 500,
+    "units": 1,
+    "price": 6.79
+  },
+  "leanBeef": {
+    "name": "Steaks haches 5% CARREFOUR LE MARCHE (6x100 g)",
+    "size": 600,
+    "units": 1,
+    "price": 11.49
+  },
+  "skyr": { "name": "Skyr 0% nature CARREFOUR SENSATION", "size": 850, "units": 1, "price": 2.96 },
+  "wholeMilk": { "name": "Lait entier CARREFOUR EXTRA", "size": 1000, "units": 2, "price": 1.34 },
+  "semiSkimmedMilk": {
+    "name": "Lait demi-ecreme CARREFOUR CLASSIC'",
+    "size": 1000,
+    "units": 2,
+    "price": 1.08
+  },
+  "egg": {
+    "name": "Oeufs frais plein air CARREFOUR ORIGINAL (6)",
+    "size": 360,
+    "units": 1,
+    "price": 1.69
+  },
+  "quark": {
+    "name": "Fromage blanc 3% CARREFOUR CLASSIC' (le pot)",
+    "size": 500,
+    "units": 1,
+    "price": 1.45
+  },
+  "hardCheese": {
+    "name": "Comte rape AOP CARREFOUR EXTRA",
+    "size": 150,
+    "units": 1,
+    "price": 2.59
+  },
+  "banana": { "name": "Bananes Cavendish vrac", "size": 1000, "units": 2, "price": 1.99 },
+  "apple": { "name": "Pommes jaunes bio (4 pieces)", "size": 720, "units": 1, "price": 2.19 },
+  "bellPepper": { "name": "Poivrons rouges vrac", "size": 500, "units": 1, "price": 2.49 },
+  "broccoli": {
+    "name": "Brocolis en fleurettes surgeles CARREFOUR CLASSIC'",
+    "size": 900,
+    "units": 1,
+    "price": 2.15
+  },
+  "onion": { "name": "Oignons SIMPL", "size": 1500, "units": 1, "price": 1.69 },
+  "orange": { "name": "Oranges a dessert", "size": 1500, "units": 1, "price": 2.99 },
+  "carrot": { "name": "Carottes botte fanes", "size": 500, "units": 1, "price": 1.99 },
+  "frozenBerries": {
+    "name": "Fruits rouges surgeles CARREFOUR CLASSIC'",
+    "size": 500,
+    "units": 1,
+    "price": 3.99
+  }
+}

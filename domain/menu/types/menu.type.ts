@@ -77,8 +77,11 @@ export type Day = {
 
 export type MacroTolerance = Partial<Record<keyof Macros, number>> & { default: number };
 
+export type WeekStatus = 'upcoming' | 'current' | 'past';
+
 export type Menu = {
   weekOf: string;
+  deliveryAt?: string;
   targets: Macros;
   tolerancePct: MacroTolerance;
   days: Day[];

@@ -38,11 +38,37 @@ const averageMacros = computed((): Macros | undefined => {
   };
 });
 
-const todayKey = computed((): DayKey | undefined =>
-  // Monday-first index; undefined until mounted so the prerendered HTML does not
-  // freeze the day the site was built on.
-  isMounted.value ? dayOrder[(new Date().getDay() + 6) % 7] : undefined,
+const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
+
+// Everything date-related waits for the client: a prerendered page would freeze
+// whatever day it was built on.
+const now = computed((): Date | undefined => (isMounted.value ? new Date() : undefined));
+
+const status = computed((): WeekStatus | undefined =>
+  menu.value === undefined || now.value === undefined
+    ? undefined
+    : statusOf(menu.value.weekOf, now.value),
 );
+
+const todayKey = computed((): DayKey | undefined => {
+  if (menu.value === undefined || now.value === undefined) return undefined;
+  // Only mark a day as "today" when today actually falls inside this menu's week.
+  if (!isWithin(menu.value.weekOf, now.value)) return undefined;
+
+  return dayOrder[dayIndexOf(now.value)];
+});
+
+const deliveryLabel = computed((): string | undefined => {
+  if (menu.value?.deliveryAt === undefined) return undefined;
+
+  return new Date(menu.value.deliveryAt).toLocaleString(locale.value, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+});
 
 const reminders = computed((): { icon: string; text: string }[] => [
   { icon: 'i-lucide-pill', text: t('menu.reminder.creatine') },
@@ -55,7 +81,9 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 </script>
 
 <template>
-  <div class="mx-auto max-w-5xl px-4 py-6 sm:py-10">
+  <!-- data-hydrated marks the point where date-dependent bits (today, week
+       status) are settled, so a test can wait for it instead of racing them. -->
+  <div class="mx-auto max-w-5xl px-4 py-6 sm:py-10" :data-hydrated="isMounted ? '' : undefined">
     <template v-if="menu === undefined">
       <div class="flex flex-col items-center gap-3 py-20 text-center">
         <UIcon name="i-lucide-calendar-x" class="size-12 text-dimmed" />
@@ -85,6 +113,31 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           {{ $t('menu.weekOf') }} {{ formatWeek(menu.weekOf) }}
         </p>
       </div>
+
+      <UAlert
+        v-if="status === 'upcoming'"
+        class="rise mt-5"
+        color="primary"
+        variant="subtle"
+        icon="i-lucide-truck"
+        :title="$t('menu.status.upcoming')"
+      >
+        <template #description>
+          <span v-if="deliveryLabel !== undefined" class="block">
+            {{ $t('menu.status.deliveryOn') }} {{ deliveryLabel }}
+          </span>
+          <span class="block">{{ $t('menu.status.beforeStart') }}</span>
+        </template>
+      </UAlert>
+
+      <UAlert
+        v-else-if="status === 'past'"
+        class="rise mt-5"
+        color="neutral"
+        variant="subtle"
+        icon="i-lucide-history"
+        :title="$t('menu.status.past')"
+      />
 
       <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
         <div class="grid gap-4 sm:grid-cols-3">

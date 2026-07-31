@@ -2,6 +2,7 @@ type RawMeal = { recipe: string; foods: Record<string, number> };
 
 type RawMenu = {
   weekOf: string;
+  deliveryAt?: string;
   targets: Macros & { tolerancePct?: MacroTolerance };
   days: Record<string, Record<string, RawMeal>>;
 };
@@ -100,6 +101,7 @@ const buildMenu = (raw: RawMenu): Menu => {
 
   return {
     weekOf: raw.weekOf,
+    deliveryAt: raw.deliveryAt,
     targets,
     tolerancePct: tolerancePct ?? { default: 5 },
     days,
