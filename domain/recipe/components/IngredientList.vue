@@ -2,7 +2,7 @@
 const { quantities } = defineProps<{ quantities: FoodQuantity[] }>();
 
 const { imageOf } = useFoods();
-const { nameOf, quantityLabel, pieceCount } = useFoodFormat();
+const { nameOf, quantityLabel, pieceLabel } = useFoodFormat();
 </script>
 
 <template>
@@ -17,8 +17,8 @@ const { nameOf, quantityLabel, pieceCount } = useFoodFormat();
       </div>
       <div class="min-w-0 flex-1">
         <p class="truncate text-sm font-medium">{{ nameOf(food) }}</p>
-        <p v-if="pieceCount(food, grams) !== undefined" class="text-xs text-muted">
-          ≈ {{ pieceCount(food, grams) }}
+        <p v-if="pieceLabel(food, grams) !== undefined" class="text-xs text-muted">
+          ≈ {{ pieceLabel(food, grams) }}
         </p>
       </div>
       <span class="shrink-0 font-bold tabular-nums">{{ quantityLabel(food, grams) }}</span>

@@ -29,6 +29,10 @@ const variantItems = computed((): SelectItem[] =>
   })),
 );
 
+const heroImage = computed((): string | undefined =>
+  recipe.value === undefined ? undefined : imageOf(recipe.value),
+);
+
 useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(recipe.value)) });
 </script>
 
@@ -52,9 +56,12 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 
     <article v-else class="space-y-8">
       <header class="rise space-y-4">
-        <div class="aspect-[16/10] overflow-hidden rounded-3xl">
+        <div
+          class="overflow-hidden rounded-3xl"
+          :class="heroImage === undefined ? 'h-32 sm:h-40' : 'aspect-[16/10]'"
+        >
           <UiThumb
-            :src="imageOf(recipe)"
+            :src="heroImage"
             :alt="nameOf(recipe)"
             icon="i-lucide-cooking-pot"
             rounded="rounded-3xl"

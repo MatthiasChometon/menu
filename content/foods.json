@@ -1,6 +1,9 @@
 {
   "oats": {
-    "name": { "fr": "Flocons d'avoine complets", "en": "Wholegrain oats" },
+    "name": {
+      "fr": "Flocons d'avoine complets",
+      "en": "Wholegrain oats"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-wheat",
     "kcal": 380,
@@ -11,7 +14,10 @@
     "pricePerKg": 2.5
   },
   "brownRice": {
-    "name": { "fr": "Riz complet", "en": "Brown rice" },
+    "name": {
+      "fr": "Riz complet",
+      "en": "Brown rice"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-wheat",
     "kcal": 350,
@@ -22,7 +28,10 @@
     "pricePerKg": 2.8
   },
   "wholewheatPasta": {
-    "name": { "fr": "Pâtes complètes", "en": "Wholewheat pasta" },
+    "name": {
+      "fr": "Pâtes complètes",
+      "en": "Wholewheat pasta"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-wheat",
     "kcal": 350,
@@ -33,7 +42,10 @@
     "pricePerKg": 2.2
   },
   "wholegrainBread": {
-    "name": { "fr": "Pain complet", "en": "Wholegrain bread" },
+    "name": {
+      "fr": "Pain complet",
+      "en": "Wholegrain bread"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-sandwich",
     "kcal": 250,
@@ -44,7 +56,10 @@
     "pricePerKg": 3.5
   },
   "chickenBreast": {
-    "name": { "fr": "Blanc de poulet", "en": "Chicken breast" },
+    "name": {
+      "fr": "Blanc de poulet",
+      "en": "Chicken breast"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-drumstick",
     "kcal": 110,
@@ -55,7 +70,10 @@
     "pricePerKg": 9.5
   },
   "turkeyBreast": {
-    "name": { "fr": "Filet de dinde", "en": "Turkey breast" },
+    "name": {
+      "fr": "Filet de dinde",
+      "en": "Turkey breast"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-drumstick",
     "kcal": 105,
@@ -66,7 +84,10 @@
     "pricePerKg": 9
   },
   "leanBeef": {
-    "name": { "fr": "Bœuf haché 5 %", "en": "Lean beef mince 5%" },
+    "name": {
+      "fr": "Bœuf haché 5 %",
+      "en": "Lean beef mince 5%"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-beef",
     "kcal": 130,
@@ -77,7 +98,10 @@
     "pricePerKg": 11
   },
   "porkTenderloin": {
-    "name": { "fr": "Filet mignon de porc", "en": "Pork tenderloin" },
+    "name": {
+      "fr": "Filet mignon de porc",
+      "en": "Pork tenderloin"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-beef",
     "kcal": 125,
@@ -88,7 +112,10 @@
     "pricePerKg": 12
   },
   "egg": {
-    "name": { "fr": "Œufs", "en": "Eggs" },
+    "name": {
+      "fr": "Œufs",
+      "en": "Eggs"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-egg",
     "kcal": 145,
@@ -97,10 +124,21 @@
     "carbs": 0.7,
     "fiber": 0,
     "pricePerKg": 5,
-    "pieceWeight": 60
+    "pieceWeight": 60,
+    "piece": {
+      "fr": "œufs",
+      "en": "eggs"
+    },
+    "pieceOne": {
+      "fr": "œuf",
+      "en": "egg"
+    }
   },
   "salmon": {
-    "name": { "fr": "Saumon frais", "en": "Fresh salmon" },
+    "name": {
+      "fr": "Saumon frais",
+      "en": "Fresh salmon"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-fish",
     "kcal": 200,
@@ -109,10 +147,21 @@
     "carbs": 0,
     "fiber": 0,
     "pricePerKg": 22,
-    "pieceWeight": 120
+    "pieceWeight": 120,
+    "piece": {
+      "fr": "pavés",
+      "en": "fillets"
+    },
+    "pieceOne": {
+      "fr": "pavé",
+      "en": "fillet"
+    }
   },
   "mackerelTin": {
-    "name": { "fr": "Maquereau en conserve", "en": "Tinned mackerel" },
+    "name": {
+      "fr": "Maquereau en conserve",
+      "en": "Tinned mackerel"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-fish",
     "kcal": 220,
@@ -123,7 +172,10 @@
     "pricePerKg": 9
   },
   "sardinesTin": {
-    "name": { "fr": "Sardines en conserve", "en": "Tinned sardines" },
+    "name": {
+      "fr": "Sardines en conserve",
+      "en": "Tinned sardines"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-fish",
     "kcal": 220,
@@ -134,7 +186,10 @@
     "pricePerKg": 10
   },
   "tunaTin": {
-    "name": { "fr": "Thon au naturel", "en": "Tinned tuna in water" },
+    "name": {
+      "fr": "Thon au naturel",
+      "en": "Tinned tuna in water"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-fish",
     "kcal": 110,
@@ -145,7 +200,10 @@
     "pricePerKg": 12
   },
   "ham": {
-    "name": { "fr": "Jambon blanc", "en": "Cooked ham" },
+    "name": {
+      "fr": "Jambon blanc",
+      "en": "Cooked ham"
+    },
     "aisle": "butcher",
     "icon": "i-lucide-ham",
     "kcal": 110,
@@ -154,10 +212,21 @@
     "carbs": 0.5,
     "fiber": 0,
     "pricePerKg": 12,
-    "pieceWeight": 25
+    "pieceWeight": 25,
+    "piece": {
+      "fr": "tranches",
+      "en": "slices"
+    },
+    "pieceOne": {
+      "fr": "tranche",
+      "en": "slice"
+    }
   },
   "cookedLentils": {
-    "name": { "fr": "Lentilles cuites", "en": "Cooked lentils" },
+    "name": {
+      "fr": "Lentilles cuites",
+      "en": "Cooked lentils"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 115,
@@ -168,7 +237,10 @@
     "pricePerKg": 2
   },
   "greenLentilsDry": {
-    "name": { "fr": "Lentilles vertes sèches", "en": "Dry green lentils" },
+    "name": {
+      "fr": "Lentilles vertes sèches",
+      "en": "Dry green lentils"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 335,
@@ -179,7 +251,10 @@
     "pricePerKg": 3
   },
   "redLentilsDry": {
-    "name": { "fr": "Lentilles corail sèches", "en": "Dry red lentils" },
+    "name": {
+      "fr": "Lentilles corail sèches",
+      "en": "Dry red lentils"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 350,
@@ -190,7 +265,10 @@
     "pricePerKg": 3.5
   },
   "kidneyBeans": {
-    "name": { "fr": "Haricots rouges", "en": "Kidney beans" },
+    "name": {
+      "fr": "Haricots rouges",
+      "en": "Kidney beans"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 100,
@@ -201,7 +279,10 @@
     "pricePerKg": 2.2
   },
   "whiteBeans": {
-    "name": { "fr": "Haricots blancs", "en": "White beans" },
+    "name": {
+      "fr": "Haricots blancs",
+      "en": "White beans"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 100,
@@ -212,7 +293,10 @@
     "pricePerKg": 2.2
   },
   "chickpeas": {
-    "name": { "fr": "Pois chiches", "en": "Chickpeas" },
+    "name": {
+      "fr": "Pois chiches",
+      "en": "Chickpeas"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-bean",
     "kcal": 120,
@@ -223,7 +307,10 @@
     "pricePerKg": 2.4
   },
   "wholeMilk": {
-    "name": { "fr": "Lait entier", "en": "Whole milk" },
+    "name": {
+      "fr": "Lait entier",
+      "en": "Whole milk"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-milk",
     "unit": "ml",
@@ -235,7 +322,10 @@
     "pricePerKg": 1.1
   },
   "semiSkimmedMilk": {
-    "name": { "fr": "Lait demi-écrémé", "en": "Semi-skimmed milk" },
+    "name": {
+      "fr": "Lait demi-écrémé",
+      "en": "Semi-skimmed milk"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-milk",
     "unit": "ml",
@@ -247,7 +337,10 @@
     "pricePerKg": 1
   },
   "whey": {
-    "name": { "fr": "Whey", "en": "Whey protein" },
+    "name": {
+      "fr": "Whey",
+      "en": "Whey protein"
+    },
     "aisle": "supplement",
     "icon": "i-lucide-dumbbell",
     "kcal": 400,
@@ -258,7 +351,10 @@
     "pricePerKg": 25
   },
   "skyr": {
-    "name": { "fr": "Skyr", "en": "Skyr" },
+    "name": {
+      "fr": "Skyr",
+      "en": "Skyr"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-milk",
     "kcal": 60,
@@ -269,7 +365,10 @@
     "pricePerKg": 5
   },
   "quark": {
-    "name": { "fr": "Fromage blanc 3 %", "en": "Quark 3%" },
+    "name": {
+      "fr": "Fromage blanc 3 %",
+      "en": "Quark 3%"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-milk",
     "kcal": 75,
@@ -280,7 +379,10 @@
     "pricePerKg": 2.5
   },
   "hardCheese": {
-    "name": { "fr": "Comté ou emmental", "en": "Hard cheese" },
+    "name": {
+      "fr": "Comté ou emmental",
+      "en": "Hard cheese"
+    },
     "aisle": "dairy",
     "icon": "i-lucide-cake-slice",
     "kcal": 400,
@@ -291,7 +393,10 @@
     "pricePerKg": 14
   },
   "peanutButter": {
-    "name": { "fr": "Beurre de cacahuète", "en": "Peanut butter" },
+    "name": {
+      "fr": "Beurre de cacahuète",
+      "en": "Peanut butter"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-nut",
     "kcal": 600,
@@ -302,7 +407,10 @@
     "pricePerKg": 8
   },
   "almonds": {
-    "name": { "fr": "Amandes", "en": "Almonds" },
+    "name": {
+      "fr": "Amandes",
+      "en": "Almonds"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-nut",
     "kcal": 600,
@@ -313,7 +421,10 @@
     "pricePerKg": 14
   },
   "walnuts": {
-    "name": { "fr": "Noix", "en": "Walnuts" },
+    "name": {
+      "fr": "Noix",
+      "en": "Walnuts"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-nut",
     "kcal": 690,
@@ -324,7 +435,10 @@
     "pricePerKg": 15
   },
   "chiaSeeds": {
-    "name": { "fr": "Graines de chia", "en": "Chia seeds" },
+    "name": {
+      "fr": "Graines de chia",
+      "en": "Chia seeds"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-sprout",
     "kcal": 480,
@@ -335,7 +449,10 @@
     "pricePerKg": 12
   },
   "oliveOil": {
-    "name": { "fr": "Huile d'olive", "en": "Olive oil" },
+    "name": {
+      "fr": "Huile d'olive",
+      "en": "Olive oil"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-droplet",
     "unit": "ml",
@@ -347,7 +464,10 @@
     "pricePerKg": 7
   },
   "lightCoconutMilk": {
-    "name": { "fr": "Lait de coco léger", "en": "Light coconut milk" },
+    "name": {
+      "fr": "Lait de coco léger",
+      "en": "Light coconut milk"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-milk",
     "unit": "ml",
@@ -359,7 +479,10 @@
     "pricePerKg": 3.5
   },
   "blackOlives": {
-    "name": { "fr": "Olives noires", "en": "Black olives" },
+    "name": {
+      "fr": "Olives noires",
+      "en": "Black olives"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-circle-dot",
     "kcal": 150,
@@ -370,7 +493,10 @@
     "pricePerKg": 6
   },
   "banana": {
-    "name": { "fr": "Bananes", "en": "Bananas" },
+    "name": {
+      "fr": "Bananes",
+      "en": "Bananas"
+    },
     "aisle": "produce",
     "icon": "i-lucide-banana",
     "kcal": 90,
@@ -379,10 +505,21 @@
     "carbs": 20,
     "fiber": 2.6,
     "pricePerKg": 2,
-    "pieceWeight": 120
+    "pieceWeight": 120,
+    "piece": {
+      "fr": "bananes",
+      "en": "bananas"
+    },
+    "pieceOne": {
+      "fr": "banane",
+      "en": "banana"
+    }
   },
   "apple": {
-    "name": { "fr": "Pommes", "en": "Apples" },
+    "name": {
+      "fr": "Pommes",
+      "en": "Apples"
+    },
     "aisle": "produce",
     "icon": "i-lucide-apple",
     "kcal": 52,
@@ -391,10 +528,21 @@
     "carbs": 12,
     "fiber": 2.4,
     "pricePerKg": 2.5,
-    "pieceWeight": 180
+    "pieceWeight": 180,
+    "piece": {
+      "fr": "pommes",
+      "en": "apples"
+    },
+    "pieceOne": {
+      "fr": "pomme",
+      "en": "apple"
+    }
   },
   "orange": {
-    "name": { "fr": "Oranges", "en": "Oranges" },
+    "name": {
+      "fr": "Oranges",
+      "en": "Oranges"
+    },
     "aisle": "produce",
     "icon": "i-lucide-citrus",
     "kcal": 47,
@@ -403,10 +551,21 @@
     "carbs": 9,
     "fiber": 2.4,
     "pricePerKg": 2,
-    "pieceWeight": 200
+    "pieceWeight": 200,
+    "piece": {
+      "fr": "oranges",
+      "en": "oranges"
+    },
+    "pieceOne": {
+      "fr": "orange",
+      "en": "orange"
+    }
   },
   "kiwi": {
-    "name": { "fr": "Kiwis", "en": "Kiwis" },
+    "name": {
+      "fr": "Kiwis",
+      "en": "Kiwis"
+    },
     "aisle": "produce",
     "icon": "i-lucide-citrus",
     "kcal": 60,
@@ -415,10 +574,21 @@
     "carbs": 11,
     "fiber": 3,
     "pricePerKg": 4,
-    "pieceWeight": 90
+    "pieceWeight": 90,
+    "piece": {
+      "fr": "kiwis",
+      "en": "kiwis"
+    },
+    "pieceOne": {
+      "fr": "kiwi",
+      "en": "kiwi"
+    }
   },
   "frozenBerries": {
-    "name": { "fr": "Fruits rouges surgelés", "en": "Frozen berries" },
+    "name": {
+      "fr": "Fruits rouges surgelés",
+      "en": "Frozen berries"
+    },
     "aisle": "frozen",
     "icon": "i-lucide-cherry",
     "kcal": 45,
@@ -429,7 +599,10 @@
     "pricePerKg": 5
   },
   "raisins": {
-    "name": { "fr": "Raisins secs", "en": "Raisins" },
+    "name": {
+      "fr": "Raisins secs",
+      "en": "Raisins"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-grape",
     "kcal": 300,
@@ -440,7 +613,10 @@
     "pricePerKg": 6
   },
   "dates": {
-    "name": { "fr": "Dattes", "en": "Dates" },
+    "name": {
+      "fr": "Dattes",
+      "en": "Dates"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-grape",
     "kcal": 285,
@@ -451,7 +627,10 @@
     "pricePerKg": 7
   },
   "honey": {
-    "name": { "fr": "Miel", "en": "Honey" },
+    "name": {
+      "fr": "Miel",
+      "en": "Honey"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-dessert",
     "kcal": 320,
@@ -462,7 +641,10 @@
     "pricePerKg": 8
   },
   "darkChocolate": {
-    "name": { "fr": "Chocolat noir 70 %", "en": "Dark chocolate 70%" },
+    "name": {
+      "fr": "Chocolat noir 70 %",
+      "en": "Dark chocolate 70%"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-candy",
     "kcal": 570,
@@ -473,7 +655,10 @@
     "pricePerKg": 12
   },
   "cocoaPowder": {
-    "name": { "fr": "Cacao non sucré", "en": "Unsweetened cocoa" },
+    "name": {
+      "fr": "Cacao non sucré",
+      "en": "Unsweetened cocoa"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-candy",
     "kcal": 350,
@@ -484,7 +669,10 @@
     "pricePerKg": 12
   },
   "crushedTomatoes": {
-    "name": { "fr": "Tomates concassées", "en": "Crushed tomatoes" },
+    "name": {
+      "fr": "Tomates concassées",
+      "en": "Crushed tomatoes"
+    },
     "aisle": "grocery",
     "icon": "i-lucide-soup",
     "kcal": 30,
@@ -493,10 +681,21 @@
     "carbs": 4.5,
     "fiber": 1.5,
     "pricePerKg": 1.5,
-    "pieceWeight": 400
+    "pieceWeight": 400,
+    "piece": {
+      "fr": "boîtes",
+      "en": "tins"
+    },
+    "pieceOne": {
+      "fr": "boîte",
+      "en": "tin"
+    }
   },
   "broccoli": {
-    "name": { "fr": "Brocolis", "en": "Broccoli" },
+    "name": {
+      "fr": "Brocolis",
+      "en": "Broccoli"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 34,
@@ -507,7 +706,10 @@
     "pricePerKg": 3
   },
   "frozenSpinach": {
-    "name": { "fr": "Épinards surgelés", "en": "Frozen spinach" },
+    "name": {
+      "fr": "Épinards surgelés",
+      "en": "Frozen spinach"
+    },
     "aisle": "frozen",
     "icon": "i-lucide-leafy-green",
     "kcal": 25,
@@ -518,7 +720,10 @@
     "pricePerKg": 2.5
   },
   "zucchini": {
-    "name": { "fr": "Courgettes", "en": "Zucchini" },
+    "name": {
+      "fr": "Courgettes",
+      "en": "Zucchini"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 20,
@@ -527,10 +732,21 @@
     "carbs": 2.5,
     "fiber": 1,
     "pricePerKg": 2.2,
-    "pieceWeight": 250
+    "pieceWeight": 250,
+    "piece": {
+      "fr": "courgettes",
+      "en": "zucchini"
+    },
+    "pieceOne": {
+      "fr": "courgette",
+      "en": "zucchini"
+    }
   },
   "carrot": {
-    "name": { "fr": "Carottes", "en": "Carrots" },
+    "name": {
+      "fr": "Carottes",
+      "en": "Carrots"
+    },
     "aisle": "produce",
     "icon": "i-lucide-carrot",
     "kcal": 40,
@@ -539,10 +755,21 @@
     "carbs": 7,
     "fiber": 2.8,
     "pricePerKg": 1.3,
-    "pieceWeight": 100
+    "pieceWeight": 100,
+    "piece": {
+      "fr": "carottes",
+      "en": "carrots"
+    },
+    "pieceOne": {
+      "fr": "carotte",
+      "en": "carrot"
+    }
   },
   "bellPepper": {
-    "name": { "fr": "Poivrons", "en": "Bell peppers" },
+    "name": {
+      "fr": "Poivrons",
+      "en": "Bell peppers"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 26,
@@ -551,10 +778,21 @@
     "carbs": 4.5,
     "fiber": 2,
     "pricePerKg": 3.5,
-    "pieceWeight": 150
+    "pieceWeight": 150,
+    "piece": {
+      "fr": "poivrons",
+      "en": "peppers"
+    },
+    "pieceOne": {
+      "fr": "poivron",
+      "en": "pepper"
+    }
   },
   "onion": {
-    "name": { "fr": "Oignons", "en": "Onions" },
+    "name": {
+      "fr": "Oignons",
+      "en": "Onions"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 40,
@@ -563,10 +801,21 @@
     "carbs": 8,
     "fiber": 1.7,
     "pricePerKg": 1.5,
-    "pieceWeight": 110
+    "pieceWeight": 110,
+    "piece": {
+      "fr": "oignons",
+      "en": "onions"
+    },
+    "pieceOne": {
+      "fr": "oignon",
+      "en": "onion"
+    }
   },
   "leek": {
-    "name": { "fr": "Poireaux", "en": "Leeks" },
+    "name": {
+      "fr": "Poireaux",
+      "en": "Leeks"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 30,
@@ -575,10 +824,21 @@
     "carbs": 4,
     "fiber": 2.5,
     "pricePerKg": 2.5,
-    "pieceWeight": 200
+    "pieceWeight": 200,
+    "piece": {
+      "fr": "poireaux",
+      "en": "leeks"
+    },
+    "pieceOne": {
+      "fr": "poireau",
+      "en": "leek"
+    }
   },
   "cauliflower": {
-    "name": { "fr": "Chou-fleur", "en": "Cauliflower" },
+    "name": {
+      "fr": "Chou-fleur",
+      "en": "Cauliflower"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 28,
@@ -589,7 +849,10 @@
     "pricePerKg": 2.5
   },
   "greenBeans": {
-    "name": { "fr": "Haricots verts", "en": "Green beans" },
+    "name": {
+      "fr": "Haricots verts",
+      "en": "Green beans"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 30,
@@ -600,7 +863,10 @@
     "pricePerKg": 2.5
   },
   "mushrooms": {
-    "name": { "fr": "Champignons", "en": "Mushrooms" },
+    "name": {
+      "fr": "Champignons",
+      "en": "Mushrooms"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 25,
@@ -611,7 +877,10 @@
     "pricePerKg": 4
   },
   "avocado": {
-    "name": { "fr": "Avocats", "en": "Avocados" },
+    "name": {
+      "fr": "Avocats",
+      "en": "Avocados"
+    },
     "aisle": "produce",
     "icon": "i-lucide-leafy-green",
     "kcal": 160,
@@ -620,6 +889,14 @@
     "carbs": 2,
     "fiber": 6.7,
     "pricePerKg": 5,
-    "pieceWeight": 170
+    "pieceWeight": 170,
+    "piece": {
+      "fr": "avocats",
+      "en": "avocados"
+    },
+    "pieceOne": {
+      "fr": "avocat",
+      "en": "avocado"
+    }
   }
 }

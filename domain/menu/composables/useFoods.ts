@@ -7,6 +7,8 @@ type RawFood = Macros & {
   unit?: string;
   pricePerKg: number;
   pieceWeight?: number;
+  piece?: LocalizedText;
+  pieceOne?: LocalizedText;
 };
 
 const AISLE_LIST: readonly Aisle[] = [
@@ -40,6 +42,8 @@ const catalog: Record<string, Food> = Object.fromEntries(
       fiber: raw.fiber,
       pricePerKg: raw.pricePerKg,
       pieceWeight: raw.pieceWeight,
+      piece: raw.piece,
+      pieceOne: raw.pieceOne,
     },
   ]),
 );

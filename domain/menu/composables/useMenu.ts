@@ -79,12 +79,7 @@ const buildShoppingList = (days: Day[]): ShoppingLine[] => {
   return [...gramsByFood.values()]
     .map(({ food, grams }): ShoppingLine => {
       const rounded = Math.round(grams);
-      return {
-        food,
-        grams: rounded,
-        price: (food.pricePerKg * rounded) / 1000,
-        pieces: food.pieceWeight === undefined ? undefined : Math.ceil(rounded / food.pieceWeight),
-      };
+      return { food, grams: rounded, price: (food.pricePerKg * rounded) / 1000 };
     })
     .sort((left, right): number => right.price - left.price);
 };

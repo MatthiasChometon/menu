@@ -7,7 +7,7 @@ const { line, picked = false } = defineProps<{
 const emit = defineEmits<{ toggle: [] }>();
 
 const { imageOf } = useFoods();
-const { nameOf, quantityLabel } = useFoodFormat();
+const { nameOf, quantityLabel, pieceLabel } = useFoodFormat();
 </script>
 
 <template>
@@ -44,7 +44,9 @@ const { nameOf, quantityLabel } = useFoodFormat();
         <p class="truncate font-medium" :class="picked && 'line-through'">
           {{ nameOf(line.food) }}
         </p>
-        <p v-if="line.pieces !== undefined" class="text-xs text-muted">≈ {{ line.pieces }}</p>
+        <p v-if="pieceLabel(line.food, line.grams) !== undefined" class="text-xs text-muted">
+          ≈ {{ pieceLabel(line.food, line.grams) }}
+        </p>
       </div>
 
       <div class="shrink-0 text-right">

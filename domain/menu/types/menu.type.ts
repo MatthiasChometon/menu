@@ -20,6 +20,8 @@ export type Food = Macros & {
   unit: Unit;
   pricePerKg: number;
   pieceWeight?: number;
+  piece?: LocalizedText;
+  pieceOne?: LocalizedText;
 };
 
 export type RecipeSlot = 'main' | 'breakfast' | 'postWorkout' | 'snack';
@@ -74,7 +76,6 @@ export type Menu = {
 
 export type ShoppingLine = FoodQuantity & {
   price: number;
-  pieces?: number;
 };
 
 export type ShoppingGroup = {

@@ -2,12 +2,14 @@ export const useFoodFormat = (): {
   nameOf: (item: { name: LocalizedText }) => string;
   stepsOf: (recipe: Recipe) => string[];
   quantityLabel: (food: Food, grams: number) => string;
-  pieceCount: (food: Food, grams: number) => number | undefined;
+  pieceLabel: (food: Food, grams: number) => string | undefined;
   round: (value: number) => number;
 } => {
   const { locale } = useNuxtApp().$i18n;
 
   const isEnglish = (): boolean => locale.value === 'en';
+
+  const localized = (text: LocalizedText): string => (isEnglish() ? text.en : text.fr);
 
   const quantityLabel = (food: Food, grams: number): string => {
     const rounded = Math.round(grams);
@@ -19,13 +21,17 @@ export const useFoodFormat = (): {
   };
 
   return {
-    nameOf: (item: { name: LocalizedText }): string => (isEnglish() ? item.name.en : item.name.fr),
+    nameOf: (item: { name: LocalizedText }): string => localized(item.name),
     stepsOf: (recipe: Recipe): string[] => (isEnglish() ? recipe.steps.en : recipe.steps.fr),
     quantityLabel,
-    pieceCount: (food: Food, grams: number): number | undefined =>
-      food.pieceWeight === undefined
-        ? undefined
-        : Math.max(1, Math.round(grams / food.pieceWeight)),
+    pieceLabel: (food: Food, grams: number): string | undefined => {
+      if (food.pieceWeight === undefined || food.piece === undefined) return undefined;
+
+      const count = Math.max(1, Math.round(grams / food.pieceWeight));
+      const noun = count === 1 ? (food.pieceOne ?? food.piece) : food.piece;
+
+      return `${count} ${localized(noun)}`;
+    },
     round: (value: number): number => Math.round(value),
   };
 };
