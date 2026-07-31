@@ -29,9 +29,7 @@ const isReduced = computed((): boolean => meal.portionRatio < 0.85);
       </p>
       <p class="truncate font-medium">{{ nameOf(meal.recipe) }}</p>
       <p class="flex flex-wrap items-center gap-x-2 text-xs text-muted">
-        <span class="tabular-nums">
-          {{ round(meal.macros.kcal) }} {{ $t('menu.unit.kcal') }}
-        </span>
+        <span class="tabular-nums"> {{ round(meal.macros.kcal) }} {{ $t('menu.unit.kcal') }} </span>
         <span class="text-dimmed">·</span>
         <span class="tabular-nums">
           {{ round(meal.macros.protein) }} {{ $t('menu.unit.gram') }}

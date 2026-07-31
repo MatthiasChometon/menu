@@ -48,10 +48,14 @@ export const useFoods = (): {
   foods: Record<string, Food>;
   foodOf: (id: string) => Food | undefined;
   aisleOrder: readonly Aisle[];
-  imageOf: (food: Food) => string;
-} => ({
-  foods: catalog,
-  foodOf: (id: string): Food | undefined => catalog[id],
-  aisleOrder: AISLE_LIST,
-  imageOf: (food: Food): string => `/images/food/${food.id}.webp`,
-});
+  imageOf: (food: Food) => string | undefined;
+} => {
+  const { foodImage } = useImages();
+
+  return {
+    foods: catalog,
+    foodOf: (id: string): Food | undefined => catalog[id],
+    aisleOrder: AISLE_LIST,
+    imageOf: (food: Food): string | undefined => foodImage(food.id),
+  };
+};

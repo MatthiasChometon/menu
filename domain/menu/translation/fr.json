@@ -61,7 +61,7 @@
     "weekSummary": "Le résumé de la semaine",
     "averagePerDay": "Moyenne par jour",
     "budget": "Budget des courses",
-    "recipeCount": "plats en rotation",
+    "recipeCount": "recettes de la semaine",
     "empty": {
       "title": "Aucun menu pour l'instant",
       "hint": "Lance la commande menu-semaine pour générer la semaine à venir."
