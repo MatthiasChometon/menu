@@ -20,6 +20,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+import zlib
 from io import BytesIO
 from pathlib import Path
 
@@ -100,9 +101,10 @@ def generate(kind: str, entry_id: str, subject: str, prompts: dict, template: di
 
     style = prompts["recipeStyle"] if kind == "recipe" else prompts["foodStyle"]
     size = RECIPE_SIZE if kind == "recipe" else FOOD_SIZE
-    # Seed derivee de l'identifiant : une meme entree regenere le meme visuel,
-    # ce qui rend les comparaisons avant/apres lisibles.
-    seed = abs(hash(entry_id)) % 2_147_483_647
+    # Seed derivee du sujet, pas de l'identifiant : reformuler un prompt donne
+    # une image differente, et une regeneration a l'identique redonne la meme.
+    # (crc32 et pas hash() : le hash des chaines varie d'un run a l'autre.)
+    seed = zlib.crc32(f"{entry_id}|{subject}".encode("utf-8")) % 2_147_483_647
 
     workflow = build_workflow(
         template, style.replace("{subject}", subject), prompts["negative"], size, seed
