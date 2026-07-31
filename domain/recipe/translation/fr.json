@@ -19,6 +19,32 @@
       "hint": "Cette recette n'est plus au menu de la semaine."
     },
     "perHundred": "pour 100 g",
-    "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées."
+    "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées.",
+    "micro": {
+      "title": "Ce que ça t'apporte",
+      "lead": "Les apports de cette portion qui comptent vraiment pour ta progression, en part de ta journée.",
+      "none": "Cette portion n'apporte pas de micronutriment marquant : elle est là pour ses calories et ses protéines.",
+      "ofDay": "de ta journée",
+      "name": {
+        "iron": "Fer",
+        "zinc": "Zinc",
+        "magnesium": "Magnésium",
+        "calcium": "Calcium",
+        "potassium": "Potassium",
+        "vitaminC": "Vitamine C",
+        "vitaminD": "Vitamine D",
+        "omega3": "Oméga-3"
+      },
+      "why": {
+        "iron": "Transporte l'oxygène jusqu'au muscle. En manquer, c'est s'essouffler dès la troisième série.",
+        "zinc": "Soutient la testostérone et la réparation des tissus après une séance lourde.",
+        "magnesium": "Contraction musculaire, sommeil et récupération : le premier à manquer quand on s'entraîne tous les jours.",
+        "calcium": "Os solides et contraction musculaire, sous charge comme au repos.",
+        "potassium": "Équilibre hydrique et contraction ; il part dans la sueur à chaque séance.",
+        "vitaminC": "Aide à absorber le fer végétal et entretient tendons et articulations.",
+        "vitaminD": "Force et testostérone. C'est la carence la plus fréquente en France, d'où la supplémentation.",
+        "omega3": "Réduit l'inflammation entre deux séances et accélère la récupération."
+      }
+    }
   }
 }

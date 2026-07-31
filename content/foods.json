@@ -11,7 +11,14 @@
     "fat": 7,
     "carbs": 60,
     "fiber": 10,
-    "pricePerKg": 2.5
+    "pricePerKg": 2.5,
+    "micros": {
+      "iron": 4.7,
+      "zinc": 3.0,
+      "magnesium": 138,
+      "calcium": 54,
+      "potassium": 429
+    }
   },
   "brownRice": {
     "name": {
@@ -25,7 +32,14 @@
     "fat": 2.8,
     "carbs": 72,
     "fiber": 3.5,
-    "pricePerKg": 2.8
+    "pricePerKg": 2.8,
+    "micros": {
+      "iron": 1.5,
+      "zinc": 2.0,
+      "magnesium": 143,
+      "calcium": 23,
+      "potassium": 223
+    }
   },
   "wholewheatPasta": {
     "name": {
@@ -39,7 +53,14 @@
     "fat": 2.5,
     "carbs": 65,
     "fiber": 8,
-    "pricePerKg": 2.2
+    "pricePerKg": 2.2,
+    "micros": {
+      "iron": 3.6,
+      "zinc": 2.4,
+      "magnesium": 143,
+      "calcium": 40,
+      "potassium": 215
+    }
   },
   "wholegrainBread": {
     "name": {
@@ -53,7 +74,14 @@
     "fat": 3,
     "carbs": 43,
     "fiber": 6.5,
-    "pricePerKg": 3.5
+    "pricePerKg": 3.5,
+    "micros": {
+      "iron": 2.5,
+      "zinc": 1.8,
+      "magnesium": 75,
+      "calcium": 60,
+      "potassium": 250
+    }
   },
   "chickenBreast": {
     "name": {
@@ -67,7 +95,14 @@
     "fat": 1.5,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 9.5
+    "pricePerKg": 9.5,
+    "micros": {
+      "iron": 0.4,
+      "zinc": 0.8,
+      "magnesium": 29,
+      "calcium": 5,
+      "potassium": 370
+    }
   },
   "turkeyBreast": {
     "name": {
@@ -81,7 +116,14 @@
     "fat": 1.2,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 9
+    "pricePerKg": 9,
+    "micros": {
+      "iron": 0.7,
+      "zinc": 1.2,
+      "magnesium": 28,
+      "calcium": 8,
+      "potassium": 350
+    }
   },
   "leanBeef": {
     "name": {
@@ -95,7 +137,14 @@
     "fat": 5,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 11
+    "pricePerKg": 11,
+    "micros": {
+      "iron": 2.6,
+      "zinc": 4.8,
+      "magnesium": 21,
+      "calcium": 12,
+      "potassium": 330
+    }
   },
   "porkTenderloin": {
     "name": {
@@ -109,7 +158,14 @@
     "fat": 4,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 12
+    "pricePerKg": 12,
+    "micros": {
+      "iron": 0.9,
+      "zinc": 2.2,
+      "magnesium": 25,
+      "calcium": 6,
+      "potassium": 400
+    }
   },
   "egg": {
     "name": {
@@ -132,6 +188,15 @@
     "pieceOne": {
       "fr": "œuf",
       "en": "egg"
+    },
+    "micros": {
+      "iron": 1.8,
+      "zinc": 1.3,
+      "magnesium": 12,
+      "calcium": 56,
+      "potassium": 138,
+      "vitaminD": 2.0,
+      "omega3": 0.1
     }
   },
   "salmon": {
@@ -155,6 +220,15 @@
     "pieceOne": {
       "fr": "pavé",
       "en": "fillet"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.4,
+      "magnesium": 29,
+      "calcium": 12,
+      "potassium": 380,
+      "vitaminD": 10,
+      "omega3": 2.2
     }
   },
   "mackerelTin": {
@@ -169,7 +243,16 @@
     "fat": 15,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 9
+    "pricePerKg": 9,
+    "micros": {
+      "iron": 1.4,
+      "zinc": 0.9,
+      "magnesium": 30,
+      "calcium": 66,
+      "potassium": 340,
+      "vitaminD": 12,
+      "omega3": 2.5
+    }
   },
   "sardinesTin": {
     "name": {
@@ -183,7 +266,16 @@
     "fat": 13,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 10
+    "pricePerKg": 10,
+    "micros": {
+      "iron": 2.9,
+      "zinc": 1.3,
+      "magnesium": 39,
+      "calcium": 380,
+      "potassium": 400,
+      "vitaminD": 7,
+      "omega3": 1.5
+    }
   },
   "tunaTin": {
     "name": {
@@ -197,7 +289,16 @@
     "fat": 1,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 12
+    "pricePerKg": 12,
+    "micros": {
+      "iron": 1.0,
+      "zinc": 0.5,
+      "magnesium": 30,
+      "calcium": 10,
+      "potassium": 240,
+      "vitaminD": 2,
+      "omega3": 0.3
+    }
   },
   "ham": {
     "name": {
@@ -220,6 +321,13 @@
     "pieceOne": {
       "fr": "tranche",
       "en": "slice"
+    },
+    "micros": {
+      "iron": 0.8,
+      "zinc": 1.5,
+      "magnesium": 18,
+      "calcium": 8,
+      "potassium": 300
     }
   },
   "cookedLentils": {
@@ -234,7 +342,15 @@
     "fat": 0.5,
     "carbs": 18,
     "fiber": 4.5,
-    "pricePerKg": 2
+    "pricePerKg": 2,
+    "micros": {
+      "iron": 3.3,
+      "zinc": 1.3,
+      "magnesium": 36,
+      "calcium": 19,
+      "potassium": 369,
+      "vitaminC": 1.5
+    }
   },
   "greenLentilsDry": {
     "name": {
@@ -248,7 +364,15 @@
     "fat": 1.5,
     "carbs": 48,
     "fiber": 12,
-    "pricePerKg": 3
+    "pricePerKg": 3,
+    "micros": {
+      "iron": 7.5,
+      "zinc": 3.3,
+      "magnesium": 122,
+      "calcium": 55,
+      "potassium": 950,
+      "vitaminC": 4
+    }
   },
   "redLentilsDry": {
     "name": {
@@ -262,7 +386,15 @@
     "fat": 1.5,
     "carbs": 50,
     "fiber": 11,
-    "pricePerKg": 3.5
+    "pricePerKg": 3.5,
+    "micros": {
+      "iron": 7.0,
+      "zinc": 3.0,
+      "magnesium": 100,
+      "calcium": 50,
+      "potassium": 900,
+      "vitaminC": 4
+    }
   },
   "kidneyBeans": {
     "name": {
@@ -276,7 +408,15 @@
     "fat": 0.5,
     "carbs": 13,
     "fiber": 6,
-    "pricePerKg": 2.2
+    "pricePerKg": 2.2,
+    "micros": {
+      "iron": 2.2,
+      "zinc": 1.0,
+      "magnesium": 45,
+      "calcium": 35,
+      "potassium": 400,
+      "vitaminC": 1
+    }
   },
   "whiteBeans": {
     "name": {
@@ -290,7 +430,15 @@
     "fat": 0.5,
     "carbs": 14,
     "fiber": 6,
-    "pricePerKg": 2.2
+    "pricePerKg": 2.2,
+    "micros": {
+      "iron": 2.5,
+      "zinc": 1.0,
+      "magnesium": 50,
+      "calcium": 60,
+      "potassium": 430,
+      "vitaminC": 1
+    }
   },
   "chickpeas": {
     "name": {
@@ -304,7 +452,15 @@
     "fat": 2.5,
     "carbs": 16,
     "fiber": 6,
-    "pricePerKg": 2.4
+    "pricePerKg": 2.4,
+    "micros": {
+      "iron": 2.1,
+      "zinc": 1.1,
+      "magnesium": 48,
+      "calcium": 45,
+      "potassium": 290,
+      "vitaminC": 1
+    }
   },
   "wholeMilk": {
     "name": {
@@ -319,7 +475,16 @@
     "fat": 3.6,
     "carbs": 4.7,
     "fiber": 0,
-    "pricePerKg": 1.1
+    "pricePerKg": 1.1,
+    "micros": {
+      "iron": 0.03,
+      "zinc": 0.4,
+      "magnesium": 11,
+      "calcium": 120,
+      "potassium": 150,
+      "vitaminC": 1,
+      "vitaminD": 0.05
+    }
   },
   "semiSkimmedMilk": {
     "name": {
@@ -334,7 +499,16 @@
     "fat": 1.6,
     "carbs": 4.8,
     "fiber": 0,
-    "pricePerKg": 1
+    "pricePerKg": 1,
+    "micros": {
+      "iron": 0.03,
+      "zinc": 0.4,
+      "magnesium": 11,
+      "calcium": 120,
+      "potassium": 150,
+      "vitaminC": 1,
+      "vitaminD": 0.03
+    }
   },
   "whey": {
     "name": {
@@ -348,7 +522,14 @@
     "fat": 6,
     "carbs": 6,
     "fiber": 0,
-    "pricePerKg": 25
+    "pricePerKg": 25,
+    "micros": {
+      "iron": 0.5,
+      "zinc": 1.5,
+      "magnesium": 40,
+      "calcium": 400,
+      "potassium": 500
+    }
   },
   "skyr": {
     "name": {
@@ -362,7 +543,14 @@
     "fat": 0.2,
     "carbs": 4,
     "fiber": 0,
-    "pricePerKg": 5
+    "pricePerKg": 5,
+    "micros": {
+      "iron": 0.05,
+      "zinc": 0.5,
+      "magnesium": 11,
+      "calcium": 150,
+      "potassium": 160
+    }
   },
   "quark": {
     "name": {
@@ -376,7 +564,14 @@
     "fat": 3,
     "carbs": 4.5,
     "fiber": 0,
-    "pricePerKg": 2.5
+    "pricePerKg": 2.5,
+    "micros": {
+      "iron": 0.1,
+      "zinc": 0.4,
+      "magnesium": 11,
+      "calcium": 120,
+      "potassium": 150
+    }
   },
   "hardCheese": {
     "name": {
@@ -390,7 +585,15 @@
     "fat": 32,
     "carbs": 1,
     "fiber": 0,
-    "pricePerKg": 14
+    "pricePerKg": 14,
+    "micros": {
+      "iron": 0.2,
+      "zinc": 3.5,
+      "magnesium": 30,
+      "calcium": 1000,
+      "potassium": 100,
+      "vitaminD": 0.5
+    }
   },
   "peanutButter": {
     "name": {
@@ -404,7 +607,14 @@
     "fat": 50,
     "carbs": 12,
     "fiber": 6,
-    "pricePerKg": 8
+    "pricePerKg": 8,
+    "micros": {
+      "iron": 1.9,
+      "zinc": 2.9,
+      "magnesium": 160,
+      "calcium": 45,
+      "potassium": 650
+    }
   },
   "almonds": {
     "name": {
@@ -418,7 +628,14 @@
     "fat": 53,
     "carbs": 8,
     "fiber": 12,
-    "pricePerKg": 14
+    "pricePerKg": 14,
+    "micros": {
+      "iron": 3.7,
+      "zinc": 3.1,
+      "magnesium": 270,
+      "calcium": 264,
+      "potassium": 733
+    }
   },
   "walnuts": {
     "name": {
@@ -432,7 +649,15 @@
     "fat": 65,
     "carbs": 7,
     "fiber": 6.7,
-    "pricePerKg": 15
+    "pricePerKg": 15,
+    "micros": {
+      "iron": 2.9,
+      "zinc": 3.1,
+      "magnesium": 158,
+      "calcium": 98,
+      "potassium": 441,
+      "vitaminC": 1
+    }
   },
   "chiaSeeds": {
     "name": {
@@ -446,7 +671,15 @@
     "fat": 31,
     "carbs": 8,
     "fiber": 34,
-    "pricePerKg": 12
+    "pricePerKg": 12,
+    "micros": {
+      "iron": 7.7,
+      "zinc": 4.6,
+      "magnesium": 335,
+      "calcium": 631,
+      "potassium": 407,
+      "vitaminC": 1.6
+    }
   },
   "oliveOil": {
     "name": {
@@ -461,7 +694,8 @@
     "fat": 100,
     "carbs": 0,
     "fiber": 0,
-    "pricePerKg": 7
+    "pricePerKg": 7,
+    "micros": {}
   },
   "lightCoconutMilk": {
     "name": {
@@ -476,7 +710,15 @@
     "fat": 7,
     "carbs": 1.6,
     "fiber": 0,
-    "pricePerKg": 3.5
+    "pricePerKg": 3.5,
+    "micros": {
+      "iron": 0.7,
+      "zinc": 0.2,
+      "magnesium": 20,
+      "calcium": 10,
+      "potassium": 150,
+      "vitaminC": 1
+    }
   },
   "blackOlives": {
     "name": {
@@ -490,7 +732,14 @@
     "fat": 15,
     "carbs": 1,
     "fiber": 3,
-    "pricePerKg": 6
+    "pricePerKg": 6,
+    "micros": {
+      "iron": 3.3,
+      "zinc": 0.2,
+      "magnesium": 11,
+      "calcium": 88,
+      "potassium": 8
+    }
   },
   "banana": {
     "name": {
@@ -513,6 +762,14 @@
     "pieceOne": {
       "fr": "banane",
       "en": "banana"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.2,
+      "magnesium": 27,
+      "calcium": 5,
+      "potassium": 358,
+      "vitaminC": 9
     }
   },
   "apple": {
@@ -536,6 +793,14 @@
     "pieceOne": {
       "fr": "pomme",
       "en": "apple"
+    },
+    "micros": {
+      "iron": 0.1,
+      "zinc": 0.04,
+      "magnesium": 5,
+      "calcium": 6,
+      "potassium": 107,
+      "vitaminC": 5
     }
   },
   "orange": {
@@ -559,6 +824,14 @@
     "pieceOne": {
       "fr": "orange",
       "en": "orange"
+    },
+    "micros": {
+      "iron": 0.1,
+      "zinc": 0.07,
+      "magnesium": 10,
+      "calcium": 40,
+      "potassium": 181,
+      "vitaminC": 53
     }
   },
   "kiwi": {
@@ -582,6 +855,14 @@
     "pieceOne": {
       "fr": "kiwi",
       "en": "kiwi"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.14,
+      "magnesium": 17,
+      "calcium": 34,
+      "potassium": 312,
+      "vitaminC": 93
     }
   },
   "frozenBerries": {
@@ -596,7 +877,15 @@
     "fat": 0.3,
     "carbs": 8,
     "fiber": 4,
-    "pricePerKg": 5
+    "pricePerKg": 5,
+    "micros": {
+      "iron": 0.6,
+      "zinc": 0.3,
+      "magnesium": 18,
+      "calcium": 25,
+      "potassium": 150,
+      "vitaminC": 30
+    }
   },
   "raisins": {
     "name": {
@@ -610,7 +899,15 @@
     "fat": 0.5,
     "carbs": 70,
     "fiber": 4,
-    "pricePerKg": 6
+    "pricePerKg": 6,
+    "micros": {
+      "iron": 1.9,
+      "zinc": 0.2,
+      "magnesium": 32,
+      "calcium": 50,
+      "potassium": 749,
+      "vitaminC": 2
+    }
   },
   "dates": {
     "name": {
@@ -624,7 +921,14 @@
     "fat": 0.4,
     "carbs": 66,
     "fiber": 7,
-    "pricePerKg": 7
+    "pricePerKg": 7,
+    "micros": {
+      "iron": 1.0,
+      "zinc": 0.3,
+      "magnesium": 43,
+      "calcium": 39,
+      "potassium": 656
+    }
   },
   "honey": {
     "name": {
@@ -638,7 +942,15 @@
     "fat": 0,
     "carbs": 80,
     "fiber": 0,
-    "pricePerKg": 8
+    "pricePerKg": 8,
+    "micros": {
+      "iron": 0.4,
+      "zinc": 0.2,
+      "magnesium": 2,
+      "calcium": 6,
+      "potassium": 52,
+      "vitaminC": 0.5
+    }
   },
   "darkChocolate": {
     "name": {
@@ -652,7 +964,14 @@
     "fat": 42,
     "carbs": 30,
     "fiber": 10,
-    "pricePerKg": 12
+    "pricePerKg": 12,
+    "micros": {
+      "iron": 11.9,
+      "zinc": 3.3,
+      "magnesium": 228,
+      "calcium": 73,
+      "potassium": 715
+    }
   },
   "cocoaPowder": {
     "name": {
@@ -666,7 +985,14 @@
     "fat": 11,
     "carbs": 12,
     "fiber": 30,
-    "pricePerKg": 12
+    "pricePerKg": 12,
+    "micros": {
+      "iron": 13.9,
+      "zinc": 6.8,
+      "magnesium": 499,
+      "calcium": 128,
+      "potassium": 1524
+    }
   },
   "crushedTomatoes": {
     "name": {
@@ -689,6 +1015,14 @@
     "pieceOne": {
       "fr": "boîte",
       "en": "tin"
+    },
+    "micros": {
+      "iron": 0.7,
+      "zinc": 0.2,
+      "magnesium": 11,
+      "calcium": 15,
+      "potassium": 240,
+      "vitaminC": 12
     }
   },
   "broccoli": {
@@ -703,7 +1037,15 @@
     "fat": 0.4,
     "carbs": 4,
     "fiber": 2.6,
-    "pricePerKg": 3
+    "pricePerKg": 3,
+    "micros": {
+      "iron": 0.7,
+      "zinc": 0.4,
+      "magnesium": 21,
+      "calcium": 47,
+      "potassium": 316,
+      "vitaminC": 89
+    }
   },
   "frozenSpinach": {
     "name": {
@@ -717,7 +1059,15 @@
     "fat": 0.4,
     "carbs": 1.5,
     "fiber": 2.5,
-    "pricePerKg": 2.5
+    "pricePerKg": 2.5,
+    "micros": {
+      "iron": 2.7,
+      "zinc": 0.5,
+      "magnesium": 79,
+      "calcium": 99,
+      "potassium": 558,
+      "vitaminC": 28
+    }
   },
   "zucchini": {
     "name": {
@@ -740,6 +1090,14 @@
     "pieceOne": {
       "fr": "courgette",
       "en": "zucchini"
+    },
+    "micros": {
+      "iron": 0.4,
+      "zinc": 0.3,
+      "magnesium": 18,
+      "calcium": 16,
+      "potassium": 261,
+      "vitaminC": 17
     }
   },
   "carrot": {
@@ -763,6 +1121,14 @@
     "pieceOne": {
       "fr": "carotte",
       "en": "carrot"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.2,
+      "magnesium": 12,
+      "calcium": 33,
+      "potassium": 320,
+      "vitaminC": 6
     }
   },
   "bellPepper": {
@@ -786,6 +1152,14 @@
     "pieceOne": {
       "fr": "poivron",
       "en": "pepper"
+    },
+    "micros": {
+      "iron": 0.4,
+      "zinc": 0.2,
+      "magnesium": 12,
+      "calcium": 10,
+      "potassium": 211,
+      "vitaminC": 128
     }
   },
   "onion": {
@@ -809,6 +1183,14 @@
     "pieceOne": {
       "fr": "oignon",
       "en": "onion"
+    },
+    "micros": {
+      "iron": 0.2,
+      "zinc": 0.2,
+      "magnesium": 10,
+      "calcium": 23,
+      "potassium": 146,
+      "vitaminC": 7
     }
   },
   "leek": {
@@ -832,6 +1214,14 @@
     "pieceOne": {
       "fr": "poireau",
       "en": "leek"
+    },
+    "micros": {
+      "iron": 1.1,
+      "zinc": 0.1,
+      "magnesium": 28,
+      "calcium": 59,
+      "potassium": 180,
+      "vitaminC": 12
     }
   },
   "cauliflower": {
@@ -846,7 +1236,15 @@
     "fat": 0.3,
     "carbs": 3,
     "fiber": 2.4,
-    "pricePerKg": 2.5
+    "pricePerKg": 2.5,
+    "micros": {
+      "iron": 0.4,
+      "zinc": 0.3,
+      "magnesium": 15,
+      "calcium": 22,
+      "potassium": 299,
+      "vitaminC": 48
+    }
   },
   "greenBeans": {
     "name": {
@@ -860,7 +1258,15 @@
     "fat": 0.2,
     "carbs": 4,
     "fiber": 3,
-    "pricePerKg": 2.5
+    "pricePerKg": 2.5,
+    "micros": {
+      "iron": 1.0,
+      "zinc": 0.2,
+      "magnesium": 25,
+      "calcium": 37,
+      "potassium": 211,
+      "vitaminC": 12
+    }
   },
   "mushrooms": {
     "name": {
@@ -874,7 +1280,16 @@
     "fat": 0.3,
     "carbs": 1.5,
     "fiber": 1.5,
-    "pricePerKg": 4
+    "pricePerKg": 4,
+    "micros": {
+      "iron": 0.5,
+      "zinc": 0.5,
+      "magnesium": 9,
+      "calcium": 3,
+      "potassium": 318,
+      "vitaminC": 2,
+      "vitaminD": 0.2
+    }
   },
   "avocado": {
     "name": {
@@ -897,6 +1312,14 @@
     "pieceOne": {
       "fr": "avocat",
       "en": "avocado"
+    },
+    "micros": {
+      "iron": 0.6,
+      "zinc": 0.6,
+      "magnesium": 29,
+      "calcium": 12,
+      "potassium": 485,
+      "vitaminC": 10
     }
   }
 }

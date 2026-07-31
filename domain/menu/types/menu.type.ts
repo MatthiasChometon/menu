@@ -12,8 +12,21 @@ export type Macros = {
   fiber: number;
 };
 
+export type MicroKey =
+  'iron' | 'zinc' | 'magnesium' | 'calcium' | 'potassium' | 'vitaminC' | 'vitaminD' | 'omega3';
+
+export type Micros = Record<MicroKey, number>;
+
+export type MicroHighlight = {
+  key: MicroKey;
+  amount: number;
+  unit: string;
+  percentOfTarget: number;
+};
+
 export type Food = Macros & {
   id: string;
+  micros: Micros;
   name: LocalizedText;
   aisle: Aisle;
   icon: string;

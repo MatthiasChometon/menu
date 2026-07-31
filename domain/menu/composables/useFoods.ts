@@ -9,7 +9,19 @@ type RawFood = Macros & {
   pieceWeight?: number;
   piece?: LocalizedText;
   pieceOne?: LocalizedText;
+  micros?: Partial<Micros>;
 };
+
+const toMicros = (raw: Partial<Micros> | undefined): Micros => ({
+  iron: raw?.iron ?? 0,
+  zinc: raw?.zinc ?? 0,
+  magnesium: raw?.magnesium ?? 0,
+  calcium: raw?.calcium ?? 0,
+  potassium: raw?.potassium ?? 0,
+  vitaminC: raw?.vitaminC ?? 0,
+  vitaminD: raw?.vitaminD ?? 0,
+  omega3: raw?.omega3 ?? 0,
+});
 
 const AISLE_LIST: readonly Aisle[] = [
   'butcher',
@@ -40,6 +52,7 @@ const catalog: Record<string, Food> = Object.fromEntries(
       fat: raw.fat,
       carbs: raw.carbs,
       fiber: raw.fiber,
+      micros: toMicros(raw.micros),
       pricePerKg: raw.pricePerKg,
       pieceWeight: raw.pieceWeight,
       piece: raw.piece,

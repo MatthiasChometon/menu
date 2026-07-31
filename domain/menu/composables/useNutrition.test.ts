@@ -12,6 +12,16 @@ const gramsOf = (overrides: Partial<Food>): Food => ({
   carbs: 0,
   fiber: 0,
   pricePerKg: 0,
+  micros: {
+    iron: 0,
+    zinc: 0,
+    magnesium: 0,
+    calcium: 0,
+    potassium: 0,
+    vitaminC: 0,
+    vitaminD: 0,
+    omega3: 0,
+  },
   ...overrides,
 });
 

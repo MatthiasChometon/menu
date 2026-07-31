@@ -19,6 +19,32 @@
       "hint": "This recipe is no longer on the week's menu."
     },
     "perHundred": "per 100 g",
-    "raw": "Weigh grains and meat raw, tinned pulses drained."
+    "raw": "Weigh grains and meat raw, tinned pulses drained.",
+    "micro": {
+      "title": "What this gives you",
+      "lead": "The nutrients in this portion that actually matter for your progress, as a share of your day.",
+      "none": "This portion brings no standout micronutrient: it is here for its calories and protein.",
+      "ofDay": "of your day",
+      "name": {
+        "iron": "Iron",
+        "zinc": "Zinc",
+        "magnesium": "Magnesium",
+        "calcium": "Calcium",
+        "potassium": "Potassium",
+        "vitaminC": "Vitamin C",
+        "vitaminD": "Vitamin D",
+        "omega3": "Omega-3"
+      },
+      "why": {
+        "iron": "Carries oxygen to the muscle. Running low means gasping by the third set.",
+        "zinc": "Supports testosterone and tissue repair after a heavy session.",
+        "magnesium": "Muscle contraction, sleep and recovery: the first to run short when you train daily.",
+        "calcium": "Strong bones and muscle contraction, under load and at rest.",
+        "potassium": "Fluid balance and contraction; you sweat it out every session.",
+        "vitaminC": "Helps absorb plant iron and maintains tendons and joints.",
+        "vitaminD": "Strength and testosterone. The most common deficiency in France, hence the supplement.",
+        "omega3": "Lowers inflammation between sessions and speeds up recovery."
+      }
+    }
   }
 }
