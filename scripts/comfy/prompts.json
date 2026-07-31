@@ -1,20 +1,16 @@
 {
   "_comment": "Prompts de la pipeline food-photo. 'style' et 'negative' sont communs ; chaque entrée ne decrit que le sujet.",
-
   "recipeStyle": "professional food photography, {subject}, served on a rustic ceramic plate, dark walnut table, natural window light from the left, soft shadows, shallow depth of field, 85mm lens, appetizing, fresh herbs garnish, styled by a food stylist, editorial cookbook shot, high detail, photorealistic",
-
-  "foodStyle": "product photography of {subject}, single ingredient, arranged on a white marble surface, soft diffused daylight, top-down flat lay, clean minimal composition, no packaging, no label, high detail, photorealistic",
-
+  "foodStyle": "product photography of {subject}, single ingredient, centered on a white marble surface with generous empty space around it, the whole subject visible and not cropped, soft diffused daylight, top-down flat lay, clean minimal composition, no packaging, no label, high detail, photorealistic",
   "negative": "text, letters, watermark, logo, brand, packaging, label, hands, fingers, people, person, face, cutlery in mouth, blurry, low quality, jpeg artifacts, oversaturated, plastic looking, cartoon, illustration, 3d render, deformed, duplicate, cluttered background, messy",
-
   "recipes": {
-    "chiliChicken": "chicken chili with red kidney beans, diced red pepper and onion in a rich tomato sauce, next to a portion of steamed brown rice",
-    "beefLentilBolognese": "wholewheat spaghetti coated in a beef and lentil bolognese sauce with grated carrot",
+    "chiliChicken": "generous chunks of grilled chicken breast clearly visible on top of a chili of red kidney beans, diced red pepper and onion in a rich tomato sauce, a portion of steamed brown rice beside it",
+    "beefLentilBolognese": "wholewheat spaghetti under a thick beef and lentil bolognese sauce with visible minced meat and grated carrot",
     "salmonRiceBroccoli": "oven baked salmon fillet with crisp steamed broccoli florets and brown rice, a lemon wedge on the side",
-    "turkeyChickpeaCurry": "turkey and chickpea curry with sliced zucchini and spinach in a golden coconut sauce, brown rice on the side",
-    "tunaPasta": "wholewheat pasta tossed with flaked tuna, tomato sauce and black olives",
+    "turkeyChickpeaCurry": "large pieces of turkey breast clearly visible in a chickpea curry with sliced zucchini and spinach in a golden coconut sauce, brown rice beside it",
+    "tunaPasta": "wholewheat pasta topped with generous flakes of tuna, tomato sauce and black olives",
     "shakshukaWhiteBeans": "shakshuka with two poached eggs and white beans in a red pepper tomato sauce, in a small cast iron skillet, a slice of wholegrain bread on the side",
-    "porkWok": "pork stir fry with bell peppers, mushrooms and green beans in a wok, brown rice on the side",
+    "porkWok": "strips of seared pork clearly visible in a stir fry of bell peppers, mushrooms and green beans in a wok, brown rice beside it",
     "fullShaker": "a tall glass of creamy oat and banana protein shake, whole banana, spoon of peanut butter, scattered almonds and raisins around the glass",
     "cocoaPorridge": "a bowl of warm chocolate oat porridge topped with banana slices and a drizzle of peanut butter",
     "savouryToast": "two slices of wholegrain toast topped with soft scrambled eggs and grated cheese, a small bowl of quark and a banana beside them",
@@ -25,7 +21,6 @@
     "peanutBananaToast": "a slice of wholegrain toast spread with peanut butter and topped with banana slices, a glass of milk behind",
     "eggBreadChocolate": "a halved boiled egg, a slice of wholegrain bread, two squares of dark chocolate and an orange"
   },
-
   "foods": {
     "chickenBreast": "two raw skinless chicken breast fillets",
     "leanBeef": "a portion of fresh lean beef mince",
