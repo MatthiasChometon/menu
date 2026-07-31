@@ -18,7 +18,8 @@
       "magnesium": 138,
       "calcium": 54,
       "potassium": 429
-    }
+    },
+    "pack": 1000
   },
   "brownRice": {
     "name": {
@@ -39,7 +40,8 @@
       "magnesium": 143,
       "calcium": 23,
       "potassium": 223
-    }
+    },
+    "pack": 1000
   },
   "wholewheatPasta": {
     "name": {
@@ -60,7 +62,8 @@
       "magnesium": 143,
       "calcium": 40,
       "potassium": 215
-    }
+    },
+    "pack": 500
   },
   "wholegrainBread": {
     "name": {
@@ -81,7 +84,8 @@
       "magnesium": 75,
       "calcium": 60,
       "potassium": 250
-    }
+    },
+    "pack": 500
   },
   "chickenBreast": {
     "name": {
@@ -102,7 +106,8 @@
       "magnesium": 29,
       "calcium": 5,
       "potassium": 370
-    }
+    },
+    "pack": 500
   },
   "turkeyBreast": {
     "name": {
@@ -123,7 +128,8 @@
       "magnesium": 28,
       "calcium": 8,
       "potassium": 350
-    }
+    },
+    "pack": 450
   },
   "leanBeef": {
     "name": {
@@ -144,7 +150,8 @@
       "magnesium": 21,
       "calcium": 12,
       "potassium": 330
-    }
+    },
+    "pack": 500
   },
   "porkTenderloin": {
     "name": {
@@ -165,7 +172,8 @@
       "magnesium": 25,
       "calcium": 6,
       "potassium": 400
-    }
+    },
+    "pack": 450
   },
   "egg": {
     "name": {
@@ -197,7 +205,8 @@
       "potassium": 138,
       "vitaminD": 2.0,
       "omega3": 0.1
-    }
+    },
+    "pack": 360
   },
   "salmon": {
     "name": {
@@ -229,7 +238,8 @@
       "potassium": 380,
       "vitaminD": 10,
       "omega3": 2.2
-    }
+    },
+    "pack": 260
   },
   "mackerelTin": {
     "name": {
@@ -252,7 +262,8 @@
       "potassium": 340,
       "vitaminD": 12,
       "omega3": 2.5
-    }
+    },
+    "pack": 120
   },
   "sardinesTin": {
     "name": {
@@ -275,7 +286,8 @@
       "potassium": 400,
       "vitaminD": 7,
       "omega3": 1.5
-    }
+    },
+    "pack": 100
   },
   "tunaTin": {
     "name": {
@@ -298,7 +310,8 @@
       "potassium": 240,
       "vitaminD": 2,
       "omega3": 0.3
-    }
+    },
+    "pack": 140
   },
   "ham": {
     "name": {
@@ -328,7 +341,8 @@
       "magnesium": 18,
       "calcium": 8,
       "potassium": 300
-    }
+    },
+    "pack": 100
   },
   "cookedLentils": {
     "name": {
@@ -350,7 +364,8 @@
       "calcium": 19,
       "potassium": 369,
       "vitaminC": 1.5
-    }
+    },
+    "pack": 400
   },
   "greenLentilsDry": {
     "name": {
@@ -372,7 +387,8 @@
       "calcium": 55,
       "potassium": 950,
       "vitaminC": 4
-    }
+    },
+    "pack": 500
   },
   "redLentilsDry": {
     "name": {
@@ -394,7 +410,8 @@
       "calcium": 50,
       "potassium": 900,
       "vitaminC": 4
-    }
+    },
+    "pack": 500
   },
   "kidneyBeans": {
     "name": {
@@ -416,7 +433,8 @@
       "calcium": 35,
       "potassium": 400,
       "vitaminC": 1
-    }
+    },
+    "pack": 400
   },
   "whiteBeans": {
     "name": {
@@ -438,7 +456,8 @@
       "calcium": 60,
       "potassium": 430,
       "vitaminC": 1
-    }
+    },
+    "pack": 400
   },
   "chickpeas": {
     "name": {
@@ -460,7 +479,8 @@
       "calcium": 45,
       "potassium": 290,
       "vitaminC": 1
-    }
+    },
+    "pack": 400
   },
   "wholeMilk": {
     "name": {
@@ -484,7 +504,8 @@
       "potassium": 150,
       "vitaminC": 1,
       "vitaminD": 0.05
-    }
+    },
+    "pack": 1000
   },
   "semiSkimmedMilk": {
     "name": {
@@ -508,7 +529,8 @@
       "potassium": 150,
       "vitaminC": 1,
       "vitaminD": 0.03
-    }
+    },
+    "pack": 1000
   },
   "whey": {
     "name": {
@@ -529,7 +551,8 @@
       "magnesium": 40,
       "calcium": 400,
       "potassium": 500
-    }
+    },
+    "pack": 900
   },
   "skyr": {
     "name": {
@@ -550,7 +573,8 @@
       "magnesium": 11,
       "calcium": 150,
       "potassium": 160
-    }
+    },
+    "pack": 400
   },
   "quark": {
     "name": {
@@ -571,7 +595,8 @@
       "magnesium": 11,
       "calcium": 120,
       "potassium": 150
-    }
+    },
+    "pack": 500
   },
   "hardCheese": {
     "name": {
@@ -593,7 +618,8 @@
       "calcium": 1000,
       "potassium": 100,
       "vitaminD": 0.5
-    }
+    },
+    "pack": 200
   },
   "peanutButter": {
     "name": {
@@ -614,7 +640,8 @@
       "magnesium": 160,
       "calcium": 45,
       "potassium": 650
-    }
+    },
+    "pack": 500
   },
   "almonds": {
     "name": {
@@ -635,7 +662,8 @@
       "magnesium": 270,
       "calcium": 264,
       "potassium": 733
-    }
+    },
+    "pack": 200
   },
   "walnuts": {
     "name": {
@@ -657,7 +685,8 @@
       "calcium": 98,
       "potassium": 441,
       "vitaminC": 1
-    }
+    },
+    "pack": 200
   },
   "chiaSeeds": {
     "name": {
@@ -679,7 +708,8 @@
       "calcium": 631,
       "potassium": 407,
       "vitaminC": 1.6
-    }
+    },
+    "pack": 200
   },
   "oliveOil": {
     "name": {
@@ -695,7 +725,8 @@
     "carbs": 0,
     "fiber": 0,
     "pricePerKg": 7,
-    "micros": {}
+    "micros": {},
+    "pack": 750
   },
   "lightCoconutMilk": {
     "name": {
@@ -718,7 +749,8 @@
       "calcium": 10,
       "potassium": 150,
       "vitaminC": 1
-    }
+    },
+    "pack": 400
   },
   "blackOlives": {
     "name": {
@@ -739,7 +771,8 @@
       "magnesium": 11,
       "calcium": 88,
       "potassium": 8
-    }
+    },
+    "pack": 200
   },
   "banana": {
     "name": {
@@ -885,7 +918,8 @@
       "calcium": 25,
       "potassium": 150,
       "vitaminC": 30
-    }
+    },
+    "pack": 300
   },
   "raisins": {
     "name": {
@@ -907,7 +941,8 @@
       "calcium": 50,
       "potassium": 749,
       "vitaminC": 2
-    }
+    },
+    "pack": 250
   },
   "dates": {
     "name": {
@@ -928,7 +963,8 @@
       "magnesium": 43,
       "calcium": 39,
       "potassium": 656
-    }
+    },
+    "pack": 250
   },
   "honey": {
     "name": {
@@ -950,7 +986,8 @@
       "calcium": 6,
       "potassium": 52,
       "vitaminC": 0.5
-    }
+    },
+    "pack": 500
   },
   "darkChocolate": {
     "name": {
@@ -971,7 +1008,8 @@
       "magnesium": 228,
       "calcium": 73,
       "potassium": 715
-    }
+    },
+    "pack": 100
   },
   "cocoaPowder": {
     "name": {
@@ -992,7 +1030,8 @@
       "magnesium": 499,
       "calcium": 128,
       "potassium": 1524
-    }
+    },
+    "pack": 250
   },
   "crushedTomatoes": {
     "name": {
@@ -1023,7 +1062,8 @@
       "calcium": 15,
       "potassium": 240,
       "vitaminC": 12
-    }
+    },
+    "pack": 400
   },
   "broccoli": {
     "name": {
@@ -1045,7 +1085,8 @@
       "calcium": 47,
       "potassium": 316,
       "vitaminC": 89
-    }
+    },
+    "pack": 500
   },
   "frozenSpinach": {
     "name": {
@@ -1067,7 +1108,8 @@
       "calcium": 99,
       "potassium": 558,
       "vitaminC": 28
-    }
+    },
+    "pack": 750
   },
   "zucchini": {
     "name": {
@@ -1222,7 +1264,8 @@
       "calcium": 59,
       "potassium": 180,
       "vitaminC": 12
-    }
+    },
+    "pack": 500
   },
   "cauliflower": {
     "name": {
@@ -1244,7 +1287,8 @@
       "calcium": 22,
       "potassium": 299,
       "vitaminC": 48
-    }
+    },
+    "pack": 800
   },
   "greenBeans": {
     "name": {
@@ -1266,7 +1310,8 @@
       "calcium": 37,
       "potassium": 211,
       "vitaminC": 12
-    }
+    },
+    "pack": 500
   },
   "mushrooms": {
     "name": {
@@ -1289,7 +1334,8 @@
       "potassium": 318,
       "vitaminC": 2,
       "vitaminD": 0.2
-    }
+    },
+    "pack": 250
   },
   "avocado": {
     "name": {
