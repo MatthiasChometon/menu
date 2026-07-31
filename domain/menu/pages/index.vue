@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { menus, currentMenu } = useMenu();
+const { menus, currentMenu, dayOrder } = useMenu();
+const isMounted = useMounted();
 const { t, locale } = useNuxtApp().$i18n;
 const { round } = useFoodFormat();
 const localePath = useLocalePath();
@@ -36,6 +37,12 @@ const averageMacros = computed((): Macros | undefined => {
     fiber: total.fiber / count,
   };
 });
+
+const todayKey = computed((): DayKey | undefined =>
+  // Monday-first index; undefined until mounted so the prerendered HTML does not
+  // freeze the day the site was built on.
+  isMounted.value ? dayOrder[(new Date().getDay() + 6) % 7] : undefined,
+);
 
 const reminders = computed((): { icon: string; text: string }[] => [
   { icon: 'i-lucide-pill', text: t('menu.reminder.creatine') },
@@ -103,7 +110,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         </div>
       </section>
 
-      <section class="rise mt-6" style="animation-delay: 140ms">
+      <section class="rise mt-6 grid gap-3 sm:grid-cols-2" style="animation-delay: 140ms">
         <UButton
           :to="localePath('/courses')"
           icon="i-lucide-shopping-basket"
@@ -112,6 +119,16 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           class="font-semibold text-white"
         >
           {{ $t('menu.nav.shopping') }}
+        </UButton>
+        <UButton
+          :to="localePath('/batch')"
+          icon="i-lucide-chef-hat"
+          size="xl"
+          block
+          variant="outline"
+          class="font-semibold"
+        >
+          {{ $t('menu.nav.batch') }}
         </UButton>
       </section>
 
@@ -122,6 +139,8 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           :day="day"
           :targets="menu.targets"
           :index="index"
+          :is-today="day.key === todayKey"
+          :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
         />
       </section>
 

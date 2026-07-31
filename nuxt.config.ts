@@ -7,8 +7,10 @@ export default defineNuxtConfig({
   devServer: { port: Number(process.env.PORT) || 3777 },
   srcDir: '.',
   pages: true,
-  ignore: ['**/*.test.ts'],
-  modules: ['@nuxt/eslint', '@vueuse/nuxt', '@vite-pwa/nuxt'],
+  ignore: ['**/*.test.ts', '**/*.visual.test.ts'],
+  // The PWA module registers a virtual module that Vitest cannot resolve, and a
+  // service worker is meaningless in a component test anyway.
+  modules: ['@nuxt/eslint', '@vueuse/nuxt', ...(process.env.VITEST ? [] : ['@vite-pwa/nuxt'])],
   css: cssList,
   components: componentsList,
   imports: { dirs: typesDirList },

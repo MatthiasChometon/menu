@@ -4,5 +4,8 @@
       <MenuHeader />
     </template>
     <slot />
+    <template #footer>
+      <MenuBottomNav />
+    </template>
   </UiAppShell>
 </template>

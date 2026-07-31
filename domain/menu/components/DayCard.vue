@@ -3,18 +3,32 @@ const {
   day,
   targets,
   index = 0,
+  defaultOpen = false,
+  isToday = false,
 } = defineProps<{
   day: Day;
   targets: Macros;
   index?: number;
+  defaultOpen?: boolean;
+  isToday?: boolean;
 }>();
 
-const isOpen = ref(index === 0);
+const isOpen = ref(defaultOpen);
+
+// The current day is only known once mounted (a prerendered page would freeze
+// whatever day it was built on), so the open card follows that late signal.
+watch(
+  (): boolean => defaultOpen,
+  (value): void => {
+    isOpen.value = value;
+  },
+);
 </script>
 
 <template>
   <UCard
     class="rise overflow-hidden"
+    :class="isToday && 'ring-2 ring-primary/40'"
     :style="{ animationDelay: `${Math.min(index, 6) * 60}ms` }"
     :ui="{ body: 'p-0 sm:p-0', header: 'p-0 sm:p-0' }"
   >
@@ -26,8 +40,11 @@ const isOpen = ref(index === 0);
         :aria-controls="`day-${day.key}`"
         @click="isOpen = !isOpen"
       >
-        <span class="flex-1 text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
-        <span class="text-sm tabular-nums text-muted">
+        <span class="text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
+        <UBadge v-if="isToday" color="primary" variant="subtle" size="sm">
+          {{ $t('menu.today') }}
+        </UBadge>
+        <span class="ml-auto text-sm tabular-nums text-muted">
           {{ Math.round(day.macros.kcal) }} {{ $t('menu.unit.kcal') }}
         </span>
         <UIcon

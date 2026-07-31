@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const { t, locale, locales, setLocale } = useNuxtApp().$i18n;
+const { locale, locales, setLocale } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
+const { entries } = useNavigation();
 
 const languageItems = computed((): SelectItem[] =>
   locales.value.map((entry): SelectItem => ({
@@ -24,11 +25,6 @@ const isDark = computed({
     colorMode.preference = value ? 'dark' : 'light';
   },
 });
-
-const navigation = computed((): { to: string; label: string; icon: string }[] => [
-  { to: localePath('/'), label: t('menu.nav.week'), icon: 'i-lucide-calendar-days' },
-  { to: localePath('/courses'), label: t('menu.nav.shopping'), icon: 'i-lucide-shopping-basket' },
-]);
 </script>
 
 <template>
@@ -44,36 +40,28 @@ const navigation = computed((): { to: string; label: string; icon: string }[] =>
           <UIcon name="i-lucide-utensils-crossed" class="size-5" />
         </span>
         <span class="min-w-0 leading-tight">
-          <span class="block truncate font-bold">{{ $t('menu.brand') }}</span>
-          <span class="block truncate text-xs text-muted">{{ $t('menu.tagline') }}</span>
+          <span class="block truncate text-sm font-bold sm:text-base">
+            {{ $t('menu.brand') }}
+          </span>
+          <span class="hidden truncate text-xs text-muted sm:block">{{ $t('menu.tagline') }}</span>
         </span>
       </NuxtLink>
 
-      <nav class="ml-auto flex items-center gap-1" :aria-label="$t('menu.nav.week')">
+      <!-- On phones the same links live in the bottom bar, within thumb reach. -->
+      <nav class="ml-auto hidden items-center gap-1 sm:flex" :aria-label="$t('menu.nav.week')">
         <UButton
-          v-for="item in navigation"
-          :key="item.to"
-          :to="item.to"
-          :icon="item.icon"
+          v-for="entry in entries"
+          :key="entry.to"
+          :to="entry.to"
+          :icon="entry.icon"
           variant="ghost"
           color="neutral"
-          class="hidden sm:inline-flex"
         >
-          {{ item.label }}
+          {{ entry.label }}
         </UButton>
-        <UButton
-          v-for="item in navigation"
-          :key="`compact-${item.to}`"
-          :to="item.to"
-          :icon="item.icon"
-          :aria-label="item.label"
-          variant="ghost"
-          color="neutral"
-          class="sm:hidden"
-        />
       </nav>
 
-      <div class="flex items-center gap-1">
+      <div class="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
         <UButton
           :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
           :aria-label="$t('accessibility.toggleTheme')"
@@ -88,7 +76,7 @@ const navigation = computed((): { to: string; label: string; icon: string }[] =>
           value-key="value"
           :aria-label="$t('accessibility.selectLanguage')"
           size="sm"
-          class="w-28"
+          class="w-24 sm:w-28"
         />
       </div>
     </div>

@@ -5,7 +5,8 @@
     "nav": {
       "week": "Semaine",
       "shopping": "Courses",
-      "recipes": "Recettes"
+      "recipes": "Recettes",
+      "batch": "Cuisine"
     },
     "weekOf": "Semaine du",
     "pageTitle": "Ta semaine",
@@ -70,6 +71,7 @@
       "kcal": "kcal",
       "gram": "g",
       "minute": "min"
-    }
+    },
+    "today": "Aujourd'hui"
   }
 }

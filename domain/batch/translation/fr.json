@@ -1,0 +1,27 @@
+{
+  "batch": {
+    "title": "Batch cooking",
+    "lead": "Ce qu'il y a à cuisiner dimanche, quantités déjà additionnées pour toute la semaine.",
+    "totalTime": "Temps de cuisine estimé",
+    "minutes": "min",
+    "servings": "portions à préparer",
+    "servingsOne": "portion à préparer",
+    "toCook": "À préparer en une fois",
+    "toCookHint": "Les plus longs d'abord : lance leur cuisson avant de t'occuper du reste.",
+    "fresh": "À faire le jour même",
+    "freshHint": "Trop rapides ou trop fragiles pour être préparés à l'avance.",
+    "ingredientsTotal": "Quantités totales",
+    "openRecipe": "Voir les étapes",
+    "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées.",
+    "tips": {
+      "title": "Trois réflexes qui font gagner du temps",
+      "start": "Lancer les féculents en premier : ils cuisent seuls pendant que tu prépares le reste.",
+      "store": "Séparer féculent et sauce dans les boîtes : le féculent se ramollit moins au réchauffage.",
+      "freeze": "Congeler les portions de fin de semaine et les sortir la veille au soir."
+    },
+    "empty": {
+      "title": "Rien à préparer",
+      "hint": "Aucun menu n'est chargé pour le moment."
+    }
+  }
+}

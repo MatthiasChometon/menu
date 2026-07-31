@@ -1,0 +1,65 @@
+{
+  "_comment": "Prompts de la pipeline food-photo. 'style' et 'negative' sont communs ; chaque entrée ne decrit que le sujet.",
+
+  "recipeStyle": "professional food photography, {subject}, served on a rustic ceramic plate, dark walnut table, natural window light from the left, soft shadows, shallow depth of field, 85mm lens, appetizing, fresh herbs garnish, styled by a food stylist, editorial cookbook shot, high detail, photorealistic",
+
+  "foodStyle": "product photography of {subject}, single ingredient, arranged on a white marble surface, soft diffused daylight, top-down flat lay, clean minimal composition, no packaging, no label, high detail, photorealistic",
+
+  "negative": "text, letters, watermark, logo, brand, packaging, label, hands, fingers, people, person, face, cutlery in mouth, blurry, low quality, jpeg artifacts, oversaturated, plastic looking, cartoon, illustration, 3d render, deformed, duplicate, cluttered background, messy",
+
+  "recipes": {
+    "chiliChicken": "chicken chili with red kidney beans, diced red pepper and onion in a rich tomato sauce, next to a portion of steamed brown rice",
+    "beefLentilBolognese": "wholewheat spaghetti coated in a beef and lentil bolognese sauce with grated carrot",
+    "salmonRiceBroccoli": "oven baked salmon fillet with crisp steamed broccoli florets and brown rice, a lemon wedge on the side",
+    "turkeyChickpeaCurry": "turkey and chickpea curry with sliced zucchini and spinach in a golden coconut sauce, brown rice on the side",
+    "tunaPasta": "wholewheat pasta tossed with flaked tuna, tomato sauce and black olives",
+    "shakshukaWhiteBeans": "shakshuka with two poached eggs and white beans in a red pepper tomato sauce, in a small cast iron skillet, a slice of wholegrain bread on the side",
+    "porkWok": "pork stir fry with bell peppers, mushrooms and green beans in a wok, brown rice on the side",
+    "fullShaker": "a tall glass of creamy oat and banana protein shake, whole banana, spoon of peanut butter, scattered almonds and raisins around the glass",
+    "cocoaPorridge": "a bowl of warm chocolate oat porridge topped with banana slices and a drizzle of peanut butter",
+    "savouryToast": "two slices of wholegrain toast topped with soft scrambled eggs and grated cheese, a small bowl of quark and a banana beside them",
+    "bananaHoneyShake": "a banana milkshake in a clear glass with honey drizzling in, a whole banana beside it",
+    "skyrOatBowl": "a bowl of thick skyr yogurt with oats, frozen red berries, honey and chia seeds",
+    "hamQuarkToast": "wholegrain toast topped with folded slices of cooked ham, a small bowl of quark with honey beside it",
+    "skyrAlmondRaisin": "a bowl of thick skyr yogurt topped with almonds and raisins, honey drizzle, a red apple beside it",
+    "peanutBananaToast": "a slice of wholegrain toast spread with peanut butter and topped with banana slices, a glass of milk behind",
+    "eggBreadChocolate": "a halved boiled egg, a slice of wholegrain bread, two squares of dark chocolate and an orange"
+  },
+
+  "foods": {
+    "chickenBreast": "two raw skinless chicken breast fillets",
+    "leanBeef": "a portion of fresh lean beef mince",
+    "salmon": "two fresh raw salmon fillets",
+    "ham": "a few folded slices of cooked ham",
+    "wholeMilk": "a glass bottle of whole milk",
+    "semiSkimmedMilk": "a glass of semi skimmed milk",
+    "skyr": "an open pot of thick white skyr yogurt",
+    "egg": "six brown eggs",
+    "quark": "a bowl of smooth white quark cheese",
+    "hardCheese": "a wedge of aged hard cheese",
+    "banana": "a bunch of ripe yellow bananas",
+    "onion": "three yellow onions",
+    "apple": "two red apples",
+    "broccoli": "a fresh head of broccoli",
+    "orange": "two whole oranges, one halved",
+    "bellPepper": "two red and yellow bell peppers",
+    "carrot": "a bunch of fresh carrots",
+    "crushedTomatoes": "a small bowl of crushed tomatoes with fresh tomatoes beside it",
+    "brownRice": "a bowl of uncooked brown rice grains",
+    "oats": "a bowl of rolled wholegrain oats",
+    "wholegrainBread": "a rustic wholegrain bread loaf, one slice cut",
+    "wholewheatPasta": "a handful of dry wholewheat spaghetti",
+    "kidneyBeans": "a bowl of cooked red kidney beans",
+    "cookedLentils": "a bowl of cooked green lentils",
+    "honey": "a glass jar of golden honey with a wooden dipper",
+    "raisins": "a small pile of dark raisins",
+    "peanutButter": "an open jar of creamy peanut butter with peanuts beside it",
+    "oliveOil": "a small glass carafe of golden olive oil with green olives",
+    "almonds": "a pile of whole almonds",
+    "darkChocolate": "a broken bar of dark chocolate",
+    "cocoaPowder": "a small bowl of dark unsweetened cocoa powder",
+    "chiaSeeds": "a small bowl of black chia seeds",
+    "whey": "a scoop of vanilla protein powder in a small bowl",
+    "frozenBerries": "a bowl of frozen mixed red berries with frost on them"
+  }
+}

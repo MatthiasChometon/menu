@@ -1,0 +1,48 @@
+{
+  "4": {
+    "class_type": "CheckpointLoaderSimple",
+    "inputs": { "ckpt_name": "Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors" },
+    "_meta": { "title": "Juggernaut XL v9 Photo" }
+  },
+  "5": {
+    "class_type": "EmptyLatentImage",
+    "inputs": { "width": 1024, "height": 640, "batch_size": 1 },
+    "_meta": { "title": "Format" }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "inputs": { "text": "professional food photography", "clip": ["4", 1] },
+    "_meta": { "title": "Prompt" }
+  },
+  "7": {
+    "class_type": "CLIPTextEncode",
+    "inputs": { "text": "text, watermark, hands, blurry, low quality", "clip": ["4", 1] },
+    "_meta": { "title": "Negatif" }
+  },
+  "3": {
+    "class_type": "KSampler",
+    "inputs": {
+      "seed": 1,
+      "steps": 30,
+      "cfg": 5.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": ["4", 0],
+      "positive": ["6", 0],
+      "negative": ["7", 0],
+      "latent_image": ["5", 0]
+    },
+    "_meta": { "title": "Sampler" }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "inputs": { "samples": ["3", 0], "vae": ["4", 2] },
+    "_meta": { "title": "Decode" }
+  },
+  "9": {
+    "class_type": "SaveImage",
+    "inputs": { "filename_prefix": "menu-semaine/image", "images": ["8", 0] },
+    "_meta": { "title": "Save" }
+  }
+}

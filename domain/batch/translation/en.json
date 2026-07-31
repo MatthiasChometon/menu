@@ -1,0 +1,27 @@
+{
+  "batch": {
+    "title": "Batch cooking",
+    "lead": "What to cook on Sunday, with the whole week's quantities already added up.",
+    "totalTime": "Estimated cooking time",
+    "minutes": "min",
+    "servings": "servings to make",
+    "servingsOne": "serving to make",
+    "toCook": "Cook in one go",
+    "toCookHint": "Longest first: get them going before you deal with the rest.",
+    "fresh": "Cook on the day",
+    "freshHint": "Too quick or too delicate to prepare ahead.",
+    "ingredientsTotal": "Total quantities",
+    "openRecipe": "See the method",
+    "raw": "Weigh grains and meat raw, tinned pulses drained.",
+    "tips": {
+      "title": "Three habits that save time",
+      "start": "Start the grains first: they cook on their own while you prepare the rest.",
+      "store": "Keep grain and sauce in separate boxes: the grain softens less on reheating.",
+      "freeze": "Freeze the end-of-week servings and move them to the fridge the night before."
+    },
+    "empty": {
+      "title": "Nothing to prepare",
+      "hint": "No menu is loaded at the moment."
+    }
+  }
+}
