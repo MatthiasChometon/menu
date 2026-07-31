@@ -4,7 +4,7 @@ const PORT = Number(process.env.VISUAL_PORT) || 3778;
 
 export default defineConfig({
   testDir: '.',
-  testMatch: '**/*.visual.test.ts',
+  testMatch: ['**/*visual.test.ts', '**/*e2e.test.ts'],
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,

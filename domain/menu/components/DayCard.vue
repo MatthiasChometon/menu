@@ -28,6 +28,7 @@ watch(
 <template>
   <UCard
     class="rise overflow-hidden"
+    :data-today="isToday ? '' : undefined"
     :class="isToday && 'ring-2 ring-primary/40'"
     :style="{ animationDelay: `${Math.min(index, 6) * 60}ms` }"
     :ui="{ body: 'p-0 sm:p-0', header: 'p-0 sm:p-0' }"
