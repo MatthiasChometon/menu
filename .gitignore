@@ -1,0 +1,20 @@
+# Nuxt
+.nuxt
+.output
+.data
+dist
+
+# Node
+node_modules
+*.log
+
+# Env
+.env
+
+# Tests
+test-results
+playwright-report
+coverage
+
+# Python
+__pycache__

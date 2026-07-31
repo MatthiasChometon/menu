@@ -1,0 +1,24 @@
+{
+  "recipe": {
+    "back": "Back to the week",
+    "ingredients": "Ingredients",
+    "steps": "Method",
+    "nutrition": "This portion provides",
+    "prepTime": "Prep time",
+    "minutes": "min",
+    "batch": "Batch-cooked on Sunday",
+    "servedAt": "On the menu",
+    "portionFull": "Full portion",
+    "portionReduced": "Smaller portion",
+    "stepDone": "Step done",
+    "resetSteps": "Start over",
+    "cookMode": "Cooking mode",
+    "cookModeHint": "The screen stays awake while you cook",
+    "notFound": {
+      "title": "Recipe not found",
+      "hint": "This recipe is no longer on the week's menu."
+    },
+    "perHundred": "per 100 g",
+    "raw": "Weigh grains and meat raw, tinned pulses drained."
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "menu": {
+    "brand": "Week menu",
+    "tagline": "Muscle gain",
+    "nav": {
+      "week": "Week",
+      "shopping": "Shopping",
+      "recipes": "Recipes"
+    },
+    "weekOf": "Week of",
+    "pageTitle": "Your week",
+    "pageLead": "Five meals a day, three dishes on rotation, everything weighed.",
+    "day": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "meal": {
+      "breakfast": "Breakfast",
+      "postWorkout": "Post-workout",
+      "lunch": "Lunch",
+      "snack": "Snack",
+      "dinner": "Dinner"
+    },
+    "mealTime": {
+      "breakfast": "7 am",
+      "postWorkout": "30 min after the gym",
+      "lunch": "12:30 pm",
+      "snack": "4:30 pm",
+      "dinner": "8:30 pm"
+    },
+    "macro": {
+      "kcal": "Calories",
+      "protein": "Protein",
+      "fat": "Fat",
+      "carbs": "Carbs",
+      "fiber": "Fibre"
+    },
+    "macroShort": {
+      "kcal": "kcal",
+      "protein": "Prot.",
+      "fat": "Fat",
+      "carbs": "Carbs",
+      "fiber": "Fibre"
+    },
+    "portionReduced": "Smaller portion",
+    "dayTotal": "Day total",
+    "target": "Target",
+    "openRecipe": "Open the recipe",
+    "reminder": {
+      "title": "Every single day",
+      "creatine": "5 g of creatine, rest days included",
+      "water": "3.5 to 4 L of water: under-drinking costs strength directly",
+      "vitaminD": "2,000 IU of vitamin D3 with breakfast",
+      "weighIn": "Weigh in on Thursday morning fasted, target +0.3 to +0.4 kg a week"
+    },
+    "weekSummary": "Week at a glance",
+    "averagePerDay": "Daily average",
+    "budget": "Shopping budget",
+    "recipeCount": "dishes on rotation",
+    "empty": {
+      "title": "No menu yet",
+      "hint": "Run the menu-semaine command to generate the coming week."
+    },
+    "unit": {
+      "kcal": "kcal",
+      "gram": "g",
+      "minute": "min"
+    }
+  }
+}

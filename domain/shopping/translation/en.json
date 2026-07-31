@@ -1,0 +1,28 @@
+{
+  "shopping": {
+    "title": "Shopping list",
+    "lead": "Sorted the way you walk the shop. Tick as you go, it stays saved on your phone.",
+    "aisle": {
+      "butcher": "Meat and fish",
+      "dairy": "Dairy",
+      "produce": "Fruit and vegetables",
+      "frozen": "Frozen",
+      "grocery": "Grocery",
+      "supplement": "Supplements"
+    },
+    "progress": "items picked",
+    "total": "Estimated total",
+    "reset": "Clear all",
+    "resetTitle": "Start over",
+    "resetHint": "Every box will be unticked for this week.",
+    "cancel": "Cancel",
+    "confirm": "Clear all",
+    "done": "List complete",
+    "doneHint": "Everything is in the trolley.",
+    "empty": {
+      "title": "Nothing to buy",
+      "hint": "No menu is loaded at the moment."
+    },
+    "backToWeek": "Back to the week"
+  }
+}

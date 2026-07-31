@@ -1,0 +1,24 @@
+{
+  "recipe": {
+    "back": "Retour à la semaine",
+    "ingredients": "Ingrédients",
+    "steps": "Préparation",
+    "nutrition": "Apports de la portion",
+    "prepTime": "Temps de préparation",
+    "minutes": "min",
+    "batch": "Se prépare en batch le dimanche",
+    "servedAt": "Au menu",
+    "portionFull": "Portion pleine",
+    "portionReduced": "Portion réduite",
+    "stepDone": "Étape terminée",
+    "resetSteps": "Recommencer",
+    "cookMode": "Mode cuisine",
+    "cookModeHint": "L'écran reste allumé pendant la préparation",
+    "notFound": {
+      "title": "Recette introuvable",
+      "hint": "Cette recette n'est plus au menu de la semaine."
+    },
+    "perHundred": "pour 100 g",
+    "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées."
+  }
+}

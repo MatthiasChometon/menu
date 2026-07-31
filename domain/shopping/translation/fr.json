@@ -1,0 +1,28 @@
+{
+  "shopping": {
+    "title": "Liste de courses",
+    "lead": "Rangée dans l'ordre des rayons. Coche au fur et à mesure, ça reste enregistré sur le téléphone.",
+    "aisle": {
+      "butcher": "Boucherie et poissonnerie",
+      "dairy": "Crèmerie",
+      "produce": "Fruits et légumes",
+      "frozen": "Surgelés",
+      "grocery": "Épicerie",
+      "supplement": "Compléments"
+    },
+    "progress": "articles pris",
+    "total": "Total estimé",
+    "reset": "Tout décocher",
+    "resetTitle": "Repartir de zéro",
+    "resetHint": "Toutes les cases seront décochées pour cette semaine.",
+    "cancel": "Annuler",
+    "confirm": "Tout décocher",
+    "done": "Liste terminée",
+    "doneHint": "Tout est dans le caddie.",
+    "empty": {
+      "title": "Rien à acheter",
+      "hint": "Aucun menu n'est chargé pour le moment."
+    },
+    "backToWeek": "Retour à la semaine"
+  }
+}

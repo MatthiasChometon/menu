@@ -1,0 +1,354 @@
+{
+  "weekOf": "2026-08-03",
+  "targets": {
+    "kcal": 3150,
+    "protein": 165,
+    "fat": 80,
+    "carbs": 445,
+    "fiber": 56,
+    "tolerancePct": { "default": 5, "kcal": 4, "fiber": 12 }
+  },
+  "days": {
+    "monday": {
+      "breakfast": {
+        "recipe": "fullShaker",
+        "foods": {
+          "oats": 100,
+          "wholeMilk": 300,
+          "whey": 18,
+          "peanutButter": 12,
+          "banana": 120,
+          "almonds": 8,
+          "raisins": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "bananaHoneyShake",
+        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+      },
+      "lunch": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 90,
+          "kidneyBeans": 75,
+          "crushedTomatoes": 200,
+          "onion": 60,
+          "bellPepper": 80,
+          "oliveOil": 13,
+          "brownRice": 140
+        }
+      },
+      "snack": {
+        "recipe": "peanutBananaToast",
+        "foods": {
+          "wholegrainBread": 80,
+          "peanutButter": 20,
+          "banana": 120,
+          "semiSkimmedMilk": 200
+        }
+      },
+      "dinner": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 70,
+          "cookedLentils": 50,
+          "crushedTomatoes": 130,
+          "onion": 35,
+          "carrot": 40,
+          "oliveOil": 6,
+          "wholewheatPasta": 85
+        }
+      }
+    },
+    "tuesday": {
+      "breakfast": {
+        "recipe": "fullShaker",
+        "foods": {
+          "oats": 100,
+          "wholeMilk": 300,
+          "whey": 18,
+          "peanutButter": 12,
+          "banana": 120,
+          "almonds": 8,
+          "raisins": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "bananaHoneyShake",
+        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+      },
+      "lunch": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 90,
+          "cookedLentils": 55,
+          "crushedTomatoes": 200,
+          "onion": 50,
+          "carrot": 60,
+          "oliveOil": 11,
+          "wholewheatPasta": 145
+        }
+      },
+      "snack": {
+        "recipe": "skyrAlmondRaisin",
+        "foods": { "skyr": 150, "almonds": 25, "raisins": 35, "honey": 10, "apple": 200 }
+      },
+      "dinner": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 65,
+          "kidneyBeans": 60,
+          "crushedTomatoes": 130,
+          "onion": 40,
+          "bellPepper": 50,
+          "oliveOil": 7,
+          "brownRice": 80
+        }
+      }
+    },
+    "wednesday": {
+      "breakfast": {
+        "recipe": "cocoaPorridge",
+        "foods": {
+          "oats": 105,
+          "wholeMilk": 300,
+          "whey": 18,
+          "cocoaPowder": 8,
+          "banana": 120,
+          "peanutButter": 8,
+          "honey": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "skyrOatBowl",
+        "foods": { "skyr": 150, "oats": 50, "frozenBerries": 100, "honey": 20, "chiaSeeds": 6 }
+      },
+      "lunch": {
+        "recipe": "salmonRiceBroccoli",
+        "foods": { "salmon": 120, "brownRice": 150, "broccoli": 200, "oliveOil": 4 }
+      },
+      "snack": {
+        "recipe": "peanutBananaToast",
+        "foods": {
+          "wholegrainBread": 80,
+          "peanutButter": 20,
+          "banana": 120,
+          "semiSkimmedMilk": 200
+        }
+      },
+      "dinner": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 70,
+          "cookedLentils": 50,
+          "crushedTomatoes": 130,
+          "onion": 35,
+          "carrot": 40,
+          "oliveOil": 6,
+          "wholewheatPasta": 85
+        }
+      }
+    },
+    "thursday": {
+      "breakfast": {
+        "recipe": "fullShaker",
+        "foods": {
+          "oats": 100,
+          "wholeMilk": 300,
+          "whey": 18,
+          "peanutButter": 12,
+          "banana": 120,
+          "almonds": 8,
+          "raisins": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "bananaHoneyShake",
+        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+      },
+      "lunch": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 90,
+          "kidneyBeans": 75,
+          "crushedTomatoes": 200,
+          "onion": 60,
+          "bellPepper": 80,
+          "oliveOil": 13,
+          "brownRice": 140
+        }
+      },
+      "snack": {
+        "recipe": "eggBreadChocolate",
+        "foods": {
+          "egg": 60,
+          "wholegrainBread": 100,
+          "darkChocolate": 15,
+          "orange": 200,
+          "honey": 10
+        }
+      },
+      "dinner": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 70,
+          "cookedLentils": 50,
+          "crushedTomatoes": 130,
+          "onion": 35,
+          "carrot": 40,
+          "oliveOil": 6,
+          "wholewheatPasta": 85
+        }
+      }
+    },
+    "friday": {
+      "breakfast": {
+        "recipe": "fullShaker",
+        "foods": {
+          "oats": 100,
+          "wholeMilk": 300,
+          "whey": 18,
+          "peanutButter": 12,
+          "banana": 120,
+          "almonds": 8,
+          "raisins": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "hamQuarkToast",
+        "foods": { "wholegrainBread": 100, "ham": 50, "quark": 100, "honey": 12 }
+      },
+      "lunch": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 90,
+          "cookedLentils": 55,
+          "crushedTomatoes": 200,
+          "onion": 50,
+          "carrot": 60,
+          "oliveOil": 11,
+          "wholewheatPasta": 145
+        }
+      },
+      "snack": {
+        "recipe": "skyrAlmondRaisin",
+        "foods": { "skyr": 150, "almonds": 25, "raisins": 35, "honey": 10, "apple": 200 }
+      },
+      "dinner": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 65,
+          "kidneyBeans": 60,
+          "crushedTomatoes": 130,
+          "onion": 40,
+          "bellPepper": 50,
+          "oliveOil": 7,
+          "brownRice": 80
+        }
+      }
+    },
+    "saturday": {
+      "breakfast": {
+        "recipe": "cocoaPorridge",
+        "foods": {
+          "oats": 105,
+          "wholeMilk": 300,
+          "whey": 18,
+          "cocoaPowder": 8,
+          "banana": 120,
+          "peanutButter": 8,
+          "honey": 20
+        }
+      },
+      "postWorkout": {
+        "recipe": "skyrOatBowl",
+        "foods": {
+          "skyr": 150,
+          "oats": 50,
+          "frozenBerries": 100,
+          "honey": 20,
+          "chiaSeeds": 6,
+          "whey": 12
+        }
+      },
+      "lunch": {
+        "recipe": "salmonRiceBroccoli",
+        "foods": { "salmon": 120, "brownRice": 150, "broccoli": 200, "oliveOil": 4 }
+      },
+      "snack": {
+        "recipe": "eggBreadChocolate",
+        "foods": {
+          "egg": 60,
+          "wholegrainBread": 100,
+          "darkChocolate": 15,
+          "orange": 200,
+          "honey": 10
+        }
+      },
+      "dinner": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 65,
+          "kidneyBeans": 60,
+          "crushedTomatoes": 130,
+          "onion": 40,
+          "bellPepper": 50,
+          "oliveOil": 7,
+          "brownRice": 80
+        }
+      }
+    },
+    "sunday": {
+      "breakfast": {
+        "recipe": "savouryToast",
+        "foods": {
+          "wholegrainBread": 145,
+          "egg": 100,
+          "hardCheese": 15,
+          "quark": 100,
+          "banana": 120,
+          "semiSkimmedMilk": 200,
+          "honey": 15,
+          "almonds": 8
+        }
+      },
+      "postWorkout": {
+        "recipe": "bananaHoneyShake",
+        "foods": { "semiSkimmedMilk": 250, "whey": 18, "banana": 130, "honey": 20 }
+      },
+      "lunch": {
+        "recipe": "chiliChicken",
+        "foods": {
+          "chickenBreast": 90,
+          "kidneyBeans": 75,
+          "crushedTomatoes": 200,
+          "onion": 60,
+          "bellPepper": 80,
+          "oliveOil": 13,
+          "brownRice": 140
+        }
+      },
+      "snack": {
+        "recipe": "peanutBananaToast",
+        "foods": {
+          "wholegrainBread": 80,
+          "peanutButter": 20,
+          "banana": 120,
+          "semiSkimmedMilk": 200
+        }
+      },
+      "dinner": {
+        "recipe": "beefLentilBolognese",
+        "foods": {
+          "leanBeef": 70,
+          "cookedLentils": 50,
+          "crushedTomatoes": 130,
+          "onion": 35,
+          "carrot": 40,
+          "oliveOil": 6,
+          "wholewheatPasta": 85
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "menu": {
+    "brand": "Menu de la semaine",
+    "tagline": "Prise de masse",
+    "nav": {
+      "week": "Semaine",
+      "shopping": "Courses",
+      "recipes": "Recettes"
+    },
+    "weekOf": "Semaine du",
+    "pageTitle": "Ta semaine",
+    "pageLead": "Cinq repas par jour, trois plats en rotation, tout est pesé.",
+    "day": {
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche"
+    },
+    "meal": {
+      "breakfast": "Petit-déjeuner",
+      "postWorkout": "Post-training",
+      "lunch": "Déjeuner",
+      "snack": "Goûter",
+      "dinner": "Dîner"
+    },
+    "mealTime": {
+      "breakfast": "7 h",
+      "postWorkout": "30 min après la salle",
+      "lunch": "12 h 30",
+      "snack": "16 h 30",
+      "dinner": "20 h 30"
+    },
+    "macro": {
+      "kcal": "Calories",
+      "protein": "Protéines",
+      "fat": "Lipides",
+      "carbs": "Glucides",
+      "fiber": "Fibres"
+    },
+    "macroShort": {
+      "kcal": "kcal",
+      "protein": "Prot.",
+      "fat": "Lip.",
+      "carbs": "Gluc.",
+      "fiber": "Fibres"
+    },
+    "portionReduced": "Portion réduite",
+    "dayTotal": "Total du jour",
+    "target": "Cible",
+    "openRecipe": "Voir la recette",
+    "reminder": {
+      "title": "Tous les jours, sans exception",
+      "creatine": "5 g de créatine, y compris les jours de repos",
+      "water": "3,5 à 4 L d'eau : sous-boire coûte directement de la force",
+      "vitaminD": "2 000 UI de vitamine D3 au petit-déjeuner",
+      "weighIn": "Pesée le jeudi matin à jeun, objectif +0,3 à +0,4 kg par semaine"
+    },
+    "weekSummary": "Le résumé de la semaine",
+    "averagePerDay": "Moyenne par jour",
+    "budget": "Budget des courses",
+    "recipeCount": "plats en rotation",
+    "empty": {
+      "title": "Aucun menu pour l'instant",
+      "hint": "Lance la commande menu-semaine pour générer la semaine à venir."
+    },
+    "unit": {
+      "kcal": "kcal",
+      "gram": "g",
+      "minute": "min"
+    }
+  }
+}

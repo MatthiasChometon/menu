@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@source '../../../domain';
+@source '../../../infrastructure';
+
+/* Static so Nuxt UI's dark-mode shades (primary-400) survive tree-shaking. */
+@theme static {
+  --color-lime-50: #f7fee7;
+  --color-lime-100: #ecfccb;
+  --color-lime-200: #d9f99d;
+  --color-lime-300: #bef264;
+  --color-lime-400: #a3e635;
+  --color-lime-500: #84cc16;
+  --color-lime-600: #65a30d;
+  --color-lime-700: #4d7c0f;
+  --color-lime-800: #3f6212;
+  --color-lime-900: #365314;
+  --color-lime-950: #1a2e05;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-lime-500);
+  color: white;
+}
+
+:root {
+  --ui-primary: var(--ui-color-primary-700);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--ui-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rise {
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}

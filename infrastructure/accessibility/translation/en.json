@@ -1,0 +1,9 @@
+{
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "loading": "Loading",
+    "newWindow": "(opens in a new window)",
+    "toggleTheme": "Toggle light or dark theme",
+    "selectLanguage": "Choose language"
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "chiliChicken": {
+    "slot": "main",
+    "name": { "fr": "Chili de poulet aux haricots rouges", "en": "Chicken and kidney bean chili" },
+    "prepMinutes": 25,
+    "batch": true,
+    "ingredients": {
+      "chickenBreast": 90,
+      "kidneyBeans": 75,
+      "crushedTomatoes": 200,
+      "onion": 60,
+      "bellPepper": 80,
+      "oliveOil": 13,
+      "brownRice": 140
+    },
+    "steps": {
+      "fr": [
+        "Lancer le riz complet dans deux fois son volume d'eau salée, 40 min à petits bouillons.",
+        "Émincer l'oignon et le poivron, les faire revenir 5 min dans l'huile d'olive.",
+        "Ajouter le poulet coupé en dés, saisir 4 min à feu vif jusqu'à ce qu'il blanchisse.",
+        "Verser les tomates concassées et les haricots rouges égouttés et rincés.",
+        "Assaisonner : cumin, paprika fumé, origan, une pointe de piment. Saler.",
+        "Laisser mijoter 20 min à couvert, à feu doux, en remuant de temps en temps.",
+        "Servir sur le riz. Le chili se garde 4 jours au frigo et 3 mois au congélateur."
+      ],
+      "en": [
+        "Start the brown rice in twice its volume of salted water, 40 min at a low simmer.",
+        "Slice the onion and pepper, fry them for 5 min in the olive oil.",
+        "Add the diced chicken and sear for 4 min over high heat until it turns white.",
+        "Pour in the crushed tomatoes and the drained, rinsed kidney beans.",
+        "Season with cumin, smoked paprika, oregano and a touch of chilli. Add salt.",
+        "Simmer covered for 20 min over low heat, stirring occasionally.",
+        "Serve over the rice. The chili keeps 4 days refrigerated, 3 months frozen."
+      ]
+    }
+  },
+  "beefLentilBolognese": {
+    "slot": "main",
+    "name": { "fr": "Bolognaise de bœuf aux lentilles", "en": "Beef and lentil bolognese" },
+    "prepMinutes": 30,
+    "batch": true,
+    "ingredients": {
+      "leanBeef": 90,
+      "cookedLentils": 55,
+      "crushedTomatoes": 200,
+      "onion": 50,
+      "carrot": 60,
+      "oliveOil": 11,
+      "wholewheatPasta": 145
+    },
+    "steps": {
+      "fr": [
+        "Émincer l'oignon, râper la carotte. Les faire suer 5 min dans l'huile d'olive.",
+        "Ajouter le bœuf haché, l'écraser à la cuillère et le saisir 5 min jusqu'à coloration.",
+        "Verser les tomates concassées et les lentilles cuites égouttées.",
+        "Assaisonner : herbes de Provence, ail, une cuillère de vinaigre balsamique, sel et poivre.",
+        "Mijoter 25 min à découvert pour que la sauce épaississe.",
+        "Cuire les pâtes complètes al dente pendant ce temps.",
+        "Les lentilles remplacent un tiers de la viande : moins cher, plus de fibres et de fer."
+      ],
+      "en": [
+        "Slice the onion and grate the carrot. Sweat them for 5 min in the olive oil.",
+        "Add the beef mince, break it up with a spoon and sear for 5 min until browned.",
+        "Pour in the crushed tomatoes and the drained cooked lentils.",
+        "Season with herbs, garlic, a spoon of balsamic vinegar, salt and pepper.",
+        "Simmer uncovered for 25 min so the sauce thickens.",
+        "Cook the wholewheat pasta al dente meanwhile.",
+        "The lentils replace a third of the meat: cheaper, more fibre and more iron."
+      ]
+    }
+  },
+  "salmonRiceBroccoli": {
+    "slot": "main",
+    "name": { "fr": "Saumon, riz complet et brocolis", "en": "Salmon, brown rice and broccoli" },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "salmon": 120,
+      "brownRice": 150,
+      "broccoli": 200,
+      "oliveOil": 4
+    },
+    "steps": {
+      "fr": [
+        "Préchauffer le four à 200 °C. Cuire le riz complet 40 min.",
+        "Poser le pavé de saumon sur du papier cuisson, saler, poivrer, ajouter un filet de citron.",
+        "Enfourner 15 min : la chair doit se détacher à la fourchette sans être sèche.",
+        "Détailler les brocolis en fleurettes et les cuire 8 min à la vapeur, ils doivent rester croquants.",
+        "Assembler, arroser d'huile d'olive et de jus de citron.",
+        "À caler deux à trois fois par semaine : c'est la seule source sérieuse d'oméga-3."
+      ],
+      "en": [
+        "Preheat the oven to 200 °C. Cook the brown rice for 40 min.",
+        "Place the salmon on baking paper, season, add a squeeze of lemon.",
+        "Bake for 15 min: it should flake with a fork without drying out.",
+        "Break the broccoli into florets and steam for 8 min, keeping them crisp.",
+        "Plate up, drizzle with olive oil and lemon juice.",
+        "Worth having two or three times a week: it is the only serious omega-3 source."
+      ]
+    }
+  },
+  "turkeyChickpeaCurry": {
+    "slot": "main",
+    "name": { "fr": "Curry de dinde et pois chiches", "en": "Turkey and chickpea curry" },
+    "prepMinutes": 25,
+    "batch": true,
+    "ingredients": {
+      "turkeyBreast": 150,
+      "chickpeas": 150,
+      "lightCoconutMilk": 100,
+      "zucchini": 150,
+      "frozenSpinach": 100,
+      "oliveOil": 8,
+      "brownRice": 110
+    },
+    "steps": {
+      "fr": [
+        "Lancer le riz complet.",
+        "Couper la dinde en dés et la saisir 5 min à feu vif dans l'huile.",
+        "Ajouter curry, curcuma, gingembre râpé et ail, remuer 1 min pour réveiller les épices.",
+        "Verser le lait de coco léger, ajouter les pois chiches égouttés et la courgette en rondelles.",
+        "Mijoter 15 min à feu doux.",
+        "Incorporer les épinards en fin de cuisson, juste le temps qu'ils fondent."
+      ],
+      "en": [
+        "Start the brown rice.",
+        "Dice the turkey and sear it for 5 min over high heat in the oil.",
+        "Add curry, turmeric, grated ginger and garlic, stir for 1 min to wake the spices up.",
+        "Pour in the light coconut milk, add the drained chickpeas and the sliced zucchini.",
+        "Simmer for 15 min over low heat.",
+        "Stir the spinach in at the very end, just long enough for it to wilt."
+      ]
+    }
+  },
+  "tunaPasta": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes au thon et aux olives",
+      "en": "Wholewheat pasta with tuna and olives"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "tunaTin": 140,
+      "wholewheatPasta": 90,
+      "crushedTomatoes": 200,
+      "blackOlives": 25,
+      "oliveOil": 8,
+      "zucchini": 100
+    },
+    "steps": {
+      "fr": [
+        "Mettre les pâtes complètes à cuire.",
+        "Faire chauffer les tomates concassées avec l'ail écrasé, l'origan et l'huile d'olive.",
+        "Ajouter la courgette râpée, laisser 5 min.",
+        "Incorporer le thon égoutté et les olives, réchauffer 2 min sans faire bouillir.",
+        "Mélanger aux pâtes égouttées. Le plat de secours quand la journée a été longue."
+      ],
+      "en": [
+        "Put the wholewheat pasta on to cook.",
+        "Heat the crushed tomatoes with crushed garlic, oregano and olive oil.",
+        "Add the grated zucchini and leave for 5 min.",
+        "Stir in the drained tuna and the olives, warm through for 2 min without boiling.",
+        "Toss with the drained pasta. The fallback meal for long days."
+      ]
+    }
+  },
+  "shakshukaWhiteBeans": {
+    "slot": "main",
+    "name": { "fr": "Shakshuka aux haricots blancs", "en": "White bean shakshuka" },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "egg": 120,
+      "whiteBeans": 150,
+      "crushedTomatoes": 200,
+      "bellPepper": 80,
+      "oliveOil": 8,
+      "wholegrainBread": 80
+    },
+    "steps": {
+      "fr": [
+        "Faire revenir le poivron émincé 5 min dans l'huile d'olive.",
+        "Ajouter les tomates concassées, les haricots blancs égouttés, le cumin et le paprika.",
+        "Laisser épaissir 10 min à feu moyen.",
+        "Creuser deux puits dans la sauce et y casser les œufs.",
+        "Couvrir et cuire 6 min : le blanc doit être pris, le jaune encore coulant.",
+        "Saucer avec le pain complet. Le repas le moins cher de la semaine."
+      ],
+      "en": [
+        "Fry the sliced pepper for 5 min in the olive oil.",
+        "Add the crushed tomatoes, drained white beans, cumin and paprika.",
+        "Let it thicken for 10 min over medium heat.",
+        "Make two wells in the sauce and crack the eggs into them.",
+        "Cover and cook for 6 min: the white set, the yolk still runny.",
+        "Mop up with the wholegrain bread. The cheapest meal of the week."
+      ]
+    }
+  },
+  "porkWok": {
+    "slot": "main",
+    "name": { "fr": "Wok de porc aux légumes croquants", "en": "Pork wok with crisp vegetables" },
+    "prepMinutes": 18,
+    "batch": false,
+    "ingredients": {
+      "porkTenderloin": 160,
+      "brownRice": 85,
+      "bellPepper": 100,
+      "mushrooms": 100,
+      "greenBeans": 120,
+      "oliveOil": 10
+    },
+    "steps": {
+      "fr": [
+        "Utiliser du riz complet déjà cuit, ou en lancer une casserole 40 min avant.",
+        "Couper le filet mignon en fines lamelles.",
+        "Chauffer le wok à feu très vif, saisir la viande 3 min sans la remuer tout de suite.",
+        "Réserver la viande, jeter les légumes dans le wok, sauter 5 min : ils doivent rester croquants.",
+        "Remettre la viande, ajouter sauce soja, ail et gingembre, mélanger 1 min.",
+        "Servir immédiatement sur le riz."
+      ],
+      "en": [
+        "Use pre-cooked brown rice, or start a pan 40 min ahead.",
+        "Cut the pork tenderloin into thin strips.",
+        "Heat the wok until very hot, sear the meat for 3 min without stirring straight away.",
+        "Set the meat aside, throw the vegetables in and stir-fry 5 min, keeping them crisp.",
+        "Return the meat, add soy sauce, garlic and ginger, toss for 1 min.",
+        "Serve immediately over the rice."
+      ]
+    }
+  },
+  "fullShaker": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Shaker complet avoine, whey et banane",
+      "en": "Full oat, whey and banana shake"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "oats": 100,
+      "wholeMilk": 300,
+      "whey": 18,
+      "peanutButter": 12,
+      "banana": 120,
+      "almonds": 8,
+      "raisins": 20
+    },
+    "steps": {
+      "fr": [
+        "Mettre tous les ingrédients dans le blender.",
+        "Mixer 45 secondes, jusqu'à ce qu'il ne reste plus de morceaux d'amande.",
+        "Préparable la veille au soir : l'avoine s'attendrit toute la nuit au frigo, la texture est meilleure.",
+        "Prendre le café et les 5 g de créatine à côté, une heure avant la séance."
+      ],
+      "en": [
+        "Put everything in the blender.",
+        "Blend for 45 seconds, until no almond pieces remain.",
+        "Can be made the night before: the oats soften overnight in the fridge and the texture improves.",
+        "Have the coffee and the 5 g of creatine alongside, one hour before training."
+      ]
+    }
+  },
+  "cocoaPorridge": {
+    "slot": "breakfast",
+    "name": { "fr": "Porridge chaud cacao et banane", "en": "Warm cocoa and banana porridge" },
+    "prepMinutes": 6,
+    "batch": false,
+    "ingredients": {
+      "oats": 105,
+      "wholeMilk": 300,
+      "whey": 18,
+      "cocoaPowder": 8,
+      "banana": 120,
+      "peanutButter": 8,
+      "honey": 20
+    },
+    "steps": {
+      "fr": [
+        "Verser l'avoine et le lait dans un grand bol, chauffer 3 min au micro-ondes.",
+        "Mélanger le cacao et le miel dans le porridge encore chaud.",
+        "Laisser tiédir deux minutes, puis incorporer la whey hors du feu : versée dans un liquide brûlant, elle coagule et devient granuleuse.",
+        "Terminer par la banane en rondelles et le beurre de cacahuète."
+      ],
+      "en": [
+        "Put the oats and milk in a large bowl, heat for 3 min in the microwave.",
+        "Stir the cocoa and honey into the still-hot porridge.",
+        "Let it cool for two minutes, then stir in the whey off the heat: poured into boiling liquid it curdles and turns grainy.",
+        "Finish with the sliced banana and the peanut butter."
+      ]
+    }
+  },
+  "savouryToast": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Tartines salées, œufs et fromage",
+      "en": "Savoury toast with eggs and cheese"
+    },
+    "prepMinutes": 10,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 145,
+      "egg": 100,
+      "hardCheese": 15,
+      "quark": 100,
+      "banana": 120,
+      "semiSkimmedMilk": 200,
+      "honey": 15,
+      "almonds": 8
+    },
+    "steps": {
+      "fr": [
+        "Faire griller le pain complet.",
+        "Brouiller les œufs à feu doux, en remuant sans arrêt pour les garder crémeux.",
+        "Répartir les œufs sur les tartines, râper le fromage par-dessus.",
+        "Servir avec le fromage blanc, la banane, le miel et les amandes.",
+        "Pas de whey ce jour-là : les œufs, le fromage et le fromage blanc suffisent. Le shaker devient lait et café."
+      ],
+      "en": [
+        "Toast the wholegrain bread.",
+        "Scramble the eggs over low heat, stirring constantly to keep them creamy.",
+        "Spread the eggs on the toast and grate the cheese over the top.",
+        "Serve with the quark, banana, honey and almonds.",
+        "No whey today: the eggs, cheese and quark are enough. The shake is just milk and coffee."
+      ]
+    }
+  },
+  "bananaHoneyShake": {
+    "slot": "postWorkout",
+    "name": { "fr": "Shaker banane, miel et whey", "en": "Banana, honey and whey shake" },
+    "prepMinutes": 2,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 250,
+      "whey": 18,
+      "banana": 130,
+      "honey": 20
+    },
+    "steps": {
+      "fr": [
+        "Tout mettre au shaker et secouer 30 secondes.",
+        "Le plus digeste juste après l'effort : à prendre 30 min après la séance."
+      ],
+      "en": [
+        "Put everything in the shaker and shake for 30 seconds.",
+        "The easiest to digest right after training: have it 30 min post-session."
+      ]
+    }
+  },
+  "skyrOatBowl": {
+    "slot": "postWorkout",
+    "name": { "fr": "Bol skyr, avoine et fruits rouges", "en": "Skyr, oat and berry bowl" },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "skyr": 150,
+      "oats": 50,
+      "frozenBerries": 100,
+      "honey": 20,
+      "chiaSeeds": 6
+    },
+    "steps": {
+      "fr": [
+        "Assembler tous les ingrédients dans un bocal, sans cuisson.",
+        "À monter la veille au soir : les graines de chia gonflent et les fruits rouges décongèlent au frigo.",
+        "Les fruits rouges surgelés rafraîchissent le bol au retour de la salle."
+      ],
+      "en": [
+        "Layer everything in a jar, no cooking needed.",
+        "Assemble the night before: the chia seeds swell and the berries thaw in the fridge.",
+        "The frozen berries cool the bowl down on the way back from the gym."
+      ]
+    }
+  },
+  "hamQuarkToast": {
+    "slot": "postWorkout",
+    "name": { "fr": "Tartines jambon et fromage blanc", "en": "Ham and quark toast" },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "ham": 50,
+      "quark": 100,
+      "honey": 12
+    },
+    "steps": {
+      "fr": [
+        "Griller le pain complet, poser les tranches de jambon dessus.",
+        "Servir le fromage blanc à côté, arrosé de miel.",
+        "L'option pour les jours où la faim est vraiment là et où un liquide de plus ne passe pas."
+      ],
+      "en": [
+        "Toast the bread and lay the ham on top.",
+        "Serve the quark alongside, drizzled with honey.",
+        "The option for days when you are genuinely hungry and another shake will not go down."
+      ]
+    }
+  },
+  "skyrAlmondRaisin": {
+    "slot": "snack",
+    "name": { "fr": "Skyr, amandes et raisins secs", "en": "Skyr, almonds and raisins" },
+    "prepMinutes": 2,
+    "batch": false,
+    "ingredients": {
+      "skyr": 150,
+      "almonds": 25,
+      "raisins": 35,
+      "honey": 10,
+      "apple": 200
+    },
+    "steps": {
+      "fr": [
+        "Verser le skyr dans un bol, ajouter les amandes, les raisins secs et le miel.",
+        "Manger la pomme à côté.",
+        "Rien à préparer et transportable : le goûter le plus riche en calcium et en magnésium."
+      ],
+      "en": [
+        "Pour the skyr into a bowl, add the almonds, raisins and honey.",
+        "Eat the apple alongside.",
+        "Nothing to prepare and easy to carry: the snack richest in calcium and magnesium."
+      ]
+    }
+  },
+  "peanutBananaToast": {
+    "slot": "snack",
+    "name": {
+      "fr": "Tartines beurre de cacahuète et banane",
+      "en": "Peanut butter and banana toast"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 80,
+      "peanutButter": 20,
+      "banana": 120,
+      "semiSkimmedMilk": 200
+    },
+    "steps": {
+      "fr": [
+        "Étaler le beurre de cacahuète sur le pain complet, grillé ou non.",
+        "Poser les rondelles de banane dessus.",
+        "Boire le lait à côté. Le goûter le plus dense et le moins cher de la banque."
+      ],
+      "en": [
+        "Spread the peanut butter on the bread, toasted or not.",
+        "Lay the banana slices on top.",
+        "Drink the milk alongside. The densest and cheapest snack of the set."
+      ]
+    }
+  },
+  "eggBreadChocolate": {
+    "slot": "snack",
+    "name": {
+      "fr": "Œuf dur, pain complet et chocolat noir",
+      "en": "Boiled egg, bread and dark chocolate"
+    },
+    "prepMinutes": 3,
+    "batch": true,
+    "ingredients": {
+      "egg": 60,
+      "wholegrainBread": 100,
+      "darkChocolate": 15,
+      "orange": 200,
+      "honey": 10
+    },
+    "steps": {
+      "fr": [
+        "Cuire les œufs durs 10 min : en faire six d'un coup le dimanche, ils tiennent une semaine au frigo.",
+        "Écaler, saler, manger avec le pain complet et le miel.",
+        "Terminer par l'orange et le carré de chocolat noir, qui apporte du magnésium et évite de craquer sur autre chose."
+      ],
+      "en": [
+        "Boil the eggs for 10 min: do six at once on Sunday, they keep a week in the fridge.",
+        "Peel, salt, and eat with the bread and honey.",
+        "Finish with the orange and the square of dark chocolate, which brings magnesium and heads off worse cravings."
+      ]
+    }
+  }
+}
