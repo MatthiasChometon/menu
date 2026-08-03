@@ -1,0 +1,103 @@
+{
+  "profile": {
+    "nav": "My profile",
+    "pageTitle": "My profile",
+    "pageLead": "Your answers decide the quantities shown in the recipes.",
+    "onboarding": {
+      "title": "Let's get to know you",
+      "lead": "A few questions, and the recipes will fit you.",
+      "step": "Step",
+      "of": "of",
+      "next": "Continue",
+      "back": "Back",
+      "finish": "Finish",
+      "saving": "Saving…"
+    },
+    "goal": {
+      "question": "What would you like to do?",
+      "LOSE_FAT": "Lose weight",
+      "LOSE_FAT_hint": "Eat a little less, keeping your muscle",
+      "MAINTAIN": "Stay as I am",
+      "MAINTAIN_hint": "Eat just what I need",
+      "GAIN_MUSCLE": "Build muscle",
+      "GAIN_MUSCLE_hint": "Eat a little more, to build"
+    },
+    "sex": {
+      "question": "You are…",
+      "MALE": "A man",
+      "FEMALE": "A woman",
+      "why": "Resting needs differ; the question only feeds the calculation."
+    },
+    "body": {
+      "question": "A few measurements",
+      "age": "Your age",
+      "ageUnit": "years",
+      "heightCm": "Your height",
+      "heightUnit": "cm",
+      "weightKg": "Your weight",
+      "weightUnit": "kg"
+    },
+    "dailyActivity": {
+      "question": "Your days, away from sport",
+      "SEATED": "Mostly seated",
+      "SEATED_hint": "Desk, car, working from home",
+      "ON_FEET": "Often on my feet",
+      "ON_FEET_hint": "Retail, teaching, housework",
+      "PHYSICAL": "Physical",
+      "PHYSICAL_hint": "Building site, handling, care work"
+    },
+    "training": {
+      "question": "And sport?",
+      "days": "Sessions per week",
+      "none": "None",
+      "type": "Mostly…",
+      "STRENGTH": "Strength training",
+      "CARDIO": "Cardio",
+      "CARDIO_hint": "Running, cycling, swimming, brisk walking",
+      "MIXED": "A bit of both",
+      "NONE": "I don't do sport"
+    },
+    "starchQuality": {
+      "question": "Your pasta, rice and bread are mostly…",
+      "WHOLEGRAIN": "Wholegrain",
+      "WHOLEGRAIN_hint": "Wholewheat pasta, brown rice, wholegrain bread",
+      "MIXED": "A bit of both",
+      "REFINED": "White",
+      "REFINED_hint": "White pasta, white rice, baguette",
+      "why": "This is what sets your fibre target."
+    },
+    "appetite": {
+      "question": "Your appetite",
+      "SMALL": "Small",
+      "SMALL_hint": "I fill up quickly",
+      "AVERAGE": "Normal",
+      "LARGE": "Hearty",
+      "LARGE_hint": "I always clear my plate",
+      "why": "This does not change your needs, only how they are spread out."
+    },
+    "summary": {
+      "question": "Here is what that gives",
+      "lead": "Your marks for one day. They adjust if you change your answers.",
+      "kcal": "Calories",
+      "protein": "Protein",
+      "fat": "Fat",
+      "carbs": "Carbs",
+      "fiber": "Fibre",
+      "perDay": "per day"
+    },
+    "settings": {
+      "title": "My answers",
+      "edit": "Edit",
+      "saved": "Saved.",
+      "error": "Saving did not work. Please try again."
+    },
+    "signedOut": {
+      "title": "Sign in to personalise",
+      "hint": "Without an account, recipes stay exactly as they were written."
+    },
+    "scaled": {
+      "notice": "Quantities adapted to your profile",
+      "original": "Original quantities"
+    }
+  }
+}

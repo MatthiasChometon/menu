@@ -6,6 +6,7 @@ const { currentMenu } = useMenu();
 const { recipeOf, imageOf } = useRecipes();
 const { variantsOf } = useRecipeVariants();
 const { nameOf, stepsOf } = useFoodFormat();
+const { isPersonalised, scale } = useMyQuantities();
 
 const recipeId = computed((): string => String(route.params.id));
 
@@ -21,6 +22,11 @@ const variant = computed((): RecipeVariant | undefined => {
   const found = variants.value.find((entry): boolean => entry.id === selectedVariantId.value);
   return found ?? variants.value[0];
 });
+
+// Weighed out for whoever is reading, falling back to the recipe as written.
+const myQuantities = computed((): FoodQuantity[] =>
+  variant.value === undefined ? [] : scale(variant.value.quantities, currentMenu?.targets),
+);
 
 const variantItems = computed((): SelectItem[] =>
   variants.value.map((entry): SelectItem => ({
@@ -103,7 +109,15 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
           />
         </div>
         <p class="text-sm text-muted">{{ $t('recipe.raw') }}</p>
-        <RecipeIngredientList :quantities="variant.quantities" />
+        <UAlert
+          v-if="isPersonalised"
+          class="mb-3"
+          color="primary"
+          variant="subtle"
+          icon="i-lucide-user-round-check"
+          :title="$t('profile.scaled.notice')"
+        />
+        <RecipeIngredientList :quantities="myQuantities" />
       </section>
 
       <section v-if="variant !== undefined" class="rise space-y-3" style="animation-delay: 100ms">
@@ -113,7 +127,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 
       <section v-if="variant !== undefined" class="rise space-y-3" style="animation-delay: 120ms">
         <h2 class="text-xl font-bold">{{ $t('recipe.micro.title') }}</h2>
-        <RecipeMicroHighlights :quantities="variant.quantities" />
+        <RecipeMicroHighlights :quantities="myQuantities" />
       </section>
 
       <section class="rise space-y-3" style="animation-delay: 140ms">

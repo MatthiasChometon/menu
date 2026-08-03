@@ -1,0 +1,103 @@
+{
+  "profile": {
+    "nav": "Mon profil",
+    "pageTitle": "Mon profil",
+    "pageLead": "Vos réponses décident des quantités affichées dans les recettes.",
+    "onboarding": {
+      "title": "Faisons connaissance",
+      "lead": "Quelques questions, et les recettes s'adapteront à vous.",
+      "step": "Étape",
+      "of": "sur",
+      "next": "Continuer",
+      "back": "Retour",
+      "finish": "Terminer",
+      "saving": "Enregistrement…"
+    },
+    "goal": {
+      "question": "Qu'aimeriez-vous faire ?",
+      "LOSE_FAT": "Perdre du poids",
+      "LOSE_FAT_hint": "Manger un peu moins, en gardant vos muscles",
+      "MAINTAIN": "Rester comme je suis",
+      "MAINTAIN_hint": "Manger juste ce qu'il faut",
+      "GAIN_MUSCLE": "Prendre du muscle",
+      "GAIN_MUSCLE_hint": "Manger un peu plus, pour construire"
+    },
+    "sex": {
+      "question": "Vous êtes…",
+      "MALE": "Un homme",
+      "FEMALE": "Une femme",
+      "why": "Les besoins au repos diffèrent, la question sert uniquement au calcul."
+    },
+    "body": {
+      "question": "Quelques mesures",
+      "age": "Votre âge",
+      "ageUnit": "ans",
+      "heightCm": "Votre taille",
+      "heightUnit": "cm",
+      "weightKg": "Votre poids",
+      "weightUnit": "kg"
+    },
+    "dailyActivity": {
+      "question": "Vos journées, en dehors du sport",
+      "SEATED": "Plutôt assis",
+      "SEATED_hint": "Bureau, voiture, télétravail",
+      "ON_FEET": "Souvent debout",
+      "ON_FEET_hint": "Commerce, enseignement, ménage",
+      "PHYSICAL": "Physiques",
+      "PHYSICAL_hint": "Chantier, manutention, soins"
+    },
+    "training": {
+      "question": "Et le sport ?",
+      "days": "Séances par semaine",
+      "none": "Aucune",
+      "type": "Plutôt…",
+      "STRENGTH": "Musculation",
+      "CARDIO": "Cardio",
+      "CARDIO_hint": "Course, vélo, natation, marche rapide",
+      "MIXED": "Un peu des deux",
+      "NONE": "Je ne fais pas de sport"
+    },
+    "starchQuality": {
+      "question": "Vos pâtes, riz et pain sont plutôt…",
+      "WHOLEGRAIN": "Complets",
+      "WHOLEGRAIN_hint": "Pâtes complètes, riz complet, pain complet",
+      "MIXED": "Un peu des deux",
+      "REFINED": "Blancs",
+      "REFINED_hint": "Pâtes blanches, riz blanc, baguette",
+      "why": "C'est ce qui décide de votre objectif de fibres."
+    },
+    "appetite": {
+      "question": "Votre appétit",
+      "SMALL": "Petit",
+      "SMALL_hint": "Je cale vite",
+      "AVERAGE": "Normal",
+      "LARGE": "Bon appétit",
+      "LARGE_hint": "Je finis toujours mon assiette",
+      "why": "Cela ne change pas vos besoins, seulement la façon de les répartir."
+    },
+    "summary": {
+      "question": "Voici ce que cela donne",
+      "lead": "Vos repères pour une journée. Ils s'ajusteront si vous modifiez vos réponses.",
+      "kcal": "Calories",
+      "protein": "Protéines",
+      "fat": "Lipides",
+      "carbs": "Glucides",
+      "fiber": "Fibres",
+      "perDay": "par jour"
+    },
+    "settings": {
+      "title": "Mes réponses",
+      "edit": "Modifier",
+      "saved": "C'est enregistré.",
+      "error": "L'enregistrement n'a pas fonctionné. Réessayez."
+    },
+    "signedOut": {
+      "title": "Connectez-vous pour personnaliser",
+      "hint": "Sans compte, les recettes restent affichées telles qu'elles ont été écrites."
+    },
+    "scaled": {
+      "notice": "Quantités adaptées à votre profil",
+      "original": "Quantités d'origine"
+    }
+  }
+}

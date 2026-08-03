@@ -1,0 +1,7 @@
+{
+  "auth": {
+    "signInWithGoogle": "Continue with Google",
+    "signOut": "Sign out",
+    "signedInAs": "Signed in as"
+  }
+}
