@@ -24,6 +24,9 @@ import { AuthService } from './service';
   ],
   controllers: [EmailAndPasswordController, GoogleController],
   providers: [AuthService, AuthResolver, AuthGuard, PasswordService, SessionCookie, GoogleOAuth],
-  exports: [AuthGuard, SessionCookie],
+  // JwtModule and UserModule go out too: @UseGuards(AuthGuard) has Nest build
+  // the guard inside the module that uses it, so that module must be able to
+  // resolve the guard's own dependencies.
+  exports: [AuthGuard, SessionCookie, JwtModule, UserModule],
 })
 export class AuthModule {}

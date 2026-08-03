@@ -15,6 +15,13 @@
       "when": 1785757880726,
       "tag": "0001_whole_sage",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785758243004,
+      "tag": "0002_tired_miek",
+      "breakpoints": true
     }
   ]
 }
