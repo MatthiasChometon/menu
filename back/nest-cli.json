@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": ".",
+  "generateOptions": {
+    "specFileSuffix": "test"
+  },
+  "compilerOptions": {
+    "deleteOutDir": true
+  }
+}
