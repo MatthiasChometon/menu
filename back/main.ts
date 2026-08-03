@@ -1,3 +1,4 @@
+import fastifyCookie from '@fastify/cookie';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -10,6 +11,7 @@ const bootstrap = async (): Promise<void> => {
   // preview on yet another.
   app.enableCors({ origin: true, credentials: true });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  await app.register(fastifyCookie);
   await app.listen(process.env.PORT ?? 3779, '0.0.0.0');
 };
 void bootstrap();

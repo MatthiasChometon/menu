@@ -1,0 +1,42 @@
+import { Body, Controller, HttpCode, Post, Res } from '@nestjs/common';
+// Decorated signatures need type-only imports under isolatedModules +
+// emitDecoratorMetadata, otherwise TS1272.
+import type { FastifyReply } from 'fastify';
+import { User } from '../../user/model';
+import { SessionCookie } from '../currentUser/cookie';
+import { AuthService } from '../service';
+import { LoginInput, RegisterInput } from './input';
+
+// These live on REST rather than GraphQL because a resolver cannot set a
+// cookie: Apollo's Fastify context exposes the request but not the reply.
+@Controller('auth')
+export class EmailAndPasswordController {
+  constructor(
+    private readonly auth: AuthService,
+    private readonly cookie: SessionCookie,
+  ) {}
+
+  @Post('register')
+  async register(@Body() input: RegisterInput, @Res() reply: FastifyReply): Promise<void> {
+    const user = await this.auth.register(input);
+    await this.replyWithSession(reply, user);
+  }
+
+  @Post('login')
+  @HttpCode(200)
+  async login(@Body() input: LoginInput, @Res() reply: FastifyReply): Promise<void> {
+    const user = await this.auth.login(input);
+    await this.replyWithSession(reply, user);
+  }
+
+  @Post('logout')
+  @HttpCode(204)
+  logout(@Res() reply: FastifyReply): void {
+    reply.setCookie(this.cookie.name, '', this.cookie.clearedOptions()).send();
+  }
+
+  private async replyWithSession(reply: FastifyReply, user: User): Promise<void> {
+    const token = await this.auth.signSession(user.id);
+    reply.setCookie(this.cookie.name, token, this.cookie.options()).send(user);
+  }
+}

@@ -3,3 +3,10 @@ allowBuilds:
   '@swc/core': true
   esbuild: true
   unrs-resolver: true
+
+overrides:
+  # @nestjs/platform-fastify pins fastify exactly, while Apollo's integration
+  # pulls a newer patch. Two copies means two sets of module augmentations, so
+  # @fastify/cookie decorates one FastifyInstance and Nest hands us the other --
+  # which does not typecheck. Everyone shares the version Nest ships with.
+  fastify: 5.10.0
