@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 
 const TEST_DATABASE_URL =
   process.env.TEST_DATABASE_URL ??
-  'postgres://menu:menu@localhost:5433/menu_semaine_test';
+  'postgres://menu:menu@localhost:5433/menu_test';
 
 // Set before the config is read: the globalSetup runs in this process, and
 // @nestjs/config never overrides a variable already present in the environment.

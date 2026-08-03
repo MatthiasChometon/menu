@@ -65,7 +65,7 @@
     "recipeCount": "recipes this week",
     "empty": {
       "title": "No menu yet",
-      "hint": "Run the menu-semaine command to generate the coming week."
+      "hint": "Run the menu command to generate the coming week."
     },
     "unit": {
       "kcal": "kcal",

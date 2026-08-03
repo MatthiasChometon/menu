@@ -11,14 +11,16 @@ une perte de poids.
 Le front est un site statique, installable comme une application et consultable **hors
 ligne** : la liste de courses reste utilisable sans réseau en rayon.
 
-**En ligne** : https://menu-semaine-887.netlify.app
+**En ligne** : https://menu-semaine-887.netlify.app — l'adresse garde l'ancien nom du
+projet : elle est déjà installée comme application sur un téléphone, et la renommer
+casserait le raccourci.
 
 ## Structure
 
 Un seul dépôt, une brique par dossier :
 
 ```
-menu-semaine/
+menu/
 ├─ front/     Nuxt — le site (données du menu dans front/content/)
 ├─ back/      NestJS — comptes et profils nutritionnels
 └─ scripts/   outillage Python : validation des macros, courses, images
@@ -46,7 +48,7 @@ Toutes les commandes ci-dessous se lancent depuis `front/`.
 ## Où vivent les données
 
 Le dossier `front/content/` est la **source de vérité**, partagée avec le skill Claude
-`menu-semaine`. Aucune donnée nutritionnelle n'est dupliquée dans le code.
+`menu`. Aucune donnée nutritionnelle n'est dupliquée dans le code.
 
 | Fichier                               | Contenu                                                                      |
 | ------------------------------------- | ---------------------------------------------------------------------------- |

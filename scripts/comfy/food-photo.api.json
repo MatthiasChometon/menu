@@ -42,7 +42,7 @@
   },
   "9": {
     "class_type": "SaveImage",
-    "inputs": { "filename_prefix": "menu-semaine/image", "images": ["8", 0] },
+    "inputs": { "filename_prefix": "menu/image", "images": ["8", 0] },
     "_meta": { "title": "Save" }
   }
 }

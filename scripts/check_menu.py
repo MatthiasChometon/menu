@@ -5,7 +5,7 @@ Usage:
     python scripts/check_menu.py content/menus/2026-08-03.json --courses --detail
 
 Le menu decrit chaque jour, chaque repas (recette + grammages reels en g ou ml).
-Les macros viennent de content/foods.json. Voir le SKILL.md de menu-semaine.
+Les macros viennent de content/foods.json. Voir le SKILL.md de menu.
 """
 
 from __future__ import annotations

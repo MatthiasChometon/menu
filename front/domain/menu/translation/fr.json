@@ -65,7 +65,7 @@
     "recipeCount": "recettes de la semaine",
     "empty": {
       "title": "Aucun menu pour l'instant",
-      "hint": "Lance la commande menu-semaine pour générer la semaine à venir."
+      "hint": "Lance la commande menu pour générer la semaine à venir."
     },
     "unit": {
       "kcal": "kcal",
