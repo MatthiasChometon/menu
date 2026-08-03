@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Goal } from './enum';
+import { DailyActivity, Goal, StarchQuality, TrainingType } from './enum';
 import { NutritionTargets } from './model';
 import { Measurements } from './type';
 import {
-  activityFactors,
+  dailyActivityBase,
   fatPerKg,
   fiberPerThousandKcal,
   goalCalorieAdjustments,
+  maxActivityFactor,
   maxProteinShareOfKcal,
   proteinPerKg,
   restingEnergy,
+  trainingIncrementPerSession,
 } from './utils';
 
 const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 };
@@ -17,10 +19,10 @@ const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 };
 @Injectable()
 export class NutritionTargetsService {
   calculate(measurements: Measurements): NutritionTargets {
-    const { sex, age, heightCm, weightKg, activityLevel, goal } = measurements;
+    const { sex, age, heightCm, weightKg, starchQuality, goal } = measurements;
 
     const resting = restingEnergy(sex, age, heightCm, weightKg);
-    const maintenance = resting * activityFactors()[activityLevel];
+    const maintenance = resting * this.activityFactorFor(measurements);
     const kcal = maintenance * (1 + goalCalorieAdjustments()[goal]);
 
     const protein = this.proteinFor(kcal, weightKg, goal);
@@ -34,8 +36,27 @@ export class NutritionTargetsService {
       protein: Math.round(protein),
       fat: Math.round(fat),
       carbs: Math.round(carbs),
-      fiber: Math.round((kcal / 1000) * fiberPerThousandKcal()),
+      fiber: Math.round((kcal / 1000) * this.fiberRateFor(starchQuality)),
     };
+  }
+
+  private activityFactorFor({
+    dailyActivity,
+    trainingDaysPerWeek,
+    trainingType,
+  }: {
+    dailyActivity: DailyActivity;
+    trainingDaysPerWeek: number;
+    trainingType: TrainingType;
+  }): number {
+    const base = dailyActivityBase()[dailyActivity];
+    const fromTraining = trainingDaysPerWeek * trainingIncrementPerSession()[trainingType];
+
+    return Math.min(base + fromTraining, maxActivityFactor());
+  }
+
+  private fiberRateFor(starchQuality: StarchQuality): number {
+    return fiberPerThousandKcal()[starchQuality];
   }
 
   private proteinFor(kcal: number, weightKg: number, goal: Goal): number {

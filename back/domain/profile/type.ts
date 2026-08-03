@@ -1,10 +1,14 @@
-import { ActivityLevel, Goal, Sex } from './enum';
+import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 
 export type Measurements = {
   sex: Sex;
   age: number;
   heightCm: number;
   weightKg: number;
-  activityLevel: ActivityLevel;
+  dailyActivity: DailyActivity;
+  trainingDaysPerWeek: number;
+  trainingType: TrainingType;
+  starchQuality: StarchQuality;
+  appetite: Appetite;
   goal: Goal;
 };

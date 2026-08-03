@@ -1,4 +1,4 @@
-import { ActivityLevel, Goal, Sex } from './enum';
+import { DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 
 export const profileConstraints = (): {
   minAge: number;
@@ -7,6 +7,7 @@ export const profileConstraints = (): {
   maxHeightCm: number;
   minWeightKg: number;
   maxWeightKg: number;
+  maxTrainingDaysPerWeek: number;
 } => ({
   minAge: 14,
   maxAge: 100,
@@ -14,17 +15,30 @@ export const profileConstraints = (): {
   maxHeightCm: 230,
   minWeightKg: 35,
   maxWeightKg: 300,
+  maxTrainingDaysPerWeek: 14,
 });
 
-// Harris-Benedict style multipliers, the ones Mifflin-St Jeor is normally
-// paired with.
-export const activityFactors = (): Record<ActivityLevel, number> => ({
-  [ActivityLevel.SEDENTARY]: 1.2,
-  [ActivityLevel.LIGHT]: 1.375,
-  [ActivityLevel.MODERATE]: 1.55,
-  [ActivityLevel.ACTIVE]: 1.725,
-  [ActivityLevel.VERY_ACTIVE]: 1.9,
+// The classic activity multipliers bundle work and training into one figure,
+// which cannot describe someone sitting at a desk all day and training every
+// evening. Here the day job sets the floor...
+export const dailyActivityBase = (): Record<DailyActivity, number> => ({
+  [DailyActivity.SEATED]: 1.2,
+  [DailyActivity.ON_FEET]: 1.35,
+  [DailyActivity.PHYSICAL]: 1.5,
 });
+
+// ...and each weekly session adds to it. The figures are set so that a desk job
+// plus six or seven sessions lands on the classic "very active" multiplier.
+export const trainingIncrementPerSession = (): Record<TrainingType, number> => ({
+  [TrainingType.NONE]: 0,
+  [TrainingType.STRENGTH]: 0.075,
+  [TrainingType.MIXED]: 0.08,
+  [TrainingType.CARDIO]: 0.085,
+});
+
+// Beyond this the multiplier stops meaning anything: it is the top of the
+// published scale, for people training twice a day.
+export const maxActivityFactor = (): number => 1.9;
 
 // Past roughly +15% the surplus goes to fat rather than muscle, and a deficit
 // steeper than -20% starts costing lean mass, so both stay deliberately modest.
@@ -53,7 +67,14 @@ export const fatPerKg = (): { standard: number; floor: number } => ({
   floor: 0.8,
 });
 
-export const fiberPerThousandKcal = (): number => 14;
+// Fibre follows what the starches actually are rather than a single population
+// average: eating only wholegrain pasta, rice, oats and bread mechanically
+// carries several times the fibre of the refined versions.
+export const fiberPerThousandKcal = (): Record<StarchQuality, number> => ({
+  [StarchQuality.WHOLEGRAIN]: 18,
+  [StarchQuality.MIXED]: 14,
+  [StarchQuality.REFINED]: 12,
+});
 
 export const restingEnergy = (
   sex: Sex,

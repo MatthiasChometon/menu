@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ActivityLevel, Goal, Sex } from './enum';
+import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 import { NutritionTargetsService } from './targets.service';
 import { Measurements } from './type';
 
@@ -10,30 +10,97 @@ const measurements = (overrides: Partial<Measurements> = {}): Measurements => ({
   age: 30,
   heightCm: 175,
   weightKg: 75,
-  activityLevel: ActivityLevel.MODERATE,
+  dailyActivity: DailyActivity.SEATED,
+  trainingDaysPerWeek: 3,
+  trainingType: TrainingType.MIXED,
+  starchQuality: StarchQuality.MIXED,
+  appetite: Appetite.AVERAGE,
   goal: Goal.MAINTAIN,
   ...overrides,
 });
 
+// Nothing below is special-cased: these figures come out of the same formula as
+// everyone else's, from the answers the form would collect.
+const dailyLifter = (): Measurements =>
+  measurements({
+    age: 22,
+    heightCm: 168,
+    weightKg: 72,
+    dailyActivity: DailyActivity.SEATED,
+    trainingDaysPerWeek: 7,
+    trainingType: TrainingType.STRENGTH,
+    starchQuality: StarchQuality.WHOLEGRAIN,
+    appetite: Appetite.SMALL,
+    goal: Goal.GAIN_MUSCLE,
+  });
+
 describe('NutritionTargetsService', () => {
-  it("lands on the targets Matthias's menus are built against", () => {
-    // His menus aim at 3150 kcal / 165 g protein / 80 g fat, worked out
-    // separately. Reproducing them within a few percent is what says the
-    // formula is wired correctly. Fibre is left out on purpose: his 55-60 g
-    // comes from eating only wholegrain starches, not from a calorie rule.
-    const targets = service.calculate({
-      sex: Sex.MALE,
-      age: 22,
-      heightCm: 168,
-      weightKg: 72,
-      activityLevel: ActivityLevel.ACTIVE,
-      goal: Goal.GAIN_MUSCLE,
-    });
+  it('lands on the targets the menus are built against', () => {
+    // Those menus aim at 3150 kcal / 165 g protein / 80 g fat / 55-60 g fibre,
+    // worked out separately. Reproducing them within a few percent is what says
+    // the formula is wired correctly.
+    const targets = service.calculate(dailyLifter());
 
     expect(targets.kcal).toBeGreaterThan(3150 * 0.95);
     expect(targets.kcal).toBeLessThan(3150 * 1.05);
     expect(targets.protein).toBeGreaterThan(165 * 0.9);
     expect(targets.fat).toBeCloseTo(80, -1);
+    expect(targets.fiber).toBeGreaterThanOrEqual(55);
+    expect(targets.fiber).toBeLessThanOrEqual(60);
+  });
+
+  it('separates the day job from the training', () => {
+    // The whole point of asking two questions: a desk job with daily sessions
+    // must outrank a standing job with none.
+    const deskAndTraining = service.calculate(
+      measurements({
+        dailyActivity: DailyActivity.SEATED,
+        trainingDaysPerWeek: 6,
+        trainingType: TrainingType.STRENGTH,
+      }),
+    );
+    const onFeetNoTraining = service.calculate(
+      measurements({
+        dailyActivity: DailyActivity.ON_FEET,
+        trainingDaysPerWeek: 0,
+        trainingType: TrainingType.NONE,
+      }),
+    );
+
+    expect(deskAndTraining.kcal).toBeGreaterThan(onFeetNoTraining.kcal);
+  });
+
+  it('raises the allowance with each weekly session', () => {
+    const twice = service.calculate(measurements({ trainingDaysPerWeek: 2 }));
+    const sixTimes = service.calculate(measurements({ trainingDaysPerWeek: 6 }));
+
+    expect(sixTimes.kcal).toBeGreaterThan(twice.kcal);
+  });
+
+  it('caps the activity factor so extreme answers stay believable', () => {
+    const plausible = service.calculate(
+      measurements({
+        dailyActivity: DailyActivity.PHYSICAL,
+        trainingDaysPerWeek: 7,
+        trainingType: TrainingType.CARDIO,
+      }),
+    );
+    const absurd = service.calculate(
+      measurements({
+        dailyActivity: DailyActivity.PHYSICAL,
+        trainingDaysPerWeek: 14,
+        trainingType: TrainingType.CARDIO,
+      }),
+    );
+
+    expect(absurd.kcal).toBe(plausible.kcal);
+  });
+
+  it('sets fibre from the starches actually eaten', () => {
+    const wholegrain = service.calculate(measurements({ starchQuality: StarchQuality.WHOLEGRAIN }));
+    const refined = service.calculate(measurements({ starchQuality: StarchQuality.REFINED }));
+
+    expect(wholegrain.fiber).toBeGreaterThan(refined.fiber);
   });
 
   it('gives a woman a lower allowance than a man of the same build', () => {
@@ -71,22 +138,15 @@ describe('NutritionTargetsService', () => {
         age: 55,
         heightCm: 165,
         weightKg: 70,
-        activityLevel: ActivityLevel.LIGHT,
+        dailyActivity: DailyActivity.SEATED,
+        trainingDaysPerWeek: 2,
+        trainingType: TrainingType.CARDIO,
         goal: Goal.LOSE_FAT,
       }),
     );
 
     expect((targets.protein * 4) / targets.kcal).toBeLessThanOrEqual(0.36);
     expect(targets.carbs).toBeGreaterThan(100);
-  });
-
-  it('raises the allowance with the activity level', () => {
-    const sedentary = service.calculate(measurements({ activityLevel: ActivityLevel.SEDENTARY }));
-    const veryActive = service.calculate(
-      measurements({ activityLevel: ActivityLevel.VERY_ACTIVE }),
-    );
-
-    expect(veryActive.kcal).toBeGreaterThan(sedentary.kcal);
   });
 
   it('splits the whole allowance across the three macros', () => {
@@ -108,19 +168,14 @@ describe('NutritionTargetsService', () => {
         age: 70,
         heightCm: 150,
         weightKg: 50,
-        activityLevel: ActivityLevel.SEDENTARY,
+        dailyActivity: DailyActivity.SEATED,
+        trainingDaysPerWeek: 0,
+        trainingType: TrainingType.NONE,
         goal: Goal.LOSE_FAT,
       }),
     );
 
     expect(targets.fat).toBeGreaterThanOrEqual(0.8 * 50);
     expect(targets.carbs).toBeGreaterThan(0);
-  });
-
-  it('scales fibre with the allowance', () => {
-    const small = service.calculate(measurements({ weightKg: 50 }));
-    const large = service.calculate(measurements({ weightKg: 100 }));
-
-    expect(large.fiber).toBeGreaterThan(small.fiber);
   });
 });
