@@ -11,6 +11,13 @@ export default defineNuxtConfig({
   // The PWA module registers a virtual module that Vitest cannot resolve, and a
   // service worker is meaningless in a component test anyway.
   modules: ['@nuxt/eslint', '@vueuse/nuxt', ...(process.env.VITEST ? [] : ['@vite-pwa/nuxt'])],
+  icon: {
+    // Most icons are named in composables (the nav entries, the profile
+    // choices) rather than written in a template, so the default template-only
+    // detection misses them: they were left out of the bundle and every render
+    // tried to fetch them from the Iconify API instead.
+    clientBundle: { scan: true },
+  },
   css: cssList,
   components: componentsList,
   imports: { dirs: typesDirList },

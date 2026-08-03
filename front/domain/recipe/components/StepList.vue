@@ -24,18 +24,22 @@ onBeforeUnmount((): void => {
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <UButton
-        v-if="isSupported"
-        :icon="isActive ? 'i-lucide-lightbulb' : 'i-lucide-lightbulb-off'"
-        :color="isActive ? 'primary' : 'neutral'"
-        :variant="isActive ? 'solid' : 'outline'"
-        :aria-pressed="isActive"
-        size="sm"
-        :class="isActive && 'text-white'"
-        @click="toggleCookMode"
-      >
-        {{ $t('recipe.cookMode') }}
-      </UButton>
+      <!-- Whether the screen can be kept awake is only knowable in the browser,
+           so the server has no way to render this button the same way. -->
+      <ClientOnly>
+        <UButton
+          v-if="isSupported"
+          :icon="isActive ? 'i-lucide-lightbulb' : 'i-lucide-lightbulb-off'"
+          :color="isActive ? 'primary' : 'neutral'"
+          :variant="isActive ? 'solid' : 'outline'"
+          :aria-pressed="isActive"
+          size="sm"
+          :class="isActive && 'text-white'"
+          @click="toggleCookMode"
+        >
+          {{ $t('recipe.cookMode') }}
+        </UButton>
+      </ClientOnly>
       <UButton
         v-if="doneSteps.size > 0"
         icon="i-lucide-rotate-ccw"
@@ -47,9 +51,11 @@ onBeforeUnmount((): void => {
         {{ $t('recipe.resetSteps') }}
       </UButton>
     </div>
-    <p v-if="isSupported && isActive" class="text-xs text-muted">
-      {{ $t('recipe.cookModeHint') }}
-    </p>
+    <ClientOnly>
+      <p v-if="isSupported && isActive" class="text-xs text-muted">
+        {{ $t('recipe.cookModeHint') }}
+      </p>
+    </ClientOnly>
 
     <ol class="space-y-2.5">
       <li v-for="(step, index) in steps" :key="step">
