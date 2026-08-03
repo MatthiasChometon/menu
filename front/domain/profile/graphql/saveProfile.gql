@@ -1,0 +1,21 @@
+mutation saveProfile($input: MeasurementsInput!) {
+  saveProfile(input: $input) {
+    sex
+    age
+    heightCm
+    weightKg
+    dailyActivity
+    trainingDaysPerWeek
+    trainingType
+    starchQuality
+    appetite
+    goal
+    targets {
+      kcal
+      protein
+      fat
+      carbs
+      fiber
+    }
+  }
+}

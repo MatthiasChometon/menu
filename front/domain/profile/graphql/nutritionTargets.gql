@@ -1,0 +1,9 @@
+query nutritionTargets($input: MeasurementsInput!) {
+  nutritionTargets(input: $input) {
+    kcal
+    protein
+    fat
+    carbs
+    fiber
+  }
+}
