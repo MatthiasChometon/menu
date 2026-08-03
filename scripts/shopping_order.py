@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONTENT = PROJECT_ROOT / "content"
+CONTENT = PROJECT_ROOT / "front" / "content"
 ORDERS = CONTENT / "orders.json"
 
 AISLE_ORDER = ("butcher", "dairy", "produce", "frozen", "grocery", "supplement")

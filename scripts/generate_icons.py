@@ -14,7 +14,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PUBLIC_DIR = PROJECT_ROOT / "public"
+FRONT = PROJECT_ROOT / "front"
+PUBLIC_DIR = FRONT / "public"
 
 SIZES = {"pwa-192x192.png": 192, "pwa-512x512.png": 512, "apple-touch-icon.png": 180}
 

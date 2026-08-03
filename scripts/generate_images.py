@@ -29,7 +29,7 @@ from PIL import Image
 COMFY = "http://127.0.0.1:8188"
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 COMFY_DIR = Path(__file__).resolve().parent / "comfy"
-ASSETS = PROJECT_ROOT / "assets" / "images"
+ASSETS = PROJECT_ROOT / "front" / "assets" / "images"
 
 RECIPE_SIZE = (1024, 640)
 FOOD_SIZE = (768, 768)

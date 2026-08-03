@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONTENT = PROJECT_ROOT / "content"
+CONTENT = PROJECT_ROOT / "front" / "content"
 PANTRY = CONTENT / "pantry.json"
 
 # Ce qui ne se garde pas d'une semaine sur l'autre : inutile de compter un reste

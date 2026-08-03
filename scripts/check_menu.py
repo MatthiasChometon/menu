@@ -21,10 +21,11 @@ MEAL_ORDER = ("breakfast", "postWorkout", "lunch", "snack", "dinner")
 AISLE_ORDER = ("butcher", "dairy", "produce", "frozen", "grocery", "supplement")
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+FRONT = PROJECT_ROOT / "front"
 
 
 def load_foods() -> dict:
-    with open(PROJECT_ROOT / "content" / "foods.json", encoding="utf-8") as f:
+    with open(FRONT / "content" / "foods.json", encoding="utf-8") as f:
         return {k: v for k, v in json.load(f).items() if not k.startswith("_")}
 
 
