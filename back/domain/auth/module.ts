@@ -5,6 +5,8 @@ import { UserModule } from '../user/module';
 import { SessionCookie } from './currentUser/cookie';
 import { AuthGuard } from './currentUser/guard';
 import { EmailAndPasswordController } from './emailAndPassword/controller';
+import { GoogleController } from './google/controller';
+import { GoogleOAuth } from './google/service';
 import { PasswordService } from './emailAndPassword/password.service';
 import { AuthResolver } from './resolver';
 import { AuthService } from './service';
@@ -20,8 +22,8 @@ import { AuthService } from './service';
       }),
     }),
   ],
-  controllers: [EmailAndPasswordController],
-  providers: [AuthService, AuthResolver, AuthGuard, PasswordService, SessionCookie],
+  controllers: [EmailAndPasswordController, GoogleController],
+  providers: [AuthService, AuthResolver, AuthGuard, PasswordService, SessionCookie, GoogleOAuth],
   exports: [AuthGuard, SessionCookie],
 })
 export class AuthModule {}

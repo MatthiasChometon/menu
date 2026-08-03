@@ -5,5 +5,6 @@ export type UserRecord = {
   email: string;
   name: string | null;
   passwordHash: string | null;
+  googleId: string | null;
   createdAt: Date;
 };
