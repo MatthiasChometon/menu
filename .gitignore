@@ -12,6 +12,9 @@ back/infrastructure/graphql/schema.gql
 node_modules
 *.log
 
+# pnpm's package store when it cannot use the global one (containers)
+.pnpm-store
+
 # Env
 .env
 

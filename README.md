@@ -28,10 +28,40 @@ menu/
 
 ## Démarrer
 
+### Avec Docker — toute la stack en une commande
+
 ```bash
-cd front
-pnpm install
-pnpm dev            # http://localhost:3777 (port dans .env)
+cp back/.env.example back/.env    # y mettre ses identifiants Google
+docker compose up                 # front, API et Postgres
+```
+
+Front sur http://localhost:3777, GraphQL sur http://localhost:3779/graphql, Postgres sur
+5433. Le code est monté dans les conteneurs : une modification est reprise en une vingtaine
+de secondes, des deux côtés.
+
+Le premier démarrage installe les dépendances dans un volume et la première page demande
+une bonne minute à compiler, le temps que Vite traverse le montage Windows ; ensuite tout
+répond à la seconde. Les démarrages suivants réutilisent l'installation.
+
+Pour la version de production (application compilée, site prérendu) :
+
+```bash
+docker compose -f docker-compose.prod.yml up --build
+```
+
+Ou, sous Windows, un double-clic sur `start-menu.bat` : il démarre Docker s'il est éteint,
+lance la prod et affiche l'adresse à ouvrir sur le téléphone. `menu-down.ps1` arrête tout.
+
+Pour consulter le site depuis un téléphone du même réseau, renseigner son IP locale dans
+`PUBLIC_HOST` (voir `.env.example`) — la connexion Google, elle, n'accepte que `localhost`,
+il faut alors utiliser le formulaire e-mail / mot de passe.
+
+### Sans Docker
+
+```bash
+docker compose up postgres        # juste la base
+cd back && pnpm install && pnpm db:migrate && pnpm start:dev
+cd front && pnpm install && pnpm dev     # http://localhost:3777 (port dans .env)
 ```
 
 Toutes les commandes ci-dessous se lancent depuis `front/`.

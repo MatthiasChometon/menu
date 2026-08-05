@@ -1,0 +1,19 @@
+# Reinstalled inside the image: a host node_modules carries Windows binaries.
+node_modules
+
+# Build artefacts — a host-generated .nuxt bakes in host paths and would break
+# the layer discovery inside the container.
+.nuxt
+.output
+dist
+.netlify
+
+# Secrets and local overrides — the compose file supplies the environment.
+.env
+
+.git
+.vscode
+test-results
+playwright-report
+coverage
+*.log

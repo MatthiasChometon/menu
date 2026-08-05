@@ -1,6 +1,15 @@
-# Infrastructure the back needs in development.
-# Postgres is published on 5433 so it never collides with another local
-# instance (verdure's compose already holds 5432).
+# menu — full-stack orchestration (dev).
+#
+# One command brings the whole app up: Postgres, the NestJS API and the Nuxt
+# front, wired together and hot-reloading over a bind mount.
+#
+#   docker compose up                # everything
+#   docker compose up postgres       # just the database, to run the apps natively
+#
+# Front → http://localhost:3777 · GraphQL → http://localhost:3779/graphql
+# Postgres is published on 5433 so it never collides with another local instance
+# (verdure's compose already holds 5432).
+
 services:
   postgres:
     image: postgres:17-alpine
@@ -19,5 +28,113 @@ services:
       timeout: 5s
       retries: 5
 
+  # Creates the dedicated database the back's e2e suite provisions itself into.
+  postgres-init:
+    image: postgres:17-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: menu
+    entrypoint:
+      - sh
+      - -c
+      - >
+        psql -h postgres -U menu -d menu -tc "SELECT 1 FROM pg_database WHERE datname='menu_test'" | grep -q 1 ||
+        psql -h postgres -U menu -d menu -c "CREATE DATABASE menu_test";
+
+  back:
+    build:
+      context: ./back
+      target: dev
+    image: menu-back:dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Secrets (JWT_SECRET, the Google credentials) stay in the back's own .env,
+    # which is gitignored and already there for a native run. Everything the
+    # container needs to differ on is overridden below — `environment` wins.
+    env_file:
+      - path: ./back/.env
+        required: false
+    environment:
+      PORT: 3779
+      # Poll for file changes so nest --watch reloads over the bind mount:
+      # inotify events are not delivered through a Windows/WSL2 mount.
+      CHOKIDAR_USEPOLLING: 'true'
+      DATABASE_URL: postgres://menu:menu@postgres:5432/menu
+      TEST_DATABASE_URL: postgres://menu:menu@postgres:5432/menu_test
+      # Both are browser-facing addresses: one builds the OAuth redirect URI,
+      # the other is where the user lands once signed in. Set PUBLIC_HOST to
+      # your LAN IP to use the app from a phone; defaults to localhost.
+      BACK_URL: http://${PUBLIC_HOST:-localhost}:3779
+      FRONT_URL: http://${PUBLIC_HOST:-localhost}:3777
+    ports:
+      - '3779:3779'
+    volumes:
+      - ./back:/app
+      - back-node-modules:/app/node_modules
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://localhost:3779/graphql', () => process.exit(0)).on('error', () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  front:
+    build:
+      context: ./front
+      target: dev
+    image: menu-front:dev
+    restart: unless-stopped
+    depends_on:
+      back:
+        condition: service_healthy
+    environment:
+      PORT: 3777
+      # Poll for file changes so HMR works over the Windows/WSL2 bind mount,
+      # which delivers no inotify event. The interval matters: at the 100ms
+      # default, polling a Nuxt tree across that mount saturates the I/O and the
+      # dev server never gets to compile a page — it accepts the connection and
+      # answers nothing. Three seconds leaves it room to work.
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '3000'
+      # Non-interactive pnpm: before running a script it re-checks the installed
+      # dependencies and, on any mismatch, would abort trying to purge
+      # node_modules with no TTY. CI mode makes it proceed without prompting.
+      CI: 'true'
+      # Codegen introspects the back over the internal network...
+      GQL_HOST: http://back:3779/graphql
+      # ...the browser reaches it through the published port.
+      GQL_CLIENT_HOST: http://${PUBLIC_HOST:-localhost}:3779/graphql
+      NUXT_PUBLIC_API_BASE: http://${PUBLIC_HOST:-localhost}:3779
+      NUXT_PUBLIC_I18N_BASE_URL: http://${PUBLIC_HOST:-localhost}:3777
+    ports:
+      - '3777:3777'
+    volumes:
+      - ./front:/app
+      # Kept apart from the prod one: an install made under NODE_ENV=production
+      # makes pnpm's pre-run check diverge here, and it then tries to reinstall
+      # from scratch on every start.
+      - front-node-modules-dev:/app/node_modules
+      # pnpm keeps its store on the same filesystem as the project, so it falls
+      # back to <project>/.pnpm-store here — which would land on the Windows
+      # disk, through the bind mount. Giving that path a volume keeps the store
+      # fast, out of the working tree, and shared with the prod stack: a
+      # reinstall then costs a link instead of 1400 downloads.
+      - pnpm-store:/app/.pnpm-store
+      # Shadow the host's build artefacts so the container generates its own
+      # (a host-generated .nuxt bakes in host paths and breaks layer discovery).
+      - /app/.nuxt
+      - /app/.output
+
 volumes:
   postgres-data:
+  back-node-modules:
+  front-node-modules-dev:
+  pnpm-store:

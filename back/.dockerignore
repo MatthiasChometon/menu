@@ -1,0 +1,11 @@
+# Reinstalled inside the image: a host node_modules carries Windows binaries.
+node_modules
+dist
+coverage
+
+# Secrets and local overrides — the compose file supplies the environment.
+.env
+
+.git
+.vscode
+*.log
