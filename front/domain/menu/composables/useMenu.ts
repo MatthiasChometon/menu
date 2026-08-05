@@ -96,8 +96,13 @@ const buildMenu = (raw: RawMenu): Menu => {
     days.flatMap((day): string[] => day.meals.map((meal): string => meal.recipe.id)),
   );
   const { recipeOf } = useRecipes();
+  const { freshOf } = useSeasonings();
 
   const { tolerancePct, ...targets } = raw.targets;
+
+  const recipes = [...usedRecipeIds]
+    .map((id): Recipe | undefined => recipeOf(id))
+    .filter((recipe): recipe is Recipe => recipe !== undefined);
 
   return {
     weekOf: raw.weekOf,
@@ -105,10 +110,9 @@ const buildMenu = (raw: RawMenu): Menu => {
     targets,
     tolerancePct: tolerancePct ?? { default: 5 },
     days,
-    recipes: [...usedRecipeIds]
-      .map((id): Recipe | undefined => recipeOf(id))
-      .filter((recipe): recipe is Recipe => recipe !== undefined),
+    recipes,
     shoppingList,
+    freshSeasonings: freshOf(recipes),
     totalPrice: shoppingList.reduce((total, line): number => total + line.price, 0),
   };
 };

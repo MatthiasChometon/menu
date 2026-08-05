@@ -39,6 +39,17 @@ export type Food = Macros & {
 
 export type RecipeSlot = 'main' | 'breakfast' | 'postWorkout' | 'snack';
 
+// What seasons a dish, as opposed to what it is made of: never weighed, never
+// counted in the macros, and never scaled to a profile. Dried spices sit in the
+// cupboard; fresh aromatics have to be bought, so only those reach the list.
+export type Seasoning = {
+  id: string;
+  name: LocalizedText;
+  icon: string;
+  fresh: boolean;
+  amount?: LocalizedText;
+};
+
 export type Recipe = {
   id: string;
   slot: RecipeSlot;
@@ -46,6 +57,7 @@ export type Recipe = {
   prepMinutes: number;
   batch: boolean;
   ingredients: Record<string, number>;
+  seasonings: string[];
   steps: LocalizedSteps;
 };
 
@@ -87,6 +99,7 @@ export type Menu = {
   days: Day[];
   recipes: Recipe[];
   shoppingList: ShoppingLine[];
+  freshSeasonings: Seasoning[];
   totalPrice: number;
 };
 

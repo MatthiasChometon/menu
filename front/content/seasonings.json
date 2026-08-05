@@ -1,0 +1,80 @@
+{
+  "salt": {
+    "name": { "fr": "Sel", "en": "Salt" },
+    "icon": "i-lucide-grip",
+    "fresh": false
+  },
+  "pepper": {
+    "name": { "fr": "Poivre", "en": "Pepper" },
+    "icon": "i-lucide-grip-vertical",
+    "fresh": false
+  },
+  "cumin": {
+    "name": { "fr": "Cumin moulu", "en": "Ground cumin" },
+    "icon": "i-lucide-cooking-pot",
+    "fresh": false
+  },
+  "paprika": {
+    "name": { "fr": "Paprika", "en": "Paprika" },
+    "icon": "i-lucide-cooking-pot",
+    "fresh": false
+  },
+  "smokedPaprika": {
+    "name": { "fr": "Paprika fumé", "en": "Smoked paprika" },
+    "icon": "i-lucide-cooking-pot",
+    "fresh": false
+  },
+  "curryPowder": {
+    "name": { "fr": "Curry en poudre", "en": "Curry powder" },
+    "icon": "i-lucide-cooking-pot",
+    "fresh": false
+  },
+  "turmeric": {
+    "name": { "fr": "Curcuma", "en": "Turmeric" },
+    "icon": "i-lucide-cooking-pot",
+    "fresh": false
+  },
+  "chilli": {
+    "name": { "fr": "Piment", "en": "Chilli" },
+    "icon": "i-lucide-flame",
+    "fresh": false
+  },
+  "oregano": {
+    "name": { "fr": "Origan", "en": "Oregano" },
+    "icon": "i-lucide-leaf",
+    "fresh": false
+  },
+  "herbesDeProvence": {
+    "name": { "fr": "Herbes de Provence", "en": "Herbes de Provence" },
+    "icon": "i-lucide-leaf",
+    "fresh": false
+  },
+  "soySauce": {
+    "name": { "fr": "Sauce soja", "en": "Soy sauce" },
+    "icon": "i-lucide-droplet",
+    "fresh": false
+  },
+  "balsamicVinegar": {
+    "name": { "fr": "Vinaigre balsamique", "en": "Balsamic vinegar" },
+    "icon": "i-lucide-droplet",
+    "fresh": false
+  },
+  "garlic": {
+    "name": { "fr": "Ail", "en": "Garlic" },
+    "icon": "i-lucide-vegan",
+    "fresh": true,
+    "amount": { "fr": "1 tête", "en": "1 bulb" }
+  },
+  "ginger": {
+    "name": { "fr": "Gingembre frais", "en": "Fresh ginger" },
+    "icon": "i-lucide-sprout",
+    "fresh": true,
+    "amount": { "fr": "1 morceau", "en": "1 piece" }
+  },
+  "lemon": {
+    "name": { "fr": "Citron", "en": "Lemon" },
+    "icon": "i-lucide-citrus",
+    "fresh": true,
+    "amount": { "fr": "2 citrons", "en": "2 lemons" }
+  }
+}

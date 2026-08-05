@@ -1,7 +1,10 @@
 {
   "chiliChicken": {
     "slot": "main",
-    "name": { "fr": "Chili de poulet aux haricots rouges", "en": "Chicken and kidney bean chili" },
+    "name": {
+      "fr": "Chili de poulet aux haricots rouges",
+      "en": "Chicken and kidney bean chili"
+    },
     "prepMinutes": 25,
     "batch": true,
     "ingredients": {
@@ -13,6 +16,7 @@
       "oliveOil": 13,
       "brownRice": 140
     },
+    "seasonings": ["cumin", "smokedPaprika", "oregano", "chilli", "salt"],
     "steps": {
       "fr": [
         "Lancer le riz complet dans deux fois son volume d'eau salée, 40 min à petits bouillons.",
@@ -36,7 +40,10 @@
   },
   "beefLentilBolognese": {
     "slot": "main",
-    "name": { "fr": "Bolognaise de bœuf aux lentilles", "en": "Beef and lentil bolognese" },
+    "name": {
+      "fr": "Bolognaise de bœuf aux lentilles",
+      "en": "Beef and lentil bolognese"
+    },
     "prepMinutes": 30,
     "batch": true,
     "ingredients": {
@@ -48,6 +55,7 @@
       "oliveOil": 11,
       "wholewheatPasta": 145
     },
+    "seasonings": ["herbesDeProvence", "garlic", "balsamicVinegar", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer l'oignon, râper la carotte. Les faire suer 5 min dans l'huile d'olive.",
@@ -71,7 +79,10 @@
   },
   "salmonRiceBroccoli": {
     "slot": "main",
-    "name": { "fr": "Saumon, riz complet et brocolis", "en": "Salmon, brown rice and broccoli" },
+    "name": {
+      "fr": "Saumon, riz complet et brocolis",
+      "en": "Salmon, brown rice and broccoli"
+    },
     "prepMinutes": 20,
     "batch": false,
     "ingredients": {
@@ -80,6 +91,7 @@
       "broccoli": 200,
       "oliveOil": 4
     },
+    "seasonings": ["lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Préchauffer le four à 200 °C. Cuire le riz complet 40 min.",
@@ -101,7 +113,10 @@
   },
   "turkeyChickpeaCurry": {
     "slot": "main",
-    "name": { "fr": "Curry de dinde et pois chiches", "en": "Turkey and chickpea curry" },
+    "name": {
+      "fr": "Curry de dinde et pois chiches",
+      "en": "Turkey and chickpea curry"
+    },
     "prepMinutes": 25,
     "batch": true,
     "ingredients": {
@@ -113,6 +128,7 @@
       "oliveOil": 8,
       "brownRice": 110
     },
+    "seasonings": ["curryPowder", "turmeric", "ginger", "garlic"],
     "steps": {
       "fr": [
         "Lancer le riz complet.",
@@ -148,6 +164,7 @@
       "oliveOil": 8,
       "zucchini": 100
     },
+    "seasonings": ["garlic", "oregano"],
     "steps": {
       "fr": [
         "Mettre les pâtes complètes à cuire.",
@@ -167,7 +184,10 @@
   },
   "shakshukaWhiteBeans": {
     "slot": "main",
-    "name": { "fr": "Shakshuka aux haricots blancs", "en": "White bean shakshuka" },
+    "name": {
+      "fr": "Shakshuka aux haricots blancs",
+      "en": "White bean shakshuka"
+    },
     "prepMinutes": 20,
     "batch": false,
     "ingredients": {
@@ -178,6 +198,7 @@
       "oliveOil": 8,
       "wholegrainBread": 80
     },
+    "seasonings": ["cumin", "paprika"],
     "steps": {
       "fr": [
         "Faire revenir le poivron émincé 5 min dans l'huile d'olive.",
@@ -199,7 +220,10 @@
   },
   "porkWok": {
     "slot": "main",
-    "name": { "fr": "Wok de porc aux légumes croquants", "en": "Pork wok with crisp vegetables" },
+    "name": {
+      "fr": "Wok de porc aux légumes croquants",
+      "en": "Pork wok with crisp vegetables"
+    },
     "prepMinutes": 18,
     "batch": false,
     "ingredients": {
@@ -210,6 +234,7 @@
       "greenBeans": 120,
       "oliveOil": 10
     },
+    "seasonings": ["soySauce", "garlic", "ginger"],
     "steps": {
       "fr": [
         "Utiliser du riz complet déjà cuit, ou en lancer une casserole 40 min avant.",
@@ -246,6 +271,7 @@
       "almonds": 8,
       "raisins": 20
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Mettre tous les ingrédients dans le blender.",
@@ -263,7 +289,10 @@
   },
   "cocoaPorridge": {
     "slot": "breakfast",
-    "name": { "fr": "Porridge chaud cacao et banane", "en": "Warm cocoa and banana porridge" },
+    "name": {
+      "fr": "Porridge chaud cacao et banane",
+      "en": "Warm cocoa and banana porridge"
+    },
     "prepMinutes": 6,
     "batch": false,
     "ingredients": {
@@ -275,6 +304,7 @@
       "peanutButter": 8,
       "honey": 20
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Verser l'avoine et le lait dans un grand bol, chauffer 3 min au micro-ondes.",
@@ -308,6 +338,7 @@
       "honey": 15,
       "almonds": 8
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Faire griller le pain complet.",
@@ -327,7 +358,10 @@
   },
   "bananaHoneyShake": {
     "slot": "postWorkout",
-    "name": { "fr": "Shaker banane, miel et whey", "en": "Banana, honey and whey shake" },
+    "name": {
+      "fr": "Shaker banane, miel et whey",
+      "en": "Banana, honey and whey shake"
+    },
     "prepMinutes": 2,
     "batch": false,
     "ingredients": {
@@ -336,6 +370,7 @@
       "banana": 130,
       "honey": 20
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Tout mettre au shaker et secouer 30 secondes.",
@@ -349,7 +384,10 @@
   },
   "skyrOatBowl": {
     "slot": "postWorkout",
-    "name": { "fr": "Bol skyr, avoine et fruits rouges", "en": "Skyr, oat and berry bowl" },
+    "name": {
+      "fr": "Bol skyr, avoine et fruits rouges",
+      "en": "Skyr, oat and berry bowl"
+    },
     "prepMinutes": 3,
     "batch": false,
     "ingredients": {
@@ -359,6 +397,7 @@
       "honey": 20,
       "chiaSeeds": 6
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Assembler tous les ingrédients dans un bocal, sans cuisson.",
@@ -374,7 +413,10 @@
   },
   "hamQuarkToast": {
     "slot": "postWorkout",
-    "name": { "fr": "Tartines jambon et fromage blanc", "en": "Ham and quark toast" },
+    "name": {
+      "fr": "Tartines jambon et fromage blanc",
+      "en": "Ham and quark toast"
+    },
     "prepMinutes": 4,
     "batch": false,
     "ingredients": {
@@ -383,6 +425,7 @@
       "quark": 100,
       "honey": 12
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Griller le pain complet, poser les tranches de jambon dessus.",
@@ -398,7 +441,10 @@
   },
   "skyrAlmondRaisin": {
     "slot": "snack",
-    "name": { "fr": "Skyr, amandes et raisins secs", "en": "Skyr, almonds and raisins" },
+    "name": {
+      "fr": "Skyr, amandes et raisins secs",
+      "en": "Skyr, almonds and raisins"
+    },
     "prepMinutes": 2,
     "batch": false,
     "ingredients": {
@@ -408,6 +454,7 @@
       "honey": 10,
       "apple": 200
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Verser le skyr dans un bol, ajouter les amandes, les raisins secs et le miel.",
@@ -435,6 +482,7 @@
       "banana": 120,
       "semiSkimmedMilk": 200
     },
+    "seasonings": [],
     "steps": {
       "fr": [
         "Étaler le beurre de cacahuète sur le pain complet, grillé ou non.",
@@ -463,6 +511,7 @@
       "orange": 200,
       "honey": 10
     },
+    "seasonings": ["salt"],
     "steps": {
       "fr": [
         "Cuire les œufs durs 10 min : en faire six d'un coup le dimanche, ils tiennent une semaine au frigo.",

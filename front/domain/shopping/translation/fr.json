@@ -8,8 +8,10 @@
       "produce": "Fruits et légumes",
       "frozen": "Surgelés",
       "grocery": "Épicerie",
-      "supplement": "Compléments"
+      "supplement": "Compléments",
+      "seasoning": "Aromates frais"
     },
+    "seasoningHint": "Les épices sèches restent au placard ; ceux-là s'achètent.",
     "progress": "articles pris",
     "total": "Total estimé",
     "reset": "Tout décocher",

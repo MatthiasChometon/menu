@@ -11,7 +11,13 @@ const groups = computed((): ShoppingGroup[] =>
   currentMenu === undefined ? [] : groupsOf(currentMenu),
 );
 
-const totalLines = computed((): number => currentMenu?.shoppingList.length ?? 0);
+const freshSeasonings = computed((): Seasoning[] => currentMenu?.freshSeasonings ?? []);
+
+// The aromatics count towards the progress too: the basket is not done while
+// the garlic is still on the shelf.
+const totalLines = computed(
+  (): number => (currentMenu?.shoppingList.length ?? 0) + freshSeasonings.value.length,
+);
 
 // Ticks only apply once mounted: the prerendered HTML knows nothing about
 // localStorage, and rendering them server-side would break hydration.
@@ -110,6 +116,13 @@ useSeoMeta({ title: (): string => t('shopping.title') });
           :group="group"
           :picked-ids="visiblePickedIds"
           :index="index"
+          @toggle="toggle"
+        />
+        <ShoppingSeasoningAisle
+          v-if="freshSeasonings.length > 0"
+          :seasonings="freshSeasonings"
+          :picked-ids="visiblePickedIds"
+          :index="groups.length"
           @toggle="toggle"
         />
       </div>

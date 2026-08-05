@@ -6,6 +6,7 @@ type RawRecipe = {
   prepMinutes: number;
   batch: boolean;
   ingredients: Record<string, number>;
+  seasonings?: string[];
   steps: LocalizedSteps;
 };
 
@@ -25,6 +26,7 @@ const catalog: Record<string, Recipe> = Object.fromEntries(
       prepMinutes: raw.prepMinutes,
       batch: raw.batch,
       ingredients: raw.ingredients,
+      seasonings: raw.seasonings ?? [],
       steps: raw.steps,
     },
   ]),

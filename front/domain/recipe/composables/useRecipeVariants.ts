@@ -6,6 +6,8 @@ const signatureOf = (quantities: FoodQuantity[]): string =>
 
 export const useRecipeVariants = (): {
   variantsOf: (menu: Menu, recipeId: string) => RecipeVariant[];
+  portionsOf: (variants: RecipeVariant[]) => number;
+  weekQuantitiesOf: (variants: RecipeVariant[]) => FoodQuantity[];
 } => ({
   // A recipe shows up several times in a week with different weights (full
   // portion at lunch, smaller one at dinner). Grouping by exact weights gives
@@ -36,5 +38,26 @@ export const useRecipeVariants = (): {
     }
 
     return [...groups.values()].sort((left, right): number => right.macros.kcal - left.macros.kcal);
+  },
+
+  portionsOf: (variants: RecipeVariant[]): number =>
+    variants.reduce((total, variant): number => total + variant.servings.length, 0),
+
+  // Everything the week needs of this recipe, cooked in one go: each portion
+  // counted as many times as it is served, the reduced ones included.
+  weekQuantitiesOf: (variants: RecipeVariant[]): FoodQuantity[] => {
+    const totals = new Map<string, FoodQuantity>();
+
+    for (const variant of variants) {
+      for (const { food, grams } of variant.quantities) {
+        const existing = totals.get(food.id);
+        totals.set(food.id, {
+          food,
+          grams: (existing?.grams ?? 0) + grams * variant.servings.length,
+        });
+      }
+    }
+
+    return [...totals.values()];
   },
 });

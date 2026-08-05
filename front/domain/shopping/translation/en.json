@@ -8,8 +8,10 @@
       "produce": "Fruit and vegetables",
       "frozen": "Frozen",
       "grocery": "Grocery",
-      "supplement": "Supplements"
+      "supplement": "Supplements",
+      "seasoning": "Fresh aromatics"
     },
+    "seasoningHint": "Dried spices stay in the cupboard; these you buy.",
     "progress": "items picked",
     "total": "Estimated total",
     "reset": "Clear all",
