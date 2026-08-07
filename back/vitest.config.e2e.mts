@@ -18,6 +18,13 @@ const TEST_ENV = {
   GOOGLE_CLIENT_SECRET: 'test-google-client-secret',
   BACK_URL: 'http://localhost:3779',
   FRONT_URL: 'http://localhost:3777',
+  // The suite exercises the guest list, so it has to be closed here: the two
+  // addresses the tests sign in with are the invitees.
+  ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com',
+  // The contract suite signs in far more often than a human would; the test
+  // covering the limiter arms it back on for itself.
+  THROTTLE_SKIP: 'true',
+  ALLOWED_ORIGINS: 'http://localhost:3777,http://localhost:3778',
 };
 
 Object.assign(process.env, TEST_ENV);

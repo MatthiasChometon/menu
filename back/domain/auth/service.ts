@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '../user/model';
 import { UserMapper } from '../user/mapper';
 import { UserRepository } from '../user/repository';
+import { EmailAllowlist } from './allowlist.service';
 import { PasswordService } from './emailAndPassword/password.service';
 import { LoginInput, RegisterInput } from './emailAndPassword/input';
 
@@ -13,9 +14,14 @@ export class AuthService {
     private readonly passwords: PasswordService,
     private readonly mapper: UserMapper,
     private readonly jwt: JwtService,
+    private readonly allowlist: EmailAllowlist,
   ) {}
 
   async register({ email, password, name }: RegisterInput): Promise<User> {
+    // Checked before anything is looked up or hashed: an uninvited address must
+    // not even learn whether it already has an account here.
+    this.allowlist.assertAllowed(email);
+
     const existing = await this.users.findRecordByEmail(email);
     if (existing !== undefined) {
       throw new ConflictException('This email address is already registered.');

@@ -35,6 +35,17 @@ CMD ["pnpm", "exec", "nuxt", "dev", "--host", "0.0.0.0", "--port", "3777"]
 # usable offline.
 FROM base AS prod
 ENV MODE=prod NODE_ENV=production PORT=3777
+# Unprivileged from here on: the entrypoint installs and builds, so /app and the
+# pnpm home both have to belong to `node`. Running the server as root would hand
+# the container over on any remote code execution.
+#
+# The mount points are created BEFORE the chown on purpose: Docker seeds a fresh
+# named volume from the image directory it covers, ownership included. Left
+# missing, they would be created root-owned and the unprivileged user could not
+# write its install into them.
+RUN mkdir -p /pnpm /app/node_modules /app/.pnpm-store /app/.nuxt /app/.output \
+    && chown -R node:node /app /pnpm
+USER node
 EXPOSE 3777
 ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
 CMD ["node", ".output/server/index.mjs"]

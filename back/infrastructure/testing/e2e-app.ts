@@ -1,6 +1,4 @@
-import fastifyCookie from '@fastify/cookie';
-import { ValidationPipe } from '@nestjs/common';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -8,6 +6,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { AppModule } from '../../app.module';
 import { DATABASE, type Database } from '../database/token';
+import { configureApp, createAdapter } from '../http/setup';
 
 const MIGRATIONS_FOLDER = './infrastructure/database/migrations';
 
@@ -23,10 +22,11 @@ export type TestApp = {
     body?: object,
     cookie?: string,
   ) => Promise<{ statusCode: number; body: string; cookies: TestCookie[] }>;
-  /** GET a REST route, optionally carrying cookies. */
+  /** GET a route, optionally carrying cookies and extra headers. */
   get: (
     url: string,
     cookie?: string,
+    headers?: Record<string, string>,
   ) => Promise<{ statusCode: number; headers: Record<string, unknown>; cookies: TestCookie[] }>;
   /** Send a GraphQL operation the way the front does. */
   graphql: <T>(query: string, variables?: object, cookie?: string) => Promise<GraphqlResponse<T>>;
@@ -40,9 +40,9 @@ export type TestCookie = { name: string; value: string; httpOnly?: boolean; maxA
 const cookiesOf = (raw: unknown): TestCookie[] =>
   Array.isArray(raw) ? (raw as TestCookie[]) : raw === undefined ? [] : [raw as TestCookie];
 
-// Boots the real application, wired exactly as main.ts wires it: a contract test
-// that skipped the validation pipe or the cookie plugin would be testing a
-// different server from the one that ships.
+// Boots the real application through the very setup main.ts uses, so a guard,
+// a header or a body limit added there is exercised here without anyone having
+// to remember to mirror it.
 export const startTestApp = async (): Promise<TestApp> => {
   const url = process.env.DATABASE_URL;
   if (url === undefined) throw new Error('DATABASE_URL must point at the test database.');
@@ -53,9 +53,10 @@ export const startTestApp = async (): Promise<TestApp> => {
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
 
-  const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter());
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  await app.register(fastifyCookie);
+  const app = moduleRef.createNestApplication<NestFastifyApplication>(createAdapter());
+  // The same wiring main.ts applies, so the suite tests the server that ships
+  // rather than a lookalike missing its guards and headers.
+  await configureApp(app);
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
 
@@ -76,11 +77,11 @@ export const startTestApp = async (): Promise<TestApp> => {
         cookies: cookiesOf(response.cookies),
       };
     },
-    get: async (url, cookie) => {
+    get: async (url, cookie, headers) => {
       const response = await app.inject({
         method: 'GET',
         url,
-        headers: cookie === undefined ? {} : { cookie },
+        headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
       });
 
       return {

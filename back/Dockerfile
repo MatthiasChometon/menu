@@ -40,6 +40,11 @@ COPY --from=build /app/infrastructure/database/migrations ./infrastructure/datab
 # drizzle.config.ts globs the per-slice schemas; keep them so the config loads.
 COPY --from=build /app/domain ./domain
 COPY docker-entrypoint.sh ./
+# The image ships with an unprivileged `node` user; without switching to it the
+# server runs as root, so any remote code execution owns the container outright.
+# Ownership is handed over so pnpm can still write its caches.
+RUN chown -R node:node /app
+USER node
 EXPOSE 3779
 ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]

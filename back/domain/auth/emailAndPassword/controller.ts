@@ -1,4 +1,6 @@
 import { Body, Controller, HttpCode, Post, Res } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { AUTH_ATTEMPTS, AUTH_WINDOW_MS } from '../../../infrastructure/http/throttler.module';
 // Decorated signatures need type-only imports under isolatedModules +
 // emitDecoratorMetadata, otherwise TS1272.
 import type { FastifyReply } from 'fastify';
@@ -10,6 +12,9 @@ import { LoginInput, RegisterInput } from './input';
 // These live on REST rather than GraphQL because a resolver cannot set a
 // cookie: Apollo's Fastify context exposes the request but not the reply.
 @Controller('auth')
+// Guessing a password is the one attack worth the attacker's time here, and
+// each attempt costs us a scrypt derivation: the tight budget covers both.
+@Throttle({ default: { ttl: AUTH_WINDOW_MS, limit: AUTH_ATTEMPTS } })
 export class EmailAndPasswordController {
   constructor(
     private readonly auth: AuthService,

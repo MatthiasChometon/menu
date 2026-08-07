@@ -1,4 +1,6 @@
 import { Controller, Get, Query, Res, UnauthorizedException } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { AUTH_WINDOW_MS, GOOGLE_ATTEMPTS } from '../../../infrastructure/http/throttler.module';
 import { ConfigService } from '@nestjs/config';
 import type { FastifyReply } from 'fastify';
 import type { FastifyRequest } from 'fastify';
@@ -7,10 +9,12 @@ import { UserRepository } from '../../user/repository';
 import { SessionCookie } from '../currentUser/cookie';
 import { AuthService } from '../service';
 import { GoogleOAuth } from './service';
+import { EmailAllowlist } from '../allowlist.service';
 
 const STATE_COOKIE = 'oauth_state';
 
 @Controller('auth/google')
+@Throttle({ default: { ttl: AUTH_WINDOW_MS, limit: GOOGLE_ATTEMPTS } })
 export class GoogleController {
   constructor(
     private readonly google: GoogleOAuth,
@@ -18,6 +22,7 @@ export class GoogleController {
     private readonly auth: AuthService,
     private readonly cookie: SessionCookie,
     private readonly config: ConfigService,
+    private readonly allowlist: EmailAllowlist,
   ) {}
 
   @Get()
@@ -53,6 +58,9 @@ export class GoogleController {
     }
 
     const profile = await this.google.profileFromCode(code);
+    // Google vouches for the address; the guest list decides whether it may in.
+    this.allowlist.assertAllowed(profile.email);
+
     const user = await this.users.upsertByGoogle(profile.sub, profile.email, profile.name);
     const token = await this.auth.signSession(user.id);
 

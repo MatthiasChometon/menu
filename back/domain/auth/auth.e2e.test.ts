@@ -87,6 +87,34 @@ describe('registering', () => {
   });
 });
 
+describe('the guest list', () => {
+  it('turns away an address that was never invited', async () => {
+    const response = await api.post('/auth/register', {
+      email: 'stranger@example.com',
+      password: PASSWORD,
+    });
+
+    expect(response.statusCode).toBe(403);
+  });
+
+  it('creates nothing for an address it turned away', async () => {
+    await api.post('/auth/register', { email: 'stranger@example.com', password: PASSWORD });
+
+    const login = await api.post('/auth/login', {
+      email: 'stranger@example.com',
+      password: PASSWORD,
+    });
+
+    expect(login.statusCode).toBe(401);
+  });
+
+  it('still lets an invited address in', async () => {
+    const response = await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+
+    expect(response.statusCode).toBe(201);
+  });
+});
+
 describe('signing in', () => {
   it('accepts the right password and opens a session', async () => {
     await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
