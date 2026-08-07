@@ -16,6 +16,79 @@ const within = (actual: number, target: number, percent: number): boolean =>
   Math.abs(actual - target) / target <= percent / 100;
 
 describe('useMacroSolver', () => {
+  it('files vegetables apart, so fibre has a lever of its own', () => {
+    const { groupOf } = useMacroSolver();
+    const { foodOf } = useFoods();
+
+    const courgette = foodOf('zucchini');
+    const broccoli = foodOf('broccoli');
+    const banana = foodOf('banana');
+    const rice = foodOf('brownRice');
+    if ([courgette, broccoli, banana, rice].some((food): boolean => food === undefined)) {
+      throw new Error('missing reference foods');
+    }
+
+    expect(groupOf(courgette!)).toBe('vegetable');
+    expect(groupOf(broccoli!)).toBe('vegetable');
+    // Fruit stays out: tripling a banana is not the same proposition as
+    // tripling a courgette, and it is the aisle's cheap fibre we are after.
+    expect(groupOf(banana!)).not.toBe('vegetable');
+    // The whole point: vegetables no longer ride along with the rice.
+    expect(groupOf(rice!)).toBe('carbs');
+  });
+
+  it('lands fibre on target too, by asking for more vegetables', () => {
+    const { solve } = useMacroSolver();
+
+    const { macros } = solve(dayQuantities(), TARGETS);
+
+    // Fibre used to be whatever the dishes happened to give; it is now steered.
+    expect(within(macros.fiber, TARGETS.fiber, 5)).toBe(true);
+  });
+
+  it('reaches a fibre target the dishes alone would miss', () => {
+    const { solve } = useMacroSolver();
+
+    const hungryForFibre: Macros = { ...TARGETS, fiber: TARGETS.fiber * 1.4 };
+    const before = solve(dayQuantities(), TARGETS);
+    const after = solve(dayQuantities(), hungryForFibre);
+
+    // More fibre asked for, more vegetables served — and the macros still land.
+    expect(after.macros.fiber).toBeGreaterThan(before.macros.fiber);
+    expect(after.scales.vegetable).toBeGreaterThan(before.scales.vegetable);
+    expect(within(after.macros.protein, TARGETS.protein, 2)).toBe(true);
+    expect(within(after.macros.carbs, TARGETS.carbs, 2)).toBe(true);
+  });
+
+  it('still solves the macros on a day that has no vegetable at all', () => {
+    const { solve } = useMacroSolver();
+    const { foodOf } = useFoods();
+
+    // Portions a day could plausibly start from: too little to begin with and
+    // the levers saturate, which would be testing the clamps instead.
+    const quantities = Object.entries({
+      oats: 250,
+      whey: 90,
+      peanutButter: 60,
+      semiSkimmedMilk: 600,
+    })
+      .map(([id, grams]): FoodQuantity | undefined => {
+        const food = foodOf(id);
+        return food === undefined ? undefined : { food, grams };
+      })
+      .filter((quantity): quantity is FoodQuantity => quantity !== undefined);
+
+    // A mistyped id would quietly leave a lever with nothing in it, and the
+    // test would then be measuring the fallback rather than what it claims.
+    expect(quantities).toHaveLength(4);
+
+    const { macros } = solve(quantities, TARGETS);
+
+    // No lever for fibre here, but the three that exist must still land.
+    expect(within(macros.protein, TARGETS.protein, 5)).toBe(true);
+    expect(within(macros.fat, TARGETS.fat, 5)).toBe(true);
+  });
+
   it('files each food under the macro that carries its energy', () => {
     const { groupOf } = useMacroSolver();
     const { foodOf } = useFoods();
