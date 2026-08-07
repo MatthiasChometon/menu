@@ -7,8 +7,14 @@ const pick = async (page: import('@playwright/test').Page, count: number): Promi
   for (let index = 0; index < count; index += 1) await dishes(page).nth(index).click();
 };
 
+// The order is stable, so an index always names the same card: picking one more
+// means reaching past the ones already taken.
+const pickAt = async (page: import('@playwright/test').Page, index: number): Promise<void> => {
+  await dishes(page).nth(index).click();
+};
+
 const next = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
-  page.getByRole('button', { name: /Suivant|Passer/ });
+  page.getByRole('button', { name: 'Suivant' });
 
 // The pickers only answer once Vue has attached its listeners; clicking before
 // that is a tap into the void, and under load that window is wide.
@@ -17,12 +23,46 @@ const open = async (page: import('@playwright/test').Page): Promise<void> => {
   await page.locator('[data-hydrated]').waitFor();
 };
 
-test('opens on the savoury dishes and will not move on without one', async ({ page }) => {
+test('will not move on until the floor is met, and says how many are missing', async ({ page }) => {
   await open(page);
 
   await expect(page.getByRole('heading', { name: 'Déjeuner et dîner' })).toBeVisible();
-  // The week is built around lunch and dinner; the other steps may be skipped.
   await expect(next(page)).toBeDisabled();
+  await expect(page.getByText('Encore à choisir : 2')).toBeVisible();
+
+  await pickAt(page, 0);
+  // One savoury dish would put the same meal at noon and in the evening.
+  await expect(next(page)).toBeDisabled();
+
+  await pickAt(page, 1);
+  await expect(next(page)).toBeEnabled();
+});
+
+test('refuses more dishes than a week can cook', async ({ page }) => {
+  await open(page);
+
+  // Four savoury dishes is the ceiling: past that the week cooks single
+  // portions, which defeats the point of batching.
+  await pick(page, 4);
+
+  await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(4);
+  await expect(page.getByText('maximum atteint')).toBeVisible();
+  // The fifth card says no before it is tapped rather than swallowing the tap.
+  await expect(page.getByRole('main').getByRole('checkbox').nth(4)).toBeDisabled();
+});
+
+test('the steps are named and can be walked back through', async ({ page }) => {
+  await open(page);
+
+  await pick(page, 2);
+  await next(page).click();
+  await expect(page.getByRole('heading', { name: 'Petit-déjeuner' })).toBeVisible();
+
+  // Back to a named step by clicking it, not only with the back button.
+  await page.getByRole('button', { name: 'Déjeuner et dîner' }).click();
+
+  await expect(page.getByRole('heading', { name: 'Déjeuner et dîner' })).toBeVisible();
+  await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(2);
 });
 
 test('walks the four meals and lands on a week that is on target', async ({ page }) => {
@@ -49,7 +89,10 @@ test('a dish never lands twice in the same day', async ({ page }) => {
   await open(page);
 
   await pick(page, 2);
-  for (let step = 0; step < 4; step += 1) await next(page).click();
+  for (let step = 0; step < 4; step += 1) {
+    await next(page).click();
+    if (step < 3) await pick(page, 1);
+  }
 
   const monday = page.getByRole('main').locator('div').filter({ hasText: 'Lundi' }).first();
   const lunch = await monday.getByLabel('Déjeuner', { exact: true }).first().textContent();
@@ -58,31 +101,23 @@ test('a dish never lands twice in the same day', async ({ page }) => {
   expect(lunch).not.toBe(dinner);
 });
 
-test('picking at random fills a step on its own', async ({ page }) => {
+test('picking at random fills a step to its ceiling', async ({ page }) => {
   await open(page);
 
   await page.getByRole('button', { name: 'Au hasard' }).click();
 
-  await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(3);
+  await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(4);
   await expect(next(page)).toBeEnabled();
-});
-
-test('going back keeps what was already chosen', async ({ page }) => {
-  await open(page);
-
-  await pick(page, 2);
-  await next(page).click();
-  await page.getByRole('button', { name: 'Retour' }).click();
-
-  await expect(page.getByRole('heading', { name: 'Déjeuner et dîner' })).toBeVisible();
-  await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(2);
 });
 
 test('saving asks for an account rather than pretending to work', async ({ page }) => {
   await open(page);
 
   await pick(page, 2);
-  for (let step = 0; step < 4; step += 1) await next(page).click();
+  for (let step = 0; step < 4; step += 1) {
+    await next(page).click();
+    if (step < 3) await pick(page, 1);
+  }
 
   await expect(page.getByRole('button', { name: 'Enregistrer la semaine' })).toBeDisabled();
   await expect(page.getByText('Connecte-toi pour la retrouver')).toBeVisible();

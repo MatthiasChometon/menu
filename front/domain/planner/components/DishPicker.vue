@@ -1,8 +1,18 @@
 <script setup lang="ts">
 const { group } = defineProps<{ group: RecipeSlot }>();
 
-const { dishesFor, isChosen, toggleDish, chosenDishes, pickAtRandom, kindOf, isQuick } =
-  usePlanner();
+const {
+  dishesFor,
+  isChosen,
+  toggleDish,
+  chosenDishes,
+  pickAtRandom,
+  kindOf,
+  isQuick,
+  limitsOf,
+  isGroupComplete,
+  isGroupFull,
+} = usePlanner();
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
 
@@ -30,15 +40,16 @@ const matches = (recipe: Recipe): boolean => {
   return kindOf(recipe) === filter.value;
 };
 
-// Chosen dishes rise to the top: with twenty-odd cards, what you already picked
-// should never be something you have to scroll back to find. They survive the
-// filter too, so narrowing the list never hides a choice already made.
+// The order never changes with the selection. Cards that reshuffle the instant
+// one is tapped move the next one out from under the finger — two dishes picked
+// in a row and the first comes undone. What was chosen is shown in its own row
+// above instead, which is the thing that actually needed to be visible.
 const dishes = computed((): Recipe[] =>
-  dishesFor(group)
-    .filter((recipe): boolean => isChosen(group, recipe.id) || matches(recipe))
-    .sort(
-      (left, right): number => Number(isChosen(group, right.id)) - Number(isChosen(group, left.id)),
-    ),
+  dishesFor(group).filter((recipe): boolean => isChosen(group, recipe.id) || matches(recipe)),
+);
+
+const chosenRecipes = computed((): Recipe[] =>
+  dishesFor(group).filter((recipe): boolean => isChosen(group, recipe.id)),
 );
 
 const count = computed((): number => (chosenDishes.value[group] ?? []).length);
@@ -51,9 +62,12 @@ const isPreviewOpen = computed({
   },
 });
 
-// Three is the working rule of the week: enough variety not to tire of a dish,
-// few enough to cook them all in one Sunday.
-const suggested = 3;
+const limits = computed((): { min: number; max: number } => limitsOf(group));
+const isComplete = computed((): boolean => isGroupComplete(group));
+const isFull = computed((): boolean => isGroupFull(group));
+
+// A card that cannot be added should say so before it is tapped.
+const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group, recipeId);
 </script>
 
 <template>
@@ -89,50 +103,104 @@ const suggested = 3;
       </UButton>
     </div>
 
-    <p class="mt-3 text-sm">
-      <span class="font-bold tabular-nums" :class="count === 0 ? 'text-dimmed' : 'text-primary'">
-        {{ count }}
-      </span>
-      <span class="text-muted"> / {{ suggested }} {{ $t('planner.chosen') }}</span>
-    </p>
+    <!-- The requirement stated before the choice, not after a refusal: how many
+         are needed, how many are allowed, and how far along you are. -->
+    <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <div class="flex items-center gap-1.5" :aria-label="$t('planner.chosen')">
+        <span
+          v-for="slot in limits.max"
+          :key="slot"
+          class="size-3 rounded-full border-2 transition-colors"
+          :class="[
+            slot <= count ? 'border-primary bg-primary' : 'border-muted',
+            slot <= limits.min && slot > count ? 'border-error' : '',
+          ]"
+          aria-hidden="true"
+        />
+      </div>
+      <p class="text-sm">
+        <span class="font-bold tabular-nums" :class="isComplete ? 'text-primary' : 'text-error'">
+          {{ count }}
+        </span>
+        <span class="text-muted"> / {{ limits.max }} {{ $t('planner.chosen') }}</span>
+      </p>
+      <p v-if="!isComplete" class="text-sm font-medium text-error">
+        {{ $t('planner.needAtLeast') }} {{ limits.min }}
+      </p>
+      <p v-else-if="isFull" class="text-sm text-muted">{{ $t('planner.maxReached') }}</p>
+    </div>
+
+    <!-- What is already chosen, at a glance and removable, without hunting for
+         it among the cards. -->
+    <div v-if="chosenRecipes.length > 0" class="mt-3 flex flex-wrap gap-2">
+      <UButton
+        v-for="dish in chosenRecipes"
+        :key="dish.id"
+        trailing-icon="i-lucide-x"
+        color="primary"
+        variant="soft"
+        size="xs"
+        @click="toggleDish(group, dish.id)"
+      >
+        {{ nameOf(dish) }}
+      </UButton>
+    </div>
 
     <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
       <div
         v-for="dish in dishes"
         :key="dish.id"
-        class="group relative overflow-hidden rounded-2xl border transition-all"
-        :class="
+        class="group relative overflow-hidden rounded-2xl border-2 transition-all"
+        :class="[
           isChosen(group, dish.id)
-            ? 'border-primary ring-2 ring-primary/30'
-            : 'border-default hover:border-primary/40'
-        "
+            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+            : 'border-default hover:border-primary/40',
+          isLocked(dish.id) && 'opacity-40',
+        ]"
       >
         <button
           type="button"
           role="checkbox"
           :aria-checked="isChosen(group, dish.id)"
-          class="block w-full cursor-pointer text-left"
+          class="block w-full text-left"
+          :class="isLocked(dish.id) ? 'cursor-not-allowed' : 'cursor-pointer'"
+          :disabled="isLocked(dish.id)"
           @click="toggleDish(group, dish.id)"
         >
-          <div class="aspect-[4/3] overflow-hidden">
+          <div class="relative aspect-[4/3] overflow-hidden">
             <UiThumb
               :src="imageOf(dish)"
               :alt="nameOf(dish)"
               icon="i-lucide-cooking-pot"
               class="transition-transform duration-500 group-hover:scale-105"
             />
+            <!-- A tinted veil over the whole photograph rather than a badge in a
+                 corner: a green tick on a green dish disappears, but a card that
+                 has visibly changed state cannot be missed. -->
+            <span
+              v-if="isChosen(group, dish.id)"
+              class="absolute inset-0 bg-primary/35"
+              aria-hidden="true"
+            />
           </div>
 
+          <!-- White disc, coloured tick: its legibility owes nothing to whatever
+               is underneath it. -->
           <span
             v-if="isChosen(group, dish.id)"
-            class="absolute left-2 top-2 flex size-7 items-center justify-center rounded-full bg-primary text-white shadow"
+            class="absolute left-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-primary shadow-lg ring-2 ring-primary"
             aria-hidden="true"
           >
-            <UIcon name="i-lucide-check" class="size-4" />
+            <UIcon name="i-lucide-check" class="size-5" />
           </span>
 
           <div class="p-2.5 pr-10">
-            <p class="text-pretty text-sm font-semibold leading-tight">{{ nameOf(dish) }}</p>
+            <p
+              class="text-pretty text-sm leading-tight"
+              :class="isChosen(group, dish.id) ? 'font-bold text-primary' : 'font-semibold'"
+            >
+              {{ nameOf(dish) }}
+            </p>
             <p class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted">
               <span class="tabular-nums">{{ dish.prepMinutes }} {{ $t('recipe.minutes') }}</span>
               <span v-if="dish.batch" class="text-primary">{{ $t('planner.batchShort') }}</span>

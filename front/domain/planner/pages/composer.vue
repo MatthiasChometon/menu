@@ -9,6 +9,10 @@ const {
   isLastStep,
   goNext,
   goBack,
+  goToStep,
+  canReachStep,
+  isGroupComplete,
+  limitsOf,
   chosenDishes,
   canSpread,
   spread,
@@ -40,15 +44,23 @@ const pickedInStep = computed((): number =>
 
 // Only the savoury dishes are required: a week with no lunch cannot be spread.
 // The other steps may be skipped, so the button says so rather than blocking.
+// Every step has a floor now: a week missing a meal is one the solver has to
+// stretch past what anyone eats, and it falls off target.
 const canLeaveStep = computed(
-  (): boolean => currentGroup.value !== 'main' || pickedInStep.value > 0,
+  (): boolean => currentGroup.value === undefined || isGroupComplete(currentGroup.value),
 );
 
-const nextLabel = computed((): string => {
-  if (currentGroup.value === undefined) return '';
-  if (pickedInStep.value === 0 && currentGroup.value !== 'main') return t('planner.skip');
-  return t('planner.next');
+const missing = computed((): number => {
+  if (currentGroup.value === undefined) return 0;
+  return Math.max(0, limitsOf(currentGroup.value).min - pickedInStep.value);
 });
+
+// The step names, so the bar says what it is walking through rather than just
+// how far along it is.
+const stepLabels = computed((): string[] => [
+  ...groupOrder.map((group): string => t(`planner.group.${group}`)),
+  t('planner.week'),
+]);
 
 // Spreading is what turns four lists into a week; it happens once, on the way
 // into the last step, so the reader never has to ask for it.
@@ -93,14 +105,32 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           {{ Math.min(step + 1, stepCount) }} / {{ stepCount }}
         </p>
       </div>
-      <div class="mt-2 flex gap-1.5" aria-hidden="true">
-        <span
-          v-for="index in stepCount"
-          :key="index"
-          class="h-1.5 flex-1 rounded-full transition-colors"
-          :class="index <= step + 1 ? 'bg-primary' : 'bg-elevated'"
-        />
-      </div>
+      <!-- Named and clickable: knowing a step is called "Goûter" is what lets
+           you jump back to it, and a bar you cannot walk back through makes a
+           mistake feel final. -->
+      <nav class="mt-2 flex gap-1.5 overflow-x-auto pb-1" :aria-label="$t('planner.pageTitle')">
+        <button
+          v-for="(label, index) in stepLabels"
+          :key="label"
+          type="button"
+          class="flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg px-1 py-1 text-left transition-opacity"
+          :class="canReachStep(index) ? 'cursor-pointer' : 'cursor-not-allowed opacity-40'"
+          :disabled="!canReachStep(index)"
+          :aria-current="index === step ? 'step' : undefined"
+          @click="goToStep(index)"
+        >
+          <span
+            class="h-1.5 rounded-full transition-colors"
+            :class="index <= step ? 'bg-primary' : 'bg-elevated'"
+          />
+          <span
+            class="truncate text-[0.7rem] leading-tight"
+            :class="index === step ? 'font-bold text-primary' : 'text-muted'"
+          >
+            {{ label }}
+          </span>
+        </button>
+      </nav>
     </div>
 
     <UAlert
@@ -196,11 +226,11 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           :disabled="!canLeaveStep"
           @click="onNext"
         >
-          {{ nextLabel }}
+          {{ $t('planner.next') }}
         </UButton>
       </div>
-      <p v-if="!canLeaveStep" class="mx-auto mt-2 max-w-3xl text-xs text-muted">
-        {{ $t('planner.spreadBlocked') }}
+      <p v-if="missing > 0" class="mx-auto mt-2 max-w-3xl text-xs text-error">
+        {{ $t('planner.stillNeeded') }} {{ missing }}
       </p>
     </div>
   </div>

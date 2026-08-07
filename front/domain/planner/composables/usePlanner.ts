@@ -23,6 +23,24 @@ const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
 
 const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 'snack'];
 
+// How many dishes a slot needs for the week to hold together, and for the solver
+// to have a fair chance of landing on the targets.
+//
+// The floor on the savoury dishes is two, because lunch and dinner must differ
+// on the same day. Everywhere else it is one — but it is a real one: a day
+// missing a meal forces the remaining ones to be scaled beyond what anyone eats,
+// which is exactly when the solver clamps and the day falls off target.
+//
+// The ceilings keep the week cookable. Fourteen savoury servings split across
+// more than four dishes means cooking single portions, which defeats batch
+// cooking and inflates the shopping list for no variety anyone notices.
+const GROUP_LIMITS: Record<RecipeSlot, { min: number; max: number }> = {
+  main: { min: 2, max: 4 },
+  breakfast: { min: 1, max: 3 },
+  postWorkout: { min: 1, max: 3 },
+  snack: { min: 1, max: 3 },
+};
+
 // What a dish is built around, worked out from its ingredients rather than
 // declared in the content: nobody should have to tag ninety-six recipes by hand
 // for a filter, and the answer is already in the shopping list.
@@ -34,6 +52,11 @@ export const usePlanner = (): {
   groupOrder: readonly RecipeSlot[];
   kindOf: (recipe: Recipe) => DishKind;
   isQuick: (recipe: Recipe) => boolean;
+  limitsOf: (group: RecipeSlot) => { min: number; max: number };
+  isGroupComplete: (group: RecipeSlot) => boolean;
+  isGroupFull: (group: RecipeSlot) => boolean;
+  canReachStep: (index: number) => boolean;
+  goToStep: (index: number) => void;
   step: Ref<number>;
   stepCount: number;
   currentGroup: ComputedRef<RecipeSlot | undefined>;
@@ -255,6 +278,16 @@ export const usePlanner = (): {
     touch();
   };
 
+  const countIn = (group: RecipeSlot): number => (chosenDishes.value[group] ?? []).length;
+
+  const isGroupComplete = (group: RecipeSlot): boolean => countIn(group) >= GROUP_LIMITS[group].min;
+
+  // Walking forward is only allowed once everything behind is settled: a week
+  // assembled from half-filled steps is one the solver cannot rescue.
+  const canReachStep = (index: number): boolean =>
+    index <= step.value ||
+    GROUP_ORDER.slice(0, index).every((group): boolean => isGroupComplete(group));
+
   const currentGroup = computed((): RecipeSlot | undefined => GROUP_ORDER[step.value]);
   const isLastStep = computed((): boolean => step.value >= GROUP_ORDER.length);
 
@@ -262,6 +295,13 @@ export const usePlanner = (): {
     plan,
     groupOrder: GROUP_ORDER,
     kindOf,
+    limitsOf: (group: RecipeSlot): { min: number; max: number } => GROUP_LIMITS[group],
+    isGroupComplete,
+    isGroupFull: (group: RecipeSlot): boolean => countIn(group) >= GROUP_LIMITS[group].max,
+    canReachStep,
+    goToStep: (index: number): void => {
+      if (canReachStep(index)) step.value = Math.max(0, Math.min(GROUP_ORDER.length, index));
+    },
     // Twenty minutes is the line between "I can cook this tonight" and "this is
     // a Sunday job".
     isQuick: (recipe: Recipe): boolean => recipe.prepMinutes <= 20,
@@ -277,7 +317,7 @@ export const usePlanner = (): {
     },
     // Deciding four times over is the tiring part; this fills a step with a
     // plausible pick so the reader can adjust rather than start from nothing.
-    pickAtRandom: (group: RecipeSlot, howMany = 3): void => {
+    pickAtRandom: (group: RecipeSlot, howMany = GROUP_LIMITS[group].max): void => {
       const pool = dishesFor(group);
       const picked: string[] = [];
       const available = [...pool];
@@ -296,6 +336,11 @@ export const usePlanner = (): {
       (chosenDishes.value[group] ?? []).includes(recipeId),
     toggleDish: (group: RecipeSlot, recipeId: string): void => {
       const picked = chosenDishes.value[group] ?? [];
+      // Silently refusing a tap would read as a broken button; the picker greys
+      // the remaining cards out once the ceiling is reached, so a tap that gets
+      // here is always a removal or a legal addition.
+      if (!picked.includes(recipeId) && picked.length >= GROUP_LIMITS[group].max) return;
+
       chosenDishes.value = {
         ...chosenDishes.value,
         [group]: picked.includes(recipeId)

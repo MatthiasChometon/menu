@@ -60,6 +60,9 @@
       "choose": "Choisir ce plat",
       "remove": "Retirer ce plat",
       "reference": "Portion de référence : elle sera ajustée à tes cibles."
-    }
+    },
+    "needAtLeast": "il en faut au moins",
+    "maxReached": "maximum atteint",
+    "stillNeeded": "Encore à choisir :"
   }
 }

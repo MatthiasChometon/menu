@@ -60,6 +60,9 @@
       "choose": "Choose this dish",
       "remove": "Remove this dish",
       "reference": "Reference portion: it will be adjusted to your targets."
-    }
+    },
+    "needAtLeast": "at least",
+    "maxReached": "maximum reached",
+    "stillNeeded": "Still to choose:"
   }
 }
