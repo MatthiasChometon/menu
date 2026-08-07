@@ -26,6 +26,13 @@ const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 
 export const usePlanner = (): {
   plan: Ref<PlannedWeek>;
   groupOrder: readonly RecipeSlot[];
+  step: Ref<number>;
+  stepCount: number;
+  currentGroup: ComputedRef<RecipeSlot | undefined>;
+  isLastStep: ComputedRef<boolean>;
+  goNext: () => void;
+  goBack: () => void;
+  pickAtRandom: (group: RecipeSlot, howMany?: number) => void;
   chosenDishes: Ref<Partial<Record<RecipeSlot, string[]>>>;
   dishesFor: (group: RecipeSlot) => Recipe[];
   isChosen: (group: RecipeSlot, recipeId: string) => boolean;
@@ -71,6 +78,11 @@ export const usePlanner = (): {
     'planner:dishes',
     (): Partial<Record<RecipeSlot, string[]>> => ({}),
   );
+
+  // One meal group per screen. Ninety-six dish cards on a single page is a wall
+  // to scroll through; the real task is choosing three dishes, four times over.
+  // The last step is the week itself.
+  const step = useState<number>('planner:step', (): number => 0);
 
   const isSaving = useState<boolean>('planner:saving', (): boolean => false);
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
@@ -228,9 +240,37 @@ export const usePlanner = (): {
     touch();
   };
 
+  const currentGroup = computed((): RecipeSlot | undefined => GROUP_ORDER[step.value]);
+  const isLastStep = computed((): boolean => step.value >= GROUP_ORDER.length);
+
   return {
     plan,
     groupOrder: GROUP_ORDER,
+    step,
+    stepCount: GROUP_ORDER.length + 1,
+    currentGroup,
+    isLastStep,
+    goNext: (): void => {
+      step.value = Math.min(GROUP_ORDER.length, step.value + 1);
+    },
+    goBack: (): void => {
+      step.value = Math.max(0, step.value - 1);
+    },
+    // Deciding four times over is the tiring part; this fills a step with a
+    // plausible pick so the reader can adjust rather than start from nothing.
+    pickAtRandom: (group: RecipeSlot, howMany = 3): void => {
+      const pool = dishesFor(group);
+      const picked: string[] = [];
+      const available = [...pool];
+
+      while (picked.length < Math.min(howMany, pool.length) && available.length > 0) {
+        const index = Math.floor(Math.random() * available.length);
+        const [chosen] = available.splice(index, 1);
+        if (chosen !== undefined) picked.push(chosen.id);
+      }
+
+      chosenDishes.value = { ...chosenDishes.value, [group]: picked };
+    },
     chosenDishes,
     dishesFor,
     isChosen: (group: RecipeSlot, recipeId: string): boolean =>

@@ -40,6 +40,12 @@
     "spreadHint": "The dishes rotate from day to day, then the portions adjust to your targets.",
     "spreadBlocked": "Pick at least one dish for lunch and dinner.",
     "week": "Your week",
-    "save": "Save the week"
+    "save": "Save the week",
+    "random": "Surprise me",
+    "chosen": "chosen",
+    "batchShort": "batch",
+    "next": "Next",
+    "skip": "Skip",
+    "back": "Back"
   }
 }

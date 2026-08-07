@@ -3,6 +3,11 @@ const { locale, locales, setLocale } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
 const { entries } = useNavigation();
+const route = useRoute();
+
+// Trailing slash included: the prerendered pages are served as /courses/, so a
+// bare comparison would never match and the bar would never say where you are.
+const isCurrent = (to: string): boolean => route.path === to || route.path === `${to}/`;
 
 const languageItems = computed((): SelectItem[] =>
   locales.value.map((entry): SelectItem => ({
@@ -54,8 +59,10 @@ const isDark = computed({
           :key="entry.to"
           :to="entry.to"
           :icon="entry.icon"
-          variant="ghost"
-          color="neutral"
+          :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
+          :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
+          :aria-current="isCurrent(entry.to) ? 'page' : undefined"
+          :class="isCurrent(entry.to) && 'font-semibold'"
         >
           {{ entry.label }}
         </UButton>

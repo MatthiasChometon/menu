@@ -40,6 +40,12 @@
     "spreadHint": "Les plats tournent d'un jour à l'autre, puis les portions s'ajustent à tes cibles.",
     "spreadBlocked": "Choisis au moins un plat pour le déjeuner et le dîner.",
     "week": "Ta semaine",
-    "save": "Enregistrer la semaine"
+    "save": "Enregistrer la semaine",
+    "random": "Au hasard",
+    "chosen": "choisis",
+    "batchShort": "batch",
+    "next": "Suivant",
+    "skip": "Passer",
+    "back": "Retour"
   }
 }

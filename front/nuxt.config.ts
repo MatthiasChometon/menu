@@ -67,8 +67,25 @@ export default defineNuxtConfig({
     workbox: {
       // Everything is prerendered, so the whole app can be precached: the
       // shopping list stays readable with no signal in the shop.
-      globPatterns: ['**/*.{js,css,html,svg,png,webp,ico,woff2,json}'],
+      //
+      // Photographs are the exception. Ninety-six dish pictures are eight of the
+      // fifteen megabytes an install used to cost, and downloading them all at
+      // once saturated the connection — the first visit spent twenty seconds
+      // fetching pictures nobody had asked to see. They are cached as they are
+      // looked at instead, so a dish opened once stays available with no signal.
+      globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],
       navigateFallback: '/',
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }: { request: Request }): boolean =>
+            request.destination === 'image',
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'menu-images',
+            expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 60 },
+          },
+        },
+      ],
     },
     client: { installPrompt: true },
   },
