@@ -19,10 +19,18 @@
 # dashboard rather than guessed. The same host has to appear in connect-src in
 # public/_headers and in ALLOWED_ORIGINS on the API, or the browser drops every
 # answer it gets.
+#
+# Both GQL variables have to be set: clientHost alone leaves the server-side
+# host on its development default, and that default is embedded in the payload
+# every page ships. The site's own origin has to be named too, or every
+# canonical and hreflang link in the deployed pages points at localhost.
 [context.production.environment]
   NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
+  GQL_HOST = "https://menu-api-chometon.onrender.com/graphql"
   GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"
+  NUXT_PUBLIC_I18N_BASE_URL = "https://menu-semaine-887.netlify.app"
 
 [context.deploy-preview.environment]
   NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
+  GQL_HOST = "https://menu-api-chometon.onrender.com/graphql"
   GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"
