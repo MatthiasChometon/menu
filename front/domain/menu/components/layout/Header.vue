@@ -4,6 +4,18 @@ const localePath = useLocalePath();
 const colorMode = useColorMode();
 const { entries } = useNavigation();
 const route = useRoute();
+const { user, signOut } = useAuth();
+
+// Initials, because nothing else identifies the account at a glance and the
+// name is not always there — a Google account without one still has an address.
+const initials = computed((): string => {
+  const source = user.value?.name ?? user.value?.email ?? '';
+  const words = source.split(/[\s@.]+/).filter(Boolean);
+  return words
+    .slice(0, 2)
+    .map((word): string => word.charAt(0).toUpperCase())
+    .join('');
+});
 
 // Trailing slash included: the prerendered pages are served as /courses/, so a
 // bare comparison would never match and the bar would never say where you are.
@@ -85,6 +97,31 @@ const isDark = computed({
           size="sm"
           class="w-24 sm:w-28"
         />
+
+        <!-- Being signed in was invisible: the only way to find out was to open
+             the profile page and see whether it asked you to sign in. -->
+        <ClientOnly>
+          <div v-if="user !== undefined" class="flex items-center gap-1">
+            <UAvatar
+              :alt="user.name ?? user.email"
+              :text="initials"
+              size="sm"
+              :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
+            />
+            <UButton
+              icon="i-lucide-log-out"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :aria-label="$t('auth.signOut')"
+              :title="`${$t('auth.signedInAs')} ${user.name ?? user.email}`"
+              @click="signOut"
+            />
+          </div>
+          <template #fallback>
+            <USkeleton class="size-8 rounded-full" />
+          </template>
+        </ClientOnly>
       </div>
     </div>
   </header>

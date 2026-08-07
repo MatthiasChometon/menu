@@ -24,6 +24,11 @@ const schemaPath = process.env.GQL_SCHEMA ?? monorepoSchema;
 const client = {
   host: graphqlHost,
   clientHost: process.env.GQL_CLIENT_HOST ?? graphqlHost,
+  // The session lives in a cookie set by the API, which is a different origin
+  // in production. Without this the browser sends none of it, so every query
+  // arrives anonymous and the reader stays signed out however often they sign
+  // in — the sign-in itself works, it is the answer that never carries proof.
+  corsOptions: { credentials: 'include' as const },
   ...(existsSync(schemaPath) ? { schema: schemaPath } : { introspectionHost: graphqlHost }),
 };
 
