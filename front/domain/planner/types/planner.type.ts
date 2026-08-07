@@ -31,3 +31,9 @@ export type PlannedDay = {
   /** The dishes chosen cannot reach the targets by scaling portions alone. */
   isImpossible: boolean;
 };
+
+/** A day as the API returns it, before its enums are translated back. */
+export type ApiPlannedDay = {
+  day: string;
+  meals: { slot: string; recipeId: string }[];
+};

@@ -13,10 +13,22 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@vueuse/nuxt', ...(process.env.VITEST ? [] : ['@vite-pwa/nuxt'])],
   icon: {
     // Most icons are named in composables (the nav entries, the profile
-    // choices) rather than written in a template, so the default template-only
-    // detection misses them: they were left out of the bundle and every render
-    // tried to fetch them from the Iconify API instead.
-    clientBundle: { scan: true },
+    // choices) rather than written in a template, and the scan only reads
+    // templates by default — those icons were left out of the bundle and the app
+    // fetched them from the Iconify API at runtime, which the site's own
+    // Content-Security-Policy now forbids. Scanning TypeScript too is what keeps
+    // an icon named in a composable from silently disappearing.
+    clientBundle: {
+      scan: {
+        // .vue is the default; .ts catches the icons named in composables, and
+        // .json the ones the content declares for every food and seasoning.
+        // Anything missed here is fetched from the Iconify API at runtime, which
+        // the site's own Content-Security-Policy forbids — so it simply would
+        // not appear.
+        globInclude: ['**/*.{vue,ts}', 'content/**/*.json'],
+        globExclude: ['node_modules', 'dist', '.output', '.nuxt', '**/*.test.ts'],
+      },
+    },
   },
   css: cssList,
   components: componentsList,

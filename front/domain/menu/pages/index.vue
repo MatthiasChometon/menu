@@ -122,7 +122,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         class="rise mt-5"
         color="neutral"
         variant="subtle"
-        icon="i-lucide-history"
+        icon="i-lucide-clock-fading"
         :title="$t('menu.status.past')"
       />
 

@@ -2,7 +2,7 @@
   "planner": {
     "nav": "Compose",
     "pageTitle": "Compose my week",
-    "pageLead": "Pick the dishes; the grammes adjust themselves to reach your targets.",
+    "pageLead": "Pick the week's dishes; they spread across the days and the grammes adjust themselves.",
     "targets": "Daily targets:",
     "targetsMine": "Worked out from your profile.",
     "targetsDefault": "The menu's reference targets. Sign in to compose against your own.",
@@ -19,8 +19,27 @@
       "impossibleHint": "These dishes cannot make the day, however the portions are scaled. Swap one of them."
     },
     "saving": {
-      "title": "Not saved yet",
-      "hint": "Your week lives in this tab for now. It will follow your account once the API is online."
-    }
+      "signedOut": "Sign in to find it again on your phone.",
+      "pending": "Unsaved changes.",
+      "done": "Saved to your account."
+    },
+    "group": {
+      "main": "Lunch and dinner",
+      "breakfast": "Breakfast",
+      "postWorkout": "Post-workout",
+      "snack": "Snack"
+    },
+    "groupHint": {
+      "main": "They rotate at noon and in the evening, never twice in a day.",
+      "breakfast": "Rotating across the week.",
+      "postWorkout": "Rotating across the week.",
+      "snack": "Rotating across the week."
+    },
+    "spread": "Spread across the week",
+    "spreadAgain": "Spread again",
+    "spreadHint": "The dishes rotate from day to day, then the portions adjust to your targets.",
+    "spreadBlocked": "Pick at least one dish for lunch and dinner.",
+    "week": "Your week",
+    "save": "Save the week"
   }
 }

@@ -1,0 +1,13 @@
+mutation saveWeekPlan($input: WeekPlanInput!) {
+  saveWeekPlan(input: $input) {
+    weekOf
+    updatedAt
+    days {
+      day
+      meals {
+        slot
+        recipeId
+      }
+    }
+  }
+}

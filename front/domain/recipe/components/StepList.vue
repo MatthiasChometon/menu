@@ -96,7 +96,7 @@ onBeforeUnmount((): void => {
     <div class="space-y-2">
       <div class="flex items-center justify-between gap-3 text-sm">
         <p class="flex items-center gap-1.5 text-muted">
-          <UIcon name="i-lucide-hand-pointer" class="size-4 shrink-0" aria-hidden="true" />
+          <UIcon name="i-lucide-pointer" class="size-4 shrink-0" aria-hidden="true" />
           <span>{{ allDone ? $t('recipe.allStepsDone') : $t('recipe.stepsHint') }}</span>
         </p>
         <p

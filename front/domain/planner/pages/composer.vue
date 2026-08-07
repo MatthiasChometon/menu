@@ -1,8 +1,22 @@
 <script setup lang="ts">
-const { days, targets, isComplete, isValid, copyDay, plan } = usePlanner();
+const {
+  days,
+  targets,
+  groupOrder,
+  canSpread,
+  spread,
+  isValid,
+  isSaving,
+  canSave,
+  isDirty,
+  savedAt,
+  save,
+  loadFromAccount,
+} = usePlanner();
 const { dayOrder } = useMenu();
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();
+const { user } = useAuth();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
@@ -10,18 +24,17 @@ const filledDays = computed((): PlannedDay[] =>
   days.value.filter((day): boolean => day.meals.length > 0),
 );
 
-// Copying the first composed day over the empty ones is the shortcut that makes
-// planning a week bearable: most days repeat with one dish swapped.
-const firstFilled = computed((): PlannedDay | undefined => filledDays.value[0]);
+const hasWeek = computed((): boolean => filledDays.value.length > 0);
 
-const fillTheWeek = (): void => {
-  const source = firstFilled.value;
-  if (source === undefined) return;
+// The account's week wins over whatever the tab held, but only once: reloading
+// it on every visit would throw away edits made since.
+onMounted((): void => {
+  void loadFromAccount();
+});
 
-  for (const key of dayOrder) {
-    if (key !== source.key) copyDay(source.key, key);
-  }
-};
+watch(user, (): void => {
+  void loadFromAccount();
+});
 
 useSeoMeta({ title: (): string => t('planner.pageTitle') });
 </script>
@@ -52,45 +65,73 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
       :description="isPersonalised ? $t('planner.targetsMine') : $t('planner.targetsDefault')"
     />
 
-    <div class="rise mt-5 flex flex-wrap items-center gap-2">
-      <UButton
-        v-if="firstFilled !== undefined"
-        icon="i-lucide-copy"
-        variant="outline"
-        color="neutral"
-        size="sm"
-        @click="fillTheWeek"
-      >
-        {{ $t('planner.fillWeek') }}
-      </UButton>
-      <UBadge
-        v-if="filledDays.length > 0"
-        :color="isValid && isComplete ? 'primary' : 'neutral'"
-        variant="subtle"
-      >
-        {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
-      </UBadge>
+    <!-- Choose the dishes first, one group at a time; the days come after. -->
+    <div class="mt-8 space-y-8">
+      <PlannerDishPicker
+        v-for="(group, index) in groupOrder"
+        :key="group"
+        :group="group"
+        :index="index"
+      />
     </div>
 
-    <section class="mt-6 space-y-4">
-      <PlannerDayPlanner
-        v-for="(day, index) in days"
-        :key="day.key"
-        :day="day"
-        :index="index"
-        :default-open="index === 0"
-      />
+    <section
+      class="rise sticky bottom-4 z-30 mt-8 rounded-2xl border border-default bg-default/90 p-4 backdrop-blur-lg"
+    >
+      <UButton
+        icon="i-lucide-shuffle"
+        size="lg"
+        block
+        :disabled="!canSpread"
+        class="font-semibold text-white"
+        @click="spread"
+      >
+        {{ hasWeek ? $t('planner.spreadAgain') : $t('planner.spread') }}
+      </UButton>
+      <p class="mt-2 text-center text-xs text-muted">
+        {{ canSpread ? $t('planner.spreadHint') : $t('planner.spreadBlocked') }}
+      </p>
     </section>
 
-    <!-- Saving belongs to the account, which is not online yet. Saying so beats
-         a button that quietly does nothing. -->
-    <section class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5">
-      <h2 class="flex items-center gap-2 font-bold">
-        <UIcon name="i-lucide-cloud-off" class="size-5 text-dimmed" />
-        {{ $t('planner.saving.title') }}
-      </h2>
-      <p class="mt-2 text-sm text-muted">{{ $t('planner.saving.hint') }}</p>
-      <p class="mt-1 text-xs text-dimmed">{{ plan.weekOf }}</p>
-    </section>
+    <template v-if="hasWeek">
+      <div class="rise mt-8 flex flex-wrap items-center gap-2">
+        <h2 class="text-xl font-bold">{{ $t('planner.week') }}</h2>
+        <UBadge :color="isValid ? 'primary' : 'neutral'" variant="subtle">
+          {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
+        </UBadge>
+      </div>
+
+      <section class="mt-4 space-y-4">
+        <PlannerDayPlanner
+          v-for="(day, index) in days"
+          :key="day.key"
+          :day="day"
+          :index="index"
+          :default-open="index === 0"
+        />
+      </section>
+
+      <!-- Saving belongs to the account: a week kept in a tab is a week lost on
+           the next device. -->
+      <section class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5">
+        <div class="flex flex-wrap items-center gap-3">
+          <UButton
+            icon="i-lucide-cloud-upload"
+            :loading="isSaving"
+            :disabled="!canSave"
+            @click="save"
+          >
+            {{ $t('planner.save') }}
+          </UButton>
+          <p v-if="user === undefined" class="text-sm text-muted">
+            {{ $t('planner.saving.signedOut') }}
+          </p>
+          <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
+          <p v-else-if="savedAt !== undefined" class="text-sm text-primary">
+            {{ $t('planner.saving.done') }}
+          </p>
+        </div>
+      </section>
+    </template>
   </div>
 </template>

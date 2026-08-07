@@ -1,0 +1,13 @@
+query myWeekPlan($weekOf: String!) {
+  myWeekPlan(weekOf: $weekOf) {
+    weekOf
+    updatedAt
+    days {
+      day
+      meals {
+        slot
+        recipeId
+      }
+    }
+  }
+}

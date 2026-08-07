@@ -2,7 +2,7 @@
   "planner": {
     "nav": "Composer",
     "pageTitle": "Composer ma semaine",
-    "pageLead": "Choisis les plats, les grammages s'ajustent tout seuls pour atteindre tes cibles.",
+    "pageLead": "Choisis tes plats de la semaine ; ils se répartissent sur les jours et les grammages s'ajustent tout seuls.",
     "targets": "Cibles du jour :",
     "targetsMine": "Calculées depuis ton profil.",
     "targetsDefault": "Cibles de référence du menu. Connecte-toi pour composer sur les tiennes.",
@@ -19,8 +19,27 @@
       "impossibleHint": "Ces plats ne peuvent pas faire la journée, même en jouant sur les portions. Remplaces-en un."
     },
     "saving": {
-      "title": "Pas encore enregistrée",
-      "hint": "Ta semaine vit dans cet onglet pour l'instant. Elle sera rattachée à ton compte quand l'API sera en ligne."
-    }
+      "signedOut": "Connecte-toi pour la retrouver sur ton téléphone.",
+      "pending": "Modifications non enregistrées.",
+      "done": "Enregistrée sur ton compte."
+    },
+    "group": {
+      "main": "Déjeuner et dîner",
+      "breakfast": "Petit-déjeuner",
+      "postWorkout": "Post-training",
+      "snack": "Goûter"
+    },
+    "groupHint": {
+      "main": "Ils tournent midi et soir, jamais deux fois le même jour.",
+      "breakfast": "En rotation sur la semaine.",
+      "postWorkout": "En rotation sur la semaine.",
+      "snack": "En rotation sur la semaine."
+    },
+    "spread": "Répartir sur la semaine",
+    "spreadAgain": "Répartir à nouveau",
+    "spreadHint": "Les plats tournent d'un jour à l'autre, puis les portions s'ajustent à tes cibles.",
+    "spreadBlocked": "Choisis au moins un plat pour le déjeuner et le dîner.",
+    "week": "Ta semaine",
+    "save": "Enregistrer la semaine"
   }
 }

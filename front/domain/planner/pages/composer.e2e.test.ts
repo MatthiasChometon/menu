@@ -1,45 +1,75 @@
 import { expect, test } from '@playwright/test';
 
-const SLOTS = ['Petit-déjeuner', 'Post-training', 'Déjeuner', 'Goûter', 'Dîner'];
+// The dish cards of one group, in document order.
+const groupDishes = (page: import('@playwright/test').Page, heading: string) =>
+  page
+    .getByRole('main')
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: heading, exact: true }) })
+    .getByRole('checkbox');
 
-// The first day card; every slot picker inside it is labelled by its meal.
-const monday = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
-  page.getByRole('main').locator('div').filter({ hasText: 'Lundi' }).first();
-
-const pickFirst = async (page: import('@playwright/test').Page, slot: string): Promise<void> => {
-  await page.getByLabel(slot, { exact: true }).first().click();
-  await page.getByRole('option').first().click();
+const pick = async (
+  page: import('@playwright/test').Page,
+  heading: string,
+  count: number,
+): Promise<void> => {
+  const dishes = groupDishes(page, heading);
+  for (let index = 0; index < count; index += 1) await dishes.nth(index).click();
 };
 
-test('a composed day lands on its targets by itself', async ({ page }) => {
+test('spreading is refused until there is something to eat at midday', async ({ page }) => {
   await page.goto('/composer');
-  await expect(page.getByRole('heading', { name: 'Composer ma semaine' })).toBeVisible();
 
-  for (const slot of SLOTS) await pickFirst(page, slot);
+  const spread = page.getByRole('button', { name: 'Répartir sur la semaine' });
 
-  // The whole promise of the screen: choose dishes, the grammes follow.
-  await expect(monday(page).getByText('dans les cibles').first()).toBeVisible();
+  await expect(spread).toBeDisabled();
+  await expect(page.getByText('Choisis au moins un plat pour le déjeuner')).toBeVisible();
 });
 
-test('a day one dish cannot make says so, instead of serving a triple portion', async ({
-  page,
-}) => {
+test('two savoury dishes fill every lunch and dinner of the week', async ({ page }) => {
   await page.goto('/composer');
 
-  // No amount of scaling turns one breakfast into 3150 kcal, and the screen has
-  // to say that rather than quietly weigh out half a kilo of oats.
-  await pickFirst(page, 'Petit-déjeuner');
+  await pick(page, 'Déjeuner et dîner', 2);
+  await page.getByRole('button', { name: 'Répartir sur la semaine' }).click();
 
-  await expect(monday(page).getByText('impossible à ajuster').first()).toBeVisible();
-  await expect(page.getByText(/Ces plats ne peuvent pas faire la journée/)).toBeVisible();
-});
-
-test('copying the first day across the week fills every day', async ({ page }) => {
-  await page.goto('/composer');
-
-  for (const slot of SLOTS) await pickFirst(page, slot);
-  await page.getByRole('button', { name: 'Recopier ce jour sur toute la semaine' }).click();
-
+  await expect(page.getByRole('heading', { name: 'Ta semaine' })).toBeVisible();
   await expect(page.getByText('7 / 7 jours composés')).toBeVisible();
-  await expect(page.getByRole('main').getByText('dans les cibles')).toHaveCount(7);
+});
+
+test('a dish never lands twice in the same day', async ({ page }) => {
+  await page.goto('/composer');
+
+  await pick(page, 'Déjeuner et dîner', 2);
+  await page.getByRole('button', { name: 'Répartir sur la semaine' }).click();
+
+  // Monday is open by default; its lunch and dinner must differ, which is the
+  // rule the rotation exists to keep.
+  const monday = page.getByRole('main').locator('div').filter({ hasText: 'Lundi' }).first();
+  const lunch = await monday.getByLabel('Déjeuner', { exact: true }).first().textContent();
+  const dinner = await monday.getByLabel('Dîner', { exact: true }).first().textContent();
+
+  expect(lunch).not.toBe(dinner);
+});
+
+test('a full week of choices lands on its targets by itself', async ({ page }) => {
+  await page.goto('/composer');
+
+  await pick(page, 'Déjeuner et dîner', 2);
+  await pick(page, 'Petit-déjeuner', 1);
+  await pick(page, 'Post-training', 1);
+  await pick(page, 'Goûter', 1);
+  await page.getByRole('button', { name: 'Répartir sur la semaine' }).click();
+
+  // The whole promise: choose dishes, the grammes follow.
+  await expect(page.getByRole('main').getByText('dans les cibles').first()).toBeVisible();
+});
+
+test('saving asks for an account rather than pretending to work', async ({ page }) => {
+  await page.goto('/composer');
+
+  await pick(page, 'Déjeuner et dîner', 2);
+  await page.getByRole('button', { name: 'Répartir sur la semaine' }).click();
+
+  await expect(page.getByRole('button', { name: 'Enregistrer la semaine' })).toBeDisabled();
+  await expect(page.getByText('Connecte-toi pour la retrouver')).toBeVisible();
 });
