@@ -1,0 +1,29 @@
+# Netlify build for the front. Committed so a deploy is reproducible instead of
+# depending on settings someone typed into a dashboard once.
+#
+# The repository is a monorepo: `base` moves Netlify into front/, but the whole
+# tree is checked out, which is what lets the GraphQL codegen read the versioned
+# schema at ../back/infrastructure/graphql/schema.gql.
+
+[build]
+  base = "front"
+  command = "pnpm generate"
+  publish = "front/.output/public"
+
+[build.environment]
+  NODE_VERSION = "24"
+  # Corepack picks the pnpm version out of package.json.
+  NPM_FLAGS = "--version"
+
+# Where the browser reaches the API. Both must be https and must match
+# ALLOWED_ORIGINS on the API side, or the browser drops every answer.
+#
+# Set them here AND in the Netlify UI if the API URL changes — and remember the
+# Content-Security-Policy in public/_headers names the same host in connect-src.
+[context.production.environment]
+  NUXT_PUBLIC_API_BASE = "https://menu-api.onrender.com"
+  GQL_CLIENT_HOST = "https://menu-api.onrender.com/graphql"
+
+[context.deploy-preview.environment]
+  NUXT_PUBLIC_API_BASE = "https://menu-api.onrender.com"
+  GQL_CLIENT_HOST = "https://menu-api.onrender.com/graphql"

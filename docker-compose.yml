@@ -76,9 +76,10 @@ services:
       # Browsers allowed to send credentialed requests. Reflecting the caller
       # back would let any page read an authenticated answer.
       ALLOWED_ORIGINS: http://${PUBLIC_HOST:-localhost}:3777,http://localhost:3777,http://localhost:3778
-      # The front generates its GraphQL types by introspecting this API at build
-      # time, so the local stack needs it. A public deployment should not.
-      GRAPHQL_INTROSPECTION: 'true'
+      # Off: the front generates its types from the versioned schema.gql, so
+      # nothing needs introspection any more — and it would hand the whole
+      # schema to anyone who asks.
+      GRAPHQL_INTROSPECTION: 'false'
     ports:
       - '3779:3779'
     volumes:

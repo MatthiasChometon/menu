@@ -1,0 +1,125 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+How much food the person comfortably eats. It does not move the targets, only how they are spread: a small appetite needs denser meals rather than bigger ones.
+"""
+enum Appetite {
+  AVERAGE
+  LARGE
+  SMALL
+}
+
+"""
+How the day is spent away from training. Asked separately from training so that a desk job and daily sessions can both be true of the same person.
+"""
+enum DailyActivity {
+  ON_FEET
+  PHYSICAL
+  SEATED
+}
+
+"""What the person wants their body weight to do."""
+enum Goal {
+  GAIN_MUSCLE
+  LOSE_FAT
+  MAINTAIN
+}
+
+input MeasurementsInput {
+  age: Int!
+  appetite: Appetite!
+  dailyActivity: DailyActivity!
+  goal: Goal!
+  heightCm: Int!
+  sex: Sex!
+  starchQuality: StarchQuality!
+
+  """Training sessions in a normal week."""
+  trainingDaysPerWeek: Int!
+  trainingType: TrainingType!
+  weightKg: Int!
+}
+
+type Mutation {
+  """Creates the profile, or replaces it wholesale."""
+  saveProfile(input: MeasurementsInput!): Profile!
+}
+
+"""Daily nutrition targets worked out from a profile."""
+type NutritionTargets {
+  """Grams of carbohydrate per day."""
+  carbs: Int!
+
+  """Grams of fat per day."""
+  fat: Int!
+
+  """Grams of fibre per day."""
+  fiber: Int!
+  kcal: Int!
+
+  """Grams of protein per day."""
+  protein: Int!
+}
+
+"""What someone answered, and what those answers work out to."""
+type Profile {
+  age: Int!
+  appetite: Appetite!
+  dailyActivity: DailyActivity!
+  goal: Goal!
+  heightCm: Int!
+  sex: Sex!
+  starchQuality: StarchQuality!
+  targets: NutritionTargets!
+  trainingDaysPerWeek: Int!
+  trainingType: TrainingType!
+  weightKg: Int!
+}
+
+type Query {
+  """The signed-in user."""
+  me: User!
+
+  """
+  The signed-in user profile, or null when the form has never been filled in.
+  """
+  myProfile: Profile
+
+  """
+  Daily targets for the given answers, without needing an account: this is what the onboarding form previews as it is filled in.
+  """
+  nutritionTargets(input: MeasurementsInput!): NutritionTargets!
+}
+
+"""Biological sex, which the resting metabolic rate formula needs."""
+enum Sex {
+  FEMALE
+  MALE
+}
+
+"""
+How refined the starches eaten are. This sets the fibre target: wholegrain starches carry several times the fibre of refined ones.
+"""
+enum StarchQuality {
+  MIXED
+  REFINED
+  WHOLEGRAIN
+}
+
+"""
+What the sessions are made of; an hour of cardio costs more than an hour of lifting.
+"""
+enum TrainingType {
+  CARDIO
+  MIXED
+  NONE
+  STRENGTH
+}
+
+type User {
+  email: String!
+  id: ID!
+  name: String
+}
