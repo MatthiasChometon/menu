@@ -21,6 +21,8 @@
     "seasoningsHint": "À sortir avant de commencer : les doses se règlent au goût, elles ne comptent pas dans les apports.",
     "freshSeasoning": "à acheter",
     "stepDone": "Étape terminée",
+    "stepsHint": "Touche une étape pour la cocher au fur et à mesure",
+    "allStepsDone": "Tout est fait, bon appétit",
     "resetSteps": "Recommencer",
     "cookMode": "Mode cuisine",
     "cookModeHint": "L'écran reste allumé pendant la préparation",

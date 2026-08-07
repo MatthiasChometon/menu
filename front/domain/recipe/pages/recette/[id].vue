@@ -193,7 +193,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 
       <section class="rise space-y-3" style="animation-delay: 140ms">
         <h2 class="text-xl font-bold">{{ $t('recipe.steps') }}</h2>
-        <RecipeStepList :steps="stepsOf(recipe)" />
+        <RecipeStepList :steps="stepsOf(recipe)" :quantities="myQuantities" />
       </section>
     </article>
   </div>
