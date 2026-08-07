@@ -6,12 +6,14 @@ import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
+import { HealthInfrastructureModule } from './infrastructure/http/health.module';
 import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerInfrastructureModule,
+    HealthInfrastructureModule,
     DatabaseInfrastructureModule,
     GraphqlInfrastructureModule,
     UserModule,

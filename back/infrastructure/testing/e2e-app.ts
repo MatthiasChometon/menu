@@ -27,7 +27,12 @@ export type TestApp = {
     url: string,
     cookie?: string,
     headers?: Record<string, string>,
-  ) => Promise<{ statusCode: number; headers: Record<string, unknown>; cookies: TestCookie[] }>;
+  ) => Promise<{
+    statusCode: number;
+    headers: Record<string, unknown>;
+    body: string;
+    cookies: TestCookie[];
+  }>;
   /** Send a GraphQL operation the way the front does. */
   graphql: <T>(query: string, variables?: object, cookie?: string) => Promise<GraphqlResponse<T>>;
   /** Empty every table, so each test starts from a known state. */
@@ -87,6 +92,7 @@ export const startTestApp = async (): Promise<TestApp> => {
       return {
         statusCode: response.statusCode,
         headers: response.headers,
+        body: response.body,
         cookies: cookiesOf(response.cookies),
       };
     },

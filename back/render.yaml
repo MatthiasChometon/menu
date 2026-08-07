@@ -15,7 +15,9 @@ services:
     dockerContext: .
     rootDir: back
     dockerCommand: sh ./docker-entrypoint.sh node dist/main
-    healthCheckPath: /graphql
+    # A GET on /graphql answers 400, which the platform reads as a dead
+    # service and never routes traffic to.
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
