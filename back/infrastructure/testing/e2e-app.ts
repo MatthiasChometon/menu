@@ -1,3 +1,4 @@
+import type { Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { sql } from 'drizzle-orm';
@@ -35,6 +36,12 @@ export type TestApp = {
   }>;
   /** Send a GraphQL operation the way the front does. */
   graphql: <T>(query: string, variables?: object, cookie?: string) => Promise<GraphqlResponse<T>>;
+  /**
+   * Reach a provider directly, for the few behaviours that have no route of
+   * their own — a repository answering against a real database rather than a
+   * stand-in that agrees with whatever it is told.
+   */
+  resolve: <T>(token: Type<T>) => T;
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;
   close: () => Promise<void>;
@@ -106,6 +113,7 @@ export const startTestApp = async (): Promise<TestApp> => {
 
       return JSON.parse(response.body) as GraphqlResponse<T>;
     },
+    resolve: <T>(token: Type<T>): T => app.get<T>(token),
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
     reset: async (): Promise<void> => {

@@ -62,13 +62,17 @@ export class GoogleController {
     // Google vouches for the address; the guest list decides whether it may in.
     this.allowlist.assertAllowed(profile.email);
 
-    const user = await this.users.upsertByGoogle(profile.sub, profile.email, profile.name);
+    const { user, isNew } = await this.users.upsertByGoogle(
+      profile.sub,
+      profile.email,
+      profile.name,
+    );
     const token = await this.auth.signSession(user.id);
 
     reply
       .setCookie(this.cookie.name, token, this.cookie.options())
       .setCookie(STATE_COOKIE, '', { path: '/', maxAge: 0 })
       .status(302)
-      .redirect(landingUrl(this.config.getOrThrow<string>('FRONT_URL')));
+      .redirect(landingUrl(this.config.getOrThrow<string>('FRONT_URL'), isNew));
   }
 }

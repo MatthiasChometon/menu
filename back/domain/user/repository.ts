@@ -33,7 +33,13 @@ export class UserRepository {
   // Looked up by email first, not by google id: when an address already has a
   // password account, Google signs into that same account instead of tripping
   // the unique constraint on email.
-  async upsertByGoogle(googleId: string, email: string, name?: string): Promise<User> {
+  // Whether the account was opened by this very sign-in, which is what tells
+  // the caller it is somebody's first time here.
+  async upsertByGoogle(
+    googleId: string,
+    email: string,
+    name?: string,
+  ): Promise<{ user: User; isNew: boolean }> {
     const existing = await this.findRecordByEmail(email);
     if (existing !== undefined) {
       const [updated] = await this.database
@@ -42,7 +48,7 @@ export class UserRepository {
         .where(eq(user.id, existing.id))
         .returning();
 
-      return this.mapper.toUser(updated);
+      return { user: this.mapper.toUser(updated), isNew: false };
     }
 
     const [created] = await this.database
@@ -50,7 +56,7 @@ export class UserRepository {
       .values({ googleId, email, name: name ?? null })
       .returning();
 
-    return this.mapper.toUser(created);
+    return { user: this.mapper.toUser(created), isNew: true };
   }
 
   async findById(id: string): Promise<User | undefined> {
