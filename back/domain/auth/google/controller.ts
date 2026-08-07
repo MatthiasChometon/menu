@@ -9,6 +9,7 @@ import { UserRepository } from '../../user/repository';
 import { SessionCookie } from '../currentUser/cookie';
 import { AuthService } from '../service';
 import { GoogleOAuth } from './service';
+import { landingUrl } from './landing';
 import { EmailAllowlist } from '../allowlist.service';
 
 const STATE_COOKIE = 'oauth_state';
@@ -68,6 +69,6 @@ export class GoogleController {
       .setCookie(this.cookie.name, token, this.cookie.options())
       .setCookie(STATE_COOKIE, '', { path: '/', maxAge: 0 })
       .status(302)
-      .redirect(this.config.getOrThrow<string>('FRONT_URL'));
+      .redirect(landingUrl(this.config.getOrThrow<string>('FRONT_URL')));
   }
 }
