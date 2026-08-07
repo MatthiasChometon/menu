@@ -1,22 +1,22 @@
 <script setup lang="ts">
-const { currentMenu } = useMenu();
+const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const isMounted = useMounted();
 
-const { pickedIds, toggle, clear } = useShoppingCart(currentMenu?.weekOf ?? 'none');
+const { pickedIds, toggle, clear } = useShoppingCart(selectedWeek);
 
 const groups = computed((): ShoppingGroup[] =>
-  currentMenu === undefined ? [] : groupsOf(currentMenu),
+  currentMenu.value === undefined ? [] : groupsOf(currentMenu.value),
 );
 
-const freshSeasonings = computed((): Seasoning[] => currentMenu?.freshSeasonings ?? []);
+const freshSeasonings = computed((): Seasoning[] => currentMenu.value?.freshSeasonings ?? []);
 
 // The aromatics count towards the progress too: the basket is not done while
 // the garlic is still on the shelf.
 const totalLines = computed(
-  (): number => (currentMenu?.shoppingList.length ?? 0) + freshSeasonings.value.length,
+  (): number => (currentMenu.value?.shoppingList.length ?? 0) + freshSeasonings.value.length,
 );
 
 // Ticks only apply once mounted: the prerendered HTML knows nothing about
@@ -62,6 +62,9 @@ useSeoMeta({ title: (): string => t('shopping.title') });
       <header class="rise">
         <h1 class="text-3xl font-black tracking-tight">{{ $t('shopping.title') }}</h1>
         <p class="mt-1 text-muted">{{ $t('shopping.lead') }}</p>
+        <!-- The basket is per week: without saying which, a list built for next
+             week reads as a mistake in this one. -->
+        <MenuWeekPicker class="mt-3" />
       </header>
 
       <div

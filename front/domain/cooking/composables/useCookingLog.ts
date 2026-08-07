@@ -1,9 +1,33 @@
 const mealKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 
+// One store per week, kept for the life of the app. The week can change under
+// the caller — planning ahead means switching weeks without leaving the page —
+// so the storage is resolved on every read rather than bound once.
+const statusStores = new Map<string, Ref<Record<string, DishStatus>>>();
+const eatenStores = new Map<string, Ref<string[]>>();
+
+const statusesFor = (weekOf: string): Ref<Record<string, DishStatus>> => {
+  const existing = statusStores.get(weekOf);
+  if (existing !== undefined) return existing;
+
+  const created = useLocalStorage<Record<string, DishStatus>>(`cooking:${weekOf}`, {});
+  statusStores.set(weekOf, created);
+  return created;
+};
+
+const eatenFor = (weekOf: string): Ref<string[]> => {
+  const existing = eatenStores.get(weekOf);
+  if (existing !== undefined) return existing;
+
+  const created = useLocalStorage<string[]>(`eaten:${weekOf}`, []);
+  eatenStores.set(weekOf, created);
+  return created;
+};
+
 // The menu is the plan; this is the diary kept against it. Both are needed: the
 // plan alone cannot say what is left in the fridge on a Tuesday evening.
 export const useCookingLog = (
-  weekOf: string,
+  week: MaybeRefOrGetter<string>,
 ): {
   statusOf: (recipeId: string) => DishStatus;
   setStatus: (recipeId: string, status: DishStatus) => void;
@@ -14,10 +38,8 @@ export const useCookingLog = (
   progressOf: (menu: Menu) => DishProgress[];
   reset: () => void;
 } => {
-  // Keyed by week, like the shopping basket: a new menu starts from a clean
-  // slate instead of inheriting last week's ticks.
-  const statuses = useLocalStorage<Record<string, DishStatus>>(`cooking:${weekOf}`, {});
-  const eaten = useLocalStorage<string[]>(`eaten:${weekOf}`, []);
+  const statuses = computed((): Record<string, DishStatus> => statusesFor(toValue(week)).value);
+  const eaten = computed((): string[] => eatenFor(toValue(week)).value);
 
   const servingsOf = (menu: Menu, recipeId: string): number =>
     menu.days.reduce(
@@ -42,14 +64,16 @@ export const useCookingLog = (
   return {
     statusOf,
     setStatus: (recipeId: string, status: DishStatus): void => {
-      statuses.value = { ...statuses.value, [recipeId]: status };
+      const store = statusesFor(toValue(week));
+      store.value = { ...store.value, [recipeId]: status };
     },
     isEaten: (day: DayKey, slot: MealSlot): boolean => eaten.value.includes(mealKey(day, slot)),
     toggleEaten: (day: DayKey, slot: MealSlot): void => {
+      const store = eatenFor(toValue(week));
       const key = mealKey(day, slot);
-      eaten.value = eaten.value.includes(key)
-        ? eaten.value.filter((entry): boolean => entry !== key)
-        : [...eaten.value, key];
+      store.value = store.value.includes(key)
+        ? store.value.filter((entry): boolean => entry !== key)
+        : [...store.value, key];
     },
     eatenCountOf,
     servingsOf,
@@ -68,8 +92,8 @@ export const useCookingLog = (
         };
       }),
     reset: (): void => {
-      statuses.value = {};
-      eaten.value = [];
+      statusesFor(toValue(week)).value = {};
+      eatenFor(toValue(week)).value = [];
     },
   };
 };

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 const chiliVariants = (): RecipeVariant[] => {
-  const { currentMenu } = useMenu();
+  const { latestMenu } = useMenu();
   const { variantsOf } = useRecipeVariants();
-  if (currentMenu === undefined) throw new Error('no menu to check');
+  if (latestMenu === undefined) throw new Error('no menu to check');
 
-  return variantsOf(currentMenu, 'chiliChicken');
+  return variantsOf(latestMenu, 'chiliChicken');
 };
 
 describe('useRecipeVariants', () => {

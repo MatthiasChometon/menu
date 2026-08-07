@@ -123,13 +123,13 @@ const menuList: Menu[] = Object.values(menuModules)
 
 export const useMenu = (): {
   menus: Menu[];
-  currentMenu: Menu | undefined;
+  latestMenu: Menu | undefined;
   menuOf: (weekOf: string) => Menu | undefined;
   dayOrder: readonly DayKey[];
   mealOrder: readonly MealSlot[];
 } => ({
   menus: menuList,
-  currentMenu: menuList[0],
+  latestMenu: menuList[0],
   menuOf: (weekOf: string): Menu | undefined =>
     menuList.find((menu): boolean => menu.weekOf === weekOf),
   dayOrder: DAY_ORDER,

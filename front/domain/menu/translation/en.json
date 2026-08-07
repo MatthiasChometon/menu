@@ -78,6 +78,11 @@
       "past": "This week is over",
       "deliveryOn": "Groceries delivered",
       "beforeStart": "Until then, work with what you already have."
+    },
+    "week": {
+      "current": "This week",
+      "upcoming": "Coming up",
+      "past": "Past"
     }
   }
 }

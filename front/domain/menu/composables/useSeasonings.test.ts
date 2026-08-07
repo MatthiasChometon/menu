@@ -26,10 +26,10 @@ describe('useSeasonings', () => {
   });
 
   it('only puts the fresh aromatics on the shopping list', () => {
-    const { currentMenu } = useMenu();
+    const { latestMenu } = useMenu();
     const { freshOf } = useSeasonings();
 
-    const fresh = freshOf(currentMenu?.recipes ?? []);
+    const fresh = freshOf(latestMenu?.recipes ?? []);
 
     expect(fresh.length).toBeGreaterThan(0);
     expect(fresh.every((seasoning): boolean => seasoning.fresh)).toBe(true);

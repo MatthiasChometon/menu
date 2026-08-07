@@ -3,10 +3,10 @@ const { meal, dayKey } = defineProps<{ meal: Meal; dayKey: DayKey }>();
 
 const { imageOf } = useRecipes();
 const { nameOf, round } = useFoodFormat();
-const { currentMenu } = useMenu();
+const { selectedWeek } = useSelectedWeek();
 const localePath = useLocalePath();
 
-const { statusOf, isEaten, toggleEaten } = useCookingLog(currentMenu?.weekOf ?? '');
+const { statusOf, isEaten, toggleEaten } = useCookingLog(selectedWeek);
 
 const isReduced = computed((): boolean => meal.portionRatio < 0.85);
 

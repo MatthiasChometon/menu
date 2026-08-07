@@ -78,6 +78,11 @@
       "past": "Cette semaine est passée",
       "deliveryOn": "Courses livrées",
       "beforeStart": "D'ici là, fais avec ce que tu as déjà."
+    },
+    "week": {
+      "current": "Cette semaine",
+      "upcoming": "À venir",
+      "past": "Passée"
     }
   }
 }

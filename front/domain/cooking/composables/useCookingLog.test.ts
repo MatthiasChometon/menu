@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 const menuOf = (): Menu => {
-  const { currentMenu } = useMenu();
-  if (currentMenu === undefined) throw new Error('no menu to check');
+  const { latestMenu } = useMenu();
+  if (latestMenu === undefined) throw new Error('no menu to check');
 
-  return currentMenu;
+  return latestMenu;
 };
 
 const logOf = (): ReturnType<typeof useCookingLog> => useCookingLog(menuOf().weekOf);

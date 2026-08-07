@@ -1,19 +1,13 @@
 <script setup lang="ts">
-const { menus, currentMenu, dayOrder } = useMenu();
+const { menus, dayOrder } = useMenu();
 const isMounted = useMounted();
 const { t, locale } = useNuxtApp().$i18n;
 const { round } = useFoodFormat();
 const localePath = useLocalePath();
 
-const selectedWeek = ref(currentMenu?.weekOf ?? '');
-
-const menu = computed((): Menu | undefined =>
-  menus.find((entry): boolean => entry.weekOf === selectedWeek.value),
-);
-
-const weekItems = computed((): SelectItem[] =>
-  menus.map((entry): SelectItem => ({ label: formatWeek(entry.weekOf), value: entry.weekOf })),
-);
+// Shared with the shopping list, the cooking session and the recipes: choosing
+// a week here has to move the whole app with it.
+const { selectedMenu: menu } = useSelectedWeek();
 
 const formatWeek = (weekOf: string): string =>
   new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
@@ -101,15 +95,8 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           <p class="mt-1 text-muted">{{ $t('menu.pageLead') }}</p>
         </div>
 
-        <USelect
-          v-if="menus.length > 1"
-          v-model="selectedWeek"
-          :items="weekItems"
-          value-key="value"
-          icon="i-lucide-calendar-days"
-          :aria-label="$t('menu.weekOf')"
-        />
-        <p v-else class="text-sm text-muted">
+        <MenuWeekPicker />
+        <p v-if="menus.length < 2" class="text-sm text-muted">
           {{ $t('menu.weekOf') }} {{ formatWeek(menu.weekOf) }}
         </p>
       </div>

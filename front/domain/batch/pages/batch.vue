@@ -1,20 +1,20 @@
 <script setup lang="ts">
-const { currentMenu } = useMenu();
+const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
 const { planOf } = useBatchPlan();
 const { nameOf } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
-const { statusOf, setStatus, progressOf, reset } = useCookingLog(currentMenu?.weekOf ?? '');
+const { statusOf, setStatus, progressOf, reset } = useCookingLog(selectedWeek);
 
 const plan = computed((): BatchPlan | undefined =>
-  currentMenu === undefined ? undefined : planOf(currentMenu),
+  currentMenu.value === undefined ? undefined : planOf(currentMenu.value),
 );
 
 const progressById = computed(
   (): Map<string, DishProgress> =>
     new Map(
-      (currentMenu === undefined ? [] : progressOf(currentMenu)).map(
+      (currentMenu.value === undefined ? [] : progressOf(currentMenu.value)).map(
         (progress): [string, DishProgress] => [progress.recipe.id, progress],
       ),
     ),
@@ -82,6 +82,7 @@ useSeoMeta({ title: (): string => t('batch.title') });
       <header class="rise">
         <h1 class="text-3xl font-black tracking-tight">{{ $t('batch.title') }}</h1>
         <p class="mt-1 text-muted">{{ $t('batch.lead') }}</p>
+        <MenuWeekPicker class="mt-3" />
         <div class="mt-3 flex flex-wrap items-center gap-2">
           <p class="inline-flex items-center gap-2 rounded-full bg-elevated px-3 py-1.5 text-sm">
             <UIcon name="i-lucide-timer" class="size-4 text-primary" />

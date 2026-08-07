@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
 const currentPlan = (): BatchPlan => {
-  const { currentMenu } = useMenu();
-  if (currentMenu === undefined) throw new Error('no menu to plan');
+  const { latestMenu } = useMenu();
+  if (latestMenu === undefined) throw new Error('no menu to plan');
 
-  return useBatchPlan().planOf(currentMenu);
+  return useBatchPlan().planOf(latestMenu);
 };
 
 describe('useBatchPlan', () => {
   it('counts how many servings of each dish the week needs', () => {
     const plan = currentPlan();
-    const { currentMenu } = useMenu();
+    const { latestMenu } = useMenu();
 
     for (const task of plan.tasks) {
-      const served = currentMenu?.days
+      const served = latestMenu?.days
         .flatMap((day): Meal[] => day.meals)
         .filter((meal): boolean => meal.recipe.id === task.recipe.id).length;
 
@@ -23,12 +23,12 @@ describe('useBatchPlan', () => {
 
   it('adds up the week into one weighing per ingredient', () => {
     const plan = currentPlan();
-    const { currentMenu } = useMenu();
+    const { latestMenu } = useMenu();
 
     const chili = plan.tasks.find((task): boolean => task.recipe.id === 'chiliChicken');
     if (chili === undefined) throw new Error('chili not on the menu');
 
-    const expected = currentMenu?.days
+    const expected = latestMenu?.days
       .flatMap((day): Meal[] => day.meals)
       .filter((meal): boolean => meal.recipe.id === 'chiliChicken')
       .flatMap((meal): FoodQuantity[] => meal.quantities)

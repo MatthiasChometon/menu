@@ -2,7 +2,7 @@
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
-const { currentMenu } = useMenu();
+const { selectedMenu: currentMenu } = useSelectedWeek();
 const { recipeOf, imageOf } = useRecipes();
 const { variantsOf, portionsOf, weekQuantitiesOf } = useRecipeVariants();
 const { seasoningsOf } = useSeasonings();
@@ -19,7 +19,7 @@ const recipeId = computed((): string => String(route.params.id));
 const recipe = computed((): Recipe | undefined => recipeOf(recipeId.value));
 
 const variants = computed((): RecipeVariant[] =>
-  currentMenu === undefined ? [] : variantsOf(currentMenu, recipeId.value),
+  currentMenu.value === undefined ? [] : variantsOf(currentMenu.value, recipeId.value),
 );
 
 const portions = computed((): number => portionsOf(variants.value));
@@ -45,12 +45,12 @@ const servings = computed((): RecipeServing[] =>
 
 // Weighed out for whoever is reading, falling back to the recipe as written.
 const portionQuantities = computed((): FoodQuantity[] =>
-  variant.value === undefined ? [] : scale(variant.value.quantities, currentMenu?.targets),
+  variant.value === undefined ? [] : scale(variant.value.quantities, currentMenu.value?.targets),
 );
 
 const myQuantities = computed((): FoodQuantity[] =>
   isWeek.value
-    ? scale(weekQuantitiesOf(variants.value), currentMenu?.targets)
+    ? scale(weekQuantitiesOf(variants.value), currentMenu.value?.targets)
     : portionQuantities.value,
 );
 
