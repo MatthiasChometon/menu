@@ -1,7 +1,10 @@
 import { expect, test } from '@playwright/test';
 
 // The dish cards of one group, in document order.
-const groupDishes = (page: import('@playwright/test').Page, heading: string) =>
+const groupDishes = (
+  page: import('@playwright/test').Page,
+  heading: string,
+): import('@playwright/test').Locator =>
   page
     .getByRole('main')
     .locator('section')

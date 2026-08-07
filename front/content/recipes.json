@@ -524,5 +524,2338 @@
         "Finish with {the orange|orange} and {the square of dark chocolate|darkChocolate}, which brings magnesium and heads off worse cravings."
       ]
     }
+  },
+  "codRiceGreenBeans": {
+    "slot": "main",
+    "name": {
+      "fr": "Cabillaud, riz complet et haricots verts",
+      "en": "Cod, brown rice and green beans"
+    },
+    "prepMinutes": 30,
+    "batch": false,
+    "ingredients": {
+      "cod": 160,
+      "brownRice": 130,
+      "greenBeans": 150,
+      "oliveOil": 12,
+      "onion": 40
+    },
+    "seasonings": ["lemon", "salt", "pepper", "garlic"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice} dans deux fois son volume d'eau, 40 min.",
+        "Émincer {l'oignon|onion} et le faire suer dans {l'huile d'olive|oliveOil} avec {l'ail|garlic}.",
+        "Poser {le dos de cabillaud|cod} dessus, {saler|salt} et {poivrer|pepper}, couvrir 8 min à feu doux.",
+        "Cuire {les haricots verts|greenBeans} 10 min à la vapeur, ils doivent rester fermes.",
+        "Arroser de {citron|lemon} au moment de servir. La chair doit se détacher sans être sèche."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice} in twice its volume of water, 40 min.",
+        "Slice {the onion|onion} and sweat it in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Lay {the cod|cod} on top, {salt|salt} and {pepper|pepper}, cover and cook 8 min over low heat.",
+        "Steam {the green beans|greenBeans} for 10 min, keeping them firm.",
+        "Squeeze {lemon|lemon} over at the last moment. The fish should flake without drying out."
+      ]
+    }
+  },
+  "mackerelPastaTomato": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes au maquereau et tomates",
+      "en": "Wholewheat pasta with mackerel and tomatoes"
+    },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "mackerelTin": 110,
+      "wholewheatPasta": 130,
+      "crushedTomatoes": 180,
+      "onion": 50,
+      "oliveOil": 10
+    },
+    "seasonings": ["garlic", "oregano", "chilli", "salt"],
+    "steps": {
+      "fr": [
+        "Mettre {les pâtes complètes|wholewheatPasta} à cuire.",
+        "Faire revenir {l'oignon|onion} émincé dans {l'huile d'olive|oliveOil} avec {l'ail|garlic}.",
+        "Verser {les tomates concassées|crushedTomatoes}, ajouter {origan|oregano} et une pointe de {piment|chilli}.",
+        "Laisser réduire 8 min, puis incorporer {le maquereau|mackerelTin} égoutté en gros morceaux.",
+        "{Saler|salt} et mélanger aux pâtes. Le maquereau apporte autant d’oméga-3 que le saumon, pour trois fois moins cher."
+      ],
+      "en": [
+        "Put {the wholewheat pasta|wholewheatPasta} on to cook.",
+        "Fry the sliced {onion|onion} in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Pour in {the crushed tomatoes|crushedTomatoes}, add {oregano|oregano} and a touch of {chilli|chilli}.",
+        "Reduce for 8 min, then fold in {the mackerel|mackerelTin}, drained and in large flakes.",
+        "Add {salt|salt} and toss with the pasta. Mackerel brings as much omega-3 as salmon, at a third of the price."
+      ]
+    }
+  },
+  "chickenRiceRatatouille": {
+    "slot": "main",
+    "name": {
+      "fr": "Poulet, riz complet et ratatouille",
+      "en": "Chicken, brown rice and ratatouille"
+    },
+    "prepMinutes": 35,
+    "batch": true,
+    "ingredients": {
+      "chickenBreast": 150,
+      "brownRice": 130,
+      "eggplant": 120,
+      "zucchini": 100,
+      "bellPepper": 80,
+      "tomato": 120,
+      "oliveOil": 14
+    },
+    "seasonings": ["herbesDeProvence", "garlic", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Couper {l'aubergine|eggplant}, {la courgette|zucchini} et {le poivron|bellPepper} en dés réguliers.",
+        "Les faire revenir 10 min dans {l'huile d'olive|oliveOil} avec {l'ail|garlic} et {les herbes de Provence|herbesDeProvence}.",
+        "Ajouter {les tomates|tomato} en quartiers, laisser compoter 10 min à couvert.",
+        "Saisir {le blanc de poulet|chickenBreast} en dés 6 min à part, {saler|salt}, {poivrer|pepper}, réunir le tout."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Dice {the aubergine|eggplant}, {the courgette|zucchini} and {the pepper|bellPepper} evenly.",
+        "Fry them for 10 min in {the olive oil|oliveOil} with {the garlic|garlic} and {the herbs|herbesDeProvence}.",
+        "Add {the tomatoes|tomato} in quarters and let them break down, covered, for 10 min.",
+        "Sear the diced {chicken breast|chickenBreast} for 6 min separately, {salt|salt}, {pepper|pepper}, then combine."
+      ]
+    }
+  },
+  "tofuStirFry": {
+    "slot": "main",
+    "name": {
+      "fr": "Tofu sauté aux légumes croquants",
+      "en": "Stir-fried tofu with crisp vegetables"
+    },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "tofu": 180,
+      "brownRice": 130,
+      "bellPepper": 90,
+      "greenBeans": 100,
+      "mushrooms": 80,
+      "oliveOil": 12,
+      "cashews": 20
+    },
+    "seasonings": ["soySauce", "ginger", "garlic", "chilli"],
+    "steps": {
+      "fr": [
+        "Utiliser {du riz complet déjà cuit|brownRice}, ou en lancer une casserole 40 min avant.",
+        "Presser {le tofu|tofu} entre deux torchons, le couper en cubes et le saisir 6 min dans {l’huile d’olive|oliveOil} jusqu’à ce qu’il dore.",
+        "Réserver, jeter {le poivron|bellPepper}, {les haricots verts|greenBeans} et {les champignons|mushrooms} dans le wok, sauter 5 min.",
+        "Remettre le tofu, ajouter {la sauce soja|soySauce}, {le gingembre|ginger}, {l’ail|garlic} et une pointe de {piment|chilli}.",
+        "Parsemer {les noix de cajou|cashews} hors du feu. Presser le tofu est ce qui l’empêche de rendre de l’eau et de bouillir au lieu de dorer."
+      ],
+      "en": [
+        "Use {pre-cooked brown rice|brownRice}, or start a pan 40 min ahead.",
+        "Press {the tofu|tofu} between two cloths, cube it and sear 6 min in {the olive oil|oliveOil} until golden.",
+        "Set aside, throw {the pepper|bellPepper}, {the green beans|greenBeans} and {the mushrooms|mushrooms} into the wok, stir-fry 5 min.",
+        "Return the tofu, add {the soy sauce|soySauce}, {the ginger|ginger}, {the garlic|garlic} and a touch of {chilli|chilli}.",
+        "Scatter {the cashews|cashews} off the heat. Pressing the tofu is what stops it stewing instead of browning."
+      ]
+    }
+  },
+  "prawnPastaGarlic": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes aux crevettes et à l’ail",
+      "en": "Wholewheat pasta with prawns and garlic"
+    },
+    "prepMinutes": 18,
+    "batch": false,
+    "ingredients": {
+      "shrimp": 150,
+      "wholewheatPasta": 130,
+      "zucchini": 100,
+      "oliveOil": 14,
+      "tomato": 100
+    },
+    "seasonings": ["garlic", "chilli", "lemon", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Mettre {les pâtes complètes|wholewheatPasta} à cuire.",
+        "Faire chauffer {l’huile d’olive|oliveOil} avec {l’ail|garlic} écrasé et une pointe de {piment|chilli}.",
+        "Jeter {la courgette|zucchini} en demi-rondelles, 4 min à feu vif.",
+        "Ajouter {les crevettes|shrimp} et {les tomates|tomato} en dés, 3 min, pas plus : au-delà elles deviennent caoutchouteuses.",
+        "{Saler|salt}, {poivrer|pepper}, finir au {citron|lemon} et mélanger aux pâtes égouttées."
+      ],
+      "en": [
+        "Put {the wholewheat pasta|wholewheatPasta} on to cook.",
+        "Heat {the olive oil|oliveOil} with crushed {garlic|garlic} and a touch of {chilli|chilli}.",
+        "Throw in {the courgette|zucchini} in half-moons, 4 min over high heat.",
+        "Add {the prawns|shrimp} and the diced {tomatoes|tomato} for 3 min, no more: past that they turn rubbery.",
+        "Add {salt|salt} and {pepper|pepper}, finish with {lemon|lemon} and toss with the drained pasta."
+      ]
+    }
+  },
+  "lentilCurry": {
+    "slot": "main",
+    "name": {
+      "fr": "Curry de lentilles corail et épinards",
+      "en": "Red lentil and spinach curry"
+    },
+    "prepMinutes": 25,
+    "batch": true,
+    "ingredients": {
+      "redLentilsDry": 90,
+      "brownRice": 120,
+      "lightCoconutMilk": 120,
+      "freshSpinach": 100,
+      "onion": 60,
+      "oliveOil": 12,
+      "tomato": 120
+    },
+    "seasonings": ["curryPowder", "turmeric", "ginger", "garlic", "salt"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Faire suer {l’oignon|onion} dans {l’huile d’olive|oliveOil} avec {l’ail|garlic} et {le gingembre|ginger}.",
+        "Ajouter {le curry|curryPowder} et {le curcuma|turmeric}, remuer 1 min pour réveiller les épices.",
+        "Verser {les lentilles corail|redLentilsDry}, {les tomates|tomato} en dés et {le lait de coco léger|lightCoconutMilk}, mijoter 15 min.",
+        "Incorporer {les épinards frais|freshSpinach} en fin de cuisson, {saler|salt}. Les lentilles corail fondent sans trempage."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Sweat {the onion|onion} in {the olive oil|oliveOil} with {the garlic|garlic} and {the ginger|ginger}.",
+        "Add {the curry|curryPowder} and {the turmeric|turmeric}, stir 1 min to wake the spices up.",
+        "Pour in {the red lentils|redLentilsDry}, the diced {tomatoes|tomato} and {the light coconut milk|lightCoconutMilk}, simmer 15 min.",
+        "Stir {the fresh spinach|freshSpinach} in at the end and {salt|salt}. Red lentils collapse without soaking."
+      ]
+    }
+  },
+  "turkeyPastaMushroom": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes, dinde et champignons",
+      "en": "Wholewheat pasta with turkey and mushrooms"
+    },
+    "prepMinutes": 22,
+    "batch": true,
+    "ingredients": {
+      "turkeyBreast": 150,
+      "wholewheatPasta": 130,
+      "mushrooms": 120,
+      "onion": 50,
+      "oliveOil": 12,
+      "quark": 60
+    },
+    "seasonings": ["garlic", "herbesDeProvence", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Mettre {les pâtes complètes|wholewheatPasta} à cuire.",
+        "Saisir {la dinde|turkeyBreast} en lanières 5 min à feu vif dans {l’huile d’olive|oliveOil}.",
+        "Ajouter {les champignons|mushrooms} émincés et {l’oignon|onion}, cuire 6 min jusqu’à évaporation de l’eau.",
+        "Assaisonner : {ail|garlic}, {herbes de Provence|herbesDeProvence}, {sel|salt} et {poivre|pepper}.",
+        "Hors du feu, lier avec {le fromage blanc|quark} : ajouté sur le feu il tranche."
+      ],
+      "en": [
+        "Put {the wholewheat pasta|wholewheatPasta} on to cook.",
+        "Sear {the turkey|turkeyBreast} in strips for 5 min over high heat in {the olive oil|oliveOil}.",
+        "Add the sliced {mushrooms|mushrooms} and {the onion|onion}, cook 6 min until the water has gone.",
+        "Season with {garlic|garlic}, {herbs|herbesDeProvence}, {salt|salt} and {pepper|pepper}.",
+        "Off the heat, stir in {the quark|quark}: added over the flame it splits."
+      ]
+    }
+  },
+  "sardineToastSalad": {
+    "slot": "main",
+    "name": {
+      "fr": "Tartines de sardines et salade croquante",
+      "en": "Sardine toasts with a crisp salad"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "sardinesTin": 110,
+      "wholegrainBread": 110,
+      "tomato": 150,
+      "cucumber": 120,
+      "oliveOil": 14,
+      "freshSpinach": 60
+    },
+    "seasonings": ["lemon", "balsamicVinegar", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Faire griller {le pain complet|wholegrainBread}.",
+        "Écraser {les sardines|sardinesTin} à la fourchette avec un filet de {citron|lemon}, étaler sur les tranches.",
+        "Couper {les tomates|tomato} et {le concombre|cucumber} en dés, ajouter {les épinards frais|freshSpinach}.",
+        "Assaisonner la salade avec {l’huile d’olive|oliveOil}, {le vinaigre balsamique|balsamicVinegar}, {sel|salt} et {poivre|pepper}.",
+        "Le repas le plus rapide de la banque : douze minutes, sans cuisson."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread}.",
+        "Mash {the sardines|sardinesTin} with a fork and a squeeze of {lemon|lemon}, spread on the slices.",
+        "Dice {the tomatoes|tomato} and {the cucumber|cucumber}, add {the fresh spinach|freshSpinach}.",
+        "Dress the salad with {the olive oil|oliveOil}, {the balsamic vinegar|balsamicVinegar}, {salt|salt} and {pepper|pepper}.",
+        "The fastest meal of the set: twelve minutes, no cooking."
+      ]
+    }
+  },
+  "beefButternutStew": {
+    "slot": "main",
+    "name": {
+      "fr": "Bœuf mijoté à la courge butternut",
+      "en": "Beef and butternut stew"
+    },
+    "prepMinutes": 40,
+    "batch": true,
+    "ingredients": {
+      "leanBeef": 140,
+      "butternut": 200,
+      "brownRice": 120,
+      "onion": 60,
+      "carrot": 80,
+      "oliveOil": 12
+    },
+    "seasonings": ["paprika", "herbesDeProvence", "garlic", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Saisir {le bœuf haché|leanBeef} 5 min dans {l’huile d’olive|oliveOil} jusqu’à coloration.",
+        "Ajouter {l’oignon|onion}, {la carotte|carrot} et {la courge butternut|butternut} en cubes.",
+        "Assaisonner : {paprika|paprika}, {herbes de Provence|herbesDeProvence}, {ail|garlic}, {sel|salt} et {poivre|pepper}.",
+        "Couvrir d’eau à hauteur et mijoter 25 min : la courge doit s’écraser à la fourchette."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Sear {the beef mince|leanBeef} for 5 min in {the olive oil|oliveOil} until browned.",
+        "Add {the onion|onion}, {the carrot|carrot} and {the butternut squash|butternut} in cubes.",
+        "Season with {paprika|paprika}, {herbs|herbesDeProvence}, {garlic|garlic}, {salt|salt} and {pepper|pepper}.",
+        "Cover with water and simmer 25 min: the squash should crush under a fork."
+      ]
+    }
+  },
+  "chickpeaSpinachStew": {
+    "slot": "main",
+    "name": {
+      "fr": "Pois chiches aux épinards",
+      "en": "Chickpeas with spinach"
+    },
+    "prepMinutes": 20,
+    "batch": true,
+    "ingredients": {
+      "chickpeas": 200,
+      "freshSpinach": 120,
+      "crushedTomatoes": 150,
+      "wholegrainBread": 80,
+      "oliveOil": 16,
+      "onion": 60
+    },
+    "seasonings": ["cumin", "smokedPaprika", "garlic", "salt"],
+    "steps": {
+      "fr": [
+        "Faire suer {l’oignon|onion} dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}.",
+        "Ajouter {le cumin|cumin} et {le paprika fumé|smokedPaprika}, remuer 1 min.",
+        "Verser {les tomates concassées|crushedTomatoes} et {les pois chiches|chickpeas} égouttés, mijoter 10 min.",
+        "Incorporer {les épinards frais|freshSpinach}, {saler|salt}, couper le feu dès qu’ils tombent.",
+        "Saucer avec {le pain complet|wholegrainBread}. Un classique andalou, et le plat le moins cher de la liste."
+      ],
+      "en": [
+        "Sweat {the onion|onion} in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Add {the cumin|cumin} and {the smoked paprika|smokedPaprika}, stir for 1 min.",
+        "Pour in {the crushed tomatoes|crushedTomatoes} and the drained {chickpeas|chickpeas}, simmer 10 min.",
+        "Fold {the fresh spinach|freshSpinach} in, {salt|salt}, and cut the heat as soon as it wilts.",
+        "Mop up with {the wholegrain bread|wholegrainBread}. An Andalusian classic, and the cheapest dish here."
+      ]
+    }
+  },
+  "salmonPastaSpinach": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes au saumon et épinards",
+      "en": "Wholewheat pasta with salmon and spinach"
+    },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "salmon": 130,
+      "wholewheatPasta": 130,
+      "freshSpinach": 100,
+      "quark": 60,
+      "oliveOil": 10,
+      "onion": 40
+    },
+    "seasonings": ["garlic", "lemon", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Mettre {les pâtes complètes|wholewheatPasta} à cuire.",
+        "Faire suer {l’oignon|onion} dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}.",
+        "Ajouter {le saumon|salmon} en cubes, 4 min à feu moyen : il finit de cuire dans la chaleur des pâtes.",
+        "Jeter {les épinards frais|freshSpinach}, {saler|salt}, {poivrer|pepper}, presser {le citron|lemon}.",
+        "Hors du feu, lier avec {le fromage blanc|quark} et mélanger aux pâtes égouttées."
+      ],
+      "en": [
+        "Put {the wholewheat pasta|wholewheatPasta} on to cook.",
+        "Sweat {the onion|onion} in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Add {the salmon|salmon} in cubes, 4 min over medium heat: it finishes in the heat of the pasta.",
+        "Throw in {the fresh spinach|freshSpinach}, {salt|salt}, {pepper|pepper}, squeeze {the lemon|lemon}.",
+        "Off the heat, bind with {the quark|quark} and toss with the drained pasta."
+      ]
+    }
+  },
+  "porkRiceCabbage": {
+    "slot": "main",
+    "name": {
+      "fr": "Filet mignon, riz complet et poireaux",
+      "en": "Pork tenderloin, brown rice and leeks"
+    },
+    "prepMinutes": 28,
+    "batch": true,
+    "ingredients": {
+      "porkTenderloin": 150,
+      "brownRice": 130,
+      "leek": 150,
+      "carrot": 70,
+      "oliveOil": 12
+    },
+    "seasonings": ["soySauce", "ginger", "garlic", "pepper"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Émincer {le poireau|leek} et {la carotte|carrot} en fines rondelles.",
+        "Saisir {le filet mignon|porkTenderloin} en lamelles 4 min à feu vif dans {l’huile d’olive|oliveOil}.",
+        "Réserver la viande, cuire les légumes 8 min à couvert avec {l’ail|garlic} et {le gingembre|ginger}.",
+        "Remettre la viande, ajouter {la sauce soja|soySauce} et {le poivre|pepper}, mélanger 1 min."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Slice {the leek|leek} and {the carrot|carrot} into thin rounds.",
+        "Sear {the pork tenderloin|porkTenderloin} in strips for 4 min over high heat in {the olive oil|oliveOil}.",
+        "Set the meat aside, cook the vegetables covered for 8 min with {the garlic|garlic} and {the ginger|ginger}.",
+        "Return the meat, add {the soy sauce|soySauce} and {pepper|pepper}, toss for 1 min."
+      ]
+    }
+  },
+  "eggFriedRice": {
+    "slot": "main",
+    "name": {
+      "fr": "Riz complet sauté aux œufs et petits pois",
+      "en": "Egg fried brown rice with peas"
+    },
+    "prepMinutes": 15,
+    "batch": false,
+    "ingredients": {
+      "egg": 150,
+      "brownRice": 140,
+      "peas": 120,
+      "carrot": 70,
+      "oliveOil": 12,
+      "onion": 50
+    },
+    "seasonings": ["soySauce", "ginger", "garlic", "pepper"],
+    "steps": {
+      "fr": [
+        "Utiliser {du riz complet déjà cuit|brownRice} et bien froid : chaud, il colle et devient pâteux.",
+        "Faire revenir {l’oignon|onion} et {la carotte|carrot} en petits dés dans {l’huile d’olive|oliveOil}.",
+        "Ajouter {les petits pois|peas}, puis {l’ail|garlic} et {le gingembre|ginger}, 2 min.",
+        "Pousser sur le côté, brouiller {les œufs|egg} dans l’espace libre, puis tout mélanger avec le riz.",
+        "Assaisonner de {sauce soja|soySauce} et de {poivre|pepper}. Le plat du lendemain, quand il reste du riz."
+      ],
+      "en": [
+        "Use {pre-cooked brown rice|brownRice}, properly cold: warm, it clumps and turns to paste.",
+        "Fry {the onion|onion} and {the carrot|carrot}, finely diced, in {the olive oil|oliveOil}.",
+        "Add {the peas|peas}, then {the garlic|garlic} and {the ginger|ginger}, 2 min.",
+        "Push aside, scramble {the eggs|egg} in the clear space, then fold everything through the rice.",
+        "Season with {soy sauce|soySauce} and {pepper|pepper}. The next-day dish, when rice is left over."
+      ]
+    }
+  },
+  "tunaWhiteBeanSalad": {
+    "slot": "main",
+    "name": {
+      "fr": "Salade de thon et haricots blancs",
+      "en": "Tuna and white bean salad"
+    },
+    "prepMinutes": 10,
+    "batch": false,
+    "ingredients": {
+      "tunaTin": 120,
+      "whiteBeans": 180,
+      "tomato": 150,
+      "cucumber": 100,
+      "oliveOil": 16,
+      "blackOlives": 30,
+      "wholegrainBread": 60
+    },
+    "seasonings": ["balsamicVinegar", "oregano", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Égoutter {les haricots blancs|whiteBeans} et {le thon|tunaTin}, les mettre dans un saladier.",
+        "Ajouter {les tomates|tomato} et {le concombre|cucumber} en dés, puis {les olives|blackOlives}.",
+        "Assaisonner : {huile d’olive|oliveOil}, {vinaigre balsamique|balsamicVinegar}, {origan|oregano}, {sel|salt} et {poivre|pepper}.",
+        "Servir avec {le pain complet|wholegrainBread}. Meilleure après une heure au frais, le temps que tout s’imprègne."
+      ],
+      "en": [
+        "Drain {the white beans|whiteBeans} and {the tuna|tunaTin} into a bowl.",
+        "Add {the tomatoes|tomato} and {the cucumber|cucumber}, diced, then {the olives|blackOlives}.",
+        "Dress with {olive oil|oliveOil}, {balsamic vinegar|balsamicVinegar}, {oregano|oregano}, {salt|salt} and {pepper|pepper}.",
+        "Serve with {the wholegrain bread|wholegrainBread}. Better after an hour in the fridge, once it has soaked in."
+      ]
+    }
+  },
+  "chickenCauliflowerBake": {
+    "slot": "main",
+    "name": {
+      "fr": "Poulet et chou-fleur au four",
+      "en": "Baked chicken and cauliflower"
+    },
+    "prepMinutes": 35,
+    "batch": true,
+    "ingredients": {
+      "chickenBreast": 150,
+      "cauliflower": 250,
+      "brownRice": 120,
+      "hardCheese": 30,
+      "oliveOil": 14,
+      "onion": 50
+    },
+    "seasonings": ["smokedPaprika", "garlic", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Préchauffer le four à 200 °C et lancer {le riz complet|brownRice}.",
+        "Détailler {le chou-fleur|cauliflower} en fleurettes, les enrober d’{huile d’olive|oliveOil} et de {paprika fumé|smokedPaprika}.",
+        "Ajouter {le blanc de poulet|chickenBreast} en gros dés et {l’oignon|onion} en quartiers, {saler|salt}, {poivrer|pepper}, {ail|garlic}.",
+        "Enfourner 25 min sur une plaque, sans les entasser : serrés, ils cuisent à la vapeur au lieu de rôtir.",
+        "Râper {le fromage|hardCheese} dessus à la sortie et servir sur le riz."
+      ],
+      "en": [
+        "Heat the oven to 200 °C and start {the brown rice|brownRice}.",
+        "Break {the cauliflower|cauliflower} into florets, coat with {olive oil|oliveOil} and {smoked paprika|smokedPaprika}.",
+        "Add {the chicken breast|chickenBreast} in large dice and {the onion|onion} in wedges, {salt|salt}, {pepper|pepper}, {garlic|garlic}.",
+        "Roast 25 min on a tray, not crowded: packed together they steam instead of roasting.",
+        "Grate {the cheese|hardCheese} over as it comes out and serve on the rice."
+      ]
+    }
+  },
+  "lentilTomatoPasta": {
+    "slot": "main",
+    "name": {
+      "fr": "Pâtes complètes aux lentilles vertes",
+      "en": "Wholewheat pasta with green lentils"
+    },
+    "prepMinutes": 30,
+    "batch": true,
+    "ingredients": {
+      "greenLentilsDry": 80,
+      "wholewheatPasta": 120,
+      "crushedTomatoes": 200,
+      "carrot": 80,
+      "onion": 60,
+      "oliveOil": 14
+    },
+    "seasonings": ["herbesDeProvence", "garlic", "balsamicVinegar", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Cuire {les lentilles vertes|greenLentilsDry} 25 min dans trois fois leur volume d’eau.",
+        "Faire suer {l’oignon|onion} et {la carotte|carrot} râpée dans {l’huile d’olive|oliveOil}.",
+        "Verser {les tomates concassées|crushedTomatoes}, {l’ail|garlic} et {les herbes de Provence|herbesDeProvence}, mijoter 10 min.",
+        "Ajouter les lentilles égouttées, une cuillère de {vinaigre balsamique|balsamicVinegar}, {sel|salt} et {poivre|pepper}.",
+        "Mélanger aux {pâtes complètes|wholewheatPasta} cuites al dente. Sans viande, et autant de fer qu’un steak."
+      ],
+      "en": [
+        "Cook {the green lentils|greenLentilsDry} for 25 min in three times their volume of water.",
+        "Sweat {the onion|onion} and the grated {carrot|carrot} in {the olive oil|oliveOil}.",
+        "Pour in {the crushed tomatoes|crushedTomatoes}, {the garlic|garlic} and {the herbs|herbesDeProvence}, simmer 10 min.",
+        "Add the drained lentils, a spoon of {balsamic vinegar|balsamicVinegar}, {salt|salt} and {pepper|pepper}.",
+        "Toss with {the wholewheat pasta|wholewheatPasta}, cooked al dente. No meat, and as much iron as a steak."
+      ]
+    }
+  },
+  "codTomatoBake": {
+    "slot": "main",
+    "name": {
+      "fr": "Cabillaud au four, tomates et olives",
+      "en": "Baked cod with tomatoes and olives"
+    },
+    "prepMinutes": 25,
+    "batch": false,
+    "ingredients": {
+      "cod": 170,
+      "brownRice": 130,
+      "tomato": 180,
+      "blackOlives": 30,
+      "oliveOil": 14,
+      "onion": 50
+    },
+    "seasonings": ["garlic", "oregano", "lemon", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Préchauffer le four à 200 °C, lancer {le riz complet|brownRice}.",
+        "Disposer {les tomates|tomato} en rondelles et {l’oignon|onion} émincé dans un plat, arroser d’{huile d’olive|oliveOil}.",
+        "Poser {le cabillaud|cod} dessus, ajouter {les olives|blackOlives}, {l’ail|garlic} et {l’origan|oregano}.",
+        "{Saler|salt}, {poivrer|pepper}, presser {le citron|lemon} et enfourner 18 min.",
+        "Le jus rendu par les tomates suffit à la sauce : rien à ajouter."
+      ],
+      "en": [
+        "Heat the oven to 200 °C and start {the brown rice|brownRice}.",
+        "Lay {the tomatoes|tomato} in rounds and the sliced {onion|onion} in a dish, drizzle with {olive oil|oliveOil}.",
+        "Place {the cod|cod} on top, add {the olives|blackOlives}, {the garlic|garlic} and {the oregano|oregano}.",
+        "Add {salt|salt} and {pepper|pepper}, squeeze {the lemon|lemon} and bake for 18 min.",
+        "The juice the tomatoes give up is the sauce: nothing else to add."
+      ]
+    }
+  },
+  "turkeyRiceBroccoli": {
+    "slot": "main",
+    "name": {
+      "fr": "Dinde, riz complet et brocolis",
+      "en": "Turkey, brown rice and broccoli"
+    },
+    "prepMinutes": 25,
+    "batch": true,
+    "ingredients": {
+      "turkeyBreast": 160,
+      "brownRice": 130,
+      "broccoli": 200,
+      "oliveOil": 12,
+      "cashews": 20
+    },
+    "seasonings": ["soySauce", "garlic", "ginger", "pepper"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Cuire {les brocolis|broccoli} 8 min à la vapeur, ils doivent rester croquants.",
+        "Saisir {la dinde|turkeyBreast} en dés 6 min dans {l’huile d’olive|oliveOil} avec {l’ail|garlic} et {le gingembre|ginger}.",
+        "Ajouter {la sauce soja|soySauce} et {le poivre|pepper}, réunir avec les brocolis.",
+        "Parsemer {les noix de cajou|cashews}. Le plat le plus simple à préparer en avance."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Steam {the broccoli|broccoli} for 8 min, keeping it crisp.",
+        "Sear the diced {turkey|turkeyBreast} for 6 min in {the olive oil|oliveOil} with {the garlic|garlic} and {the ginger|ginger}.",
+        "Add {the soy sauce|soySauce} and {pepper|pepper}, then bring the broccoli in.",
+        "Scatter {the cashews|cashews}. The easiest of the lot to cook ahead."
+      ]
+    }
+  },
+  "shakshukaSpinach": {
+    "slot": "main",
+    "name": {
+      "fr": "Shakshuka aux épinards",
+      "en": "Spinach shakshuka"
+    },
+    "prepMinutes": 20,
+    "batch": false,
+    "ingredients": {
+      "egg": 180,
+      "crushedTomatoes": 200,
+      "freshSpinach": 100,
+      "wholegrainBread": 100,
+      "oliveOil": 14,
+      "onion": 60
+    },
+    "seasonings": ["cumin", "smokedPaprika", "garlic", "salt"],
+    "steps": {
+      "fr": [
+        "Faire revenir {l’oignon|onion} dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}.",
+        "Ajouter {le cumin|cumin} et {le paprika fumé|smokedPaprika}, puis {les tomates concassées|crushedTomatoes}.",
+        "Laisser épaissir 8 min, incorporer {les épinards frais|freshSpinach} jusqu’à ce qu’ils tombent.",
+        "Creuser des puits et y casser {les œufs|egg}, {saler|salt}, couvrir 6 min.",
+        "Saucer avec {le pain complet|wholegrainBread}. Le blanc pris, le jaune coulant."
+      ],
+      "en": [
+        "Fry {the onion|onion} in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Add {the cumin|cumin} and {the smoked paprika|smokedPaprika}, then {the crushed tomatoes|crushedTomatoes}.",
+        "Thicken for 8 min, stir {the fresh spinach|freshSpinach} through until it wilts.",
+        "Make wells and crack {the eggs|egg} in, {salt|salt}, cover for 6 min.",
+        "Mop up with {the wholegrain bread|wholegrainBread}. White set, yolk running."
+      ]
+    }
+  },
+  "beefPepperRice": {
+    "slot": "main",
+    "name": {
+      "fr": "Bœuf aux poivrons et riz complet",
+      "en": "Beef and peppers with brown rice"
+    },
+    "prepMinutes": 22,
+    "batch": true,
+    "ingredients": {
+      "leanBeef": 150,
+      "brownRice": 130,
+      "bellPepper": 150,
+      "onion": 60,
+      "oliveOil": 12,
+      "crushedTomatoes": 120
+    },
+    "seasonings": ["smokedPaprika", "cumin", "garlic", "chilli", "salt"],
+    "steps": {
+      "fr": [
+        "Lancer {le riz complet|brownRice}.",
+        "Saisir {le bœuf haché|leanBeef} 5 min à feu vif dans {l’huile d’olive|oliveOil}.",
+        "Ajouter {le poivron|bellPepper} et {l’oignon|onion} en lanières, 6 min.",
+        "Assaisonner : {paprika fumé|smokedPaprika}, {cumin|cumin}, {ail|garlic}, une pointe de {piment|chilli} et {sel|salt}.",
+        "Verser {les tomates concassées|crushedTomatoes} et laisser réduire 8 min à découvert."
+      ],
+      "en": [
+        "Start {the brown rice|brownRice}.",
+        "Sear {the beef mince|leanBeef} for 5 min over high heat in {the olive oil|oliveOil}.",
+        "Add {the pepper|bellPepper} and {the onion|onion} in strips, 6 min.",
+        "Season with {smoked paprika|smokedPaprika}, {cumin|cumin}, {garlic|garlic}, a touch of {chilli|chilli} and {salt|salt}.",
+        "Pour in {the crushed tomatoes|crushedTomatoes} and reduce uncovered for 8 min."
+      ]
+    }
+  },
+  "oatPearWalnut": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Porridge poire et noix",
+      "en": "Pear and walnut porridge"
+    },
+    "prepMinutes": 8,
+    "batch": false,
+    "ingredients": {
+      "oats": 90,
+      "wholeMilk": 280,
+      "pear": 150,
+      "walnuts": 20,
+      "honey": 15,
+      "whey": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {l’avoine|oats} et {le lait entier|wholeMilk} dans un bol, chauffer 3 min au micro-ondes.",
+        "Laisser tiédir deux minutes, puis incorporer {la whey|whey} hors du feu : dans un liquide brûlant elle coagule.",
+        "Ajouter {la poire|pear} en dés, {les noix|walnuts} concassées et {le miel|honey}."
+      ],
+      "en": [
+        "Put {the oats|oats} and {the whole milk|wholeMilk} in a bowl, heat 3 min in the microwave.",
+        "Let it cool two minutes, then stir {the whey|whey} in off the heat: in boiling liquid it curdles.",
+        "Add the diced {pear|pear}, the crushed {walnuts|walnuts} and {the honey|honey}."
+      ]
+    }
+  },
+  "skyrBerryOats": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Skyr, avoine et fruits rouges",
+      "en": "Skyr, oats and berries"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "skyr": 200,
+      "oats": 70,
+      "frozenBerries": 120,
+      "honey": 15,
+      "almonds": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Assembler {le skyr|skyr}, {l’avoine|oats} et {les fruits rouges surgelés|frozenBerries} dans un bocal.",
+        "Ajouter {le miel|honey} et {les amandes|almonds} concassées.",
+        "À monter la veille : l’avoine s’attendrit et les fruits décongèlent au frigo."
+      ],
+      "en": [
+        "Layer {the skyr|skyr}, {the oats|oats} and {the frozen berries|frozenBerries} in a jar.",
+        "Add {the honey|honey} and the crushed {almonds|almonds}.",
+        "Assemble the night before: the oats soften and the berries thaw in the fridge."
+      ]
+    }
+  },
+  "eggAvocadoToast": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Tartines avocat et œufs",
+      "en": "Avocado and egg toast"
+    },
+    "prepMinutes": 10,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 110,
+      "egg": 150,
+      "avocado": 80,
+      "tomato": 100,
+      "semiSkimmedMilk": 200
+    },
+    "seasonings": ["salt", "pepper", "chilli", "lemon"],
+    "steps": {
+      "fr": [
+        "Faire griller {le pain complet|wholegrainBread}.",
+        "Écraser {l’avocat|avocado} à la fourchette avec un filet de {citron|lemon}, {saler|salt} et {poivrer|pepper}.",
+        "Brouiller {les œufs|egg} à feu doux, les poser sur les tartines avec {les tomates|tomato} en rondelles.",
+        "Une pointe de {piment|chilli} par-dessus, {le lait|semiSkimmedMilk} à côté."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread}.",
+        "Mash {the avocado|avocado} with a squeeze of {lemon|lemon}, {salt|salt} and {pepper|pepper}.",
+        "Scramble {the eggs|egg} over low heat and lay them on the toast with the sliced {tomatoes|tomato}.",
+        "A touch of {chilli|chilli} on top, {the milk|semiSkimmedMilk} alongside."
+      ]
+    }
+  },
+  "cottageBananaBowl": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Bol de cottage cheese et banane",
+      "en": "Cottage cheese and banana bowl"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 200,
+      "banana": 150,
+      "oats": 60,
+      "peanutButter": 20,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {l’avoine|oats}, {la banane|banana} en rondelles et {le beurre de cacahuète|peanutButter}.",
+        "Terminer par {le miel|honey}. Rien à cuire, deux fois plus de protéines qu’un yaourt."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add {the oats|oats}, the sliced {banana|banana} and {the peanut butter|peanutButter}.",
+        "Finish with {the honey|honey}. Nothing to cook, twice the protein of a yoghurt."
+      ]
+    }
+  },
+  "chocolateOvernightOats": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Avoine chocolatée de la veille",
+      "en": "Chocolate overnight oats"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "oats": 90,
+      "semiSkimmedMilk": 250,
+      "cocoaPowder": 12,
+      "whey": 25,
+      "banana": 120,
+      "chiaSeeds": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mélanger {l’avoine|oats}, {le cacao|cocoaPowder}, {la whey|whey} et {les graines de chia|chiaSeeds} à sec.",
+        "Verser {le lait|semiSkimmedMilk}, remuer et laisser au frigo toute la nuit.",
+        "Ajouter {la banane|banana} en rondelles au moment de manger. Le chia épaissit le tout en dormant."
+      ],
+      "en": [
+        "Mix {the oats|oats}, {the cocoa|cocoaPowder}, {the whey|whey} and {the chia seeds|chiaSeeds} dry.",
+        "Pour {the milk|semiSkimmedMilk} in, stir and leave in the fridge overnight.",
+        "Add the sliced {banana|banana} when you eat it. The chia thickens everything while you sleep."
+      ]
+    }
+  },
+  "hamCheeseOmelette": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Omelette jambon fromage",
+      "en": "Ham and cheese omelette"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "egg": 180,
+      "ham": 60,
+      "hardCheese": 30,
+      "wholegrainBread": 90,
+      "oliveOil": 8,
+      "semiSkimmedMilk": 200
+    },
+    "seasonings": ["salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Battre {les œufs|egg}, {saler|salt} et {poivrer|pepper}.",
+        "Chauffer {l’huile d’olive|oliveOil}, verser les œufs et laisser prendre à feu doux.",
+        "Répartir {le jambon|ham} et {le fromage|hardCheese} râpé, plier l’omelette.",
+        "Servir avec {le pain complet|wholegrainBread} grillé et {le lait|semiSkimmedMilk}. À feu doux : à feu vif l’omelette se dessèche."
+      ],
+      "en": [
+        "Beat {the eggs|egg}, {salt|salt} and {pepper|pepper}.",
+        "Heat {the olive oil|oliveOil}, pour the eggs in and let them set over low heat.",
+        "Scatter {the ham|ham} and the grated {cheese|hardCheese}, then fold.",
+        "Serve with toasted {wholegrain bread|wholegrainBread} and {the milk|semiSkimmedMilk}. Low heat: high heat dries it out."
+      ]
+    }
+  },
+  "kiwiYogurtGranola": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Yaourt, kiwi et avoine grillée",
+      "en": "Yoghurt, kiwi and toasted oats"
+    },
+    "prepMinutes": 8,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "kiwi": 150,
+      "oats": 70,
+      "honey": 15,
+      "pumpkinSeeds": 20,
+      "whey": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Faire griller {l’avoine|oats} à sec 3 min à la poêle, jusqu’à ce qu’elle sente la noisette.",
+        "Mélanger {le yaourt nature|plainYogurt} et {la whey|whey} dans un bol.",
+        "Ajouter {le kiwi|kiwi} en rondelles, l’avoine grillée, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Toast {the oats|oats} dry in a pan for 3 min, until they smell nutty.",
+        "Stir {the plain yoghurt|plainYogurt} and {the whey|whey} together in a bowl.",
+        "Add the sliced {kiwi|kiwi}, the toasted oats, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "almondDateShake": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Shaker amandes et dattes",
+      "en": "Almond and date shake"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholeMilk": 300,
+      "oats": 80,
+      "dates": 40,
+      "almonds": 25,
+      "whey": 25,
+      "banana": 100
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait entier|wholeMilk}, {l’avoine|oats}, {les dattes|dates}, {les amandes|almonds}, {la banane|banana} et {la whey|whey} dans le blender.",
+        "Mixer 45 secondes, jusqu’à ce qu’il ne reste plus de morceaux.",
+        "Les dattes remplacent le sucre ajouté et apportent du potassium."
+      ],
+      "en": [
+        "Put {the whole milk|wholeMilk}, {the oats|oats}, {the dates|dates}, {the almonds|almonds}, {the banana|banana} and {the whey|whey} in the blender.",
+        "Blend for 45 seconds, until no pieces remain.",
+        "The dates replace added sugar and bring potassium."
+      ]
+    }
+  },
+  "appleCinnamonPorridge": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Porridge pomme cannelle",
+      "en": "Apple porridge"
+    },
+    "prepMinutes": 10,
+    "batch": false,
+    "ingredients": {
+      "oats": 95,
+      "semiSkimmedMilk": 280,
+      "apple": 150,
+      "walnuts": 20,
+      "honey": 12,
+      "whey": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Chauffer {l’avoine|oats} et {le lait|semiSkimmedMilk} 3 min, en remuant.",
+        "Râper {la pomme|apple} directement dedans et laisser gonfler 2 min hors du feu.",
+        "Incorporer {la whey|whey} une fois tiédi, puis {les noix|walnuts} et {le miel|honey}."
+      ],
+      "en": [
+        "Heat {the oats|oats} and {the milk|semiSkimmedMilk} for 3 min, stirring.",
+        "Grate {the apple|apple} straight in and let it swell off the heat for 2 min.",
+        "Stir {the whey|whey} in once it has cooled, then {the walnuts|walnuts} and {the honey|honey}."
+      ]
+    }
+  },
+  "savouryCottageToast": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Tartines cottage cheese et concombre",
+      "en": "Cottage cheese and cucumber toast"
+    },
+    "prepMinutes": 7,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 110,
+      "cottageCheese": 180,
+      "cucumber": 100,
+      "egg": 120,
+      "semiSkimmedMilk": 150
+    },
+    "seasonings": ["salt", "pepper", "lemon"],
+    "steps": {
+      "fr": [
+        "Faire griller {le pain complet|wholegrainBread}.",
+        "Cuire {les œufs|egg} durs 10 min, les écaler et les couper en rondelles.",
+        "Étaler {le cottage cheese|cottageCheese}, poser {le concombre|cucumber} en fines lamelles et les œufs.",
+        "{Saler|salt}, {poivrer|pepper}, presser {le citron|lemon}, boire {le lait|semiSkimmedMilk} à côté."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread}.",
+        "Boil {the eggs|egg} for 10 min, peel and slice them.",
+        "Spread {the cottage cheese|cottageCheese}, lay {the cucumber|cucumber} in thin slices and the eggs on top.",
+        "Add {salt|salt}, {pepper|pepper}, squeeze {the lemon|lemon}, drink {the milk|semiSkimmedMilk} alongside."
+      ]
+    }
+  },
+  "quarkOrangeOats": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Fromage blanc, orange et avoine",
+      "en": "Quark, orange and oats"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "quark": 220,
+      "orange": 200,
+      "oats": 70,
+      "honey": 15,
+      "almonds": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le fromage blanc|quark} dans un bol.",
+        "Ajouter {l’orange|orange} en quartiers, {l’avoine|oats} et {les amandes|almonds}.",
+        "Arroser de {miel|honey}. La vitamine C de l’orange aide à absorber le fer de l’avoine."
+      ],
+      "en": [
+        "Spoon {the quark|quark} into a bowl.",
+        "Add {the orange|orange} in segments, {the oats|oats} and {the almonds|almonds}.",
+        "Drizzle with {honey|honey}. The vitamin C in the orange helps absorb the iron in the oats."
+      ]
+    }
+  },
+  "peanutBananaShake": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Shaker cacahuète banane",
+      "en": "Peanut banana shake"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 320,
+      "peanutButter": 30,
+      "banana": 150,
+      "oats": 70,
+      "whey": 25
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait|semiSkimmedMilk}, {le beurre de cacahuète|peanutButter}, {la banane|banana}, {l’avoine|oats} et {la whey|whey} au blender.",
+        "Mixer 40 secondes.",
+        "Le plus rapide des petits-déjeuners : quatre minutes, un seul récipient à laver."
+      ],
+      "en": [
+        "Put {the milk|semiSkimmedMilk}, {the peanut butter|peanutButter}, {the banana|banana}, {the oats|oats} and {the whey|whey} in the blender.",
+        "Blend for 40 seconds.",
+        "The fastest breakfast here: four minutes and one thing to wash."
+      ]
+    }
+  },
+  "eggSpinachToast": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Œufs, épinards et pain complet",
+      "en": "Eggs, spinach and wholegrain bread"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "egg": 180,
+      "freshSpinach": 100,
+      "wholegrainBread": 110,
+      "hardCheese": 25,
+      "oliveOil": 10,
+      "semiSkimmedMilk": 180
+    },
+    "seasonings": ["salt", "pepper", "garlic"],
+    "steps": {
+      "fr": [
+        "Faire tomber {les épinards frais|freshSpinach} 2 min dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}.",
+        "Casser {les œufs|egg} dessus, {saler|salt}, {poivrer|pepper}, couvrir 5 min.",
+        "Râper {le fromage|hardCheese} et servir sur {le pain complet|wholegrainBread} grillé, avec {le lait|semiSkimmedMilk}."
+      ],
+      "en": [
+        "Wilt {the fresh spinach|freshSpinach} for 2 min in {the olive oil|oliveOil} with {the garlic|garlic}.",
+        "Crack {the eggs|egg} over it, {salt|salt}, {pepper|pepper}, cover for 5 min.",
+        "Grate {the cheese|hardCheese} over and serve on toasted {wholegrain bread|wholegrainBread}, with {the milk|semiSkimmedMilk}."
+      ]
+    }
+  },
+  "berrySkyrShake": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Shaker skyr et fruits rouges",
+      "en": "Skyr and berry shake"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "skyr": 200,
+      "frozenBerries": 150,
+      "semiSkimmedMilk": 200,
+      "oats": 60,
+      "honey": 15
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le skyr|skyr}, {les fruits rouges surgelés|frozenBerries}, {le lait|semiSkimmedMilk}, {l’avoine|oats} et {le miel|honey} au blender.",
+        "Mixer 40 secondes : les fruits surgelés le rendent glacé sans glaçons."
+      ],
+      "en": [
+        "Put {the skyr|skyr}, {the frozen berries|frozenBerries}, {the milk|semiSkimmedMilk}, {the oats|oats} and {the honey|honey} in the blender.",
+        "Blend for 40 seconds: the frozen fruit chills it without ice."
+      ]
+    }
+  },
+  "cashewDateOats": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Avoine, cajou et dattes",
+      "en": "Oats, cashews and dates"
+    },
+    "prepMinutes": 6,
+    "batch": false,
+    "ingredients": {
+      "oats": 95,
+      "wholeMilk": 280,
+      "cashews": 25,
+      "dates": 40,
+      "whey": 20,
+      "cocoaPowder": 8
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Chauffer {l’avoine|oats} et {le lait entier|wholeMilk} 3 min.",
+        "Mélanger {le cacao|cocoaPowder} dedans, laisser tiédir, puis incorporer {la whey|whey}.",
+        "Ajouter {les dattes|dates} coupées et {les noix de cajou|cashews} concassées."
+      ],
+      "en": [
+        "Heat {the oats|oats} and {the whole milk|wholeMilk} for 3 min.",
+        "Stir {the cocoa|cocoaPowder} in, let it cool, then fold {the whey|whey} through.",
+        "Add the chopped {dates|dates} and the crushed {cashews|cashews}."
+      ]
+    }
+  },
+  "tomatoEggBread": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Pain complet, tomate et œuf dur",
+      "en": "Wholegrain bread, tomato and boiled egg"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 120,
+      "egg": 180,
+      "tomato": 150,
+      "oliveOil": 12,
+      "quark": 120
+    },
+    "seasonings": ["salt", "pepper", "oregano"],
+    "steps": {
+      "fr": [
+        "Cuire {les œufs|egg} durs 10 min.",
+        "Frotter {les tomates|tomato} coupées sur {le pain complet|wholegrainBread} grillé, arroser d’{huile d’olive|oliveOil}.",
+        "{Saler|salt}, {poivrer|pepper}, saupoudrer d’{origan|oregano} et poser les œufs en rondelles.",
+        "Servir {le fromage blanc|quark} à côté."
+      ],
+      "en": [
+        "Boil {the eggs|egg} for 10 min.",
+        "Rub the cut {tomatoes|tomato} over toasted {wholegrain bread|wholegrainBread} and drizzle with {olive oil|oliveOil}.",
+        "Add {salt|salt}, {pepper|pepper} and {oregano|oregano}, then lay the sliced eggs on top.",
+        "Serve {the quark|quark} alongside."
+      ]
+    }
+  },
+  "appleWalnutYogurt": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Yaourt, pomme et noix",
+      "en": "Yoghurt, apple and walnuts"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "apple": 180,
+      "walnuts": 25,
+      "oats": 70,
+      "honey": 15
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Râper {la pomme|apple} dans {le yaourt nature|plainYogurt}.",
+        "Ajouter {l’avoine|oats}, {les noix|walnuts} et {le miel|honey}.",
+        "Râper plutôt que couper : la pomme rend son jus et parfume tout le bol."
+      ],
+      "en": [
+        "Grate {the apple|apple} into {the plain yoghurt|plainYogurt}.",
+        "Add {the oats|oats}, {the walnuts|walnuts} and {the honey|honey}.",
+        "Grate rather than chop: the apple releases its juice and flavours the whole bowl."
+      ]
+    }
+  },
+  "bananaOatPancakes": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Pancakes avoine banane",
+      "en": "Oat and banana pancakes"
+    },
+    "prepMinutes": 15,
+    "batch": false,
+    "ingredients": {
+      "oats": 90,
+      "egg": 120,
+      "banana": 150,
+      "semiSkimmedMilk": 120,
+      "honey": 15,
+      "oliveOil": 8
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mixer {l’avoine|oats}, {les œufs|egg}, {la banane|banana} et {le lait|semiSkimmedMilk} jusqu’à obtenir une pâte lisse.",
+        "Cuire de petites louches dans {l’huile d’olive|oliveOil}, 2 min par face à feu moyen.",
+        "Arroser de {miel|honey}. Sans farine : la banane et l’avoine suffisent à lier."
+      ],
+      "en": [
+        "Blend {the oats|oats}, {the eggs|egg}, {the banana|banana} and {the milk|semiSkimmedMilk} into a smooth batter.",
+        "Cook small ladlefuls in {the olive oil|oliveOil}, 2 min a side over medium heat.",
+        "Drizzle with {honey|honey}. No flour: the banana and oats bind it on their own."
+      ]
+    }
+  },
+  "kiwiCottageOats": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Cottage cheese, kiwi et graines",
+      "en": "Cottage cheese, kiwi and seeds"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 200,
+      "kiwi": 150,
+      "oats": 70,
+      "pumpkinSeeds": 20,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {le kiwi|kiwi} en dés, {l’avoine|oats} et {les graines de courge|pumpkinSeeds}.",
+        "Terminer par {le miel|honey}. Les graines de courge sont la meilleure source de magnésium du placard."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add the diced {kiwi|kiwi}, {the oats|oats} and {the pumpkin seeds|pumpkinSeeds}.",
+        "Finish with {the honey|honey}. Pumpkin seeds are the best magnesium in the cupboard."
+      ]
+    }
+  },
+  "hamEggBread": {
+    "slot": "breakfast",
+    "name": {
+      "fr": "Pain complet, jambon et œuf",
+      "en": "Wholegrain bread, ham and egg"
+    },
+    "prepMinutes": 10,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 120,
+      "ham": 70,
+      "egg": 120,
+      "quark": 150,
+      "semiSkimmedMilk": 150
+    },
+    "seasonings": ["salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Faire griller {le pain complet|wholegrainBread} et poser {le jambon|ham} dessus.",
+        "Cuire {les œufs|egg} au plat 3 min, {saler|salt} et {poivrer|pepper}.",
+        "Servir {le fromage blanc|quark} et {le lait|semiSkimmedMilk} à côté."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread} and lay {the ham|ham} on it.",
+        "Fry {the eggs|egg} for 3 min, {salt|salt} and {pepper|pepper}.",
+        "Serve {the quark|quark} and {the milk|semiSkimmedMilk} alongside."
+      ]
+    }
+  },
+  "wheyOrangeShake": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Shaker whey et orange",
+      "en": "Whey and orange shake"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 250,
+      "whey": 25,
+      "orange": 180,
+      "honey": 10
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Presser {l’orange|orange} et la verser au shaker avec {le lait|semiSkimmedMilk}.",
+        "Ajouter {la whey|whey} et {le miel|honey}, secouer 30 secondes.",
+        "Le plus digeste juste après l’effort."
+      ],
+      "en": [
+        "Squeeze {the orange|orange} into the shaker with {the milk|semiSkimmedMilk}.",
+        "Add {the whey|whey} and {the honey|honey}, shake for 30 seconds.",
+        "The easiest to digest straight after training."
+      ]
+    }
+  },
+  "quarkBerryBowl": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Fromage blanc et fruits rouges",
+      "en": "Quark and berries"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "quark": 250,
+      "frozenBerries": 150,
+      "oats": 50,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le fromage blanc|quark} et {les fruits rouges surgelés|frozenBerries} dans un bol.",
+        "Ajouter {l’avoine|oats} et {le miel|honey}.",
+        "Les fruits surgelés rafraîchissent le bol au retour de la salle."
+      ],
+      "en": [
+        "Put {the quark|quark} and {the frozen berries|frozenBerries} in a bowl.",
+        "Add {the oats|oats} and {the honey|honey}.",
+        "The frozen fruit cools the bowl down on the way back from the gym."
+      ]
+    }
+  },
+  "riceCakeTuna": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Pain complet et thon",
+      "en": "Wholegrain bread and tuna"
+    },
+    "prepMinutes": 6,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 90,
+      "tunaTin": 100,
+      "cucumber": 80,
+      "quark": 80
+    },
+    "seasonings": ["lemon", "salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Égoutter {le thon|tunaTin} et l’écraser avec {le fromage blanc|quark}.",
+        "Étaler sur {le pain complet|wholegrainBread}, poser {le concombre|cucumber} en rondelles.",
+        "{Saler|salt}, {poivrer|pepper}, presser {le citron|lemon}."
+      ],
+      "en": [
+        "Drain {the tuna|tunaTin} and mash it with {the quark|quark}.",
+        "Spread on {the wholegrain bread|wholegrainBread}, lay {the cucumber|cucumber} in rounds.",
+        "Add {salt|salt}, {pepper|pepper} and a squeeze of {lemon|lemon}."
+      ]
+    }
+  },
+  "dateWheyShake": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Shaker dattes et whey",
+      "en": "Date and whey shake"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 280,
+      "whey": 25,
+      "dates": 50,
+      "banana": 100
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait|semiSkimmedMilk}, {la whey|whey}, {les dattes|dates} et {la banane|banana} au blender.",
+        "Mixer 30 secondes. Les dattes rechargent vite sans peser sur l’estomac."
+      ],
+      "en": [
+        "Put {the milk|semiSkimmedMilk}, {the whey|whey}, {the dates|dates} and {the banana|banana} in the blender.",
+        "Blend for 30 seconds. Dates refill fast without sitting heavy."
+      ]
+    }
+  },
+  "skyrHoneyKiwi": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Skyr, miel et kiwi",
+      "en": "Skyr, honey and kiwi"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "skyr": 250,
+      "kiwi": 150,
+      "honey": 15,
+      "oats": 45
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le skyr|skyr} dans un bol.",
+        "Ajouter {le kiwi|kiwi} en rondelles, {l’avoine|oats} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the skyr|skyr} into a bowl.",
+        "Add the sliced {kiwi|kiwi}, {the oats|oats} and {the honey|honey}."
+      ]
+    }
+  },
+  "cottagePineappleBowl": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Cottage cheese et poire",
+      "en": "Cottage cheese and pear"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 220,
+      "pear": 170,
+      "oats": 50,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {la poire|pear} en dés, {l’avoine|oats} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add the diced {pear|pear}, {the oats|oats} and {the honey|honey}."
+      ]
+    }
+  },
+  "milkOatShake": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Shaker lait et avoine",
+      "en": "Milk and oat shake"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "wholeMilk": 300,
+      "oats": 70,
+      "whey": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait entier|wholeMilk}, {l’avoine|oats}, {la whey|whey} et {le miel|honey} au shaker.",
+        "Secouer 30 secondes. Le plus neutre en goût, quand rien d’autre ne passe."
+      ],
+      "en": [
+        "Put {the whole milk|wholeMilk}, {the oats|oats}, {the whey|whey} and {the honey|honey} in the shaker.",
+        "Shake for 30 seconds. The plainest of the lot, for when nothing else goes down."
+      ]
+    }
+  },
+  "yogurtBananaSeeds": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Yaourt, banane et graines",
+      "en": "Yoghurt, banana and seeds"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "banana": 150,
+      "pumpkinSeeds": 20,
+      "honey": 12,
+      "oats": 45
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le yaourt nature|plainYogurt} dans un bol.",
+        "Ajouter {la banane|banana} en rondelles, {l’avoine|oats}, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the plain yoghurt|plainYogurt} into a bowl.",
+        "Add the sliced {banana|banana}, {the oats|oats}, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "eggBreadQuark": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Œufs durs et pain complet",
+      "en": "Boiled eggs and wholegrain bread"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "egg": 150,
+      "wholegrainBread": 90,
+      "quark": 150
+    },
+    "seasonings": ["salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Cuire {les œufs|egg} durs 10 min : en faire six d’un coup, ils tiennent une semaine au frigo.",
+        "Écaler, {saler|salt} et {poivrer|pepper}, manger avec {le pain complet|wholegrainBread}.",
+        "Servir {le fromage blanc|quark} à côté."
+      ],
+      "en": [
+        "Boil {the eggs|egg} for 10 min: do six at once, they keep a week in the fridge.",
+        "Peel, {salt|salt} and {pepper|pepper}, eat with {the wholegrain bread|wholegrainBread}.",
+        "Serve {the quark|quark} alongside."
+      ]
+    }
+  },
+  "cocoaMilkShake": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Shaker cacao",
+      "en": "Cocoa shake"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 300,
+      "whey": 25,
+      "cocoaPowder": 12,
+      "banana": 120,
+      "honey": 10
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait|semiSkimmedMilk}, {la whey|whey}, {le cacao|cocoaPowder}, {la banane|banana} et {le miel|honey} au shaker.",
+        "Secouer 30 secondes."
+      ],
+      "en": [
+        "Put {the milk|semiSkimmedMilk}, {the whey|whey}, {the cocoa|cocoaPowder}, {the banana|banana} and {the honey|honey} in the shaker.",
+        "Shake for 30 seconds."
+      ]
+    }
+  },
+  "appleQuarkBowl": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Fromage blanc et pomme râpée",
+      "en": "Quark and grated apple"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "quark": 250,
+      "apple": 180,
+      "oats": 50,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Râper {la pomme|apple} dans {le fromage blanc|quark}.",
+        "Ajouter {l’avoine|oats} et {le miel|honey}."
+      ],
+      "en": [
+        "Grate {the apple|apple} into {the quark|quark}.",
+        "Add {the oats|oats} and {the honey|honey}."
+      ]
+    }
+  },
+  "skyrCashewHoney": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Skyr, cajou et miel",
+      "en": "Skyr, cashews and honey"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "skyr": 250,
+      "cashews": 25,
+      "honey": 15,
+      "banana": 100
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le skyr|skyr} dans un bol.",
+        "Ajouter {la banane|banana} en rondelles, {les noix de cajou|cashews} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the skyr|skyr} into a bowl.",
+        "Add the sliced {banana|banana}, {the cashews|cashews} and {the honey|honey}."
+      ]
+    }
+  },
+  "milkDateOats": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Lait, dattes et avoine",
+      "en": "Milk, dates and oats"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "wholeMilk": 300,
+      "dates": 50,
+      "oats": 60,
+      "whey": 20
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait entier|wholeMilk}, {les dattes|dates}, {l’avoine|oats} et {la whey|whey} au blender.",
+        "Mixer 40 secondes."
+      ],
+      "en": [
+        "Put {the whole milk|wholeMilk}, {the dates|dates}, {the oats|oats} and {the whey|whey} in the blender.",
+        "Blend for 40 seconds."
+      ]
+    }
+  },
+  "cottageBerrySeeds": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Cottage cheese et fruits rouges",
+      "en": "Cottage cheese and berries"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 230,
+      "frozenBerries": 140,
+      "pumpkinSeeds": 20,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {les fruits rouges surgelés|frozenBerries}, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add {the frozen berries|frozenBerries}, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "hamBreadMilk": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Pain complet, jambon et lait",
+      "en": "Wholegrain bread, ham and milk"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "ham": 70,
+      "semiSkimmedMilk": 250,
+      "quark": 80
+    },
+    "seasonings": ["pepper"],
+    "steps": {
+      "fr": [
+        "Étaler {le fromage blanc|quark} sur {le pain complet|wholegrainBread}, poser {le jambon|ham}.",
+        "{Poivrer|pepper} et boire {le lait|semiSkimmedMilk} à côté."
+      ],
+      "en": [
+        "Spread {the quark|quark} on {the wholegrain bread|wholegrainBread} and lay {the ham|ham} on top.",
+        "Add {pepper|pepper} and drink {the milk|semiSkimmedMilk} alongside."
+      ]
+    }
+  },
+  "pearYogurtWalnut": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Yaourt, poire et noix",
+      "en": "Yoghurt, pear and walnuts"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "pear": 170,
+      "walnuts": 22,
+      "oats": 50,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le yaourt nature|plainYogurt} dans un bol.",
+        "Ajouter {la poire|pear} en dés, {l’avoine|oats}, {les noix|walnuts} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the plain yoghurt|plainYogurt} into a bowl.",
+        "Add the diced {pear|pear}, {the oats|oats}, {the walnuts|walnuts} and {the honey|honey}."
+      ]
+    }
+  },
+  "bananaAlmondShake": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Shaker banane amande",
+      "en": "Banana almond shake"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "semiSkimmedMilk": 300,
+      "banana": 150,
+      "almonds": 25,
+      "whey": 25
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mettre {le lait|semiSkimmedMilk}, {la banane|banana}, {les amandes|almonds} et {la whey|whey} au blender.",
+        "Mixer 40 secondes."
+      ],
+      "en": [
+        "Put {the milk|semiSkimmedMilk}, {the banana|banana}, {the almonds|almonds} and {the whey|whey} in the blender.",
+        "Blend for 40 seconds."
+      ]
+    }
+  },
+  "skyrOrangeOats": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Skyr, orange et avoine",
+      "en": "Skyr, orange and oats"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "skyr": 240,
+      "orange": 200,
+      "oats": 55,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le skyr|skyr} dans un bol.",
+        "Ajouter {l’orange|orange} en quartiers, {l’avoine|oats} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the skyr|skyr} into a bowl.",
+        "Add {the orange|orange} in segments, {the oats|oats} and {the honey|honey}."
+      ]
+    }
+  },
+  "eggAvocadoBread": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Œuf dur, avocat et pain complet",
+      "en": "Boiled egg, avocado and bread"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "egg": 150,
+      "avocado": 70,
+      "wholegrainBread": 90
+    },
+    "seasonings": ["salt", "pepper", "lemon"],
+    "steps": {
+      "fr": [
+        "Cuire {les œufs|egg} durs 10 min.",
+        "Écraser {l’avocat|avocado} avec {le citron|lemon}, {saler|salt} et {poivrer|pepper}, étaler sur {le pain complet|wholegrainBread}.",
+        "Poser les œufs en rondelles dessus."
+      ],
+      "en": [
+        "Boil {the eggs|egg} for 10 min.",
+        "Mash {the avocado|avocado} with {lemon|lemon}, {salt|salt} and {pepper|pepper}, spread on {the wholegrain bread|wholegrainBread}.",
+        "Lay the sliced eggs on top."
+      ]
+    }
+  },
+  "quarkCocoaBanana": {
+    "slot": "postWorkout",
+    "name": {
+      "fr": "Fromage blanc cacao banane",
+      "en": "Cocoa quark with banana"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "quark": 250,
+      "cocoaPowder": 10,
+      "banana": 130,
+      "honey": 15,
+      "oats": 45
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Mélanger {le cacao|cocoaPowder} et {le miel|honey} dans {le fromage blanc|quark}.",
+        "Ajouter {la banane|banana} en rondelles et {l’avoine|oats}."
+      ],
+      "en": [
+        "Stir {the cocoa|cocoaPowder} and {the honey|honey} into {the quark|quark}.",
+        "Add the sliced {banana|banana} and {the oats|oats}."
+      ]
+    }
+  },
+  "almondPearBowl": {
+    "slot": "snack",
+    "name": {
+      "fr": "Skyr, poire et amandes",
+      "en": "Skyr, pear and almonds"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "skyr": 200,
+      "pear": 170,
+      "almonds": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le skyr|skyr} dans un bol.",
+        "Ajouter {la poire|pear} en dés, {les amandes|almonds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the skyr|skyr} into a bowl.",
+        "Add the diced {pear|pear}, {the almonds|almonds} and {the honey|honey}."
+      ]
+    }
+  },
+  "cashewChocolateOrange": {
+    "slot": "snack",
+    "name": {
+      "fr": "Cajou, chocolat et orange",
+      "en": "Cashews, chocolate and orange"
+    },
+    "prepMinutes": 2,
+    "batch": false,
+    "ingredients": {
+      "cashews": 35,
+      "darkChocolate": 25,
+      "orange": 200
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Manger {l’orange|orange} en quartiers.",
+        "Accompagner de {noix de cajou|cashews} et du carré de {chocolat noir|darkChocolate}."
+      ],
+      "en": [
+        "Eat {the orange|orange} in segments.",
+        "Alongside, {the cashews|cashews} and the square of {dark chocolate|darkChocolate}."
+      ]
+    }
+  },
+  "peanutAppleToast": {
+    "slot": "snack",
+    "name": {
+      "fr": "Tartine cacahuète et pomme",
+      "en": "Peanut butter and apple toast"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "peanutButter": 30,
+      "apple": 180,
+      "semiSkimmedMilk": 200
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Étaler {le beurre de cacahuète|peanutButter} sur {le pain complet|wholegrainBread}.",
+        "Poser {la pomme|apple} en fines lamelles dessus.",
+        "Boire {le lait|semiSkimmedMilk} à côté."
+      ],
+      "en": [
+        "Spread {the peanut butter|peanutButter} on {the wholegrain bread|wholegrainBread}.",
+        "Lay {the apple|apple} in thin slices on top.",
+        "Drink {the milk|semiSkimmedMilk} alongside."
+      ]
+    }
+  },
+  "cottageDateWalnut": {
+    "slot": "snack",
+    "name": {
+      "fr": "Cottage cheese, dattes et noix",
+      "en": "Cottage cheese, dates and walnuts"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 200,
+      "dates": 45,
+      "walnuts": 25
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {les dattes|dates} coupées et {les noix|walnuts}."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add the chopped {dates|dates} and {the walnuts|walnuts}."
+      ]
+    }
+  },
+  "yogurtRaisinSeeds": {
+    "slot": "snack",
+    "name": {
+      "fr": "Yaourt, raisins secs et graines",
+      "en": "Yoghurt, raisins and seeds"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "raisins": 35,
+      "pumpkinSeeds": 22,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le yaourt nature|plainYogurt} dans un bol.",
+        "Ajouter {les raisins secs|raisins}, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the plain yoghurt|plainYogurt} into a bowl.",
+        "Add {the raisins|raisins}, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "bananaChocolateBread": {
+    "slot": "snack",
+    "name": {
+      "fr": "Pain complet, banane et chocolat",
+      "en": "Bread, banana and chocolate"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "banana": 150,
+      "darkChocolate": 25,
+      "quark": 120
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Griller {le pain complet|wholegrainBread}, étaler {le fromage blanc|quark}.",
+        "Poser {la banane|banana} en rondelles et râper {le chocolat noir|darkChocolate} dessus."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread} and spread {the quark|quark}.",
+        "Lay the sliced {banana|banana} on top and grate {the dark chocolate|darkChocolate} over."
+      ]
+    }
+  },
+  "kiwiAlmondQuark": {
+    "slot": "snack",
+    "name": {
+      "fr": "Fromage blanc, kiwi et amandes",
+      "en": "Quark, kiwi and almonds"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "quark": 220,
+      "kiwi": 150,
+      "almonds": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le fromage blanc|quark} dans un bol.",
+        "Ajouter {le kiwi|kiwi} en rondelles, {les amandes|almonds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the quark|quark} into a bowl.",
+        "Add the sliced {kiwi|kiwi}, {the almonds|almonds} and {the honey|honey}."
+      ]
+    }
+  },
+  "hamCucumberBread": {
+    "slot": "snack",
+    "name": {
+      "fr": "Pain complet, jambon et concombre",
+      "en": "Bread, ham and cucumber"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "ham": 60,
+      "cucumber": 120,
+      "quark": 100
+    },
+    "seasonings": ["pepper", "lemon"],
+    "steps": {
+      "fr": [
+        "Étaler {le fromage blanc|quark} sur {le pain complet|wholegrainBread}.",
+        "Poser {le jambon|ham} et {le concombre|cucumber} en rondelles, {poivrer|pepper} et presser {le citron|lemon}."
+      ],
+      "en": [
+        "Spread {the quark|quark} on {the wholegrain bread|wholegrainBread}.",
+        "Lay {the ham|ham} and the sliced {cucumber|cucumber} on top, {pepper|pepper} and squeeze {the lemon|lemon}."
+      ]
+    }
+  },
+  "oatWalnutMilk": {
+    "slot": "snack",
+    "name": {
+      "fr": "Bol d’avoine, noix et lait",
+      "en": "Oats, walnuts and milk"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "oats": 70,
+      "wholeMilk": 250,
+      "walnuts": 25,
+      "honey": 15
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le lait entier|wholeMilk} sur {l’avoine|oats}.",
+        "Ajouter {les noix|walnuts} et {le miel|honey}, laisser gonfler 5 min."
+      ],
+      "en": [
+        "Pour {the whole milk|wholeMilk} over {the oats|oats}.",
+        "Add {the walnuts|walnuts} and {the honey|honey}, let it swell for 5 min."
+      ]
+    }
+  },
+  "avocadoToastSeeds": {
+    "slot": "snack",
+    "name": {
+      "fr": "Tartine avocat et graines",
+      "en": "Avocado and seed toast"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "avocado": 90,
+      "pumpkinSeeds": 20,
+      "cottageCheese": 100
+    },
+    "seasonings": ["salt", "pepper", "lemon", "chilli"],
+    "steps": {
+      "fr": [
+        "Écraser {l’avocat|avocado} avec {le citron|lemon}, {saler|salt} et {poivrer|pepper}.",
+        "Étaler sur {le pain complet|wholegrainBread} avec {le cottage cheese|cottageCheese}.",
+        "Parsemer {les graines de courge|pumpkinSeeds} et une pointe de {piment|chilli}."
+      ],
+      "en": [
+        "Mash {the avocado|avocado} with {lemon|lemon}, {salt|salt} and {pepper|pepper}.",
+        "Spread on {the wholegrain bread|wholegrainBread} with {the cottage cheese|cottageCheese}.",
+        "Scatter {the pumpkin seeds|pumpkinSeeds} and a touch of {chilli|chilli}."
+      ]
+    }
+  },
+  "orangeAlmondSkyr": {
+    "slot": "snack",
+    "name": {
+      "fr": "Skyr, orange et amandes",
+      "en": "Skyr, orange and almonds"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "skyr": 200,
+      "orange": 200,
+      "almonds": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le skyr|skyr} dans un bol.",
+        "Ajouter {l’orange|orange} en quartiers, {les amandes|almonds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the skyr|skyr} into a bowl.",
+        "Add {the orange|orange} in segments, {the almonds|almonds} and {the honey|honey}."
+      ]
+    }
+  },
+  "peanutDateBites": {
+    "slot": "snack",
+    "name": {
+      "fr": "Dattes au beurre de cacahuète",
+      "en": "Peanut butter stuffed dates"
+    },
+    "prepMinutes": 4,
+    "batch": false,
+    "ingredients": {
+      "dates": 60,
+      "peanutButter": 30,
+      "almonds": 20,
+      "semiSkimmedMilk": 200
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Ouvrir {les dattes|dates} en deux et retirer le noyau.",
+        "Les garnir de {beurre de cacahuète|peanutButter} et y glisser une amande, prise dans {les amandes|almonds}.",
+        "Boire {le lait|semiSkimmedMilk} à côté. Transportable, et ça tient dans une poche."
+      ],
+      "en": [
+        "Split {the dates|dates} open and take the stone out.",
+        "Fill them with {peanut butter|peanutButter} and tuck in one of {the almonds|almonds}.",
+        "Drink {the milk|semiSkimmedMilk} alongside. Easy to carry, fits in a pocket."
+      ]
+    }
+  },
+  "cottageTomatoBread": {
+    "slot": "snack",
+    "name": {
+      "fr": "Pain complet, cottage cheese et tomate",
+      "en": "Bread, cottage cheese and tomato"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "cottageCheese": 150,
+      "tomato": 150,
+      "oliveOil": 10
+    },
+    "seasonings": ["salt", "pepper", "oregano"],
+    "steps": {
+      "fr": [
+        "Griller {le pain complet|wholegrainBread} et étaler {le cottage cheese|cottageCheese}.",
+        "Poser {les tomates|tomato} en rondelles, arroser d’{huile d’olive|oliveOil}.",
+        "{Saler|salt}, {poivrer|pepper}, saupoudrer d’{origan|oregano}."
+      ],
+      "en": [
+        "Toast {the wholegrain bread|wholegrainBread} and spread {the cottage cheese|cottageCheese}.",
+        "Lay the sliced {tomatoes|tomato} on top and drizzle with {olive oil|oliveOil}.",
+        "Add {salt|salt}, {pepper|pepper} and {oregano|oregano}."
+      ]
+    }
+  },
+  "berryQuarkSeeds": {
+    "slot": "snack",
+    "name": {
+      "fr": "Fromage blanc, fruits rouges et graines",
+      "en": "Quark, berries and seeds"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "quark": 220,
+      "frozenBerries": 140,
+      "pumpkinSeeds": 20,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le fromage blanc|quark} dans un bol.",
+        "Ajouter {les fruits rouges surgelés|frozenBerries}, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the quark|quark} into a bowl.",
+        "Add {the frozen berries|frozenBerries}, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "appleCashewChocolate": {
+    "slot": "snack",
+    "name": {
+      "fr": "Pomme, cajou et chocolat noir",
+      "en": "Apple, cashews and dark chocolate"
+    },
+    "prepMinutes": 2,
+    "batch": false,
+    "ingredients": {
+      "apple": 200,
+      "cashews": 30,
+      "darkChocolate": 25
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Couper {la pomme|apple} en quartiers.",
+        "Accompagner de {noix de cajou|cashews} et du carré de {chocolat noir|darkChocolate}."
+      ],
+      "en": [
+        "Cut {the apple|apple} into wedges.",
+        "Alongside, {the cashews|cashews} and the square of {dark chocolate|darkChocolate}."
+      ]
+    }
+  },
+  "bananaWalnutYogurt": {
+    "slot": "snack",
+    "name": {
+      "fr": "Yaourt, banane et noix",
+      "en": "Yoghurt, banana and walnuts"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "plainYogurt": 250,
+      "banana": 150,
+      "walnuts": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le yaourt nature|plainYogurt} dans un bol.",
+        "Ajouter {la banane|banana} en rondelles, {les noix|walnuts} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the plain yoghurt|plainYogurt} into a bowl.",
+        "Add the sliced {banana|banana}, {the walnuts|walnuts} and {the honey|honey}."
+      ]
+    }
+  },
+  "eggCucumberSnack": {
+    "slot": "snack",
+    "name": {
+      "fr": "Œufs durs et concombre",
+      "en": "Boiled eggs and cucumber"
+    },
+    "prepMinutes": 12,
+    "batch": false,
+    "ingredients": {
+      "egg": 120,
+      "cucumber": 150,
+      "wholegrainBread": 80,
+      "cottageCheese": 100
+    },
+    "seasonings": ["salt", "pepper"],
+    "steps": {
+      "fr": [
+        "Cuire {les œufs|egg} durs 10 min, écaler et {saler|salt}.",
+        "Couper {le concombre|cucumber} en bâtonnets, tremper dans {le cottage cheese|cottageCheese} {poivré|pepper}.",
+        "Accompagner de {pain complet|wholegrainBread}."
+      ],
+      "en": [
+        "Boil {the eggs|egg} for 10 min, peel and {salt|salt}.",
+        "Cut {the cucumber|cucumber} into sticks and dip into the {peppered|pepper} {cottage cheese|cottageCheese}.",
+        "Serve with {wholegrain bread|wholegrainBread}."
+      ]
+    }
+  },
+  "raisinOatBar": {
+    "slot": "snack",
+    "name": {
+      "fr": "Bol d’avoine, raisins et cajou",
+      "en": "Oats, raisins and cashews"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "oats": 70,
+      "semiSkimmedMilk": 240,
+      "raisins": 35,
+      "cashews": 25,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le lait|semiSkimmedMilk} sur {l’avoine|oats}.",
+        "Ajouter {les raisins secs|raisins}, {les noix de cajou|cashews} et {le miel|honey}."
+      ],
+      "en": [
+        "Pour {the milk|semiSkimmedMilk} over {the oats|oats}.",
+        "Add {the raisins|raisins}, {the cashews|cashews} and {the honey|honey}."
+      ]
+    }
+  },
+  "kiwiCottageSeeds": {
+    "slot": "snack",
+    "name": {
+      "fr": "Cottage cheese, kiwi et graines",
+      "en": "Cottage cheese, kiwi and seeds"
+    },
+    "prepMinutes": 3,
+    "batch": false,
+    "ingredients": {
+      "cottageCheese": 200,
+      "kiwi": 150,
+      "pumpkinSeeds": 20,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Verser {le cottage cheese|cottageCheese} dans un bol.",
+        "Ajouter {le kiwi|kiwi} en dés, {les graines de courge|pumpkinSeeds} et {le miel|honey}."
+      ],
+      "en": [
+        "Spoon {the cottage cheese|cottageCheese} into a bowl.",
+        "Add the diced {kiwi|kiwi}, {the pumpkin seeds|pumpkinSeeds} and {the honey|honey}."
+      ]
+    }
+  },
+  "pearAlmondBread": {
+    "slot": "snack",
+    "name": {
+      "fr": "Pain complet, poire et amandes",
+      "en": "Bread, pear and almonds"
+    },
+    "prepMinutes": 5,
+    "batch": false,
+    "ingredients": {
+      "wholegrainBread": 100,
+      "pear": 170,
+      "almonds": 25,
+      "quark": 120,
+      "honey": 12
+    },
+    "seasonings": [],
+    "steps": {
+      "fr": [
+        "Étaler {le fromage blanc|quark} sur {le pain complet|wholegrainBread}.",
+        "Poser {la poire|pear} en lamelles, parsemer {les amandes|almonds} et arroser de {miel|honey}."
+      ],
+      "en": [
+        "Spread {the quark|quark} on {the wholegrain bread|wholegrainBread}.",
+        "Lay {the pear|pear} in slices, scatter {the almonds|almonds} and drizzle with {honey|honey}."
+      ]
+    }
   }
 }

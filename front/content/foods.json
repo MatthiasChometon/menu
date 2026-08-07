@@ -14,7 +14,7 @@
     "pricePerKg": 2.5,
     "micros": {
       "iron": 4.7,
-      "zinc": 3.0,
+      "zinc": 3,
       "magnesium": 138,
       "calcium": 54,
       "potassium": 429
@@ -36,7 +36,7 @@
     "pricePerKg": 2.8,
     "micros": {
       "iron": 1.5,
-      "zinc": 2.0,
+      "zinc": 2,
       "magnesium": 143,
       "calcium": 23,
       "potassium": 223
@@ -203,7 +203,7 @@
       "magnesium": 12,
       "calcium": 56,
       "potassium": 138,
-      "vitaminD": 2.0,
+      "vitaminD": 2,
       "omega3": 0.1
     },
     "pack": 360
@@ -303,7 +303,7 @@
     "fiber": 0,
     "pricePerKg": 12,
     "micros": {
-      "iron": 1.0,
+      "iron": 1,
       "zinc": 0.5,
       "magnesium": 30,
       "calcium": 10,
@@ -404,8 +404,8 @@
     "fiber": 11,
     "pricePerKg": 3.5,
     "micros": {
-      "iron": 7.0,
-      "zinc": 3.0,
+      "iron": 7,
+      "zinc": 3,
       "magnesium": 100,
       "calcium": 50,
       "potassium": 900,
@@ -428,7 +428,7 @@
     "pricePerKg": 2.2,
     "micros": {
       "iron": 2.2,
-      "zinc": 1.0,
+      "zinc": 1,
       "magnesium": 45,
       "calcium": 35,
       "potassium": 400,
@@ -451,7 +451,7 @@
     "pricePerKg": 2.2,
     "micros": {
       "iron": 2.5,
-      "zinc": 1.0,
+      "zinc": 1,
       "magnesium": 50,
       "calcium": 60,
       "potassium": 430,
@@ -958,7 +958,7 @@
     "fiber": 7,
     "pricePerKg": 7,
     "micros": {
-      "iron": 1.0,
+      "iron": 1,
       "zinc": 0.3,
       "magnesium": 43,
       "calcium": 39,
@@ -1304,7 +1304,7 @@
     "fiber": 3,
     "pricePerKg": 2.5,
     "micros": {
-      "iron": 1.0,
+      "iron": 1,
       "zinc": 0.2,
       "magnesium": 25,
       "calcium": 37,
@@ -1366,6 +1366,364 @@
       "calcium": 12,
       "potassium": 485,
       "vitaminC": 10
+    }
+  },
+  "cod": {
+    "name": {
+      "fr": "Cabillaud",
+      "en": "Cod"
+    },
+    "aisle": "butcher",
+    "icon": "i-lucide-fish",
+    "kcal": 82,
+    "protein": 18,
+    "fat": 0.7,
+    "carbs": 0,
+    "fiber": 0,
+    "pricePerKg": 18,
+    "pack": 400,
+    "micros": {
+      "iron": 0.2,
+      "zinc": 0.4,
+      "magnesium": 30,
+      "calcium": 16,
+      "potassium": 413,
+      "vitaminD": 1.2,
+      "omega3": 0.2
+    }
+  },
+  "shrimp": {
+    "name": {
+      "fr": "Crevettes",
+      "en": "Prawns"
+    },
+    "aisle": "butcher",
+    "icon": "i-lucide-shell",
+    "kcal": 99,
+    "protein": 24,
+    "fat": 0.3,
+    "carbs": 0.2,
+    "fiber": 0,
+    "pricePerKg": 20,
+    "pack": 250,
+    "micros": {
+      "iron": 0.5,
+      "zinc": 1.3,
+      "magnesium": 39,
+      "calcium": 70,
+      "potassium": 259,
+      "omega3": 0.3
+    }
+  },
+  "tofu": {
+    "name": {
+      "fr": "Tofu ferme",
+      "en": "Firm tofu"
+    },
+    "aisle": "grocery",
+    "icon": "i-lucide-box",
+    "kcal": 144,
+    "protein": 16,
+    "fat": 8.7,
+    "carbs": 2.8,
+    "fiber": 2.3,
+    "pricePerKg": 9,
+    "pack": 200,
+    "micros": {
+      "iron": 2.7,
+      "zinc": 1.6,
+      "magnesium": 58,
+      "calcium": 350,
+      "potassium": 237,
+      "omega3": 0.6
+    }
+  },
+  "peas": {
+    "name": {
+      "fr": "Petits pois",
+      "en": "Peas"
+    },
+    "aisle": "frozen",
+    "icon": "i-lucide-bean",
+    "kcal": 81,
+    "protein": 5.4,
+    "fat": 0.4,
+    "carbs": 14,
+    "fiber": 5,
+    "pricePerKg": 3,
+    "pack": 750,
+    "micros": {
+      "iron": 1.5,
+      "zinc": 1.2,
+      "magnesium": 33,
+      "calcium": 25,
+      "potassium": 244,
+      "vitaminC": 40
+    }
+  },
+  "freshSpinach": {
+    "name": {
+      "fr": "Épinards frais",
+      "en": "Fresh spinach"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-leaf",
+    "kcal": 23,
+    "protein": 2.9,
+    "fat": 0.4,
+    "carbs": 1.4,
+    "fiber": 2.2,
+    "pricePerKg": 7,
+    "pack": 250,
+    "micros": {
+      "iron": 2.7,
+      "zinc": 0.5,
+      "magnesium": 79,
+      "calcium": 99,
+      "potassium": 558,
+      "vitaminC": 28
+    }
+  },
+  "tomato": {
+    "name": {
+      "fr": "Tomates",
+      "en": "Tomatoes"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-cherry",
+    "kcal": 18,
+    "protein": 0.9,
+    "fat": 0.2,
+    "carbs": 3.9,
+    "fiber": 1.2,
+    "pricePerKg": 3,
+    "pack": 500,
+    "pieceWeight": 120,
+    "piece": {
+      "fr": "tomates",
+      "en": "tomatoes"
+    },
+    "pieceOne": {
+      "fr": "tomate",
+      "en": "tomato"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.2,
+      "magnesium": 11,
+      "calcium": 10,
+      "potassium": 237,
+      "vitaminC": 14
+    }
+  },
+  "cucumber": {
+    "name": {
+      "fr": "Concombre",
+      "en": "Cucumber"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-vegan",
+    "kcal": 15,
+    "protein": 0.7,
+    "fat": 0.1,
+    "carbs": 2.2,
+    "fiber": 0.5,
+    "pricePerKg": 2.5,
+    "pack": 400,
+    "pieceWeight": 400,
+    "piece": {
+      "fr": "concombres",
+      "en": "cucumbers"
+    },
+    "pieceOne": {
+      "fr": "concombre",
+      "en": "cucumber"
+    },
+    "micros": {
+      "iron": 0.3,
+      "zinc": 0.2,
+      "magnesium": 13,
+      "calcium": 16,
+      "potassium": 147,
+      "vitaminC": 3
+    }
+  },
+  "eggplant": {
+    "name": {
+      "fr": "Aubergine",
+      "en": "Aubergine"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-vegan",
+    "kcal": 25,
+    "protein": 1,
+    "fat": 0.2,
+    "carbs": 3,
+    "fiber": 3,
+    "pricePerKg": 3.2,
+    "pack": 500,
+    "pieceWeight": 250,
+    "piece": {
+      "fr": "aubergines",
+      "en": "aubergines"
+    },
+    "pieceOne": {
+      "fr": "aubergine",
+      "en": "aubergine"
+    },
+    "micros": {
+      "iron": 0.2,
+      "zinc": 0.2,
+      "magnesium": 14,
+      "calcium": 9,
+      "potassium": 229,
+      "vitaminC": 2
+    }
+  },
+  "butternut": {
+    "name": {
+      "fr": "Courge butternut",
+      "en": "Butternut squash"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-carrot",
+    "kcal": 45,
+    "protein": 1,
+    "fat": 0.1,
+    "carbs": 10,
+    "fiber": 2,
+    "pricePerKg": 2.5,
+    "pack": 800,
+    "micros": {
+      "iron": 0.7,
+      "zinc": 0.2,
+      "magnesium": 34,
+      "calcium": 48,
+      "potassium": 352,
+      "vitaminC": 21
+    }
+  },
+  "cashews": {
+    "name": {
+      "fr": "Noix de cajou",
+      "en": "Cashews"
+    },
+    "aisle": "grocery",
+    "icon": "i-lucide-nut",
+    "kcal": 553,
+    "protein": 18,
+    "fat": 44,
+    "carbs": 27,
+    "fiber": 3.3,
+    "pricePerKg": 16,
+    "pack": 200,
+    "micros": {
+      "iron": 6.7,
+      "zinc": 5.8,
+      "magnesium": 292,
+      "calcium": 37,
+      "potassium": 660,
+      "omega3": 0.1
+    }
+  },
+  "pumpkinSeeds": {
+    "name": {
+      "fr": "Graines de courge",
+      "en": "Pumpkin seeds"
+    },
+    "aisle": "grocery",
+    "icon": "i-lucide-nut",
+    "kcal": 559,
+    "protein": 30,
+    "fat": 49,
+    "carbs": 11,
+    "fiber": 6,
+    "pricePerKg": 12,
+    "pack": 250,
+    "micros": {
+      "iron": 8.8,
+      "zinc": 7.8,
+      "magnesium": 592,
+      "calcium": 46,
+      "potassium": 809,
+      "vitaminC": 2
+    }
+  },
+  "pear": {
+    "name": {
+      "fr": "Poires",
+      "en": "Pears"
+    },
+    "aisle": "produce",
+    "icon": "i-lucide-apple",
+    "kcal": 57,
+    "protein": 0.4,
+    "fat": 0.1,
+    "carbs": 12,
+    "fiber": 3.1,
+    "pricePerKg": 2.6,
+    "pack": 1000,
+    "pieceWeight": 170,
+    "piece": {
+      "fr": "poires",
+      "en": "pears"
+    },
+    "pieceOne": {
+      "fr": "poire",
+      "en": "pear"
+    },
+    "micros": {
+      "iron": 0.2,
+      "zinc": 0.1,
+      "magnesium": 7,
+      "calcium": 9,
+      "potassium": 116,
+      "vitaminC": 4
+    }
+  },
+  "plainYogurt": {
+    "name": {
+      "fr": "Yaourt nature",
+      "en": "Plain yoghurt"
+    },
+    "aisle": "dairy",
+    "icon": "i-lucide-milk",
+    "kcal": 61,
+    "protein": 3.5,
+    "fat": 3.3,
+    "carbs": 4.7,
+    "fiber": 0,
+    "pricePerKg": 2.5,
+    "pack": 500,
+    "micros": {
+      "iron": 0.1,
+      "zinc": 0.6,
+      "magnesium": 12,
+      "calcium": 121,
+      "potassium": 155,
+      "vitaminD": 0.1
+    }
+  },
+  "cottageCheese": {
+    "name": {
+      "fr": "Cottage cheese",
+      "en": "Cottage cheese"
+    },
+    "aisle": "dairy",
+    "icon": "i-lucide-milk",
+    "kcal": 98,
+    "protein": 11,
+    "fat": 4.3,
+    "carbs": 3.4,
+    "fiber": 0,
+    "pricePerKg": 6,
+    "pack": 400,
+    "micros": {
+      "iron": 0.1,
+      "zinc": 0.4,
+      "magnesium": 8,
+      "calcium": 83,
+      "potassium": 104
     }
   }
 }
