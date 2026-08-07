@@ -1,4 +1,11 @@
-import { componentsList, cssList, layerConfigTsGlobList, layerList, typesDirList } from './ddd';
+import {
+  componentsList,
+  cssList,
+  layerConfigTsGlobList,
+  layerList,
+  recipeRouteList,
+  typesDirList,
+} from './ddd';
 
 export default defineNuxtConfig({
   extends: layerList,
@@ -36,7 +43,9 @@ export default defineNuxtConfig({
   // The whole app is static: menus change once a week, when the skill writes a
   // new JSON and regenerates. Prerendering everything is what makes it readable
   // offline in a supermarket aisle.
-  nitro: { prerender: { crawlLinks: true, routes: ['/'], failOnError: true } },
+  nitro: {
+    prerender: { crawlLinks: true, routes: ['/', ...recipeRouteList()], failOnError: true },
+  },
   pwa: {
     registerType: 'autoUpdate',
     manifest: {

@@ -1,4 +1,4 @@
-import { globSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 
 // Every vertical slice (domain/* and infrastructure/*) is a real Nuxt layer,
@@ -34,3 +34,12 @@ export const componentsList = layerList.map((layerPath) => ({
   pathPrefix: false,
   extensions: ['.vue'],
 }));
+
+// The prerender crawler only follows links, so it only ever reached the recipes
+// the current week serves — the rest of the book had no page at all. Every
+// recipe is listed explicitly so the whole catalogue is readable, whether or not
+// it is on this week's menu.
+export const recipeRouteList = (): string[] =>
+  Object.keys(
+    JSON.parse(readFileSync('content/recipes.json', 'utf8')) as Record<string, unknown>,
+  ).map((id) => `/recette/${id}`);
