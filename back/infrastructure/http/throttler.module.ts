@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { GqlAwareThrottlerGuard } from './throttler.guard';
 
 // The ambient ceiling every route gets. The sign-in routes narrow it themselves,
 // because that is where guessing pays off and where each attempt costs a scrypt
@@ -28,14 +29,14 @@ export const GOOGLE_ATTEMPTS = 20;
         // internet and throttle every user at once. Paired with trustProxy on
         // the adapter, which is what populates req.ips.
         getTracker: (req): string => {
-          const forwarded = req.ips as string[] | undefined;
+          const forwarded = req?.ips as string[] | undefined;
           return forwarded !== undefined && forwarded.length > 0
-            ? (forwarded[0] ?? String(req.ip))
-            : String(req.ip);
+            ? (forwarded[0] ?? String(req?.ip))
+            : String(req?.ip);
         },
       }),
     }),
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: GqlAwareThrottlerGuard }],
 })
 export class ThrottlerInfrastructureModule {}

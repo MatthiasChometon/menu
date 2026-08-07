@@ -55,6 +55,35 @@ describe('who may talk to the API', () => {
 });
 
 describe('what the API refuses to do', () => {
+  it('answers a resolver at all with the limiter armed', async () => {
+    // Sign in first: the point is a reader who really is signed in being seen
+    // as such, which is exactly what production got wrong.
+    const registered = await api.post('/auth/register', {
+      email: 'someone-else@example.com',
+      password: PASSWORD,
+    });
+    const session = registered.cookies.find((cookie): boolean => cookie.name === 'session');
+    expect(session).toBeDefined();
+
+    // The limiter reaches for the request to know who is calling, and under
+    // GraphQL it is not where it is under REST. Getting that wrong failed every
+    // resolver on a property read, so the API answered 200 with an internal
+    // error to every query — a signed-in reader looked signed out and no week
+    // could be saved. This file is the only one that arms the limiter, which is
+    // why nothing caught it.
+    //
+    // __typename is deliberately not the query used: it has no resolver, so no
+    // guard runs, and it kept answering perfectly throughout.
+    const response = await api.graphql<{ me: { id: string } }>(
+      'query { me { id } }',
+      undefined,
+      `session=${session?.value ?? ''}`,
+    );
+
+    expect(response.errors).toBeUndefined();
+    expect(response.data?.me.id).toBeDefined();
+  });
+
   it('stops answering after a burst of sign-in attempts', async () => {
     await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
 

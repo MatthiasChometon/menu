@@ -3,6 +3,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { depthLimit } from './depth-limit';
 
 // Deep enough for every query the front sends (profile → targets → fields),
@@ -18,6 +19,10 @@ const MAX_QUERY_DEPTH = 8;
       useFactory: (config: ConfigService) => ({
         autoSchemaFile: join(process.cwd(), 'infrastructure/graphql/schema.gql'),
         sortSchema: true,
+        // Both halves of the exchange, named. Guards need the request to know
+        // who is calling and the reply to write their headers on; without the
+        // reply the rate limiter failed on every resolver it guarded.
+        context: ({ req, reply }: { req: FastifyRequest; reply: FastifyReply }) => ({ req, reply }),
         // The front generates its types by introspecting this endpoint, so the
         // build needs it — but a public deployment must not hand its whole
         // schema to anyone who asks. Opt in explicitly when building.

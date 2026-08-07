@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from '../../user/repository';
 import { SessionCookie } from './cookie';
-import { RequestContext } from './request-context';
+import { RequestContext } from '../../../infrastructure/http/request-context';
 import { SessionPayload } from './type';
 
 @Injectable()
@@ -15,6 +15,12 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = RequestContext.from(context);
+    // Without a request there is no cookie to read, so there is nobody to let
+    // through. Refusing is the only safe reading of it.
+    if (request === undefined) {
+      throw new UnauthorizedException();
+    }
+
     const token = request.cookies?.[this.cookie.name];
     if (token === undefined) {
       throw new UnauthorizedException();
