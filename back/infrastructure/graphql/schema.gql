@@ -43,8 +43,14 @@ input MeasurementsInput {
 }
 
 type Mutation {
+  """Forgets a week. False when there was none."""
+  deleteWeekPlan(weekOf: String!): Boolean!
+
   """Creates the profile, or replaces it wholesale."""
   saveProfile(input: MeasurementsInput!): Profile!
+
+  """Creates the plan for a week, or replaces it."""
+  saveWeekPlan(input: WeekPlanInput!): WeekPlan!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -61,6 +67,49 @@ type NutritionTargets {
 
   """Grams of protein per day."""
   protein: Int!
+}
+
+"""What was chosen for one day. Missing meals are simply absent."""
+type PlannedDay {
+  day: PlannedDayKey!
+  meals: [PlannedMeal!]!
+}
+
+input PlannedDayInput {
+  day: PlannedDayKey!
+  meals: [PlannedMealInput!]!
+}
+
+"""A day of the planned week, Monday first."""
+enum PlannedDayKey {
+  FRIDAY
+  MONDAY
+  SATURDAY
+  SUNDAY
+  THURSDAY
+  TUESDAY
+  WEDNESDAY
+}
+
+"""One dish chosen for one meal."""
+type PlannedMeal {
+  """Identifier of a recipe in the site content."""
+  recipeId: String!
+  slot: PlannedMealSlot!
+}
+
+input PlannedMealInput {
+  recipeId: String!
+  slot: PlannedMealSlot!
+}
+
+"""Which meal of the day a dish fills."""
+enum PlannedMealSlot {
+  BREAKFAST
+  DINNER
+  LUNCH
+  POST_WORKOUT
+  SNACK
 }
 
 """What someone answered, and what those answers work out to."""
@@ -86,6 +135,14 @@ type Query {
   The signed-in user profile, or null when the form has never been filled in.
   """
   myProfile: Profile
+
+  """
+  The signed-in user plan for that week, or null if they never composed one.
+  """
+  myWeekPlan(weekOf: String!): WeekPlan
+
+  """Every week the signed-in user has composed."""
+  myWeekPlans: [WeekPlan!]!
 
   """
   Daily targets for the given answers, without needing an account: this is what the onboarding form previews as it is filled in.
@@ -122,4 +179,20 @@ type User {
   email: String!
   id: ID!
   name: String
+}
+
+"""
+A week composed by its owner. Only the choices are kept: the grammes follow from the profile, so storing them would freeze figures that must move with it.
+"""
+type WeekPlan {
+  days: [PlannedDay!]!
+  updatedAt: String!
+
+  """The Monday of the week, YYYY-MM-DD."""
+  weekOf: String!
+}
+
+input WeekPlanInput {
+  days: [PlannedDayInput!]!
+  weekOf: String!
 }
