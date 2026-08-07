@@ -63,6 +63,23 @@
     },
     "needAtLeast": "at least",
     "maxReached": "maximum reached",
-    "stillNeeded": "Still to choose:"
+    "stillNeeded": "Still to choose:",
+    "swap": {
+      "fixes": "One swap is enough to bring this day on target",
+      "closer": "No swap is enough, but this one gets closer",
+      "apply": "Apply the swap",
+      "instead": "instead of"
+    },
+    "balance": {
+      "mark": "Balance",
+      "hint": "The marked dishes go best with what you have already chosen"
+    },
+    "fix": {
+      "open": "How to fix it",
+      "title": "Swap a dish to fix it",
+      "none": "No swap fixes this one. Add another dish to your selection instead.",
+      "fixes": "brings the day on target",
+      "choose": "Pick this one"
+    }
   }
 }

@@ -63,6 +63,23 @@
     },
     "needAtLeast": "il en faut au moins",
     "maxReached": "maximum atteint",
-    "stillNeeded": "Encore à choisir :"
+    "stillNeeded": "Encore à choisir :",
+    "swap": {
+      "fixes": "Un échange suffit à mettre ce jour dans les cibles",
+      "closer": "Aucun échange ne suffit, mais celui-ci rapproche des cibles",
+      "apply": "Appliquer l'échange",
+      "instead": "à la place de"
+    },
+    "balance": {
+      "mark": "Équilibre",
+      "hint": "Les plats marqués complètent le mieux ce que tu as déjà choisi"
+    },
+    "fix": {
+      "open": "Comment corriger",
+      "title": "Remplace un plat pour corriger",
+      "none": "Aucun remplacement ne corrige ça ici. Ajoute plutôt un plat à ta sélection.",
+      "fixes": "met la journée dans les cibles",
+      "choose": "Choisir celui-ci"
+    }
   }
 }

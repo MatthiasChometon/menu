@@ -12,6 +12,7 @@ const {
   limitsOf,
   isGroupComplete,
   isGroupFull,
+  recommendedIn,
 } = usePlanner();
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
@@ -53,6 +54,11 @@ const chosenRecipes = computed((): Recipe[] =>
 );
 
 const count = computed((): number => (chosenDishes.value[group] ?? []).length);
+
+// Marked, not reordered. Sorting the grid by merit would move a card out from
+// under the finger on every pick; a mark leaves the choice exactly where it was
+// and still puts the balanced options first in the eye.
+const recommended = computed((): Set<string> => recommendedIn(group));
 
 const preview = ref<Recipe | undefined>(undefined);
 const isPreviewOpen = computed({
@@ -130,6 +136,11 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       <p v-else-if="isFull" class="text-sm text-muted">{{ $t('planner.maxReached') }}</p>
     </div>
 
+    <p v-if="!isFull" class="mt-2 flex items-center gap-1.5 text-xs text-muted">
+      <UIcon name="i-lucide-sparkles" class="size-3.5 shrink-0 text-primary" />
+      {{ $t('planner.balance.hint') }}
+    </p>
+
     <!-- What is already chosen, at a glance and removable, without hunting for
          it among the cards. -->
     <div v-if="chosenRecipes.length > 0" class="mt-3 flex flex-wrap gap-2">
@@ -183,6 +194,16 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
               aria-hidden="true"
             />
           </div>
+
+          <!-- Opposite corner to the tick, and gone the moment the dish is
+               chosen: it is advice on what to take next, not a label. -->
+          <span
+            v-if="recommended.has(dish.id) && !isLocked(dish.id)"
+            class="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[0.65rem] font-bold text-primary shadow-md ring-1 ring-primary/30"
+          >
+            <UIcon name="i-lucide-sparkles" class="size-3" />
+            {{ $t('planner.balance.mark') }}
+          </span>
 
           <!-- White disc, coloured tick: its legibility owes nothing to whatever
                is underneath it. -->

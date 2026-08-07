@@ -57,6 +57,10 @@ export const usePlanner = (): {
   isGroupFull: (group: RecipeSlot) => boolean;
   canReachStep: (index: number) => boolean;
   goToStep: (index: number) => void;
+  suggestFor: (day: PlannedDay) => DishSwap | undefined;
+  recommendedIn: (group: RecipeSlot) => Set<string>;
+  swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
+  applySwap: (swap: DishSwap) => void;
   step: Ref<number>;
   stepCount: number;
   currentGroup: ComputedRef<RecipeSlot | undefined>;
@@ -154,8 +158,8 @@ export const usePlanner = (): {
       };
     });
 
-  const buildDay = (key: DayKey): PlannedDay => {
-    const slots = plan.value.days[key] ?? {};
+  const buildDay = (key: DayKey, override?: Partial<Record<MealSlot, string>>): PlannedDay => {
+    const slots = override ?? plan.value.days[key] ?? {};
     const picked = mealOrder
       .map((slot): { slot: MealSlot; recipe: Recipe } | undefined => {
         const recipeId = slots[slot];
@@ -216,6 +220,97 @@ export const usePlanner = (): {
     ]),
   );
 
+  // Protein counts double. Weighing every macro alike lets a swap trade protein
+  // away to tidy up fat and carbohydrate, which on a bulk is the one trade not
+  // worth making: the rest of the plan is built around the protein figure.
+  const MACRO_WEIGHT: Partial<Record<keyof Macros, number>> = { protein: 2, kcal: 1.5 };
+
+  // How far a day sits from its targets. Used only to rank candidates, so the
+  // scale means nothing — only that smaller is better. Gaps already inside
+  // tolerance are discounted rather than ignored, so a swap still prefers the
+  // middle of the range to its edge.
+  const errorOf = (day: PlannedDay): number =>
+    day.verdicts.reduce(
+      (total, verdict): number =>
+        total +
+        (Math.abs(verdict.gapPercent) * (MACRO_WEIGHT[verdict.macro] ?? 1)) /
+          (verdict.isWithinTolerance ? 4 : 1),
+      day.isImpossible ? 100 : 0,
+    );
+
+  // Every single swap the day allows, solved and scored. Ninety-six dishes and a
+  // 3x3 system make this cheap enough to run on the spot, and a suggestion the
+  // reader can refuse beats a red badge that only says no.
+  const suggestFor = (day: PlannedDay): DishSwap | undefined => {
+    if (day.isValid) return undefined;
+
+    const slots = plan.value.days[day.key] ?? {};
+    let best: DishSwap | undefined;
+    let bestError = errorOf(day);
+
+    for (const [slot, currentId] of Object.entries(slots) as [MealSlot, string][]) {
+      for (const candidate of dishesFor(SLOT_RECIPES[slot])) {
+        if (candidate.id === currentId) continue;
+
+        const trial = buildDay(day.key, { ...slots, [slot]: candidate.id });
+        const error = errorOf(trial);
+        if (error >= bestError) continue;
+
+        bestError = error;
+        best = {
+          day: day.key,
+          slot,
+          from: recipeOf(currentId),
+          to: candidate,
+          becomesValid: trial.isValid,
+        };
+      }
+    }
+
+    return best;
+  };
+
+  const gapOf = (day: PlannedDay, macro: keyof Macros): number =>
+    day.verdicts.find((verdict): boolean => verdict.macro === macro)?.gapPercent ?? 0;
+
+  // Every swap that genuinely moves one macro, best day first. Naming the macro
+  // is not the same as knowing how to fix it: nobody has a table of which dish
+  // carries fibre, and being told the number is wrong without being told what
+  // to do about it is the part that makes this screen feel closed.
+  const swapsForMacro = (day: PlannedDay, macro: keyof Macros): MacroSwap[] => {
+    const slots = plan.value.days[day.key] ?? {};
+    const before = gapOf(day, macro);
+    const found: (MacroSwap & { error: number })[] = [];
+
+    for (const [slot, currentId] of Object.entries(slots) as [MealSlot, string][]) {
+      for (const candidate of dishesFor(SLOT_RECIPES[slot])) {
+        if (candidate.id === currentId) continue;
+
+        const trial = buildDay(day.key, { ...slots, [slot]: candidate.id });
+        // It has to close the gap on the macro that was asked about, not merely
+        // tidy the day up somewhere else.
+        if (Math.abs(gapOf(trial, macro)) >= Math.abs(before)) continue;
+
+        found.push({
+          error: errorOf(trial),
+          gain: trial.macros[macro] - day.macros[macro],
+          becomesValid: trial.isValid,
+          swap: {
+            day: day.key,
+            slot,
+            from: recipeOf(currentId),
+            to: candidate,
+            becomesValid: trial.isValid,
+          },
+        });
+      }
+    }
+
+    // Ranked by the state of the whole day, so a fix for one macro is never one
+    // that quietly breaks another.
+    return found.sort((left, right): number => left.error - right.error).slice(0, 3);
+  };
+
   const days = computed((): PlannedDay[] =>
     dayOrder.map((key): PlannedDay => dayComputeds.get(key)?.value ?? buildDay(key)),
   );
@@ -256,26 +351,64 @@ export const usePlanner = (): {
 
   // Rotation, with dinner one step ahead of lunch, so the same dish never lands
   // twice in a day — the rule the week has always followed.
+  const slotsOnDay = (
+    selection: Partial<Record<RecipeSlot, string[]>>,
+    index: number,
+  ): Partial<Record<MealSlot, string>> => {
+    const slots: Partial<Record<MealSlot, string>> = {};
+
+    for (const group of GROUP_ORDER) {
+      const picked = selection[group] ?? [];
+      if (picked.length === 0) continue;
+
+      for (const [offset, slot] of GROUP_SLOTS[group].entries()) {
+        const dish = picked[(index + offset) % picked.length];
+        if (dish !== undefined) slots[slot] = dish;
+      }
+    }
+
+    return slots;
+  };
+
   const spread = (): void => {
     if (!canSpread.value) return;
 
-    for (const [index, day] of dayOrder.entries()) {
-      const slots: Partial<Record<MealSlot, string>> = {};
-
-      for (const group of GROUP_ORDER) {
-        const picked = chosenDishes.value[group] ?? [];
-        if (picked.length === 0) continue;
-
-        for (const [offset, slot] of GROUP_SLOTS[group].entries()) {
-          const dish = picked[(index + offset) % picked.length];
-          if (dish !== undefined) slots[slot] = dish;
-        }
-      }
-
-      plan.value.days[day] = slots;
-    }
+    for (const [index, day] of dayOrder.entries())
+      plan.value.days[day] = slotsOnDay(chosenDishes.value, index);
 
     touch();
+  };
+
+  // What the week would come to if this dish were added. A dish cannot be judged
+  // on its own macros: it lands on several days beside whatever else was picked,
+  // and it is that whole week the targets are read against.
+  const weekErrorWith = (group: RecipeSlot, recipeId: string): number => {
+    const selection = {
+      ...chosenDishes.value,
+      [group]: [...(chosenDishes.value[group] ?? []), recipeId],
+    };
+
+    return dayOrder.reduce(
+      (total, day, index): number => total + errorOf(buildDay(day, slotsOnDay(selection, index))),
+      0,
+    );
+  };
+
+  // The three dishes that would leave the week closest to its targets. Marking
+  // them steers the choice without taking it away — and unlike most such nudges,
+  // what is being recommended here is simply what is true. Ranking stays fair
+  // even on the first step, where no group is filled yet: every candidate is
+  // scored against the same incomplete week.
+  const recommendedIn = (group: RecipeSlot): Set<string> => {
+    const ranked = dishesFor(group)
+      .filter((recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id))
+      .map((recipe): { id: string; error: number } => ({
+        id: recipe.id,
+        error: weekErrorWith(group, recipe.id),
+      }))
+      .sort((left, right): number => left.error - right.error);
+
+    return new Set(ranked.slice(0, 3).map((entry): string => entry.id));
   };
 
   const countIn = (group: RecipeSlot): number => (chosenDishes.value[group] ?? []).length;
@@ -299,6 +432,13 @@ export const usePlanner = (): {
     isGroupComplete,
     isGroupFull: (group: RecipeSlot): boolean => countIn(group) >= GROUP_LIMITS[group].max,
     canReachStep,
+    suggestFor,
+    recommendedIn,
+    swapsForMacro,
+    applySwap: (swap: DishSwap): void => {
+      plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };
+      touch();
+    },
     goToStep: (index: number): void => {
       if (canReachStep(index)) step.value = Math.max(0, Math.min(GROUP_ORDER.length, index));
     },

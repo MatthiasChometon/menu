@@ -15,7 +15,7 @@ const {
 const isOpen = ref(defaultOpen);
 
 const { mealOrder } = useMenu();
-const { recipesFor, chosen, choose, clearDay } = usePlanner();
+const { recipesFor, chosen, choose, clearDay, suggestFor, applySwap, swapsForMacro } = usePlanner();
 const { nameOf, round } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 
@@ -33,6 +33,33 @@ const steered = computed((): MacroVerdict[] =>
 const gapLabel = (verdict: MacroVerdict): string => {
   const sign = verdict.gapPercent > 0 ? '+' : '';
   return `${sign}${Math.round(verdict.gapPercent)} %`;
+};
+
+// Guarded by isOpen: trying every dish in every slot is cheap for one day and
+// wasteful for seven, and a suggestion nobody has unfolded to read is one
+// nobody needed. A red badge only states the problem — this states the fix.
+const suggestion = computed((): DishSwap | undefined =>
+  isOpen.value && !isEmpty.value ? suggestFor(day) : undefined,
+);
+
+// Which macro the reader asked about. Naming one is what turns "fibres -33 %"
+// from a verdict into a question with an answer.
+const openMacro = ref<keyof Macros | undefined>(undefined);
+
+const fixes = computed((): MacroSwap[] =>
+  openMacro.value === undefined ? [] : swapsForMacro(day, openMacro.value),
+);
+
+const askAbout = (verdict: MacroVerdict): void => {
+  openMacro.value = openMacro.value === verdict.macro ? undefined : verdict.macro;
+};
+
+// Signed, because a macro can be over as easily as under.
+const gainLabel = (gain: number): string => `${gain > 0 ? '+' : ''}${Math.round(gain)}`;
+
+const takeFix = (fix: MacroSwap): void => {
+  applySwap(fix.swap);
+  openMacro.value = undefined;
 };
 
 const statusColor = computed((): 'primary' | 'error' | 'neutral' => {
@@ -109,20 +136,102 @@ const statusLabel = computed((): string => {
     <!-- The gap, not just a red light: knowing the day is 18 % short on protein
          is what tells you which dish to swap. -->
     <div v-if="!isEmpty && isOpen" class="mt-4 flex flex-wrap gap-2 border-t border-default pt-3">
-      <span
+      <component
+        :is="verdict.isWithinTolerance ? 'span' : 'button'"
         v-for="verdict in steered"
         :key="verdict.macro"
-        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
+        :type="verdict.isWithinTolerance ? undefined : 'button'"
+        class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors"
         :class="
           verdict.isWithinTolerance
             ? 'bg-primary/10 text-primary'
-            : 'bg-error/10 text-error font-semibold'
+            : 'bg-error/10 text-error font-semibold cursor-pointer hover:bg-error/20'
         "
+        :aria-expanded="verdict.isWithinTolerance ? undefined : openMacro === verdict.macro"
+        @click="verdict.isWithinTolerance ? undefined : askAbout(verdict)"
       >
         <span>{{ $t(`menu.macroShort.${verdict.macro}`) }}</span>
         <span class="tabular-nums">{{ round(verdict.actual) }}</span>
         <span class="opacity-70 tabular-nums">{{ gapLabel(verdict) }}</span>
-      </span>
+        <UIcon
+          v-if="!verdict.isWithinTolerance"
+          name="i-lucide-circle-help"
+          class="size-3.5 shrink-0"
+        />
+      </component>
+    </div>
+
+    <!-- The answer to the macro that was clicked: which meal to change, what to
+         put in its place, and how much of that macro it actually brings. Three
+         options rather than one, because being handed a single verdict is what
+         made the number feel like a wall. -->
+    <div
+      v-if="openMacro !== undefined"
+      class="mt-3 rounded-xl border border-default bg-elevated/40 p-3"
+    >
+      <p class="text-sm font-semibold">
+        {{ $t('planner.fix.title') }}
+        <span class="text-muted">{{ $t(`menu.macro.${openMacro}`) }}</span>
+      </p>
+
+      <p v-if="fixes.length === 0" class="mt-2 text-sm text-muted">{{ $t('planner.fix.none') }}</p>
+
+      <ul v-else class="mt-2 space-y-2">
+        <li
+          v-for="fix in fixes"
+          :key="`${fix.swap.slot}-${fix.swap.to.id}`"
+          class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg bg-default px-3 py-2"
+        >
+          <UBadge color="neutral" variant="subtle" size="sm">
+            {{ $t(`menu.meal.${fix.swap.slot}`) }}
+          </UBadge>
+          <span class="min-w-0 flex-1 text-sm font-medium">{{ nameOf(fix.swap.to) }}</span>
+          <UBadge color="primary" variant="subtle" size="sm" class="tabular-nums">
+            {{ gainLabel(fix.gain) }} {{ $t('menu.unit.gram') }}
+          </UBadge>
+          <UBadge v-if="fix.becomesValid" color="primary" variant="soft" size="sm">
+            {{ $t('planner.fix.fixes') }}
+          </UBadge>
+          <UButton size="xs" variant="soft" @click="takeFix(fix)">
+            {{ $t('planner.fix.choose') }}
+          </UButton>
+        </li>
+      </ul>
+    </div>
+
+    <!-- The way out, offered rather than demanded: which meal to change, what to
+         put there, and whether it is actually enough. -->
+    <div
+      v-if="suggestion !== undefined"
+      class="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3"
+    >
+      <p class="flex items-start gap-2 text-sm font-semibold text-primary">
+        <UIcon name="i-lucide-wand-sparkles" class="mt-0.5 size-4 shrink-0" />
+        <span class="text-pretty">
+          {{ suggestion.becomesValid ? $t('planner.swap.fixes') : $t('planner.swap.closer') }}
+        </span>
+      </p>
+      <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+        <UBadge color="neutral" variant="subtle" size="sm">
+          {{ $t(`menu.meal.${suggestion.slot}`) }}
+        </UBadge>
+        <span class="font-semibold">{{ nameOf(suggestion.to) }}</span>
+        <span v-if="suggestion.from !== undefined" class="text-muted">
+          {{ $t('planner.swap.instead') }}
+        </span>
+        <span v-if="suggestion.from !== undefined" class="text-muted line-through">
+          {{ nameOf(suggestion.from) }}
+        </span>
+      </div>
+      <UButton
+        icon="i-lucide-refresh-cw"
+        size="xs"
+        variant="soft"
+        class="mt-2.5"
+        @click="applySwap(suggestion)"
+      >
+        {{ $t('planner.swap.apply') }}
+      </UButton>
     </div>
 
     <p v-if="day.isImpossible && isOpen" class="mt-3 text-sm text-error">

@@ -62,6 +62,14 @@ const stepLabels = computed((): string[] => [
   t('planner.week'),
 ]);
 
+// Done, not passed. Colouring by position meant a step already filled went grey
+// again the moment you walked back past it — the bar has to answer "what is
+// settled", which is not the same question as "where am I".
+const isStepDone = (index: number): boolean => {
+  const group = groupOrder[index];
+  return group === undefined ? hasWeek.value : isGroupComplete(group);
+};
+
 // Spreading is what turns four lists into a week; it happens once, on the way
 // into the last step, so the reader never has to ask for it.
 const onNext = (): void => {
@@ -113,19 +121,32 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           v-for="(label, index) in stepLabels"
           :key="label"
           type="button"
-          class="flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg px-1 py-1 text-left transition-opacity"
-          :class="canReachStep(index) ? 'cursor-pointer' : 'cursor-not-allowed opacity-40'"
+          class="group flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg px-1.5 py-1.5 text-left transition-colors"
+          :class="
+            canReachStep(index)
+              ? 'cursor-pointer hover:bg-elevated focus-visible:bg-elevated'
+              : 'cursor-not-allowed opacity-40'
+          "
           :disabled="!canReachStep(index)"
           :aria-current="index === step ? 'step' : undefined"
           @click="goToStep(index)"
         >
           <span
             class="h-1.5 rounded-full transition-colors"
-            :class="index <= step ? 'bg-primary' : 'bg-elevated'"
+            :class="[
+              isStepDone(index) ? 'bg-primary' : index === step ? 'bg-primary/40' : 'bg-elevated',
+              canReachStep(index) && !isStepDone(index) ? 'group-hover:bg-primary/40' : '',
+            ]"
           />
           <span
-            class="truncate text-[0.7rem] leading-tight"
-            :class="index === step ? 'font-bold text-primary' : 'text-muted'"
+            class="truncate text-[0.7rem] leading-tight transition-colors"
+            :class="
+              index === step
+                ? 'font-bold text-primary'
+                : canReachStep(index)
+                  ? 'text-muted group-hover:text-highlighted'
+                  : 'text-muted'
+            "
           >
             {{ label }}
           </span>

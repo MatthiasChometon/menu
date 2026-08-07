@@ -101,6 +101,77 @@ test('a dish never lands twice in the same day', async ({ page }) => {
   expect(lunch).not.toBe(dinner);
 });
 
+test('a step stays marked done after walking back past it', async ({ page }) => {
+  await open(page);
+
+  await pick(page, 2);
+  await next(page).click();
+  await pickAt(page, 0);
+  await next(page).click();
+  await pickAt(page, 0);
+  await next(page).click();
+  await pickAt(page, 0);
+
+  // Back two steps: the snack is still chosen, so its bar must stay filled.
+  await page.getByRole('button', { name: 'Post-training' }).click();
+  await expect(page.getByRole('heading', { name: 'Post-training' })).toBeVisible();
+
+  const snackStep = page.getByRole('button', { name: 'Goûter' });
+  const bar = snackStep.locator('span').first();
+
+  // Colouring by position would grey this out; it answers "is it settled".
+  await expect(bar).toHaveClass(/bg-primary(?!\/)/);
+});
+
+// The whole week, spread and open on Monday.
+const composeWeek = async (page: import('@playwright/test').Page): Promise<void> => {
+  await open(page);
+  await pick(page, 2);
+  for (let step = 0; step < 4; step += 1) {
+    await next(page).click();
+    if (step < 3) await pick(page, 1);
+  }
+};
+
+// The day's own card, not whatever container happens to mention the day.
+const monday = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
+  page.getByRole('main').locator('.rise').filter({ hasText: 'Lundi' }).first();
+
+const mealRow = (
+  page: import('@playwright/test').Page,
+  meal: string,
+): import('@playwright/test').Locator =>
+  monday(page).locator('[id^="plan-"] > div').filter({ hasText: meal });
+
+test('a day already on target is left alone', async ({ page }) => {
+  await composeWeek(page);
+
+  await expect(monday(page).getByText('dans les cibles')).toBeVisible();
+  // Nothing to fix, so nothing is offered.
+  await expect(page.getByRole('button', { name: "Appliquer l'échange" })).toHaveCount(0);
+});
+
+test('a day off target is offered a dish to swap in', async ({ page }) => {
+  await composeWeek(page);
+
+  // One meal cannot carry a day's targets whatever the portions.
+  for (const meal of ['Petit-déjeuner', 'Post-training', 'Goûter', 'Dîner']) {
+    await mealRow(page, meal).getByRole('button', { name: 'Retirer ce plat' }).click();
+  }
+
+  await expect(monday(page).getByText('impossible à ajuster')).toBeVisible();
+
+  const lunch = monday(page).getByLabel('Déjeuner', { exact: true }).first();
+  const before = await lunch.textContent();
+
+  const apply = page.getByRole('button', { name: "Appliquer l'échange" });
+  await expect(apply).toBeVisible();
+  await apply.click();
+
+  // The suggestion is applied where it said it would be.
+  await expect(lunch).not.toHaveText(before ?? '');
+});
+
 test('picking at random fills a step to its ceiling', async ({ page }) => {
   await open(page);
 

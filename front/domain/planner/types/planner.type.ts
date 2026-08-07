@@ -40,3 +40,21 @@ export type ApiPlannedDay = {
 
 /** What a dish is built around, for filtering a long list down to a choice. */
 export type DishKind = 'fish' | 'meat' | 'veggie';
+
+/** A single dish replacement that brings a day closer to its targets. */
+export type DishSwap = {
+  day: DayKey;
+  slot: MealSlot;
+  from: Recipe | undefined;
+  to: Recipe;
+  /** True when the day lands inside every tolerance once applied. */
+  becomesValid: boolean;
+};
+
+/** A swap offered against one named macro, with what it actually brings. */
+export type MacroSwap = {
+  swap: DishSwap;
+  /** Signed change in that macro, in its own unit. */
+  gain: number;
+  becomesValid: boolean;
+};
