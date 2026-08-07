@@ -15,17 +15,14 @@
   # Corepack picks the pnpm version out of package.json.
   NPM_FLAGS = "--version"
 
-# Where the browser reaches the API. Deliberately EMPTY until the API is really
-# deployed: a guessed hostname is somebody else's domain until proven otherwise,
-# and pointing a sign-in button at it would hand them the OAuth round trip.
-#
-# Once the service exists, fill both in — and add the same host to connect-src in
-# public/_headers and to ALLOWED_ORIGINS on the API, or the browser drops every
-# answer.
+# Where the browser reaches the API — the real Render hostname, read off the
+# dashboard rather than guessed. The same host has to appear in connect-src in
+# public/_headers and in ALLOWED_ORIGINS on the API, or the browser drops every
+# answer it gets.
 [context.production.environment]
-  NUXT_PUBLIC_API_BASE = ""
-  GQL_CLIENT_HOST = ""
+  NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
+  GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"
 
 [context.deploy-preview.environment]
-  NUXT_PUBLIC_API_BASE = ""
-  GQL_CLIENT_HOST = ""
+  NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
+  GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"

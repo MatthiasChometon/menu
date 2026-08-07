@@ -3,10 +3,9 @@
 # party, so the policy can be strict without breaking anything.
 /*
   # Nuxt inlines its hydration payload in a <script>, hence 'unsafe-inline' on
-  # script-src; everything else is locked to this origin. When the API is
-  # deployed, add ITS host to connect-src — and only once the name is really
-  # yours, never a guessed one.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
+  # script-src; everything else is locked to this origin. connect-src names the
+  # API, which lives on another host — and only a host that is really ours.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://menu-api-chometon.onrender.com; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
   # Six months, so a downgrade attack has no window to work in.
   Strict-Transport-Security: max-age=15552000; includeSubDomains
   X-Content-Type-Options: nosniff
