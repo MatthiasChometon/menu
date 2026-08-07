@@ -24,13 +24,14 @@ RUN pnpm build
 # --- prod: run the compiled server -----------------------------------------
 # Keeps the full dependency tree (drizzle-kit) so the entrypoint can still run
 # the migrations — image size traded for a self-contained boot.
+#
+# No package manager here, deliberately: the entrypoint calls the migration
+# binary directly. Going through `pnpm db:migrate` had the container fetch
+# corepack's pnpm over the network at every boot and then reinstall all 604
+# packages — "Recreating /app/node_modules" — which on a 512 MB instance runs
+# it out of memory, and when it does not, outlasts the deploy timeout.
 FROM node:24-slim AS prod
-# verify_deps_before_run=false: pnpm 11 otherwise runs an install before every
-# `pnpm run`, which at runtime trips ERR_PNPM_IGNORED_BUILDS and crash-loops the
-# migrations. The image is already built, so the check is pure overhead here.
-ENV NODE_ENV=production PNPM_HOME=/pnpm PATH=/pnpm:$PATH \
-    npm_config_verify_deps_before_run=false
-RUN corepack enable
+ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
@@ -42,7 +43,6 @@ COPY --from=build /app/domain ./domain
 COPY docker-entrypoint.sh ./
 # The image ships with an unprivileged `node` user; without switching to it the
 # server runs as root, so any remote code execution owns the container outright.
-# Ownership is handed over so pnpm can still write its caches.
 RUN chown -R node:node /app
 USER node
 EXPOSE 3779
