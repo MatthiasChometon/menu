@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.VISUAL_PORT) || 3778;
 
+const BEHAVIOUR_ONLY = ['**/composer.e2e.test.ts'];
+
 export default defineConfig({
   testDir: '.',
   testMatch: ['**/*visual.test.ts', '**/*e2e.test.ts'],
@@ -13,10 +15,19 @@ export default defineConfig({
     toHaveScreenshot: { maxDiffPixelRatio: 0.02, animations: 'disabled' },
   },
   use: { baseURL: `http://localhost:${PORT}` },
+  // Behaviour tests belong to one viewport. What the planner's solver does with a
+  // day is the same at every width, and running its ten interactions three times
+  // over only starves the shared preview server — which is what made them flaky.
+  // Layout is the visual suite's job, and that one does run everywhere.
   projects: [
-    { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 670 } } },
+    {
+      name: 'mobile',
+      testIgnore: BEHAVIOUR_ONLY,
+      use: { ...devices['Pixel 7'], viewport: { width: 390, height: 670 } },
+    },
     {
       name: 'tablet',
+      testIgnore: BEHAVIOUR_ONLY,
       use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } },
     },
     {

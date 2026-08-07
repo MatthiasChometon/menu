@@ -1,0 +1,26 @@
+{
+  "planner": {
+    "nav": "Compose",
+    "pageTitle": "Compose my week",
+    "pageLead": "Pick the dishes; the grammes adjust themselves to reach your targets.",
+    "targets": "Daily targets:",
+    "targetsMine": "Worked out from your profile.",
+    "targetsDefault": "The menu's reference targets. Sign in to compose against your own.",
+    "choose": "Pick a dish",
+    "clearSlot": "Remove this dish",
+    "clearDay": "Clear the day",
+    "fillWeek": "Copy this day across the week",
+    "daysPlanned": "days planned",
+    "day": {
+      "empty": "to compose",
+      "valid": "on target",
+      "off": "off target",
+      "impossible": "cannot be adjusted",
+      "impossibleHint": "These dishes cannot make the day, however the portions are scaled. Swap one of them."
+    },
+    "saving": {
+      "title": "Not saved yet",
+      "hint": "Your week lives in this tab for now. It will follow your account once the API is online."
+    }
+  }
+}

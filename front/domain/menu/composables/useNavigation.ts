@@ -17,6 +17,7 @@ export const useNavigation = (): { entries: ComputedRef<NavigationEntry[]> } => 
         label: t('menu.nav.shopping'),
         icon: 'i-lucide-shopping-basket',
       },
+      { to: localePath('/composer'), label: t('planner.nav'), icon: 'i-lucide-square-pen' },
       { to: localePath('/profil'), label: t('profile.nav'), icon: 'i-lucide-user-round' },
     ]),
   };

@@ -1,0 +1,26 @@
+{
+  "planner": {
+    "nav": "Composer",
+    "pageTitle": "Composer ma semaine",
+    "pageLead": "Choisis les plats, les grammages s'ajustent tout seuls pour atteindre tes cibles.",
+    "targets": "Cibles du jour :",
+    "targetsMine": "Calculées depuis ton profil.",
+    "targetsDefault": "Cibles de référence du menu. Connecte-toi pour composer sur les tiennes.",
+    "choose": "Choisir un plat",
+    "clearSlot": "Retirer ce plat",
+    "clearDay": "Vider la journée",
+    "fillWeek": "Recopier ce jour sur toute la semaine",
+    "daysPlanned": "jours composés",
+    "day": {
+      "empty": "à composer",
+      "valid": "dans les cibles",
+      "off": "hors cibles",
+      "impossible": "impossible à ajuster",
+      "impossibleHint": "Ces plats ne peuvent pas faire la journée, même en jouant sur les portions. Remplaces-en un."
+    },
+    "saving": {
+      "title": "Pas encore enregistrée",
+      "hint": "Ta semaine vit dans cet onglet pour l'instant. Elle sera rattachée à ton compte quand l'API sera en ligne."
+    }
+  }
+}
