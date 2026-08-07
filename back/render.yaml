@@ -24,6 +24,15 @@ services:
       - key: PORT
         value: 3779
 
+      # The free instance is capped at 512 MB, but Node does not see that cap:
+      # left alone it reads the host's memory and sizes its heap at about
+      # 2.2 GB, so nothing makes it collect before it runs past the limit. That
+      # is what OOM-killed this service in a loop, every request hanging until
+      # it timed out. Measured for comparison: the same image under a visible
+      # 512 MB cgroup limit settles at 74 MB.
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=320
+
       # --- set by hand in the dashboard, never in the repository ------------
       # Neon connection string, sslmode=require.
       - key: DATABASE_URL
