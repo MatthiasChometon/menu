@@ -37,3 +37,6 @@ export type ApiPlannedDay = {
   day: string;
   meals: { slot: string; recipeId: string }[];
 };
+
+/** What a dish is built around, for filtering a long list down to a choice. */
+export type DishKind = 'fish' | 'meat' | 'veggie';

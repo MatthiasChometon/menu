@@ -46,6 +46,20 @@
     "batchShort": "batch",
     "next": "Suivant",
     "skip": "Passer",
-    "back": "Retour"
+    "back": "Retour",
+    "filter": {
+      "all": "Tous",
+      "fish": "Poisson",
+      "meat": "Viande",
+      "veggie": "Végétarien",
+      "quick": "Rapide",
+      "none": "Aucun plat ne correspond à ce filtre."
+    },
+    "detail": {
+      "see": "Voir la recette",
+      "choose": "Choisir ce plat",
+      "remove": "Retirer ce plat",
+      "reference": "Portion de référence : elle sera ajustée à tes cibles."
+    }
   }
 }

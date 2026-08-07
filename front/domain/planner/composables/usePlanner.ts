@@ -23,9 +23,17 @@ const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
 
 const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 'snack'];
 
+// What a dish is built around, worked out from its ingredients rather than
+// declared in the content: nobody should have to tag ninety-six recipes by hand
+// for a filter, and the answer is already in the shopping list.
+const FISH = ['salmon', 'cod', 'shrimp', 'tunaTin', 'mackerelTin', 'sardinesTin'];
+const MEAT = ['chickenBreast', 'turkeyBreast', 'leanBeef', 'porkTenderloin', 'ham'];
+
 export const usePlanner = (): {
   plan: Ref<PlannedWeek>;
   groupOrder: readonly RecipeSlot[];
+  kindOf: (recipe: Recipe) => DishKind;
+  isQuick: (recipe: Recipe) => boolean;
   step: Ref<number>;
   stepCount: number;
   currentGroup: ComputedRef<RecipeSlot | undefined>;
@@ -209,6 +217,13 @@ export const usePlanner = (): {
     isDirty.value = false;
   };
 
+  const kindOf = (recipe: Recipe): DishKind => {
+    const ids = Object.keys(recipe.ingredients);
+    if (ids.some((id): boolean => FISH.includes(id))) return 'fish';
+    if (ids.some((id): boolean => MEAT.includes(id))) return 'meat';
+    return 'veggie';
+  };
+
   const dishesFor = (group: RecipeSlot): Recipe[] =>
     Object.values(recipes).filter((recipe): boolean => recipe.slot === group);
 
@@ -246,6 +261,10 @@ export const usePlanner = (): {
   return {
     plan,
     groupOrder: GROUP_ORDER,
+    kindOf,
+    // Twenty minutes is the line between "I can cook this tonight" and "this is
+    // a Sunday job".
+    isQuick: (recipe: Recipe): boolean => recipe.prepMinutes <= 20,
     step,
     stepCount: GROUP_ORDER.length + 1,
     currentGroup,

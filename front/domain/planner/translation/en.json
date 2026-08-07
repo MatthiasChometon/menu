@@ -46,6 +46,20 @@
     "batchShort": "batch",
     "next": "Next",
     "skip": "Skip",
-    "back": "Back"
+    "back": "Back",
+    "filter": {
+      "all": "All",
+      "fish": "Fish",
+      "meat": "Meat",
+      "veggie": "Vegetarian",
+      "quick": "Quick",
+      "none": "No dish matches this filter."
+    },
+    "detail": {
+      "see": "See the recipe",
+      "choose": "Choose this dish",
+      "remove": "Remove this dish",
+      "reference": "Reference portion: it will be adjusted to your targets."
+    }
   }
 }
