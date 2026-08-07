@@ -6,6 +6,7 @@ const { steps, quantities = [] } = defineProps<{
 
 const { segmentsOf } = useRecipeSteps();
 const { quantityLabel } = useFoodFormat();
+const { seasoningOf } = useSeasonings();
 
 const doneSteps = ref(new Set<number>());
 const { isSupported, isActive, request, release } = useWakeLock();
@@ -23,6 +24,11 @@ const amountOf = (foodId: string): string | undefined => {
   const quantity = byFood.value.get(foodId);
   return quantity === undefined ? undefined : `(${quantityLabel(quantity.food, quantity.grams)})`;
 };
+
+// Seasonings share the ingredients' markup but never a weight, so they get their
+// own quieter treatment: highlighted enough to be spotted while shopping the
+// cupboard, never loud enough to be mistaken for something to weigh out.
+const isSeasoning = (id: string): boolean => seasoningOf(id) !== undefined;
 
 const isDone = (index: number): boolean => doneSteps.value.has(index);
 
@@ -141,10 +147,15 @@ onBeforeUnmount((): void => {
                    words, but the comma that follows keeps hugging them. -->
               <span
                 v-if="segment.foodId !== undefined"
-                class="-mx-1 inline rounded-md px-1 py-0.5 font-semibold decoration-clone transition-colors"
-                :class="
-                  isDone(index) ? 'bg-elevated text-dimmed' : 'bg-primary/10 text-highlighted'
-                "
+                class="-mx-1 inline rounded-md px-1 py-0.5 decoration-clone transition-colors"
+                :class="[
+                  isSeasoning(segment.foodId) ? 'font-medium' : 'font-semibold',
+                  isDone(index)
+                    ? 'bg-elevated text-dimmed'
+                    : isSeasoning(segment.foodId)
+                      ? 'bg-elevated text-toned'
+                      : 'bg-primary/10 text-highlighted',
+                ]"
               >
                 {{ segment.text
                 }}<span

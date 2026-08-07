@@ -80,9 +80,20 @@ test('a picked shopping item reports its state', async ({ page }) => {
   // Scoped to the content: the header's theme toggle is also an aria-pressed
   // button, and it sits before any shopping item in the accessibility tree.
   const content = page.getByRole('main');
-  const item = content.getByRole('button', { pressed: false }).first();
+  const picked = content.getByRole('button', { pressed: true });
 
-  await item.click();
+  // The markup is served before hydration attaches the listeners, and a click
+  // landing in that window is silently lost. Retrying only while nothing is
+  // picked keeps this idempotent: a second click can never undo the first.
+  await expect
+    .poll(async (): Promise<number> => {
+      if ((await picked.count()) === 0) {
+        await content.getByRole('button', { pressed: false }).first().click();
+      }
 
-  await expect(content.getByRole('button', { pressed: true }).first()).toBeVisible();
+      return picked.count();
+    })
+    .toBeGreaterThan(0);
+
+  await expect(picked.first()).toBeVisible();
 });

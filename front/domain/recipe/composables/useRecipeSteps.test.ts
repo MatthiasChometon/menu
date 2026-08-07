@@ -33,20 +33,37 @@ describe('useRecipeSteps', () => {
     );
   });
 
-  it('mentions only ingredients the recipe actually lists', () => {
+  it('mentions only what the recipe actually lists, ingredient or seasoning', () => {
     const { recipes } = useRecipes();
     const { segmentsOf } = useRecipeSteps();
     const { stepsOf } = useFoodFormat();
 
     for (const recipe of Object.values(recipes)) {
+      const allowed = [...Object.keys(recipe.ingredients), ...recipe.seasonings];
       const mentioned = stepsOf(recipe)
         .flatMap((step): StepSegment[] => segmentsOf(step))
         .flatMap((segment): string[] => (segment.foodId === undefined ? [] : [segment.foodId]));
 
-      for (const foodId of mentioned) {
-        expect(Object.keys(recipe.ingredients), `${recipe.id} mentions ${foodId}`).toContain(
-          foodId,
-        );
+      for (const id of mentioned) {
+        expect(allowed, `${recipe.id} mentions ${id}`).toContain(id);
+      }
+    }
+  });
+
+  it('names every seasoning in the steps, so none is discovered mid-cooking', () => {
+    const { recipes } = useRecipes();
+    const { segmentsOf } = useRecipeSteps();
+    const { stepsOf } = useFoodFormat();
+
+    for (const recipe of Object.values(recipes)) {
+      const mentioned = new Set(
+        stepsOf(recipe)
+          .flatMap((step): StepSegment[] => segmentsOf(step))
+          .map((segment): string | undefined => segment.foodId),
+      );
+
+      for (const id of recipe.seasonings) {
+        expect(mentioned, `${recipe.id} never mentions ${id}`).toContain(id);
       }
     }
   });

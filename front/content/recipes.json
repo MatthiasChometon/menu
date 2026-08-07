@@ -23,7 +23,7 @@
         "Émincer {l'oignon|onion} et {le poivron|bellPepper}, les faire revenir 5 min dans {l'huile d'olive|oliveOil}.",
         "Ajouter {le poulet|chickenBreast} coupé en dés, saisir 4 min à feu vif jusqu'à ce qu'il blanchisse.",
         "Verser {les tomates concassées|crushedTomatoes} et {les haricots rouges|kidneyBeans} égouttés et rincés.",
-        "Assaisonner : cumin, paprika fumé, origan, une pointe de piment. Saler.",
+        "Assaisonner : {cumin|cumin}, {paprika fumé|smokedPaprika}, {origan|oregano}, une pointe de {piment|chilli}. {Saler|salt}.",
         "Laisser mijoter 20 min à couvert, à feu doux, en remuant de temps en temps.",
         "Servir sur le riz. Le chili se garde 4 jours au frigo et 3 mois au congélateur."
       ],
@@ -32,7 +32,7 @@
         "Slice {the onion|onion} and {pepper|bellPepper}, fry them for 5 min in {the olive oil|oliveOil}.",
         "Add {the diced chicken|chickenBreast} and sear for 4 min over high heat until it turns white.",
         "Pour in {the crushed tomatoes|crushedTomatoes} and the drained, rinsed {kidney beans|kidneyBeans}.",
-        "Season with cumin, smoked paprika, oregano and a touch of chilli. Add salt.",
+        "Season with {cumin|cumin}, {smoked paprika|smokedPaprika}, {oregano|oregano} and a touch of {chilli|chilli}. Add {salt|salt}.",
         "Simmer covered for 20 min over low heat, stirring occasionally.",
         "Serve over the rice. The chili keeps 4 days refrigerated, 3 months frozen."
       ]
@@ -61,7 +61,7 @@
         "Émincer {l'oignon|onion}, râper {la carotte|carrot}. Les faire suer 5 min dans {l'huile d'olive|oliveOil}.",
         "Ajouter {le bœuf haché|leanBeef}, l'écraser à la cuillère et le saisir 5 min jusqu'à coloration.",
         "Verser {les tomates concassées|crushedTomatoes} et {les lentilles cuites|cookedLentils} égouttées.",
-        "Assaisonner : herbes de Provence, ail, une cuillère de vinaigre balsamique, sel et poivre.",
+        "Assaisonner : {herbes de Provence|herbesDeProvence}, {ail|garlic}, une cuillère de {vinaigre balsamique|balsamicVinegar}, {sel|salt} et {poivre|pepper}.",
         "Mijoter 25 min à découvert pour que la sauce épaississe.",
         "Cuire {les pâtes complètes|wholewheatPasta} al dente pendant ce temps.",
         "Les lentilles remplacent un tiers de la viande : moins cher, plus de fibres et de fer."
@@ -70,7 +70,7 @@
         "Slice {the onion|onion} and grate {the carrot|carrot}. Sweat them for 5 min in {the olive oil|oliveOil}.",
         "Add {the beef mince|leanBeef}, break it up with a spoon and sear for 5 min until browned.",
         "Pour in {the crushed tomatoes|crushedTomatoes} and {the drained cooked lentils|cookedLentils}.",
-        "Season with herbs, garlic, a spoon of balsamic vinegar, salt and pepper.",
+        "Season with {herbs|herbesDeProvence}, {garlic|garlic}, a spoon of {balsamic vinegar|balsamicVinegar}, {salt|salt} and {pepper|pepper}.",
         "Simmer uncovered for 25 min so the sauce thickens.",
         "Cook {the wholewheat pasta|wholewheatPasta} al dente meanwhile.",
         "The lentils replace a third of the meat: cheaper, more fibre and more iron."
@@ -95,7 +95,7 @@
     "steps": {
       "fr": [
         "Préchauffer le four à 200 °C. Cuire {le riz complet|brownRice} 40 min.",
-        "Poser {le pavé de saumon|salmon} sur du papier cuisson, saler, poivrer, ajouter un filet de citron.",
+        "Poser {le pavé de saumon|salmon} sur du papier cuisson, {saler|salt}, {poivrer|pepper}, ajouter un filet de {citron|lemon}.",
         "Enfourner 15 min : la chair doit se détacher à la fourchette sans être sèche.",
         "Détailler {les brocolis|broccoli} en fleurettes et les cuire 8 min à la vapeur, ils doivent rester croquants.",
         "Assembler, arroser {d'huile d'olive|oliveOil} et de jus de citron.",
@@ -103,7 +103,7 @@
       ],
       "en": [
         "Preheat the oven to 200 °C. Cook {the brown rice|brownRice} for 40 min.",
-        "Place {the salmon|salmon} on baking paper, season, add a squeeze of lemon.",
+        "Place {the salmon|salmon} on baking paper, season with {salt|salt} and {pepper|pepper}, add a squeeze of {lemon|lemon}.",
         "Bake for 15 min: it should flake with a fork without drying out.",
         "Break {the broccoli|broccoli} into florets and steam for 8 min, keeping them crisp.",
         "Plate up, drizzle with {olive oil|oliveOil} and lemon juice.",
@@ -133,7 +133,7 @@
       "fr": [
         "Lancer {le riz complet|brownRice}.",
         "Couper {la dinde|turkeyBreast} en dés et la saisir 5 min à feu vif dans {l'huile|oliveOil}.",
-        "Ajouter curry, curcuma, gingembre râpé et ail, remuer 1 min pour réveiller les épices.",
+        "Ajouter {curry|curryPowder}, {curcuma|turmeric}, {gingembre râpé|ginger} et {ail|garlic}, remuer 1 min pour réveiller les épices.",
         "Verser {le lait de coco léger|lightCoconutMilk}, ajouter {les pois chiches|chickpeas} égouttés et {la courgette|zucchini} en rondelles.",
         "Mijoter 15 min à feu doux.",
         "Incorporer {les épinards|frozenSpinach} en fin de cuisson, juste le temps qu'ils fondent."
@@ -141,7 +141,7 @@
       "en": [
         "Start {the brown rice|brownRice}.",
         "Dice {the turkey|turkeyBreast} and sear it for 5 min over high heat in {the oil|oliveOil}.",
-        "Add curry, turmeric, grated ginger and garlic, stir for 1 min to wake the spices up.",
+        "Add {curry|curryPowder}, {turmeric|turmeric}, {grated ginger|ginger} and {garlic|garlic}, stir for 1 min to wake the spices up.",
         "Pour in {the light coconut milk|lightCoconutMilk}, add {the drained chickpeas|chickpeas} and {the sliced zucchini|zucchini}.",
         "Simmer for 15 min over low heat.",
         "Stir {the spinach|frozenSpinach} in at the very end, just long enough for it to wilt."
@@ -168,14 +168,14 @@
     "steps": {
       "fr": [
         "Mettre {les pâtes complètes|wholewheatPasta} à cuire.",
-        "Faire chauffer {les tomates concassées|crushedTomatoes} avec l'ail écrasé, l'origan et {l'huile d'olive|oliveOil}.",
+        "Faire chauffer {les tomates concassées|crushedTomatoes} avec {l'ail écrasé|garlic}, {l'origan|oregano} et {l'huile d'olive|oliveOil}.",
         "Ajouter {la courgette râpée|zucchini}, laisser 5 min.",
         "Incorporer {le thon égoutté|tunaTin} et {les olives|blackOlives}, réchauffer 2 min sans faire bouillir.",
         "Mélanger aux pâtes égouttées. Le plat de secours quand la journée a été longue."
       ],
       "en": [
         "Put {the wholewheat pasta|wholewheatPasta} on to cook.",
-        "Heat {the crushed tomatoes|crushedTomatoes} with crushed garlic, oregano and {olive oil|oliveOil}.",
+        "Heat {the crushed tomatoes|crushedTomatoes} with {crushed garlic|garlic}, {oregano|oregano} and {olive oil|oliveOil}.",
         "Add {the grated zucchini|zucchini} and leave for 5 min.",
         "Stir in {the drained tuna|tunaTin} and {the olives|blackOlives}, warm through for 2 min without boiling.",
         "Toss with the drained pasta. The fallback meal for long days."
@@ -202,7 +202,7 @@
     "steps": {
       "fr": [
         "Faire revenir {le poivron émincé|bellPepper} 5 min dans {l'huile d'olive|oliveOil}.",
-        "Ajouter {les tomates concassées|crushedTomatoes}, {les haricots blancs|whiteBeans} égouttés, le cumin et le paprika.",
+        "Ajouter {les tomates concassées|crushedTomatoes}, {les haricots blancs|whiteBeans} égouttés, {le cumin|cumin} et {le paprika|paprika}.",
         "Laisser épaissir 10 min à feu moyen.",
         "Creuser deux puits dans la sauce et y casser {les œufs|egg}.",
         "Couvrir et cuire 6 min : le blanc doit être pris, le jaune encore coulant.",
@@ -210,7 +210,7 @@
       ],
       "en": [
         "Fry {the sliced pepper|bellPepper} for 5 min in {the olive oil|oliveOil}.",
-        "Add {the crushed tomatoes|crushedTomatoes}, {drained white beans|whiteBeans}, cumin and paprika.",
+        "Add {the crushed tomatoes|crushedTomatoes}, {drained white beans|whiteBeans}, {cumin|cumin} and {paprika|paprika}.",
         "Let it thicken for 10 min over medium heat.",
         "Make two wells in the sauce and crack {the eggs|egg} into them.",
         "Cover and cook for 6 min: the white set, the yolk still runny.",
@@ -241,7 +241,7 @@
         "Couper {le filet mignon|porkTenderloin} en fines lamelles.",
         "Chauffer le wok à feu très vif avec {l'huile d'olive|oliveOil}, saisir la viande 3 min sans la remuer tout de suite.",
         "Réserver la viande, jeter {le poivron|bellPepper}, {les champignons|mushrooms} et {les haricots verts|greenBeans} dans le wok, sauter 5 min : ils doivent rester croquants.",
-        "Remettre la viande, ajouter sauce soja, ail et gingembre, mélanger 1 min.",
+        "Remettre la viande, ajouter {sauce soja|soySauce}, {ail|garlic} et {gingembre|ginger}, mélanger 1 min.",
         "Servir immédiatement sur le riz."
       ],
       "en": [
@@ -249,7 +249,7 @@
         "Cut {the pork tenderloin|porkTenderloin} into thin strips.",
         "Heat the wok until very hot with {the olive oil|oliveOil}, sear the meat for 3 min without stirring straight away.",
         "Set the meat aside, throw {the pepper|bellPepper}, {the mushrooms|mushrooms} and {the green beans|greenBeans} in and stir-fry 5 min, keeping them crisp.",
-        "Return the meat, add soy sauce, garlic and ginger, toss for 1 min.",
+        "Return the meat, add {soy sauce|soySauce}, {garlic|garlic} and {ginger|ginger}, toss for 1 min.",
         "Serve immediately over the rice."
       ]
     }
@@ -515,12 +515,12 @@
     "steps": {
       "fr": [
         "Cuire {les œufs durs|egg} 10 min : en faire six d'un coup le dimanche, ils tiennent une semaine au frigo.",
-        "Écaler, saler, manger avec {le pain complet|wholegrainBread} et {le miel|honey}.",
+        "Écaler, {saler|salt}, manger avec {le pain complet|wholegrainBread} et {le miel|honey}.",
         "Terminer par {l'orange|orange} et {le carré de chocolat noir|darkChocolate}, qui apporte du magnésium et évite de craquer sur autre chose."
       ],
       "en": [
         "Boil {the eggs|egg} for 10 min: do six at once on Sunday, they keep a week in the fridge.",
-        "Peel, salt, and eat with {the bread|wholegrainBread} and {honey|honey}.",
+        "Peel, {salt|salt}, and eat with {the bread|wholegrainBread} and {honey|honey}.",
         "Finish with {the orange|orange} and {the square of dark chocolate|darkChocolate}, which brings magnesium and heads off worse cravings."
       ]
     }
