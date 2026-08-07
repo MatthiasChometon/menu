@@ -3,8 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { describe, expect, it } from 'vitest';
 import { EmailAllowlist } from './allowlist.service';
 
-const allowlistOf = (value: string | undefined): EmailAllowlist =>
-  new EmailAllowlist({ get: (): string | undefined => value } as unknown as ConfigService);
+const allowlistOf = (value: string | undefined, nodeEnv?: string): EmailAllowlist =>
+  new EmailAllowlist({
+    get: (key: string): string | undefined => (key === 'NODE_ENV' ? nodeEnv : value),
+  } as unknown as ConfigService);
 
 describe('EmailAllowlist', () => {
   it('lets anyone in when no guest list is configured', () => {
@@ -38,5 +40,20 @@ describe('EmailAllowlist', () => {
 
   it('does not admit an address that merely contains an invited one', () => {
     expect(allowlistOf('me@example.com').allows('not-me@example.com.evil.test')).toBe(false);
+  });
+
+  it('refuses to start in production with no guest list at all', () => {
+    // Silently open is the failure nobody notices; refusing to boot is loud.
+    expect((): void => allowlistOf(undefined, 'production').onModuleInit()).toThrow(
+      /ALLOWED_EMAILS/,
+    );
+  });
+
+  it('starts happily without a guest list anywhere but production', () => {
+    expect((): void => allowlistOf(undefined, 'development').onModuleInit()).not.toThrow();
+  });
+
+  it('starts in production once the guest list is set', () => {
+    expect((): void => allowlistOf('me@example.com', 'production').onModuleInit()).not.toThrow();
   });
 });

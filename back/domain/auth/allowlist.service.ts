@@ -1,12 +1,23 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 // The app is for two people. It sits on a public URL, so anyone finding it could
 // otherwise open an account: the guest list is the only thing standing between
 // the sign-in page and the open internet.
 @Injectable()
-export class EmailAllowlist {
+export class EmailAllowlist implements OnModuleInit {
   constructor(private readonly config: ConfigService) {}
+
+  // Forgetting the guest list on a deployment would silently open the app to
+  // whoever finds the URL, and nothing would look wrong. Failing to boot is the
+  // only way that mistake gets noticed.
+  onModuleInit(): void {
+    if (this.config.get<string>('NODE_ENV') === 'production' && this.isOpen()) {
+      throw new Error(
+        'ALLOWED_EMAILS is empty. Set the invited addresses, or this app is open to anyone.',
+      );
+    }
+  }
 
   /** Addresses allowed to hold an account, lowercased. Empty means open to all. */
   private get allowed(): string[] {
