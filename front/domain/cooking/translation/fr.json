@@ -1,0 +1,24 @@
+{
+  "cooking": {
+    "markDone": "C'est prêt",
+    "skip": "Pas cette fois",
+    "putBack": "Remettre à préparer",
+    "timeLeft": "Il reste",
+    "resetWeek": "Tout remettre à zéro",
+    "toCookHint": "Coche un plat quand il est cuit, ou mets-le de côté si tu ne le fais pas aujourd'hui.",
+    "sessionDone": "Tout est préparé",
+    "sessionDoneHint": "Plus rien à cuisiner pour cette semaine. Les portions t'attendent au frigo.",
+    "fridge": "Au frigo",
+    "fridgeHint": "Ce qui est cuit et ce qu'il en reste. Le compte baisse quand tu coches un repas dans la semaine.",
+    "setAside": "Mis de côté",
+    "setAsideHint": "Pas préparés cette fois. À remettre quand tu veux.",
+    "inTheFridge": "au frigo",
+    "portionLeft": "portion restante",
+    "portionsLeft": "portions restantes",
+    "portionOne": "portion à préparer",
+    "portions": "portions à préparer",
+    "allEaten": "Tout a été mangé",
+    "markEaten": "Marquer ce repas comme mangé",
+    "markNotEaten": "Marquer ce repas comme pas encore mangé"
+  }
+}

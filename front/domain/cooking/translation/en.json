@@ -1,0 +1,24 @@
+{
+  "cooking": {
+    "markDone": "It's ready",
+    "skip": "Not this time",
+    "putBack": "Put back on the list",
+    "timeLeft": "Time left",
+    "resetWeek": "Start the week over",
+    "toCookHint": "Tick a dish once it is cooked, or set it aside if you are not making it today.",
+    "sessionDone": "Everything is cooked",
+    "sessionDoneHint": "Nothing left to cook this week. The portions are waiting in the fridge.",
+    "fridge": "In the fridge",
+    "fridgeHint": "What is cooked and what is left of it. The count drops as you tick meals off in the week.",
+    "setAside": "Set aside",
+    "setAsideHint": "Not cooked this time. Put them back whenever you like.",
+    "inTheFridge": "in the fridge",
+    "portionLeft": "portion left",
+    "portionsLeft": "portions left",
+    "portionOne": "portion to cook",
+    "portions": "portions to cook",
+    "allEaten": "All eaten",
+    "markEaten": "Mark this meal as eaten",
+    "markNotEaten": "Mark this meal as not eaten yet"
+  }
+}

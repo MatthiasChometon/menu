@@ -5,9 +5,48 @@ const { nameOf } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
+const { statusOf, setStatus, progressOf, reset } = useCookingLog(currentMenu?.weekOf ?? '');
+
 const plan = computed((): BatchPlan | undefined =>
   currentMenu === undefined ? undefined : planOf(currentMenu),
 );
+
+const progressById = computed(
+  (): Map<string, DishProgress> =>
+    new Map(
+      (currentMenu === undefined ? [] : progressOf(currentMenu)).map(
+        (progress): [string, DishProgress] => [progress.recipe.id, progress],
+      ),
+    ),
+);
+
+const tasksWith = (status: DishStatus): BatchTask[] =>
+  (plan.value?.tasks ?? []).filter((task): boolean => statusOf(task.recipe.id) === status);
+
+const toCook = computed((): BatchTask[] => tasksWith('todo'));
+
+const progressFor = (task: BatchTask): DishProgress | undefined =>
+  progressById.value.get(task.recipe.id);
+
+const cooked = computed((): DishProgress[] =>
+  tasksWith('done')
+    .map(progressFor)
+    .filter((progress): progress is DishProgress => progress !== undefined),
+);
+
+const setAside = computed((): DishProgress[] =>
+  tasksWith('skipped')
+    .map(progressFor)
+    .filter((progress): progress is DishProgress => progress !== undefined),
+);
+
+// Only what is still to cook: a session that is half done should show the time
+// left, not the time it would have taken from scratch.
+const minutesLeft = computed((): number =>
+  toCook.value.reduce((total, task): number => total + task.minutes, 0),
+);
+
+const hasProgress = computed((): boolean => cooked.value.length > 0 || setAside.value.length > 0);
 
 const tips = computed((): string[] => [
   t('batch.tips.start'),
@@ -43,26 +82,77 @@ useSeoMeta({ title: (): string => t('batch.title') });
       <header class="rise">
         <h1 class="text-3xl font-black tracking-tight">{{ $t('batch.title') }}</h1>
         <p class="mt-1 text-muted">{{ $t('batch.lead') }}</p>
-        <p class="mt-3 inline-flex items-center gap-2 rounded-full bg-elevated px-3 py-1.5 text-sm">
-          <UIcon name="i-lucide-timer" class="size-4 text-primary" />
-          <span class="text-muted">{{ $t('batch.totalTime') }}</span>
-          <span class="font-bold tabular-nums">
-            {{ plan.totalMinutes }} {{ $t('batch.minutes') }}
-          </span>
-        </p>
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          <p class="inline-flex items-center gap-2 rounded-full bg-elevated px-3 py-1.5 text-sm">
+            <UIcon name="i-lucide-timer" class="size-4 text-primary" />
+            <span class="text-muted">{{ $t('cooking.timeLeft') }}</span>
+            <span class="font-bold tabular-nums">
+              {{ minutesLeft }} {{ $t('batch.minutes') }}
+            </span>
+          </p>
+          <UButton
+            v-if="hasProgress"
+            icon="i-lucide-rotate-ccw"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            @click="reset"
+          >
+            {{ $t('cooking.resetWeek') }}
+          </UButton>
+        </div>
       </header>
 
-      <section class="mt-8">
+      <section v-if="toCook.length > 0" class="mt-8">
         <h2 class="text-xl font-bold">{{ $t('batch.toCook') }}</h2>
-        <p class="mt-1 text-sm text-muted">{{ $t('batch.toCookHint') }}</p>
+        <p class="mt-1 text-sm text-muted">{{ $t('cooking.toCookHint') }}</p>
         <p class="mt-1 text-sm text-dimmed">{{ $t('batch.raw') }}</p>
 
         <div class="mt-4 space-y-4">
           <BatchTask
-            v-for="(task, index) in plan.tasks"
+            v-for="(task, index) in toCook"
             :key="task.recipe.id"
             :task="task"
             :index="index"
+            @done="setStatus(task.recipe.id, 'done')"
+            @skip="setStatus(task.recipe.id, 'skipped')"
+          />
+        </div>
+      </section>
+
+      <section
+        v-else
+        class="mt-8 flex flex-col items-center gap-2 rounded-2xl border border-default bg-elevated/40 py-10 text-center"
+      >
+        <UIcon name="i-lucide-party-popper" class="size-9 text-primary" />
+        <p class="font-bold">{{ $t('cooking.sessionDone') }}</p>
+        <p class="max-w-sm text-sm text-muted">{{ $t('cooking.sessionDoneHint') }}</p>
+      </section>
+
+      <section v-if="cooked.length > 0" class="mt-10">
+        <h2 class="text-xl font-bold">{{ $t('cooking.fridge') }}</h2>
+        <p class="mt-1 text-sm text-muted">{{ $t('cooking.fridgeHint') }}</p>
+
+        <div class="mt-4 space-y-2">
+          <CookingDishRow
+            v-for="progress in cooked"
+            :key="progress.recipe.id"
+            :progress="progress"
+            @undo="setStatus(progress.recipe.id, 'todo')"
+          />
+        </div>
+      </section>
+
+      <section v-if="setAside.length > 0" class="mt-10">
+        <h2 class="text-xl font-bold">{{ $t('cooking.setAside') }}</h2>
+        <p class="mt-1 text-sm text-muted">{{ $t('cooking.setAsideHint') }}</p>
+
+        <div class="mt-4 space-y-2">
+          <CookingDishRow
+            v-for="progress in setAside"
+            :key="progress.recipe.id"
+            :progress="progress"
+            @undo="setStatus(progress.recipe.id, 'todo')"
           />
         </div>
       </section>

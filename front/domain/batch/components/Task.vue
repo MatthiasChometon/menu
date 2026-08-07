@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const { task, index = 0 } = defineProps<{ task: BatchTask; index?: number }>();
 
+defineEmits<{ done: []; skip: [] }>();
+
 const { imageOf } = useRecipes();
 const { nameOf } = useFoodFormat();
 const localePath = useLocalePath();
@@ -44,6 +46,23 @@ const localePath = useLocalePath();
         {{ $t('batch.ingredientsTotal') }}
       </p>
       <RecipeIngredientList :quantities="task.quantities" />
+    </div>
+
+    <!-- The two ways out of the to-cook list: it is made, or it is not happening
+         today. Both have to be one tap away, hands covered in flour. -->
+    <div class="mt-4 flex flex-wrap gap-2">
+      <UButton
+        icon="i-lucide-check"
+        color="primary"
+        size="sm"
+        class="flex-1"
+        @click="$emit('done')"
+      >
+        {{ $t('cooking.markDone') }}
+      </UButton>
+      <UButton icon="i-lucide-x" color="neutral" variant="subtle" size="sm" @click="$emit('skip')">
+        {{ $t('cooking.skip') }}
+      </UButton>
     </div>
   </UCard>
 </template>

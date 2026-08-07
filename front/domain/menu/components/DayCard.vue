@@ -57,7 +57,7 @@ watch(
     </template>
 
     <div v-show="isOpen" :id="`day-${day.key}`" class="space-y-1 p-2">
-      <MenuMealRow v-for="meal in day.meals" :key="meal.slot" :meal="meal" />
+      <MenuMealRow v-for="meal in day.meals" :key="meal.slot" :meal="meal" :day-key="day.key" />
 
       <div class="mt-2 rounded-2xl bg-elevated/50 p-4">
         <p class="mb-3 text-sm font-semibold">{{ $t('menu.dayTotal') }}</p>
