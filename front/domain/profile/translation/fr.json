@@ -93,7 +93,8 @@
     },
     "signedOut": {
       "title": "Connectez-vous pour personnaliser",
-      "hint": "Sans compte, les recettes restent affichées telles qu'elles ont été écrites."
+      "hint": "Sans compte, les recettes restent affichées telles qu'elles ont été écrites.",
+      "unavailable": "Les comptes ne sont pas encore ouverts. En attendant, les recettes s'affichent telles qu'elles ont été écrites."
     },
     "scaled": {
       "notice": "Quantités adaptées à votre profil",

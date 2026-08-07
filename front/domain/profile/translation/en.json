@@ -93,7 +93,8 @@
     },
     "signedOut": {
       "title": "Sign in to personalise",
-      "hint": "Without an account, recipes stay exactly as they were written."
+      "hint": "Without an account, recipes stay exactly as they were written.",
+      "unavailable": "Accounts are not open yet. In the meantime the recipes show exactly as written."
     },
     "scaled": {
       "notice": "Quantities adapted to your profile",

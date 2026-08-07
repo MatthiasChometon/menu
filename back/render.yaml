@@ -41,10 +41,14 @@ services:
         sync: false
 
       # --- addresses --------------------------------------------------------
-      # Must be https and must match the Google console's authorised redirect
-      # URI exactly, or sign-in fails with redirect_uri_mismatch.
+      # BACK_URL is the address Render gives THIS service once created — the
+      # name below is only a request, and Render appends a suffix if it is
+      # taken. Read the real URL off the dashboard and paste it here; a guessed
+      # onrender.com hostname belongs to whoever claimed it first.
+      # It must also match the Google console's authorised redirect URI exactly,
+      # or sign-in fails with redirect_uri_mismatch.
       - key: BACK_URL
-        value: https://menu-api.onrender.com
+        sync: false
       - key: FRONT_URL
         value: https://menu-semaine-887.netlify.app
       - key: ALLOWED_ORIGINS
