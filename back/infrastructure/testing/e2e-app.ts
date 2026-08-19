@@ -7,6 +7,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { AppModule } from '../../app.module';
 import { DATABASE, type Database } from '../database/token';
+import { MAIL_TRANSPORT, type MailMessage } from '../mail/token';
 import { configureApp, createAdapter } from '../http/setup';
 
 const MIGRATIONS_FOLDER = './infrastructure/database/migrations';
@@ -42,6 +43,20 @@ export type TestApp = {
    * stand-in that agrees with whatever it is told.
    */
   resolve: <T>(token: Type<T>) => T;
+  /**
+   * Opens an account the way a person does: register, follow the link out of
+   * the mail, come back signed in. Returns the session cookie header.
+   *
+   * Every test that needs a signed-in reader goes through this, so the day
+   * verification changes shape, the suite finds out here rather than in
+   * nineteen unrelated places.
+   */
+  signUp: (email: string, password: string) => Promise<string>;
+  /**
+   * What the app tried to send. The transport is replaced, not the service, so
+   * the message under test is the one the real MailService built.
+   */
+  mails: () => MailMessage[];
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;
   close: () => Promise<void>;
@@ -63,7 +78,20 @@ export const startTestApp = async (): Promise<TestApp> => {
   await migrate(drizzle({ client: migrationClient }), { migrationsFolder: MIGRATIONS_FOLDER });
   await migrationClient.end();
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const sent: MailMessage[] = [];
+
+  // Only the transport is swapped. Stubbing MailService instead would skip the
+  // one thing worth checking — that the message reaching the wire says what we
+  // think it says, link included.
+  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(MAIL_TRANSPORT)
+    .useValue({
+      sendMail: (message: MailMessage): Promise<void> => {
+        sent.push(message);
+        return Promise.resolve();
+      },
+    })
+    .compile();
 
   const app = moduleRef.createNestApplication<NestFastifyApplication>(createAdapter());
   // The same wiring main.ts applies, so the suite tests the server that ships
@@ -74,21 +102,39 @@ export const startTestApp = async (): Promise<TestApp> => {
 
   const database = app.get<Database>(DATABASE);
 
-  return {
-    post: async (url, body, cookie) => {
-      const response = await app.inject({
-        method: 'POST',
-        url,
-        payload: body,
-        headers: cookie === undefined ? {} : { cookie },
-      });
+  const post: TestApp['post'] = async (url, body, cookie) => {
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      payload: body,
+      headers: cookie === undefined ? {} : { cookie },
+    });
 
-      return {
-        statusCode: response.statusCode,
-        body: response.body,
-        cookies: cookiesOf(response.cookies),
-      };
-    },
+    return {
+      statusCode: response.statusCode,
+      body: response.body,
+      cookies: cookiesOf(response.cookies),
+    };
+  };
+
+  const signUp: TestApp['signUp'] = async (email, password) => {
+    await post('/auth/register', { email, password });
+
+    // Read out of the message rather than the database: if the link that
+    // actually reaches a reader is wrong, no amount of correct state saves it.
+    const token = /token=([a-f0-9]{64})/.exec(sent.at(-1)?.text ?? '')?.[1];
+    if (token === undefined) throw new Error('No verification link was sent.');
+
+    const verified = await post('/auth/verify-email', { token });
+    const session = verified.cookies.find((cookie): boolean => cookie.name === 'session');
+    if (session === undefined) throw new Error('Verifying the link opened no session.');
+
+    return `session=${session.value}`;
+  };
+
+  return {
+    post,
+    signUp,
     get: async (url, cookie, headers) => {
       const response = await app.inject({
         method: 'GET',
@@ -114,10 +160,12 @@ export const startTestApp = async (): Promise<TestApp> => {
       return JSON.parse(response.body) as GraphqlResponse<T>;
     },
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
+    mails: (): MailMessage[] => sent,
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
     reset: async (): Promise<void> => {
       await database.execute(sql`TRUNCATE TABLE "profile", "user" RESTART IDENTITY CASCADE`);
+      sent.length = 0;
     },
     close: (): Promise<void> => app.close(),
   };

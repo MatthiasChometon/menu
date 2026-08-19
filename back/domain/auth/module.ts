@@ -7,6 +7,9 @@ import { sessionSecret } from './secret';
 import { SessionCookie } from './currentUser/cookie';
 import { AuthGuard } from './currentUser/guard';
 import { EmailAndPasswordController } from './emailAndPassword/controller';
+import { EmailVerificationController } from './emailVerification/controller';
+import { EmailVerificationService } from './emailVerification/service';
+import { AuthTokenRepository } from './emailVerification/repository';
 import { GoogleController } from './google/controller';
 import { GoogleOAuth } from './google/service';
 import { PasswordService } from './emailAndPassword/password.service';
@@ -24,7 +27,7 @@ import { AuthService } from './service';
       }),
     }),
   ],
-  controllers: [EmailAndPasswordController, GoogleController],
+  controllers: [EmailAndPasswordController, EmailVerificationController, GoogleController],
   providers: [
     AuthService,
     AuthResolver,
@@ -33,6 +36,8 @@ import { AuthService } from './service';
     SessionCookie,
     GoogleOAuth,
     EmailAllowlist,
+    EmailVerificationService,
+    AuthTokenRepository,
   ],
   // JwtModule and UserModule go out too: @UseGuards(AuthGuard) has Nest build
   // the guard inside the module that uses it, so that module must be able to

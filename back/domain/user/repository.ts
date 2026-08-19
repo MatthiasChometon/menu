@@ -13,10 +13,28 @@ export class UserRepository {
     private readonly mapper: UserMapper,
   ) {}
 
-  async create(email: string, passwordHash: string, name?: string): Promise<User> {
+  // Created unverified on purpose: emailVerifiedAt stays null until somebody
+  // follows the link, which is the whole point of sending one. The raw record
+  // goes back because the caller has to mail that person straight away.
+  async create(
+    email: string,
+    passwordHash: string,
+    name?: string,
+    locale?: string,
+  ): Promise<UserRecord> {
     const [record] = await this.database
       .insert(user)
-      .values({ email, passwordHash, name: name ?? null })
+      .values({ email, passwordHash, name: name ?? null, locale: locale ?? 'fr' })
+      .returning();
+
+    return record;
+  }
+
+  async markEmailVerified(id: string): Promise<User> {
+    const [record] = await this.database
+      .update(user)
+      .set({ emailVerifiedAt: new Date() })
+      .where(eq(user.id, id))
       .returning();
 
     return this.mapper.toUser(record);
@@ -44,7 +62,13 @@ export class UserRepository {
     if (existing !== undefined) {
       const [updated] = await this.database
         .update(user)
-        .set({ googleId, name: existing.name ?? name ?? null })
+        // Google vouches for the address, so signing in through it settles the
+        // verification a password account was still waiting on.
+        .set({
+          googleId,
+          name: existing.name ?? name ?? null,
+          emailVerifiedAt: existing.emailVerifiedAt ?? new Date(),
+        })
         .where(eq(user.id, existing.id))
         .returning();
 
@@ -53,7 +77,7 @@ export class UserRepository {
 
     const [created] = await this.database
       .insert(user)
-      .values({ googleId, email, name: name ?? null })
+      .values({ googleId, email, name: name ?? null, emailVerifiedAt: new Date() })
       .returning();
 
     return { user: this.mapper.toUser(created), isNew: true };
