@@ -56,4 +56,26 @@ describe('EmailAllowlist', () => {
   it('starts in production once the guest list is set', () => {
     expect((): void => allowlistOf('me@example.com', 'production').onModuleInit()).not.toThrow();
   });
+
+  it('starts in production when the door is deliberately opened', () => {
+    // The star is the difference between a decision and an oversight, so it has
+    // to boot where a blank setting refuses to.
+    expect((): void => allowlistOf('*', 'production').onModuleInit()).not.toThrow();
+  });
+
+  it('admits a stranger once the door is deliberately opened', () => {
+    const allowlist = allowlistOf('*', 'production');
+
+    expect(allowlist.invitesAnyone()).toBe(true);
+    expect(allowlist.allows('stranger@example.com')).toBe(true);
+  });
+
+  it('keeps the guest list closed when a star sits among real addresses', () => {
+    // A star mixed into a list reads as a typo, not as an invitation to
+    // everyone: opening the app is a whole-setting decision.
+    const allowlist = allowlistOf('me@example.com,*');
+
+    expect(allowlist.invitesAnyone()).toBe(false);
+    expect(allowlist.allows('stranger@example.com')).toBe(false);
+  });
 });
