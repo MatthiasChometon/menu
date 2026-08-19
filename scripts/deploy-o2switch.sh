@@ -27,8 +27,12 @@ SSH_HOST=${SSH_HOST:-luzi6802@bouclier.o2switch.net}
 APP_ROOT=apps/menu-back
 NODE_VERSION=24
 
-SITE_ORIGIN="https://$DOMAIN"
-API_ORIGIN="https://api.$DOMAIN"
+# https unless told otherwise. SCHEME=http is for a host that cannot hold a
+# trusted certificate: the site still works, but Google refuses a redirect URI
+# that is not https, so sign-in does not — see the note printed at the end.
+SCHEME=${SCHEME:-https}
+SITE_ORIGIN="$SCHEME://$DOMAIN"
+API_ORIGIN="$SCHEME://api.$DOMAIN"
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 ssh_do() { ssh -i "$SSH_KEY" -o BatchMode=yes "$SSH_HOST" "$@"; }
@@ -53,8 +57,11 @@ ssh_do "set -eu
   done"
 
 echo "==> dépendances, compilation, migrations, redémarrage"
-ssh_do "set -eu
+ssh_do "set -e
+  # -e but not -u: the virtualenv's activate script reads CL_VIRTUAL_ENV before
+  # setting it, and would abort under an unset-variable check.
   . ~/nodevenv/$APP_ROOT/$NODE_VERSION/bin/activate
+  set -u
   cd ~/$APP_ROOT
   # The CloudLinux selector points node_modules at the virtualenv through a
   # symlink; pnpm empties the target before refilling it and then cannot
@@ -79,8 +86,19 @@ GQL_CLIENT_HOST="$API_ORIGIN/graphql" \
 NUXT_PUBLIC_I18N_BASE_URL="$SITE_ORIGIN" \
   pnpm generate
 
-sed "s|__API_ORIGIN__|$API_ORIGIN|" deploy/htaccess > .output/public/.htaccess
+# Over plain HTTP the HTTPS-only directives are dropped rather than left in:
+# a forced redirect would send every visitor to an address whose certificate no
+# browser trusts, and HSTS would pin them there.
+if [ "$SCHEME" = https ]; then
+  strip_https='/__HTTPS_ONLY_/d'
+  upgrade='; upgrade-insecure-requests'
+else
+  strip_https='/__HTTPS_ONLY_START__/,/__HTTPS_ONLY_END__/d'
+  upgrade=''
+fi
+sed "s|__API_ORIGIN__|$API_ORIGIN|; s|__UPGRADE_INSECURE__|$upgrade|; $strip_https" deploy/htaccess > .output/public/.htaccess
 grep -q "$API_ORIGIN" .output/public/.htaccess || { echo "le modèle .htaccess n'a pas été substitué" >&2; exit 1; }
+! grep -q "__HTTPS_ONLY_\|__UPGRADE_INSECURE__" .output/public/.htaccess || { echo "des marqueurs du modèle subsistent" >&2; exit 1; }
 
 # _nuxt holds hash-named assets, so old builds would pile up there forever;
 # everything else is overwritten in place, which keeps the document root's own
@@ -88,6 +106,13 @@ grep -q "$API_ORIGIN" .output/public/.htaccess || { echo "le modèle .htaccess n
 echo "==> envoi du site"
 tar -C .output/public -cf - . | ssh_do "rm -rf ~/public_html/_nuxt && tar -x -C ~/public_html"
 
-echo "==> déployé. Reste à faire une seule fois par domaine :"
-echo "    - cPanel → Lets Encrypt™ SSL : un certificat pour $DOMAIN et api.$DOMAIN"
-echo "    - console Google : $API_ORIGIN/auth/google/callback en URI de redirection"
+echo "==> déployé sur $SITE_ORIGIN"
+if [ "$SCHEME" = https ]; then
+  echo "    Reste à faire une seule fois par domaine :"
+  echo "    - cPanel → Lets Encrypt™ SSL : un certificat pour $DOMAIN et api.$DOMAIN"
+  echo "    - console Google : $API_ORIGIN/auth/google/callback en URI de redirection"
+else
+  echo "    En HTTP : la connexion Google est refusée par Google, qui n'accepte"
+  echo "    aucune URI de redirection non-https hors localhost, et le service"
+  echo "    worker ne s'installe pas. Menus, recettes et courses fonctionnent."
+fi
