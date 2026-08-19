@@ -16,7 +16,7 @@ const clickLabelled = async (
 ): Promise<void> => {
   const button = wrapper
     .findAll('button')
-    .find((candidate): boolean => candidate.text().includes(label));
+    .find((candidate: { text: () => string }): boolean => candidate.text().includes(label));
   if (button === undefined) throw new Error(`No button reads "${label}".`);
 
   await button.trigger('click');
