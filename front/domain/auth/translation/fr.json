@@ -2,6 +2,38 @@
   "auth": {
     "signInWithGoogle": "Continuer avec Google",
     "signOut": "Se déconnecter",
-    "signedInAs": "Connecté en tant que"
+    "signedInAs": "Connecté en tant que",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "Adresse e-mail",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "Mot de passe",
+    "signIn": "Se connecter",
+    "createAccount": "Créer un compte",
+    "noAccount": "Pas encore de compte ? En créer un",
+    "haveAccount": "Déjà un compte ? Se connecter",
+    "orContinueWith": "ou",
+    "resend": "Renvoyer le lien",
+    "resent": "Lien renvoyé, regarde tes mails.",
+    "sent": {
+      "title": "Regarde tes mails",
+      "body": "Un lien de confirmation vient de partir. Clique dessus pour activer ton compte — il est valable 24 heures."
+    },
+    "error": {
+      "credentials": "Adresse ou mot de passe incorrect.",
+      "taken": "Cette adresse a déjà un compte. Connecte-toi.",
+      "unverified": "Ton adresse n'est pas encore confirmée. Le lien est dans tes mails.",
+      "unknown": "Quelque chose a échoué. Réessaie dans un instant."
+    },
+    "verification": {
+      "pending": "Confirmation en cours…",
+      "doneTitle": "Adresse confirmée",
+      "doneBody": "Ton compte est actif et tu es connecté.",
+      "toProfile": "Remplir mon profil",
+      "failedTitle": "Ce lien ne fonctionne plus",
+      "failedBody": "Il a peut-être déjà servi, ou il a expiré. Demande-en un nouveau depuis la page de connexion.",
+      "retry": "Retour à la connexion",
+      "pendingTitle": "Confirmation en cours",
+      "pageTitle": "Confirmation de l’adresse"
+    }
   }
 }
