@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.VISUAL_PORT) || 3778;
 
-const BEHAVIOUR_ONLY = ['**/composer.e2e.test.ts'];
+const BEHAVIOUR_ONLY = ['**/composer.e2e.test.ts', '**/linkPreview.e2e.test.ts'];
 
 export default defineConfig({
   testDir: '.',
