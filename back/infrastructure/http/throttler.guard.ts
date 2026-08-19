@@ -1,5 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerException } from '@nestjs/throttler';
+import { GraphQLError } from 'graphql';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { RequestContext } from './request-context';
 
@@ -18,12 +19,37 @@ type Pair = { req: FastifyRequest; res: FastifyReply };
 // response is ever written. REST keeps the real reply and its headers.
 @Injectable()
 export class GqlAwareThrottlerGuard extends ThrottlerGuard {
+  // GraphQL answers 200 whatever happens and puts the failure in the body, so
+  // the 429 the stock guard throws never reaches the caller as a status. What
+  // did reach them was INTERNAL_SERVER_ERROR: a client could not tell "slow
+  // down and come back" from "the server is broken", and a real fault could not
+  // be told from a limit being hit. The code says which one it is.
+  protected throwThrottlingException(context: ExecutionContext): Promise<void> {
+    if (context.getType<'graphql'>() !== 'graphql') throw new ThrottlerException();
+
+    throw new GraphQLError('Too many requests. Try again shortly.', {
+      extensions: { code: 'TOO_MANY_REQUESTS', http: { status: 429 } },
+    });
+  }
+
   protected getRequestResponse(context: ExecutionContext): Pair {
     if (context.getType<'graphql'>() !== 'graphql') {
       return super.getRequestResponse(context) as Pair;
     }
 
     const request = RequestContext.from(context);
+    console.error(
+      '[SONDE] type=',
+      context.getType(),
+      'req?',
+      request !== undefined,
+      'ip=',
+      (request as { ip?: string } | undefined)?.ip,
+      'classe=',
+      context.getClass().name,
+      'handler=',
+      context.getHandler().name,
+    );
     const sink = { header: (): void => undefined } as unknown as FastifyReply;
 
     return { req: request as FastifyRequest, res: sink };

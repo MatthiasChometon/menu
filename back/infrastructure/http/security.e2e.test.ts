@@ -97,6 +97,24 @@ describe('what the API refuses to do', () => {
     expect(codes).toContain(429);
   });
 
+  it('stops answering a burst of GraphQL queries too', async () => {
+    // The sibling test above proves the guard does not BREAK GraphQL. It never
+    // proved the guard COUNTS it, and those are different claims: a limiter
+    // that runs and forgets protects nothing. Everything the app actually does
+    // — reading a profile, saving a week — goes through GraphQL, so a ceiling
+    // that only covers the REST sign-in routes leaves the whole API open.
+    // Not the status code: GraphQL answers 200 whatever happens and puts the
+    // failure in the body, so asserting on 429 would pass a broken limiter and
+    // fail a working one. The refusal has to be read where GraphQL puts it.
+    const codes: string[] = [];
+    for (let attempt = 0; attempt < 130; attempt += 1) {
+      const response = await api.graphql<{ me: { id: string } }>('query { me { id } }');
+      codes.push(...(response.errors ?? []).map((error): string => String(error.extensions?.code)));
+    }
+
+    expect(codes).toContain('TOO_MANY_REQUESTS');
+  });
+
   it('drops a field the input never declared instead of trusting it', async () => {
     const response = await api.post('/auth/register', {
       email: EMAIL,
