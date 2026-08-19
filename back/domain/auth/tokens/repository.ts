@@ -5,6 +5,7 @@ import { DATABASE, type Database } from '../../../infrastructure/database/token'
 import { authToken } from './schema';
 
 export const EMAIL_VERIFICATION = 'email_verification';
+export const PASSWORD_RESET = 'password_reset';
 
 const TOKEN_BYTES = 32;
 

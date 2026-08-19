@@ -8,5 +8,6 @@ export type UserRecord = {
   googleId: string | null;
   emailVerifiedAt: Date | null;
   locale: string;
+  sessionVersion: number;
   createdAt: Date;
 };

@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 import { UserRepository } from '../user/repository';
-import { AuthTokenRepository, EMAIL_VERIFICATION } from './emailVerification/repository';
+import { AuthTokenRepository, EMAIL_VERIFICATION } from './tokens/repository';
 
 const EMAIL = 'matthias@example.com';
 const PASSWORD = 'a-long-enough-password';
@@ -215,6 +215,131 @@ describe('asking for another link', () => {
     expect(second).not.toBe(first);
     expect((await api.post('/auth/verify-email', { token: first })).statusCode).toBe(401);
     expect((await api.post('/auth/verify-email', { token: second })).statusCode).toBe(200);
+  });
+});
+
+describe('resetting a forgotten password', () => {
+  const NEW_PASSWORD = 'another-long-enough-password';
+
+  const linkToken = (): string => {
+    const token = /token=([a-f0-9]{64})/.exec(api.mails().at(-1)?.text ?? '')?.[1];
+    if (token === undefined) throw new Error('No reset link was sent.');
+
+    return token;
+  };
+
+  it('answers the same for an address it knows and one it does not', async () => {
+    await api.signUp(EMAIL, PASSWORD);
+    const sentSoFar = api.mails().length;
+
+    const known = await api.post('/auth/forgot-password', { email: EMAIL });
+    const unknown = await api.post('/auth/forgot-password', { email: 'nobody@example.com' });
+
+    expect(known.statusCode).toBe(204);
+    expect(unknown.statusCode).toBe(204);
+    // One message, not two: the answers match but the behaviour does not.
+    expect(api.mails()).toHaveLength(sentSoFar + 1);
+  });
+
+  it('sets the new password and refuses the old one', async () => {
+    await api.signUp(EMAIL, PASSWORD);
+    await api.post('/auth/forgot-password', { email: EMAIL });
+
+    const reset = await api.post('/auth/reset-password', {
+      token: linkToken(),
+      password: NEW_PASSWORD,
+    });
+
+    expect(reset.statusCode).toBe(200);
+    expect(reset.cookies.find((cookie): boolean => cookie.name === 'session')).toBeDefined();
+    expect(
+      (await api.post('/auth/login', { email: EMAIL, password: NEW_PASSWORD })).statusCode,
+    ).toBe(200);
+    expect((await api.post('/auth/login', { email: EMAIL, password: PASSWORD })).statusCode).toBe(
+      401,
+    );
+  });
+
+  it('cuts the sessions that were open before it', async () => {
+    // The reason a reset exists: somebody else is already signed in, and
+    // changing the password has to put them out. A JWT cannot be recalled, so
+    // this is the one behaviour worth proving rather than assuming.
+    const oldSession = await api.signUp(EMAIL, PASSWORD);
+    expect(
+      (await api.graphql<{ me: { id: string } }>('query { me { id } }', undefined, oldSession))
+        .data,
+    ).toBeDefined();
+
+    await api.post('/auth/forgot-password', { email: EMAIL });
+    await api.post('/auth/reset-password', { token: linkToken(), password: NEW_PASSWORD });
+
+    const after = await api.graphql<{ me: { id: string } }>(
+      'query { me { id } }',
+      undefined,
+      oldSession,
+    );
+
+    expect(after.errors?.[0]?.extensions?.code).toBe('UNAUTHENTICATED');
+  });
+
+  it('leaves the session it just handed out working', async () => {
+    await api.signUp(EMAIL, PASSWORD);
+    await api.post('/auth/forgot-password', { email: EMAIL });
+
+    const reset = await api.post('/auth/reset-password', {
+      token: linkToken(),
+      password: NEW_PASSWORD,
+    });
+    const session = reset.cookies.find((cookie): boolean => cookie.name === 'session');
+
+    // A JWT records its issue time in whole seconds, so a cut-off measured in
+    // milliseconds would refuse the very session the reset just opened.
+    const response = await api.graphql<{ me: { id: string } }>(
+      'query { me { id } }',
+      undefined,
+      `session=${session?.value ?? ''}`,
+    );
+
+    expect(response.data?.me.id).toBeDefined();
+  });
+
+  it('spends the link, so the message cannot be replayed', async () => {
+    await api.signUp(EMAIL, PASSWORD);
+    await api.post('/auth/forgot-password', { email: EMAIL });
+    const token = linkToken();
+    await api.post('/auth/reset-password', { token, password: NEW_PASSWORD });
+
+    const second = await api.post('/auth/reset-password', { token, password: 'yet-another-one' });
+
+    expect(second.statusCode).toBe(401);
+  });
+
+  it('confirms an address that never was, since the link proves it', async () => {
+    await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+    expect((await api.post('/auth/login', { email: EMAIL, password: PASSWORD })).statusCode).toBe(
+      403,
+    );
+
+    await api.post('/auth/forgot-password', { email: EMAIL });
+    await api.post('/auth/reset-password', { token: linkToken(), password: NEW_PASSWORD });
+
+    // Reaching the link is the same proof the verification mail asks for, so
+    // insisting on that one as well would be theatre.
+    expect(
+      (await api.post('/auth/login', { email: EMAIL, password: NEW_PASSWORD })).statusCode,
+    ).toBe(200);
+  });
+
+  it('refuses a new password too short to be worth hashing', async () => {
+    await api.signUp(EMAIL, PASSWORD);
+    await api.post('/auth/forgot-password', { email: EMAIL });
+
+    const response = await api.post('/auth/reset-password', {
+      token: linkToken(),
+      password: 'short',
+    });
+
+    expect(response.statusCode).toBe(400);
   });
 });
 

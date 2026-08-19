@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
   // Minted here rather than by the database. defaultRandom() compiles to
@@ -25,5 +25,13 @@ export const user = pgTable('user', {
   // from a request that often carries nothing but an email address, so the
   // language has to be remembered rather than read off the caller.
   locale: text('locale').notNull().default('fr'),
+  // Bumped whenever every existing session has to stop working — a password
+  // reset, today. A JWT cannot be recalled once signed, so the token carries
+  // this number and the guard refuses anything stale.
+  //
+  // A counter rather than a moment in time: a JWT records its issue time in
+  // whole seconds, so a reset landing in the same second as the session it
+  // means to cut would leave that session alive. A number has no such edge.
+  sessionVersion: integer('session_version').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

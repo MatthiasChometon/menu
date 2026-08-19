@@ -4,7 +4,7 @@ import { MailService } from '../../../infrastructure/mail/service';
 import { User } from '../../user/model';
 import { UserRepository } from '../../user/repository';
 import { verificationEmail } from './emails';
-import { AuthTokenRepository, EMAIL_VERIFICATION } from './repository';
+import { AuthTokenRepository, EMAIL_VERIFICATION } from '../tokens/repository';
 
 // A day. Long enough that a link found the next morning still works, short
 // enough that one left in an old inbox does not.

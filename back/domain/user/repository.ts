@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { UserMapper } from './mapper';
 import { User } from './model';
@@ -81,6 +81,37 @@ export class UserRepository {
       .returning();
 
     return { user: this.mapper.toUser(created), isNew: true };
+  }
+
+  /** Replaces the password and retires every session already open.
+   *
+   *  Bumping the counter is what does the retiring: tokens carry the number
+   *  they were signed with, so the ones already out there stop matching while
+   *  the one signed straight after this matches fine.
+   *
+   *  Following the link also proves the address, so an account that never
+   *  confirmed one arrives confirmed — it is the same proof, asked twice.
+   */
+  async replacePassword(id: string, passwordHash: string): Promise<UserRecord> {
+    const [record] = await this.database
+      .update(user)
+      .set({
+        passwordHash,
+        sessionVersion: sql`${user.sessionVersion} + 1`,
+        emailVerifiedAt: sql`coalesce(${user.emailVerifiedAt}, now())`,
+      })
+      .where(eq(user.id, id))
+      .returning();
+
+    return record;
+  }
+
+  // The whole row rather than the model: the guard needs the session counter,
+  // which has no business being a GraphQL field.
+  async findRecordById(id: string): Promise<UserRecord | undefined> {
+    const [record] = await this.database.select().from(user).where(eq(user.id, id));
+
+    return record;
   }
 
   async findById(id: string): Promise<User | undefined> {

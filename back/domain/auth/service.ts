@@ -65,7 +65,13 @@ export class AuthService {
     return this.mapper.toUser(record);
   }
 
-  signSession(userId: string): Promise<string> {
-    return this.jwt.signAsync({ sub: userId });
+  // The counter is read here rather than passed in, so no caller can forget it:
+  // a token signed without one reads as version zero and would survive the very
+  // reset meant to retire it.
+  async signSession(userId: string): Promise<string> {
+    const record = await this.users.findRecordById(userId);
+    if (record === undefined) throw new UnauthorizedException();
+
+    return this.jwt.signAsync({ sub: userId, ver: record.sessionVersion });
   }
 }

@@ -16,7 +16,8 @@
     "resent": "Link sent, check your inbox.",
     "sent": {
       "title": "Check your inbox",
-      "body": "A confirmation link is on its way. Follow it to activate your account — it lasts 24 hours."
+      "body": "A confirmation link is on its way. Follow it to activate your account — it lasts 24 hours.",
+      "resetBody": "A link is on its way. Open it to choose a new password — it lasts one hour."
     },
     "error": {
       "credentials": "Wrong email or password.",
@@ -34,6 +35,23 @@
       "retry": "Back to sign-in",
       "pendingTitle": "Confirming your address",
       "pageTitle": "Address confirmation"
+    },
+    "forgotPassword": "Forgot your password?",
+    "sendResetLink": "Send me a link",
+    "reset": {
+      "pageTitle": "New password",
+      "title": "Choose a new password",
+      "body": "It signs you in straight away. Devices already signed in will be signed out.",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "New password",
+      "submit": "Save",
+      "tooShort": "It needs at least 8 characters.",
+      "doneTitle": "Password changed",
+      "doneBody": "You are signed in with your new password.",
+      "toProfile": "Go to my profile",
+      "expiredTitle": "This link no longer works",
+      "expiredBody": "It may already have been used, or it expired. Ask for a new one from the sign-in page.",
+      "retry": "Back to sign-in"
     }
   }
 }

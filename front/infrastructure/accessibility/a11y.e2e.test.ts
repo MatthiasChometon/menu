@@ -3,7 +3,15 @@ import { expect, test } from '@playwright/test';
 // /profil and /verification carry the sign-in form and the page the mailed
 // link lands on — the two screens a newcomer meets first, and the ones a
 // keyboard or a screen reader has to get through before anything else works.
-const PATHS = ['/', '/batch', '/courses', '/recette/chiliChicken', '/profil', '/verification'];
+const PATHS = [
+  '/',
+  '/batch',
+  '/courses',
+  '/recette/chiliChicken',
+  '/profil',
+  '/verification',
+  '/reinitialisation',
+];
 
 for (const path of PATHS) {
   test(`${path} exposes one main heading and the expected landmarks`, async ({ page }) => {

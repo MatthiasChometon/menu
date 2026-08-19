@@ -16,7 +16,8 @@
     "resent": "Lien renvoyé, regarde tes mails.",
     "sent": {
       "title": "Regarde tes mails",
-      "body": "Un lien de confirmation vient de partir. Clique dessus pour activer ton compte — il est valable 24 heures."
+      "body": "Un lien de confirmation vient de partir. Clique dessus pour activer ton compte — il est valable 24 heures.",
+      "resetBody": "Un lien vient de partir. Ouvre-le pour choisir un nouveau mot de passe — il est valable une heure."
     },
     "error": {
       "credentials": "Adresse ou mot de passe incorrect.",
@@ -34,6 +35,23 @@
       "retry": "Retour à la connexion",
       "pendingTitle": "Confirmation en cours",
       "pageTitle": "Confirmation de l’adresse"
+    },
+    "forgotPassword": "Mot de passe oublié ?",
+    "sendResetLink": "Recevoir un lien",
+    "reset": {
+      "pageTitle": "Nouveau mot de passe",
+      "title": "Choisis un nouveau mot de passe",
+      "body": "Il te connectera aussitôt. Les appareils déjà connectés seront déconnectés.",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Nouveau mot de passe",
+      "submit": "Enregistrer",
+      "tooShort": "Il faut au moins 8 caractères.",
+      "doneTitle": "Mot de passe changé",
+      "doneBody": "Tu es connecté avec ton nouveau mot de passe.",
+      "toProfile": "Aller à mon profil",
+      "expiredTitle": "Ce lien ne fonctionne plus",
+      "expiredBody": "Il a peut-être déjà servi, ou il a expiré. Demandes-en un nouveau depuis la page de connexion.",
+      "retry": "Retour à la connexion"
     }
   }
 }

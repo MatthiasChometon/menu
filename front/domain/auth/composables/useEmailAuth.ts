@@ -8,6 +8,7 @@ export const useEmailAuth = (): {
   isBusy: Ref<boolean>;
   failure: Ref<AuthFailure | undefined>;
   register: () => Promise<'sent' | undefined>;
+  requestReset: () => Promise<'sent' | undefined>;
   signIn: () => Promise<'signed-in' | undefined>;
   resendLink: () => Promise<void>;
 } => {
@@ -31,6 +32,11 @@ export const useEmailAuth = (): {
     method: 'POST',
     body: credentials,
     key: 'auth-login',
+  });
+  const forgotCall = useApi('/auth/forgot-password', {
+    method: 'POST',
+    body: computed(() => ({ email: credentials.email })),
+    key: 'auth-forgot-password',
   });
   const resendCall = useApi('/auth/resend-verification', {
     method: 'POST',
@@ -77,6 +83,10 @@ export const useEmailAuth = (): {
     // No session comes back: the account is not usable until the link is
     // followed, so the interface has to say so rather than pretend otherwise.
     register: (): Promise<'sent' | undefined> => run(registerCall, 'sent'),
+    // Says a link is on its way whether or not there was anyone to send it to:
+    // the API answers the same either way, and so must the interface, or the
+    // screen becomes the way to find out who has an account here.
+    requestReset: (): Promise<'sent' | undefined> => run(forgotCall, 'sent'),
     signIn: async (): Promise<'signed-in' | undefined> => {
       const outcome = await run(signInCall, 'signed-in' as const);
       if (outcome !== undefined) await refresh();
