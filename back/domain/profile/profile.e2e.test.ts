@@ -34,15 +34,7 @@ type Targets = { kcal: number; protein: number; fat: number; carbs: number; fibe
 
 let api: TestApp;
 
-const signIn = async (): Promise<string> => {
-  const response = await api.post('/auth/register', {
-    email: 'matthias@example.com',
-    password: 'a-long-enough-password',
-  });
-  const session = response.cookies.find((cookie): boolean => cookie.name === 'session');
-
-  return `session=${session?.value}`;
-};
+const signIn = (): Promise<string> => api.signUp('matthias@example.com', 'a-long-enough-password');
 
 beforeAll(async (): Promise<void> => {
   api = await startTestApp();

@@ -21,10 +21,14 @@ export class EmailAndPasswordController {
     private readonly cookie: SessionCookie,
   ) {}
 
+  // 202, not 200: the account exists but is not usable yet, and the only thing
+  // that finishes the job happens in somebody's inbox.
   @Post('register')
-  async register(@Body() input: RegisterInput, @Res() reply: FastifyReply): Promise<void> {
-    const user = await this.auth.register(input);
-    await this.replyWithSession(reply, user);
+  @HttpCode(202)
+  async register(@Body() input: RegisterInput): Promise<{ status: string }> {
+    await this.auth.register(input);
+
+    return { status: 'verification_sent' };
   }
 
   @Post('login')

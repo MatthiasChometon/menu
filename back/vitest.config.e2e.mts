@@ -25,6 +25,10 @@ const TEST_ENV = {
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',
   ALLOWED_ORIGINS: 'http://localhost:3777,http://localhost:3778',
+  // A host has to be set for the real transport to be built at all — the suite
+  // then replaces it, so nothing is ever sent anywhere.
+  MAIL_HOST: 'mail.invalid',
+  MAIL_FROM: 'Menu <no-reply@example.test>',
 };
 
 Object.assign(process.env, TEST_ENV);

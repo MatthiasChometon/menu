@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserMapper } from '../../user/mapper';
 import { UserRepository } from '../../user/repository';
 import { SessionCookie } from './cookie';
 import { RequestContext } from '../../../infrastructure/http/request-context';
@@ -11,6 +12,7 @@ export class AuthGuard implements CanActivate {
     private readonly jwt: JwtService,
     private readonly cookie: SessionCookie,
     private readonly users: UserRepository,
+    private readonly mapper: UserMapper,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -35,12 +37,20 @@ export class AuthGuard implements CanActivate {
 
     // The token can outlive the account it names, so the user is loaded rather
     // than trusted from the payload.
-    const user = await this.users.findById(payload.sub);
-    if (user === undefined) {
+    const record = await this.users.findRecordById(payload.sub);
+    if (record === undefined) {
       throw new UnauthorizedException();
     }
 
-    request.currentUser = user;
+    // A JWT cannot be recalled once signed, so a reset bumps a counter and
+    // every token carrying the old number stops working. Without this, changing
+    // the password would leave whoever forced their way in as signed in as
+    // before — which is the one thing a reset is for.
+    if ((payload.ver ?? 0) !== record.sessionVersion) {
+      throw new UnauthorizedException();
+    }
+
+    request.currentUser = this.mapper.toUser(record);
     return true;
   }
 }

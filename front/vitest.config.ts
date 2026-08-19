@@ -1,5 +1,11 @@
 import { defineVitestConfig } from '@nuxt/test-utils/config';
 
+// Read when the Nuxt test environment builds its config, so it has to be set
+// before that: an absolute base URL sends every call out of the test server,
+// where registerEndpoint cannot answer it and the component under test hangs
+// on a request nobody will ever reply to.
+process.env.NUXT_PUBLIC_API_BASE = '';
+
 export default defineVitestConfig({
   test: {
     environment: 'nuxt',
