@@ -24,13 +24,12 @@ SSH_HOST=${SSH_HOST:-luzi6802@bouclier.o2switch.net}
 APP_ROOT=apps/menu-back
 NODE_VERSION=24
 
-# https as soon as the API host can hold a trusted certificate. Until then a
-# browser on an https page refuses to call an http API at all — see the note
-# printed at the end.
-API_SCHEME=${API_SCHEME:-http}
-API_HOST=${API_HOST:-api.luzi6802.odns.fr}
+# The API answers here, over a Let's Encrypt certificate. The name is a free
+# DuckDNS one rather than o2switch's own: odns.fr answers SERVFAIL to the CAA
+# lookup Let's Encrypt makes, so no certificate can be issued on it, while
+# duckdns.org is on the Public Suffix List and behaves like any real domain.
+API_ORIGIN=${API_ORIGIN:-https://menuuu.duckdns.org}
 FRONT_URL=${FRONT_URL:-https://menu-semaine-887.netlify.app}
-API_ORIGIN="$API_SCHEME://$API_HOST"
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 ssh_do() { ssh -i "$SSH_KEY" -o BatchMode=yes "$SSH_HOST" "$@"; }
@@ -76,14 +75,7 @@ ssh_do "cloudlinux-selector restart --json --interpreter nodejs --app-root $APP_
 # restart is the one that wakes it rather than the one that proves it works.
 ssh_do "curl -sS -m 60 -o /dev/null -w 'health: HTTP %{http_code}\n' $API_ORIGIN/health"
 
-echo "==> déployé sur $API_ORIGIN"
-if [ "$API_SCHEME" = https ]; then
-  echo "    Vérifier une fois par domaine :"
-  echo "    - console Google : $API_ORIGIN/auth/google/callback en URI de redirection"
-  echo "    - netlify.toml : NUXT_PUBLIC_API_BASE et les deux GQL_ pointent ici"
-else
-  echo "    ATTENTION : en http, le front Netlify (https) ne peut pas appeler cette"
-  echo "    API — le navigateur bloque tout appel http depuis une page https. Il"
-  echo "    faut un domaine sur o2switch et un certificat Let's Encrypt pour que"
-  echo "    netlify.toml puisse pointer ici."
-fi
+echo "==> déployé"
+echo "    À vérifier après tout changement d'adresse :"
+echo "    - console Google : $API_ORIGIN/auth/google/callback en URI de redirection"
+echo "    - netlify.toml : les trois variables pointent ici"

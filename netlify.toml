@@ -15,8 +15,9 @@
   # Corepack picks the pnpm version out of package.json.
   NPM_FLAGS = "--version"
 
-# Where the browser reaches the API — the real Render hostname, read off the
-# dashboard rather than guessed. The same host has to appear in connect-src in
+# Where the browser reaches the API — o2switch, under a free DuckDNS name.
+# o2switch's own domain cannot hold a certificate (its CAA lookup fails), and a
+# page served over https may not call an http host. The same host has to appear in connect-src in
 # public/_headers and in ALLOWED_ORIGINS on the API, or the browser drops every
 # answer it gets.
 #
@@ -25,12 +26,12 @@
 # every page ships. The site's own origin has to be named too, or every
 # canonical and hreflang link in the deployed pages points at localhost.
 [context.production.environment]
-  NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
-  GQL_HOST = "https://menu-api-chometon.onrender.com/graphql"
-  GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"
+  NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
+  GQL_HOST = "https://menuuu.duckdns.org/graphql"
+  GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
   NUXT_PUBLIC_I18N_BASE_URL = "https://menu-semaine-887.netlify.app"
 
 [context.deploy-preview.environment]
-  NUXT_PUBLIC_API_BASE = "https://menu-api-chometon.onrender.com"
-  GQL_HOST = "https://menu-api-chometon.onrender.com/graphql"
-  GQL_CLIENT_HOST = "https://menu-api-chometon.onrender.com/graphql"
+  NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
+  GQL_HOST = "https://menuuu.duckdns.org/graphql"
+  GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
