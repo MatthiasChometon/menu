@@ -1,0 +1,45 @@
+# Template. scripts/deploy-o2switch.sh substitutes __API_ORIGIN__ and writes
+# the result into the generated site — the API host follows the domain, and a
+# file shipped with one host baked in would be wrong the moment it moved.
+#
+# Security headers for the static site, for an Apache host. The same policy as
+# public/_headers, which only Netlify reads — both files ship, and each host
+# ignores the other's. Keep them in step: they are one decision written twice.
+<IfModule mod_headers.c>
+  # `always` matters: without it Apache drops the header on its own error
+  # responses, which are exactly the pages an attacker would rather see bare.
+  #
+  # Nuxt inlines its hydration payload in a <script>, hence 'unsafe-inline' on
+  # script-src; everything else is locked to this origin. connect-src names the
+  # API, which lives on another host — and only a host that is really ours.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' __API_ORIGIN__; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests"
+  # Six months, so a downgrade attack has no window to work in.
+  Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "no-referrer"
+  # Nothing here needs a camera, a microphone or a location.
+  Header always set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set Cross-Origin-Resource-Policy "same-origin"
+
+  # The service worker must never be served stale: a pinned one would keep an
+  # old app, and an old app keeps an old policy.
+  <FilesMatch "^sw\.js$">
+    Header always set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Netlify redirects to HTTPS on its own; Apache has to be told. Without this
+  # the site answers on plain HTTP, where the session cookie and the service
+  # worker are both refused.
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# Nuxt prerenders every route to its own index.html, so a real page is always on
+# disk and only genuinely unknown paths land here.
+ErrorDocument 404 /404.html
