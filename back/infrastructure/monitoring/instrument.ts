@@ -1,4 +1,11 @@
+import { config } from 'dotenv';
 import { init } from '@sentry/nestjs';
+
+// The .env has to be read here rather than left to Nest's ConfigModule: this
+// file runs before the framework exists, and the host runs the app under
+// Passenger, which passes no environment of its own. Without this the address
+// below is always empty in production and nothing is ever reported.
+config();
 
 // Imported first in main.ts, before anything from Nest, because Sentry patches
 // the modules it watches as they load: initialised afterwards it would see a
