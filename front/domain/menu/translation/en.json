@@ -77,12 +77,20 @@
       "upcoming": "This menu starts on Monday",
       "past": "This week is over",
       "deliveryOn": "Groceries delivered",
-      "beforeStart": "Until then, work with what you already have."
+      "beforeStart": "Until then, work with what you already have.",
+      "pastHasNext": "Move to a more recent week with the arrows above.",
+      "pastNoNext": "This is the most recent menu. Run the menu command to prepare the coming week."
     },
     "week": {
       "current": "This week",
-      "upcoming": "Coming up",
-      "past": "Past"
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "next": "Next week",
+      "last": "Last week",
+      "previous": "Previous week",
+      "choose": "Choose the week",
+      "today": "Today",
+      "back": "Back to this week"
     }
   }
 }

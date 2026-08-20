@@ -20,12 +20,9 @@ const dateOf = (index: number): Date | undefined => {
   return monday;
 };
 
-const formatWeek = (weekOf: string): string =>
-  new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+const hasLaterWeek = computed((): boolean =>
+  menus.some((other): boolean => other.weekOf > (menu.value?.weekOf ?? '')),
+);
 
 const averageMacros = computed((): Macros | undefined => {
   if (menu.value === undefined || menu.value.days.length === 0) return undefined;
@@ -107,9 +104,6 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         </div>
 
         <MenuWeekPicker />
-        <p v-if="menus.length < 2" class="text-sm text-muted">
-          {{ $t('menu.weekOf') }} {{ formatWeek(menu.weekOf) }}
-        </p>
       </div>
 
       <UAlert
@@ -135,7 +129,13 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         variant="subtle"
         icon="i-lucide-clock-fading"
         :title="$t('menu.status.past')"
-      />
+      >
+        <template #description>
+          <!-- Saying a week is over is only half the message: what to do next
+               is the half the reader actually needs. -->
+          {{ hasLaterWeek ? $t('menu.status.pastHasNext') : $t('menu.status.pastNoNext') }}
+        </template>
+      </UAlert>
 
       <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
         <div class="grid gap-4 sm:grid-cols-3">

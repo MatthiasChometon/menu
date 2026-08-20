@@ -77,12 +77,20 @@
       "upcoming": "Ce menu démarre lundi",
       "past": "Cette semaine est passée",
       "deliveryOn": "Courses livrées",
-      "beforeStart": "D'ici là, fais avec ce que tu as déjà."
+      "beforeStart": "D'ici là, fais avec ce que tu as déjà.",
+      "pastHasNext": "Passe à une semaine plus récente avec les flèches en haut.",
+      "pastNoNext": "C'est le menu le plus récent. Lance la commande menu pour préparer la semaine à venir."
     },
     "week": {
       "current": "Cette semaine",
       "upcoming": "À venir",
-      "past": "Passée"
+      "past": "Passée",
+      "next": "La semaine prochaine",
+      "last": "La semaine dernière",
+      "previous": "Semaine précédente",
+      "choose": "Choisir la semaine",
+      "today": "Aujourd'hui",
+      "back": "Revenir à cette semaine"
     }
   }
 }
