@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
@@ -24,6 +26,9 @@ const TEST_ENV = {
   // One of the two invitees is an administrator and the other is not, which is
   // what lets the suite check that the reports stay out of the wrong hands.
   ADMIN_EMAILS: 'matthias@example.com',
+  // A folder of its own: the suite writes real files and rewrites a real
+  // manifest, and doing that in the served folder would be editing production.
+  IMAGES_ROOT: join(tmpdir(), 'menu-images-e2e'),
   // Out of the way by default: the ceiling has a file of its own, which lowers
   // it for itself. Left at its real value it would silence notices the other
   // tests are counting on, from a rule they are not about.
