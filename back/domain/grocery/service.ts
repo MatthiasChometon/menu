@@ -11,7 +11,11 @@ import { GroceryJobRepository } from './job/repository';
 import { JobReport } from './job/type';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
+import { GroceryReportMail } from './report/mail';
 import { GrocerySlotRepository } from './slot/repository';
+import { MailService } from '../../infrastructure/mail/service';
+import { UserRepository } from '../user/repository';
+import { ConfigService } from '@nestjs/config';
 
 type ObservedSighting = PriceSighting & { size?: number };
 
@@ -25,6 +29,10 @@ export class GroceryService {
     private readonly target: BasketTargetService,
     private readonly preferences: GroceryPreferenceRepository,
     private readonly windows: GrocerySlotRepository,
+    private readonly mail: MailService,
+    private readonly reportMail: GroceryReportMail,
+    private readonly users: UserRepository,
+    private readonly config: ConfigService,
   ) {}
 
   // The menu is worked out by the site, which has it prerendered; what to buy
@@ -79,7 +87,27 @@ export class GroceryService {
       await this.pantry.replace(userId, this.target.leftoversAfter(bought));
     }
 
-    return this.withLines(job);
+    const detailed = await this.withLines(job);
+    await this.notify(userId, detailed);
+
+    return detailed;
+  }
+
+  // Told once the run is closed, whatever became of it: a run that stopped for
+  // a captcha is exactly the one somebody needs to hear about.
+  private async notify(userId: string, job: GroceryJob): Promise<void> {
+    const account = await this.users.findById(userId);
+    if (account === undefined) {
+      return;
+    }
+
+    await this.mail.send(
+      this.reportMail.build(
+        account.email,
+        job,
+        `${this.config.get<string>('SHOP_BASKET_URL') ?? 'https://www.carrefour.fr/courses'}`,
+      ),
+    );
   }
 
   // A substitute states what a unit holds, so it becomes the product of

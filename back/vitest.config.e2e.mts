@@ -25,6 +25,12 @@ const TEST_ENV = {
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',
   ALLOWED_ORIGINS: 'http://localhost:3777,http://localhost:3778',
+  // No SMTP is reachable in a test run, and the suite stubs the mail service
+  // anyway; this only stops the transport from being built against a real host.
+  MAIL_HOST: 'localhost',
+  MAIL_PORT: '1025',
+  MAIL_SECURE: 'false',
+  MAIL_FROM: 'menu@example.com',
 };
 
 Object.assign(process.env, TEST_ENV);

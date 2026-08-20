@@ -686,3 +686,84 @@ describe('keeping the reference in step with the shelves', () => {
     expect(await productOf('tofu')).toBeUndefined();
   });
 });
+
+describe('telling somebody the basket is ready', () => {
+  const closeWith = async (cookie: string, input: Record<string, unknown>): Promise<void> => {
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED', ...input } },
+      undefined,
+      asDevice(token),
+    );
+  };
+
+  it('writes to the account that asked, once the run is closed', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    await closeWith(cookie, { productsCents: 8450, deliveryFeesCents: 790 });
+
+    expect(api.sentMail()).toEqual([
+      expect.objectContaining({ to: 'matthias@example.com', subject: 'Panier prêt' }),
+    ]);
+  });
+
+  it('says in the subject when the basket wants a look', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(
+      `mutation ($input: GroceryPreferenceInput!) {
+        saveGroceryPreference(input: $input) { alertThresholdCents }
+      }`,
+      { input: { alertThresholdCents: 5000 } },
+      cookie,
+    );
+
+    await closeWith(cookie, { productsCents: 8450 });
+
+    expect(api.sentMail()[0].subject).toBe('Panier prêt, à vérifier');
+  });
+
+  it('writes even when the run was stopped, which is when it matters most', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'BLOCKED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(api.sentMail()[0].subject).toBe('Courses interrompues : il faut ton intervention');
+  });
+
+  it('escapes what the shop wrote, since it lands in an HTML document', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      REPORT_EVENT,
+      {
+        jobId: queued.id,
+        input: { kind: 'LINE_MISSING', label: '<script>alert(1)</script>' },
+      },
+      undefined,
+      asDevice(token),
+    );
+
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED', productsCents: 100 } },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(api.sentMail()[0].html).not.toContain('<script>');
+    expect(api.sentMail()[0].html).toContain('&lt;script&gt;');
+  });
+});

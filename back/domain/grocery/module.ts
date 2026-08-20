@@ -13,11 +13,13 @@ import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
 import { GroceryPreferenceResolver } from './preference/resolver';
 import { GrocerySlotRepository } from './slot/repository';
+import { GroceryReportMail } from './report/mail';
 import { GrocerySlotResolver } from './slot/resolver';
+import { UserModule } from '../user/module';
 import { GroceryService } from './service';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, UserModule],
   providers: [
     GroceryDeviceResolver,
     GroceryDeviceRepository,
@@ -34,6 +36,7 @@ import { GroceryService } from './service';
     GroceryPreferenceRepository,
     GrocerySlotResolver,
     GrocerySlotRepository,
+    GroceryReportMail,
   ],
 })
 export class GroceryModule {}

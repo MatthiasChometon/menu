@@ -8,6 +8,8 @@ import postgres from 'postgres';
 import { AppModule } from '../../app.module';
 import { DATABASE, type Database } from '../database/token';
 import { configureApp, createAdapter } from '../http/setup';
+import { MailService } from '../mail/service';
+import { MailMessage } from '../mail/type';
 
 const MIGRATIONS_FOLDER = './infrastructure/database/migrations';
 
@@ -51,6 +53,8 @@ export type TestApp = {
    * stand-in that agrees with whatever it is told.
    */
   resolve: <T>(token: Type<T>) => T;
+  /** Every mail the app tried to send, in order. */
+  sentMail: () => MailMessage[];
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;
   close: () => Promise<void>;
@@ -72,7 +76,18 @@ export const startTestApp = async (): Promise<TestApp> => {
   await migrate(drizzle({ client: migrationClient }), { migrationsFolder: MIGRATIONS_FOLDER });
   await migrationClient.end();
 
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  // Nothing here may reach a real SMTP server, and a test that wants to read
+  // what was sent needs somewhere to read it from.
+  const sent: MailMessage[] = [];
+  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(MailService)
+    .useValue({
+      send: (message: MailMessage): Promise<void> => {
+        sent.push(message);
+        return Promise.resolve();
+      },
+    })
+    .compile();
 
   const app = moduleRef.createNestApplication<NestFastifyApplication>(createAdapter());
   // The same wiring main.ts applies, so the suite tests the server that ships
@@ -128,9 +143,11 @@ export const startTestApp = async (): Promise<TestApp> => {
       return JSON.parse(response.body) as GraphqlResponse<T>;
     },
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
+    sentMail: (): MailMessage[] => sent,
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
     reset: async (): Promise<void> => {
+      sent.length = 0;
       // grocery_product hangs off no account, so CASCADE never reaches it: it
       // has to be named.
       await database.execute(

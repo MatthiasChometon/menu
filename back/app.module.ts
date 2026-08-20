@@ -7,6 +7,7 @@ import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
+import { MailInfrastructureModule } from './infrastructure/mail/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
 import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.module';
 
@@ -16,6 +17,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     ThrottlerInfrastructureModule,
     HealthInfrastructureModule,
     DatabaseInfrastructureModule,
+    MailInfrastructureModule,
     GraphqlInfrastructureModule,
     UserModule,
     AuthModule,
