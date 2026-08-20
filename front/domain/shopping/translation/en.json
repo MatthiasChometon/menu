@@ -25,6 +25,9 @@
       "title": "Nothing to buy",
       "hint": "No menu is loaded at the moment."
     },
-    "backToWeek": "Back to the week"
+    "backToWeek": "Back to the week",
+    "forHousehold": "Quantities for",
+    "people": "people",
+    "onePerson": "you alone"
   }
 }

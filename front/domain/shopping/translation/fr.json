@@ -25,6 +25,9 @@
       "title": "Rien à acheter",
       "hint": "Aucun menu n'est chargé pour le moment."
     },
-    "backToWeek": "Retour à la semaine"
+    "backToWeek": "Retour à la semaine",
+    "forHousehold": "Quantités pour",
+    "people": "personnes",
+    "onePerson": "toi seul"
   }
 }

@@ -177,7 +177,7 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
         </UBadge>
         <UButton
-          icon="i-lucide-shuffle"
+          icon="i-lucide-refresh-cw"
           variant="ghost"
           color="neutral"
           size="sm"

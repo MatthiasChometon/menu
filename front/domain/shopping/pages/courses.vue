@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
+const { eaters, linesFor } = useShoppingQuantities();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const isMounted = useMounted();
@@ -8,8 +9,16 @@ const isMounted = useMounted();
 const { pickedIds, toggle, clear } = useShoppingCart(selectedWeek);
 const { user } = useAuth();
 
+// Scaled for everyone who eats it before being grouped: the aisles and the
+// totals both have to speak of the same basket.
+const householdMenu = computed((): Menu | undefined =>
+  currentMenu.value === undefined
+    ? undefined
+    : { ...currentMenu.value, shoppingList: linesFor(currentMenu.value) },
+);
+
 const groups = computed((): ShoppingGroup[] =>
-  currentMenu.value === undefined ? [] : groupsOf(currentMenu.value),
+  householdMenu.value === undefined ? [] : groupsOf(householdMenu.value),
 );
 
 const freshSeasonings = computed((): Seasoning[] => currentMenu.value?.freshSeasonings ?? []);
@@ -112,6 +121,17 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         :title="$t('shopping.done')"
         :description="$t('shopping.doneHint')"
       />
+
+      <p v-if="isMounted && eaters.length > 0" class="mt-3 text-sm text-muted">
+        {{ $t('shopping.forHousehold') }}
+        <span class="font-semibold">
+          {{
+            eaters.length > 1
+              ? `${eaters.length} ${$t('shopping.people')}`
+              : $t('shopping.onePerson')
+          }}
+        </span>
+      </p>
 
       <OrderButton v-if="isMounted && user && currentMenu" class="mt-6" :menu="currentMenu" />
 
