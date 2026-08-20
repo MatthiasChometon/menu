@@ -26,7 +26,7 @@ const LIST = `
 
 const BLOCK = `
   mutation Block($input: BlockReporterInput!) {
-    blockReporter(input: $input)
+    blockAccount(input: $input)
   }
 `;
 
@@ -134,6 +134,30 @@ describe('when the same account keeps filing', () => {
     // The count is what still reports a flood once the cap has silenced the
     // messages that would have shown it.
     expect(api.mails().at(-1)?.text).toContain('24 h : 2');
+  });
+
+  it('shuts a blocked account out of the site, not only out of reporting', async () => {
+    const reader = await api.signUp(READER, PASSWORD);
+    const created = await api.graphql<{ reportBug: { id: string } }>(
+      REPORT,
+      reportOf('/', 'Un signalement avant que le compte ne soit bloqué.'),
+      reader,
+    );
+
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    await api.graphql(
+      BLOCK,
+      { input: { reportId: created.data?.reportBug.id, blocked: true } },
+      admin,
+    );
+
+    // Everything, not just the report: somebody worth stopping is rarely worth
+    // stopping in one place, and one forgotten check would be the whole hole.
+    const me = await api.graphql('query { me { id } }', undefined, reader);
+    expect(me.errors?.[0]?.message).toBeDefined();
+
+    const signIn = await api.post('/auth/login', { email: READER, password: PASSWORD });
+    expect(signIn.statusCode).toBe(403);
   });
 
   it('refuses a report from an account that has been stopped', async () => {

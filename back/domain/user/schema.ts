@@ -32,6 +32,10 @@ export const user = pgTable('user', {
   // A counter rather than a moment in time: a JWT records its issue time in
   // whole seconds, so a reset landing in the same second as the session it
   // means to cut would leave that session alive. A number has no such edge.
+  // Set when the account is shut out of the site. Checked by the guard every
+  // authenticated call goes through, so blocking takes effect everywhere at
+  // once rather than in the one place somebody remembered to check.
+  blockedAt: timestamp('blocked_at'),
   sessionVersion: integer('session_version').notNull().default(0),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

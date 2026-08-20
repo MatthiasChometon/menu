@@ -62,6 +62,13 @@ export class AuthService {
       throw new ForbiddenException('Confirm your email address before signing in.');
     }
 
+    // Said plainly rather than as a wrong password: somebody shut out deserves
+    // to know it is over and stop trying, and the guard would refuse every call
+    // a moment later anyway.
+    if (record.blockedAt !== null) {
+      throw new ForbiddenException('This account has been blocked.');
+    }
+
     return this.mapper.toUser(record);
   }
 

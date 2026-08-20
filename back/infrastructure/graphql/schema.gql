@@ -100,8 +100,8 @@ input MeasurementsInput {
 }
 
 type Mutation {
-  """Stops, or resumes, reports from the account behind a report."""
-  blockReporter(input: BlockReporterInput!): Boolean!
+  """Shuts the account behind a report out of the site, or lets it back in."""
+  blockAccount(input: BlockReporterInput!): Boolean!
 
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!

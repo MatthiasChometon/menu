@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MailService } from '../../infrastructure/mail/service';
 import { User } from '../user/model';
 import { Admins } from './admins.service';
@@ -21,6 +21,13 @@ const DAY_MS = 24 * HOUR_MS;
 const NOTICES_PER_HOUR = 3;
 const NOTICES_PER_DAY = 10;
 
+// And a ceiling that counts nobody in particular. The two caps above are per
+// account, which somebody determined defeats by opening more accounts —
+// registration allows about forty an hour from one address. This one bounds the
+// inbox whatever happens. Past it a report is still saved and still reaches the
+// screen; only the announcement waits.
+const NOTICES_PER_HOUR_IN_TOTAL = 20;
+
 @Injectable()
 export class BugReportService {
   private readonly logger = new Logger(BugReportService.name);
@@ -32,12 +39,9 @@ export class BugReportService {
   ) {}
 
   async report(reporter: User, input: ReportBugInput): Promise<BugReportRecord> {
-    // Checked before anything is written: a blocked account should not be able
-    // to fill the table either, and the refusal costs one lookup.
-    if (await this.reports.isBlocked(reporter.id)) {
-      throw new ForbiddenException('This account can no longer send reports.');
-    }
-
+    // No check for a blocked account here any more: the guard every
+    // authenticated call passes through refuses one outright, so this code is
+    // never reached by somebody who was shut out.
     const record = await this.reports.create(
       reporter.id,
       input.severity,
@@ -63,6 +67,14 @@ export class BugReportService {
     if (filedThisHour > NOTICES_PER_HOUR || filedToday > NOTICES_PER_DAY) {
       this.logger.warn(
         `Signalement ${record.id} enregistré sans notification : ${filedToday} en 24 h pour ${reporter.email}`,
+      );
+      return;
+    }
+
+    const filedByEverybody = await this.reports.countAllSince(new Date(now - HOUR_MS));
+    if (filedByEverybody > NOTICES_PER_HOUR_IN_TOTAL) {
+      this.logger.warn(
+        `Signalement ${record.id} enregistré sans notification : ${filedByEverybody} signalements dans l'heure, tous comptes confondus`,
       );
       return;
     }
