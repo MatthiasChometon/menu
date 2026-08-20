@@ -12,7 +12,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       sentry: {
-        dsn: process.env.NUXT_PUBLIC_SENTRY_DSN,
+        // Written here rather than left to a build variable. A DSN is public by
+        // construction — it ships in the bundle of every deployed page and only
+        // allows writing events into that one project — so keeping it in the
+        // build configuration hides nothing, while a variable makes reporting
+        // depend on the environment whoever ran the build happened to have.
+        dsn:
+          process.env.NUXT_PUBLIC_SENTRY_DSN ??
+          'https://d62e03f01f829f7e30acc5b892048859@o4511738521845760.ingest.de.sentry.io/4511943243595856',
       },
     },
   },

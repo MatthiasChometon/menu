@@ -25,12 +25,7 @@
 # host on its development default, and that default is embedded in the payload
 # every page ships. The site's own origin has to be named too, or every
 # canonical and hreflang link in the deployed pages points at localhost.
-# Where crashes are reported. The DSN is public by design — it only allows
-# writing events into that one project — so it belongs in the versioned build
-# configuration rather than in a dashboard field nobody can diff. The host has
-# to appear in connect-src in public/_headers or the browser drops the report.
 [context.production.environment]
-  NUXT_PUBLIC_SENTRY_DSN = "https://d62e03f01f829f7e30acc5b892048859@o4511738521845760.ingest.de.sentry.io/4511943243595856"
   NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
   GQL_HOST = "https://menuuu.duckdns.org/graphql"
   GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
