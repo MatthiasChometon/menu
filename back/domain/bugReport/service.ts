@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { MailService } from '../../infrastructure/mail/service';
 import { User } from '../user/model';
 import { Admins } from './admins.service';
@@ -26,6 +27,10 @@ const NOTICES_PER_DAY = 10;
 // registration allows about forty an hour from one address. This one bounds the
 // inbox whatever happens. Past it a report is still saved and still reaches the
 // screen; only the announcement waits.
+//
+// Settable, because the right number depends on how many people use the site:
+// twenty is generous for a household and mean for a hundred readers, and that
+// is a figure to turn without a deployment.
 const NOTICES_PER_HOUR_IN_TOTAL = 20;
 
 @Injectable()
@@ -36,7 +41,14 @@ export class BugReportService {
     private readonly reports: BugReportRepository,
     private readonly admins: Admins,
     private readonly mail: MailService,
+    private readonly config: ConfigService,
   ) {}
+
+  private get ceiling(): number {
+    const configured = Number(this.config.get<string>('BUG_NOTICES_PER_HOUR'));
+
+    return Number.isFinite(configured) && configured > 0 ? configured : NOTICES_PER_HOUR_IN_TOTAL;
+  }
 
   async report(reporter: User, input: ReportBugInput): Promise<BugReportRecord> {
     // No check for a blocked account here any more: the guard every
@@ -72,7 +84,7 @@ export class BugReportService {
     }
 
     const filedByEverybody = await this.reports.countAllSince(new Date(now - HOUR_MS));
-    if (filedByEverybody > NOTICES_PER_HOUR_IN_TOTAL) {
+    if (filedByEverybody > this.ceiling) {
       this.logger.warn(
         `Signalement ${record.id} enregistré sans notification : ${filedByEverybody} signalements dans l'heure, tous comptes confondus`,
       );
