@@ -12,6 +12,8 @@ import { GroceryJobResolver } from './job/resolver';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
 import { GroceryPreferenceResolver } from './preference/resolver';
+import { GrocerySlotRepository } from './slot/repository';
+import { GrocerySlotResolver } from './slot/resolver';
 import { GroceryService } from './service';
 
 @Module({
@@ -30,6 +32,8 @@ import { GroceryService } from './service';
     BasketTargetService,
     GroceryPreferenceResolver,
     GroceryPreferenceRepository,
+    GrocerySlotResolver,
+    GrocerySlotRepository,
   ],
 })
 export class GroceryModule {}

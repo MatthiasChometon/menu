@@ -1,6 +1,7 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { GroceryBasketLine } from '../basket/model';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
+import { GrocerySlotWindow } from '../slot/model';
 
 @ObjectType({ description: 'Something a run reported while it was working.' })
 export class GroceryJobEvent {
@@ -81,4 +82,12 @@ export class GroceryJob {
     description: 'What the run is meant to buy, frozen when it was queued.',
   })
   lines!: GroceryBasketLine[];
+
+  // Read when the browser takes the run, not frozen at queue time like the
+  // threshold: the slot is booked in the same breath, so what counts is what
+  // the account wants now.
+  @Field(() => [GrocerySlotWindow], {
+    description: 'When a delivery is welcome. Empty means no slot is booked.',
+  })
+  slotWindows!: GrocerySlotWindow[];
 }

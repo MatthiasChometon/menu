@@ -152,6 +152,7 @@ export class GroceryJobRepository {
         record.productsCents > record.alertThresholdCents,
       events,
       lines: [],
+      slotWindows: [],
     };
   }
 

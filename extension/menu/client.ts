@@ -1,3 +1,4 @@
+import { SlotWindow } from '../engine/slot';
 import { PlannedLine, ReportedEvent } from '../engine/type';
 
 export type JobOutcome = {
@@ -18,6 +19,7 @@ export type QueuedJob = {
   id: string;
   weekOf: string;
   lines: PlannedLine[];
+  slotWindows: SlotWindow[];
 };
 
 const CLAIM = `
@@ -26,6 +28,7 @@ const CLAIM = `
       id
       weekOf
       lines { foodId label grams fromPantry ean productName unitSize units }
+      slotWindows { weekday startMinute endMinute }
     }
   }
 `;

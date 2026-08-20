@@ -1,0 +1,7 @@
+mutation saveGrocerySlotWindows($input: GrocerySlotWindowsInput!) {
+  saveGrocerySlotWindows(input: $input) {
+    weekday
+    startMinute
+    endMinute
+  }
+}

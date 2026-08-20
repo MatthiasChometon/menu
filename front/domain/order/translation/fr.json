@@ -49,6 +49,25 @@
       "thresholdHint": "Laisse vide pour ne jamais être alerté.",
       "save": "Enregistrer",
       "saved": "Enregistré."
+    },
+    "slots": {
+      "title": "Quand livrer",
+      "lead": "Coche les moments où une livraison t'arrange. Sans rien de coché, aucun créneau n'est réservé.",
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "evening": "Soir",
+      "none": "Aucun moment coché : le panier sera rempli, mais tu choisiras le créneau toi-même.",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…"
+    },
+    "weekday": {
+      "1": "Lundi",
+      "2": "Mardi",
+      "3": "Mercredi",
+      "4": "Jeudi",
+      "5": "Vendredi",
+      "6": "Samedi",
+      "7": "Dimanche"
     }
   }
 }

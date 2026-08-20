@@ -1,3 +1,4 @@
+import { SlotWindow } from '../engine/slot';
 import { FillResult, PlannedLine, ReportedEvent } from '../engine/type';
 import { MenuClient, QueuedJob } from '../menu/client';
 
@@ -30,8 +31,11 @@ const forwardProgress = (client: MenuClient, jobId: string): void => {
   });
 };
 
-const fill = async (tabId: number, lines: PlannedLine[]): Promise<FillResult> =>
-  chrome.tabs.sendMessage(tabId, { kind: 'fill', lines });
+const fill = async (
+  tabId: number,
+  lines: PlannedLine[],
+  windows: SlotWindow[],
+): Promise<FillResult> => chrome.tabs.sendMessage(tabId, { kind: 'fill', lines, windows });
 
 const runOnce = async (): Promise<void> => {
   const { endpoint, deviceToken } = await settings();
@@ -54,7 +58,7 @@ const runOnce = async (): Promise<void> => {
   }
 
   try {
-    const result = await fill(tab.id, job.lines);
+    const result = await fill(tab.id, job.lines, job.slotWindows ?? []);
     await client.finish(job.id, {
       outcome: result.outcome,
       // Cents on the wire: euros as a float would drift a centime at a time.

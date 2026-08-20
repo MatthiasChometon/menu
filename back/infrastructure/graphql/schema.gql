@@ -117,6 +117,9 @@ type GroceryJob {
   Still missing to reach the shop order minimum. Above zero, nothing can be ordered.
   """
   shortOfMinimumCents: Int
+
+  """When a delivery is welcome. Empty means no slot is booked."""
+  slotWindows: [GrocerySlotWindow!]!
   startedAt: DateTime
   status: GroceryJobStatus!
 
@@ -206,6 +209,27 @@ input GroceryPreferenceInput {
   alertThresholdCents: Int
 }
 
+"""A stretch of a weekday during which a delivery is welcome."""
+type GrocerySlotWindow {
+  endMinute: Int!
+
+  """Minutes from midnight."""
+  startMinute: Int!
+
+  """1 is Monday, 7 is Sunday, as ISO 8601 numbers them."""
+  weekday: Int!
+}
+
+input GrocerySlotWindowInput {
+  endMinute: Int!
+  startMinute: Int!
+  weekday: Int!
+}
+
+input GrocerySlotWindowsInput {
+  windows: [GrocerySlotWindowInput!]!
+}
+
 input MeasurementsInput {
   age: Int!
   appetite: Appetite!
@@ -246,6 +270,9 @@ type Mutation {
   """Reports progress on a run being worked on."""
   reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
   saveGroceryPreference(input: GroceryPreferenceInput!): GroceryPreference!
+
+  """Replaces the windows wholesale."""
+  saveGrocerySlotWindows(input: GrocerySlotWindowsInput!): [GrocerySlotWindow!]!
 
   """Creates the profile, or replaces it wholesale."""
   saveProfile(input: MeasurementsInput!): Profile!
@@ -356,6 +383,9 @@ type Query {
 
   """What this account wants of its orders."""
   myGroceryPreference: GroceryPreference!
+
+  """When a delivery is welcome. Empty means no slot is ever booked."""
+  myGrocerySlotWindows: [GrocerySlotWindow!]!
 
   """
   The signed-in user profile, or null when the form has never been filled in.

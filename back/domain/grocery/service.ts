@@ -10,6 +10,7 @@ import { GroceryJobRepository } from './job/repository';
 import { JobReport } from './job/type';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
+import { GrocerySlotRepository } from './slot/repository';
 
 @Injectable()
 export class GroceryService {
@@ -20,6 +21,7 @@ export class GroceryService {
     private readonly pantry: GroceryPantryRepository,
     private readonly target: BasketTargetService,
     private readonly preferences: GroceryPreferenceRepository,
+    private readonly windows: GrocerySlotRepository,
   ) {}
 
   // The menu is worked out by the site, which has it prerendered; what to buy
@@ -77,8 +79,16 @@ export class GroceryService {
 
   async claim(userId: string, deviceId: string): Promise<GroceryJob | undefined> {
     const job = await this.jobs.claimNext(userId, deviceId);
+    if (job === undefined) {
+      return undefined;
+    }
 
-    return job === undefined ? undefined : this.withLines(job);
+    const [detailed, slotWindows] = await Promise.all([
+      this.withLines(job),
+      this.windows.forUser(userId),
+    ]);
+
+    return { ...detailed, slotWindows };
   }
 
   private async withLines(job: GroceryJob): Promise<GroceryJob> {

@@ -23,7 +23,11 @@ const CREATE_JOB = `
 
 const CLAIM_JOB = `
   mutation {
-    claimGroceryJob { id weekOf status lines { foodId units ean } }
+    claimGroceryJob {
+      id weekOf status
+      lines { foodId units ean }
+      slotWindows { weekday startMinute endMinute }
+    }
   }
 `;
 
@@ -515,5 +519,88 @@ describe('what the week leaves in the cupboard', () => {
     );
 
     expect((await pantryOf('matthias@example.com')).get('oats')).toBe(300);
+  });
+});
+
+describe('when a delivery is welcome', () => {
+  const SAVE_WINDOWS = `
+    mutation ($input: GrocerySlotWindowsInput!) {
+      saveGrocerySlotWindows(input: $input) { weekday startMinute endMinute }
+    }
+  `;
+  const MY_WINDOWS = `query { myGrocerySlotWindows { weekday startMinute endMinute } }`;
+
+  const SATURDAY_MORNING = { weekday: 6, startMinute: 480, endMinute: 720 };
+
+  it('hands the windows to the browser that takes the run', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, cookie);
+    const token = await pair(cookie, 'Desktop');
+    await queueJob(cookie);
+
+    const claimed = await api.graphql<{ claimGroceryJob: { slotWindows: unknown[] } }>(
+      CLAIM_JOB,
+      undefined,
+      undefined,
+      asDevice(token),
+    );
+
+    expect(claimed.data?.claimGroceryJob.slotWindows).toEqual([SATURDAY_MORNING]);
+  });
+
+  it('hands over none when the account never said, so nothing is booked', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    await queueJob(cookie);
+
+    const claimed = await api.graphql<{ claimGroceryJob: { slotWindows: unknown[] } }>(
+      CLAIM_JOB,
+      undefined,
+      undefined,
+      asDevice(token),
+    );
+
+    expect(claimed.data?.claimGroceryJob.slotWindows).toEqual([]);
+  });
+
+  it('replaces the whole set rather than adding to it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, cookie);
+
+    const saved = await api.graphql<{ saveGrocerySlotWindows: { weekday: number }[] }>(
+      SAVE_WINDOWS,
+      { input: { windows: [{ weekday: 3, startMinute: 1080, endMinute: 1260 }] } },
+      cookie,
+    );
+
+    expect(saved.data?.saveGrocerySlotWindows).toEqual([
+      { weekday: 3, startMinute: 1080, endMinute: 1260 },
+    ]);
+  });
+
+  it('turns down a weekday that does not exist', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const response = await api.graphql(
+      SAVE_WINDOWS,
+      { input: { windows: [{ weekday: 9, startMinute: 480, endMinute: 720 }] } },
+      cookie,
+    );
+
+    expect(response.errors?.[0].message).toBeDefined();
+  });
+
+  it('keeps one account out of another one windows', async () => {
+    const mine = await signIn('matthias@example.com');
+    const theirs = await signIn('someone-else@example.com');
+    await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, mine);
+
+    const response = await api.graphql<{ myGrocerySlotWindows: unknown[] }>(
+      MY_WINDOWS,
+      undefined,
+      theirs,
+    );
+
+    expect(response.data?.myGrocerySlotWindows).toEqual([]);
   });
 });
