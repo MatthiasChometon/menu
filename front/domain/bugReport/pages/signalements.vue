@@ -56,6 +56,14 @@ const setStatus = async (id: string, status: BugStatus): Promise<void> => {
   await GqlSetBugStatus({ input: { id, status } });
   await refresh();
 };
+
+// Acted on from the report you are reading, because that is where a flood shows
+// itself. Reversible on the spot: a judgement nobody dares undo is a judgement
+// nobody dares make.
+const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => {
+  await GqlBlockReporter({ input: { reportId, blocked } });
+  await refresh();
+};
 </script>
 
 <template>
@@ -78,6 +86,9 @@ const setStatus = async (id: string, status: BugStatus): Promise<void> => {
               </UBadge>
               <UBadge v-if="report.status !== 'NEW'" color="neutral" variant="subtle" size="sm">
                 {{ statusLabel(report.status) }}
+              </UBadge>
+              <UBadge v-if="report.reporterBlocked" color="error" variant="subtle" size="sm">
+                {{ $t('bugReport.admin.blocked') }}
               </UBadge>
               <span class="ml-auto text-xs text-muted tabular-nums">
                 {{ dateLabel(report.createdAt) }}
@@ -134,6 +145,23 @@ const setStatus = async (id: string, status: BugStatus): Promise<void> => {
                 @click="setStatus(report.id, BugStatus.NEW)"
               >
                 {{ $t('bugReport.admin.reopen') }}
+              </UButton>
+
+              <UButton
+                v-if="report.reportedBy !== null"
+                :icon="report.reporterBlocked ? 'i-lucide-user-check' : 'i-lucide-user-x'"
+                size="xs"
+                variant="ghost"
+                :color="report.reporterBlocked ? 'neutral' : 'error'"
+                class="ml-auto"
+                :title="report.reporterBlocked ? undefined : $t('bugReport.admin.blockedNote')"
+                @click="setBlocked(report.id, !report.reporterBlocked)"
+              >
+                {{
+                  report.reporterBlocked
+                    ? $t('bugReport.admin.unblock')
+                    : $t('bugReport.admin.block')
+                }}
               </UButton>
             </div>
           </UCard>

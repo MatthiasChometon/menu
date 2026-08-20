@@ -5,6 +5,8 @@
     </template>
     <slot />
 
+    <LegalFooter />
+
     <BugReportButton />
     <BugReportDialog />
     <template #footer>

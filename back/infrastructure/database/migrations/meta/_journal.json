@@ -50,6 +50,13 @@
       "when": 1787210698730,
       "tag": "0006_ancient_nekra",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787213799877,
+      "tag": "0007_futuristic_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }
