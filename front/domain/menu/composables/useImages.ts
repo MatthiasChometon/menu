@@ -15,7 +15,10 @@ type Manifest = Record<string, Record<string, string>>;
 const state = (): Ref<Manifest> =>
   useState<Manifest>(
     'images:manifest',
-    (): Manifest => (useRuntimeConfig().public.imageManifest ?? {}) as Manifest,
+    // Through unknown: the file also carries a version number, which this type
+    // deliberately ignores because nothing here reads it. Without the step the
+    // production build refuses the cast outright.
+    (): Manifest => (useRuntimeConfig().public.imageManifest ?? {}) as unknown as Manifest,
   );
 
 const host = (): string => String(useRuntimeConfig().public.imagesBase).replace(/\/+$/, '');
