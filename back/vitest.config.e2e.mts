@@ -36,6 +36,10 @@ const TEST_ENV = {
   // The contract suite signs in far more often than a human would; the test
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',
+  // Off, the way a deployment runs: a developer's .env with introspection
+  // turned on for codegen would otherwise make the test that checks the schema
+  // stays private fail on a machine, and pass on the next one.
+  GRAPHQL_INTROSPECTION: 'false',
   ALLOWED_ORIGINS: 'http://localhost:3777,http://localhost:3778',
   // A host has to be set for the real transport to be built at all — the suite
   // then replaces it, so nothing is ever sent anywhere.

@@ -71,6 +71,13 @@
       "when": 1787232726795,
       "tag": "0009_careful_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1787236311459,
+      "tag": "0010_famous_catseye",
+      "breakpoints": true
     }
   ]
 }
