@@ -4,8 +4,11 @@ Remplir le panier Carrefour de la semaine depuis le menu, sans le saisir à la m
 Ce document fait autorité sur la fonctionnalité : toute décision s'y règle avant
 d'ouvrir un fichier de code.
 
-État : **conception validée, réalisation non commencée.** La phase 0 (reconnaissance)
-doit confirmer les hypothèses marquées « à confirmer » avant d'écrire le moteur.
+État au 20/08/2026 : **phase 0 rendue** (relevé dans [carrefour-api.md](carrefour-api.md)),
+**socle serveur en place** — file de jobs, appairage, calcul du panier, référentiel amorcé.
+Restent le moteur, l'extension et le front. Trois inconnues attendent une session Carrefour
+ouverte : la sémantique de `counter`, la réservation d'un créneau, le point d'arrêt du
+paiement.
 
 ## 1. Ce que ça fait, ce que ça ne fait jamais
 
