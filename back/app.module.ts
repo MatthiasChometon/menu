@@ -4,6 +4,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { AuthModule } from './domain/auth/module';
 import { BugReportModule } from './domain/bugReport/module';
+import { ImageLibraryModule } from './domain/imageLibrary/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
@@ -27,6 +28,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     ProfileModule,
     WeekPlanModule,
     BugReportModule,
+    ImageLibraryModule,
   ],
   // Catches what escapes a controller or a resolver and reports it before Nest
   // turns it into a response. Declared here rather than in main.ts so the e2e

@@ -1,4 +1,5 @@
 import fastifyCookie from '@fastify/cookie';
+import fastifyMultipart from '@fastify/multipart';
 import helmet from '@fastify/helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -76,6 +77,14 @@ export const configureApp = async (app: NestFastifyApplication): Promise<void> =
   );
 
   await app.register(fastifyCookie);
+
+  // Photographs arrive as multipart, which the JSON body limit above does not
+  // govern. Eight megabytes is a phone photograph with room to spare, and one
+  // file per request: the server converts and shrinks it, so nothing large is
+  // ever kept.
+  await app.register(fastifyMultipart, {
+    limits: { fileSize: 8 * 1024 * 1024, files: 1 },
+  });
 };
 
 export const createAdapter = (): FastifyAdapter => new FastifyAdapter(adapterOptions());
