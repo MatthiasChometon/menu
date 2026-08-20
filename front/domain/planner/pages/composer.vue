@@ -167,6 +167,8 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
     <!-- One meal group at a time. -->
     <div v-if="currentGroup !== undefined" class="rise mt-6">
       <PlannerDishPicker :group="currentGroup" />
+      <!-- Under the dishes, where the next pick is about to be made. -->
+      <PlannerSelectionBalance />
     </div>
 
     <!-- The week, once the choices are made. -->

@@ -72,7 +72,12 @@
     },
     "balance": {
       "mark": "Équilibre",
-      "hint": "Les plats marqués complètent le mieux ce que tu as déjà choisi"
+      "hint": "Les plats marqués complètent le mieux ce que tu as déjà choisi",
+      "short": "un peu justes",
+      "over": "un peu hautes",
+      "with": "Avec cette sélection :",
+      "enough": "Ta sélection suffit.",
+      "enoughHint": "Tu peux en ajouter, mais rien ne manque."
     },
     "fix": {
       "open": "Comment corriger",

@@ -24,7 +24,7 @@ test.describe('the card a pasted link turns into', () => {
     // The page's own title AND the site's name: a link that says only "Ta
     // semaine" means nothing to whoever receives it.
     expect(title).toContain('Ta semaine');
-    expect(title).toContain('Menu de la semaine');
+    expect(title).toContain('Le Menu');
     expect(description.length).toBeGreaterThan(60);
 
     // Absolute, because the card is built by a server that fetched this page

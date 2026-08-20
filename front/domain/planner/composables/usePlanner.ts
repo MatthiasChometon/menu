@@ -11,6 +11,23 @@ const SLOT_RECIPES: Record<MealSlot, RecipeSlot> = {
 
 const DEFAULT_TOLERANCE: MacroTolerance = { default: 5, kcal: 4, fiber: 12 };
 
+const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const;
+
+// Below this, the spread will absorb it and saying anything would only send
+// somebody hunting for a dish to fix a gap they do not have.
+const BALANCE_TOLERANCE = 5;
+
+/** How far one macro sits from its target across the week, as a percentage. */
+export type MacroGap = { macro: keyof Macros; gapPercent: number };
+
+export type SelectionBalance = {
+  /** Whether every group has the dishes it needs, so a week can be built at all. */
+  isReady: boolean;
+  isBalanced: boolean;
+  /** Only the macros worth mentioning. Empty means nothing needs fixing. */
+  gaps: MacroGap[];
+};
+
 // Which meals a chosen dish fills. The savoury dishes carry both lunch and
 // dinner, which is how the week has always been built: full portion at noon,
 // the rest in the evening.
@@ -59,6 +76,7 @@ export const usePlanner = (): {
   goToStep: (index: number) => void;
   suggestFor: (day: PlannedDay) => DishSwap | undefined;
   recommendedIn: (group: RecipeSlot) => Set<string>;
+  selectionBalance: ComputedRef<SelectionBalance>;
   swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
   applySwap: (swap: DishSwap) => void;
   step: Ref<number>;
@@ -144,7 +162,7 @@ export const usePlanner = (): {
       .filter((quantity): quantity is FoodQuantity => quantity !== undefined);
 
   const verdictsOf = (macros: Macros): MacroVerdict[] =>
-    (['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const).map((macro): MacroVerdict => {
+    MACRO_ORDER.map((macro): MacroVerdict => {
       const target = targets.value[macro];
       const allowed = tolerance.value[macro] ?? tolerance.value.default;
       const gapPercent = target === 0 ? 0 : ((macros[macro] - target) / target) * 100;
@@ -399,6 +417,38 @@ export const usePlanner = (): {
   // what is being recommended here is simply what is true. Ranking stays fair
   // even on the first step, where no group is filled yet: every candidate is
   // scored against the same incomplete week.
+  // What the current picks would give, spread over a week, without adding
+  // anything. Answers "what is missing" while there is still something to do
+  // about it — the day view only ever says it once the choosing is over.
+  const selectionBalance = computed((): SelectionBalance => {
+    const isReady = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
+    if (!isReady) {
+      return { isReady: false, isBalanced: false, gaps: [] };
+    }
+
+    const simulated = dayOrder.map((day, index): PlannedDay =>
+      buildDay(day, slotsOnDay(chosenDishes.value, index)),
+    );
+
+    const gaps = MACRO_ORDER.map((macro): MacroGap => {
+      const percents = simulated.map((day): number => gapOf(day, macro));
+
+      return {
+        macro,
+        // Averaged over the week rather than taken at its worst: a single day
+        // off is what the spread is for, and calling that a shortfall would
+        // send the reader picking dishes to fix a problem they do not have.
+        gapPercent: percents.reduce((total, value): number => total + value, 0) / percents.length,
+      };
+    });
+
+    return {
+      isReady: true,
+      isBalanced: simulated.every((day): boolean => day.isValid),
+      gaps: gaps.filter((gap): boolean => Math.abs(gap.gapPercent) > BALANCE_TOLERANCE),
+    };
+  });
+
   const recommendedIn = (group: RecipeSlot): Set<string> => {
     const ranked = dishesFor(group)
       .filter((recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id))
@@ -434,6 +484,7 @@ export const usePlanner = (): {
     canReachStep,
     suggestFor,
     recommendedIn,
+    selectionBalance,
     swapsForMacro,
     applySwap: (swap: DishSwap): void => {
       plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };

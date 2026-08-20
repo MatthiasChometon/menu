@@ -66,8 +66,8 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Menu de la semaine',
-      short_name: 'Menu',
+      name: 'Le Menu',
+      short_name: 'Le Menu',
       description: 'Recettes, apports et liste de courses de la semaine',
       lang: 'fr',
       theme_color: '#65a30d',

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Menu de la semaine — recettes, apports et liste de courses pour la prise de masse",
+  "description": "Le Menu — recettes, apports et liste de courses de la semaine",
   "author": "Matthias Chometon <matthiaschometon787@gmail.com>",
   "packageManager": "pnpm@11.9.0",
   "scripts": {

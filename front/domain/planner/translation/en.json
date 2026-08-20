@@ -72,7 +72,12 @@
     },
     "balance": {
       "mark": "Balance",
-      "hint": "The marked dishes go best with what you have already chosen"
+      "hint": "The marked dishes go best with what you have already chosen",
+      "short": "a little short",
+      "over": "a little high",
+      "with": "With this selection:",
+      "enough": "Your selection is enough.",
+      "enoughHint": "You may add more, but nothing is missing."
     },
     "fix": {
       "open": "How to fix it",

@@ -1,6 +1,6 @@
 {
   "menu": {
-    "brand": "Week menu",
+    "brand": "The Menu",
     "tagline": "Meals, intake and shopping",
     "nav": {
       "week": "Week",
@@ -96,6 +96,13 @@
       "title": "Next week has no menu yet",
       "hint": "Put one together to know what to buy and cook from Monday",
       "action": "Plan next week"
+    },
+    "macroLong": {
+      "kcal": "Calories",
+      "protein": "Protein",
+      "fat": "Fat",
+      "carbs": "Carbs",
+      "fiber": "Fibre"
     }
   }
 }

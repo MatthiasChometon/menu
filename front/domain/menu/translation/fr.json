@@ -1,6 +1,6 @@
 {
   "menu": {
-    "brand": "Menu de la semaine",
+    "brand": "Le Menu",
     "tagline": "Repas, apports et courses",
     "nav": {
       "week": "Semaine",
@@ -96,6 +96,13 @@
       "title": "La semaine prochaine n’a pas encore de menu",
       "hint": "Compose-la pour savoir quoi acheter et quoi cuisiner à partir du lundi",
       "action": "Composer la semaine prochaine"
+    },
+    "macroLong": {
+      "kcal": "Calories",
+      "protein": "Protéines",
+      "fat": "Lipides",
+      "carbs": "Glucides",
+      "fiber": "Fibres"
     }
   }
 }
