@@ -51,11 +51,18 @@ const isDark = computed({
   >
     <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
       <NuxtLink :to="localePath('/')" class="group flex min-w-0 items-center gap-2.5">
-        <span
-          class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
-        >
-          <UIcon name="i-lucide-utensils-crossed" class="size-5" />
-        </span>
+        <!-- The favicon itself, not a lookalike: the header, the browser tab,
+             the installed app and a shared link all showed a different mark,
+             and the one people recognise is the one on their home screen.
+             Pointing at the file is what keeps them from drifting apart again. -->
+        <img
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
+          width="36"
+          height="36"
+          class="size-9 shrink-0 rounded-xl transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
+        />
         <span class="min-w-0 leading-tight">
           <span class="block truncate text-sm font-bold sm:text-base">
             {{ $t('menu.brand') }}
