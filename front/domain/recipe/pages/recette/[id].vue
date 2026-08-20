@@ -9,6 +9,7 @@ const { seasoningsOf } = useSeasonings();
 const { nameOf, stepsOf } = useFoodFormat();
 const { macrosOfQuantities } = useNutrition();
 const { isPersonalised, scale } = useMyQuantities();
+const { scale: share } = useHouseholdQuantities();
 
 // The whole week is the default: the point of opening a recipe is to cook it,
 // and everything it is served in gets cooked in one go.
@@ -48,10 +49,21 @@ const portionQuantities = computed((): FoodQuantity[] =>
   variant.value === undefined ? [] : scale(variant.value.quantities, currentMenu.value?.targets),
 );
 
-const myQuantities = computed((): FoodQuantity[] =>
-  isWeek.value
-    ? scale(weekQuantitiesOf(variants.value), currentMenu.value?.targets)
-    : portionQuantities.value,
+// What goes in the pan, and who it is for. The ingredient list shows the total
+// because a dish is cooked once; the portions underneath are for the serving.
+const sharedQuantities = computed((): SharedQuantity[] =>
+  variant.value === undefined
+    ? []
+    : share(
+        isWeek.value ? weekQuantitiesOf(variants.value) : variant.value.quantities,
+        currentMenu.value?.targets,
+      ),
+);
+
+// The steps weigh what goes in the pan, never a single share: "brown the
+// chicken (180 g)" has to be the chicken that is actually being browned.
+const stepQuantities = computed((): FoodQuantity[] =>
+  sharedQuantities.value.map(({ food, total }): FoodQuantity => ({ food, grams: total })),
 );
 
 // Recomputed rather than read off the menu, so the figures always describe the
@@ -172,7 +184,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
           icon="i-lucide-user-round-check"
           :title="$t('profile.scaled.notice')"
         />
-        <RecipeIngredientList :quantities="myQuantities" />
+        <RecipeIngredientList :quantities="sharedQuantities" />
       </section>
 
       <section v-if="seasonings.length > 0" class="rise space-y-3" style="animation-delay: 80ms">
@@ -193,7 +205,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 
       <section class="rise space-y-3" style="animation-delay: 140ms">
         <h2 class="text-xl font-bold">{{ $t('recipe.steps') }}</h2>
-        <RecipeStepList :steps="stepsOf(recipe)" :quantities="myQuantities" />
+        <RecipeStepList :steps="stepsOf(recipe)" :quantities="stepQuantities" />
       </section>
     </article>
   </div>

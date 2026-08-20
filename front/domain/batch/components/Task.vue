@@ -6,6 +6,15 @@ defineEmits<{ done: []; skip: [] }>();
 const { imageOf } = useRecipes();
 const { nameOf } = useFoodFormat();
 const localePath = useLocalePath();
+
+// The list now speaks in totals with the shares underneath. This page has no
+// shares to show yet — and, separately, it does not scale to the reader at all,
+// so it prints the menu's grammes where the recipe page prints yours. Left as
+// it was rather than quietly changed: cooking amounts are not something to
+// alter as a side effect of a display refactor.
+const quantities = computed((): SharedQuantity[] =>
+  task.quantities.map(({ food, grams }): SharedQuantity => ({ food, total: grams, perEater: [] })),
+);
 </script>
 
 <template>
@@ -45,7 +54,7 @@ const localePath = useLocalePath();
       <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-dimmed">
         {{ $t('batch.ingredientsTotal') }}
       </p>
-      <RecipeIngredientList :quantities="task.quantities" />
+      <RecipeIngredientList :quantities="quantities" />
     </div>
 
     <!-- The two ways out of the to-cook list: it is made, or it is not happening
