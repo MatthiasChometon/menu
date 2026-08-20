@@ -29,6 +29,13 @@
       "when": 1786105055870,
       "tag": "0003_minor_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787210698778,
+      "tag": "0004_flimsy_scorpion",
+      "breakpoints": true
     }
   ]
 }
