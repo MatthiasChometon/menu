@@ -1,4 +1,11 @@
-type Manifest = Record<string, Record<string, string>>;
+type Kind = 'recipe' | 'food';
+
+// The shape the host actually serves, version field and all. Typed exactly
+// rather than as a bag of records: the version is a number, and pretending
+// otherwise is what the build refused.
+type Manifest = { version?: number } & Partial<Record<Kind, Record<string, string>>>;
+
+const KINDS: readonly Kind[] = ['recipe', 'food'];
 
 // Which photograph belongs to which dish, and under which filename. It used to
 // be a build-time glob over assets/; the files now live on their own host, so
@@ -26,7 +33,7 @@ export const useImages = (): {
   everyImage: () => string[];
   refresh: () => Promise<void>;
 } => {
-  const urlOf = (kind: string, id: string): string | undefined => {
+  const urlOf = (kind: Kind, id: string): string | undefined => {
     const file = state().value[kind]?.[id];
 
     // Absent from the manifest means no photograph exists — the caller shows a
@@ -44,7 +51,7 @@ export const useImages = (): {
       const manifest = state().value;
       const base = host();
 
-      return ['recipe', 'food'].flatMap((kind): string[] =>
+      return KINDS.flatMap((kind): string[] =>
         Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
       );
     },
