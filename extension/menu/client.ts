@@ -1,5 +1,5 @@
 import { SlotWindow } from '../engine/slot';
-import { PlannedLine, ReportedEvent } from '../engine/type';
+import { PlannedLine, ReportedEvent, Sighting } from '../engine/type';
 
 export type JobOutcome = {
   outcome: string;
@@ -8,6 +8,8 @@ export type JobOutcome = {
   shortOfMinimumCents?: number;
   /** Foods that never made it into the basket, so the cupboard does not count them. */
   missingFoodIds?: string[];
+  /** Prices and, for substitutes, sizes seen on the shelves today. */
+  observations?: Sighting[];
 };
 
 type GraphqlResponse<T> = {

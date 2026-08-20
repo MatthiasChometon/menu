@@ -604,3 +604,85 @@ describe('when a delivery is welcome', () => {
     expect(response.data?.myGrocerySlotWindows).toEqual([]);
   });
 });
+
+describe('keeping the reference in step with the shelves', () => {
+  const RICE = {
+    foodId: 'brownRice',
+    ean: '3560070510771',
+    name: "Riz Complet CARREFOUR CLASSIC'",
+    size: 500,
+  };
+
+  const close = async (cookie: string, observations: unknown[]): Promise<void> => {
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED', observations } },
+      undefined,
+      asDevice(token),
+    );
+  };
+
+  const productOf = async (foodId: string): Promise<{ size: number; ean: string } | undefined> =>
+    (await api.resolve(GroceryCatalogRepository).knownProducts()).get(foodId);
+
+  it('takes the price the shop actually charged', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([{ ...RICE, priceCents: 179 }]);
+
+    await close(cookie, [{ ...RICE, priceCents: 199, size: undefined }]);
+
+    const products = await api.resolve(GroceryCatalogRepository).knownProducts();
+    expect(products.get('brownRice')?.name).toBe(RICE.name);
+  });
+
+  it('never overwrites a known size with nothing', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([{ ...RICE, priceCents: 179 }]);
+
+    await close(cookie, [{ ...RICE, priceCents: 199 }]);
+
+    expect((await productOf('brownRice'))?.size).toBe(500);
+  });
+
+  it('promotes a substitute to the product of reference', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    await close(cookie, [
+      {
+        foodId: 'tofu',
+        ean: '9999999999999',
+        name: 'Tofu nature BJORG',
+        priceCents: 249,
+        size: 200,
+      },
+    ]);
+
+    expect(await productOf('tofu')).toEqual(
+      expect.objectContaining({ ean: '9999999999999', size: 200 }),
+    );
+  });
+
+  it('leaves the reference alone when the run did not succeed', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      FINISH_JOB,
+      {
+        jobId: queued.id,
+        input: {
+          outcome: 'BLOCKED',
+          observations: [{ foodId: 'tofu', ean: '1', name: 'Tofu', priceCents: 100, size: 200 }],
+        },
+      },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(await productOf('tofu')).toBeUndefined();
+  });
+});

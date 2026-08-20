@@ -1,11 +1,14 @@
 import { Cart, ShopClient } from '../carrefour/type';
 import { chooseSlot, SlotWindow } from './slot';
 import { Substituter } from './substitute';
-import { FillResult, PlannedLine, ReportedEvent } from './type';
+import { FillResult, PlannedLine, ReportedEvent, Sighting } from './type';
 
 type Report = (event: ReportedEvent) => Promise<void>;
 
-type ResolvedLine = PlannedLine & { ean: string; units: number };
+// substituteSize is set only when this line came from a search: a substitute
+// states what a unit holds, a product already on file keeps the size it has,
+// and the cart never says either way.
+type ResolvedLine = PlannedLine & { ean: string; units: number; substituteSize?: number };
 
 // How many times a quantity is corrected before the line is called missing.
 // Two covers both a wrong reading of the shop's counter and one stock refusal;
@@ -36,6 +39,7 @@ export class BasketFiller {
         deliveryFees: 0,
         shortOfMinimum: 0,
         missing: [],
+        sightings: [],
       };
     }
 
@@ -71,6 +75,7 @@ export class BasketFiller {
       deliveryFees: filled.deliveryFees,
       shortOfMinimum: filled.remainedAmount,
       missing,
+      sightings: this.sightingsOf(resolved, filled),
     };
   }
 
@@ -103,6 +108,7 @@ export class BasketFiller {
         ean: match.ean,
         productName: match.title,
         unitSize: match.size,
+        substituteSize: match.size,
         units: Math.ceil(missing / match.size),
       });
 
@@ -185,6 +191,27 @@ export class BasketFiller {
     }
 
     return cart;
+  }
+
+  // Read off the cart rather than off the plan: what is wanted here is what
+  // the shop charged today, which is the whole point of looking.
+  private sightingsOf(planned: ResolvedLine[], cart: Cart): Sighting[] {
+    return planned
+      .map((line): Sighting | undefined => {
+        const held = cart.lines.find((entry): boolean => entry.ean === line.ean);
+        if (held === undefined || held.counter === 0) {
+          return undefined;
+        }
+
+        return {
+          foodId: line.foodId,
+          ean: line.ean,
+          name: held.title,
+          priceCents: Math.round((held.price / held.counter) * 100),
+          size: line.substituteSize,
+        };
+      })
+      .filter((seen): seen is Sighting => seen !== undefined);
   }
 
   private shortfalls(planned: ResolvedLine[], cart: Cart): string[] {

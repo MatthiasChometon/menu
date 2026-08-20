@@ -74,6 +74,38 @@ export class CreateGroceryJobInput {
   needs!: FoodNeedInput[];
 }
 
+@InputType({ description: 'A product a run actually put in the basket.' })
+export class GroceryObservationInput {
+  @Field()
+  @IsString()
+  @MaxLength(jobConstraints().foodIdMaxLength)
+  foodId!: string;
+
+  @Field()
+  @IsString()
+  @MaxLength(jobConstraints().eanMaxLength)
+  ean!: string;
+
+  @Field()
+  @IsString()
+  @MaxLength(jobConstraints().labelMaxLength)
+  name!: string;
+
+  @Field(() => Int, { description: 'What one unit cost, in cents.' })
+  @IsInt()
+  @Min(0)
+  priceCents!: number;
+
+  @Field(() => Int, {
+    nullable: true,
+    description: 'Content of one unit. Only a substitute knows it; a known product keeps its own.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  size?: number;
+}
+
 @InputType({ description: 'What a run found once it was done.' })
 export class GroceryJobOutcomeInput {
   @Field(() => GroceryJobOutcome)
@@ -108,4 +140,13 @@ export class GroceryJobOutcomeInput {
   @IsString({ each: true })
   @ArrayMaxSize(jobConstraints().maxNeedsPerJob)
   missingFoodIds!: string[];
+
+  // What the shop charged and, for a substitute, what it holds. This is what
+  // keeps the reference from drifting further from the shelves every month.
+  @Field(() => [GroceryObservationInput], { defaultValue: [] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ArrayMaxSize(jobConstraints().maxNeedsPerJob)
+  @Type(() => GroceryObservationInput)
+  observations!: GroceryObservationInput[];
 }

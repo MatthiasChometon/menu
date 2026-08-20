@@ -225,3 +225,35 @@ describe('what it refuses to do', () => {
     );
   });
 });
+
+describe('what the run brings back about the products', () => {
+  it('reports the price of one unit, not of the line', async () => {
+    const shop = fakeShop({ counter: 'absolute' });
+    const { report } = collect();
+
+    // The fake charges 1.79 a unit and the plan asks for two.
+    const result = await new BasketFiller(shop).run([RICE], [], report);
+
+    expect(result.sightings).toEqual([
+      expect.objectContaining({ foodId: 'brownRice', priceCents: 179 }),
+    ]);
+  });
+
+  it('says nothing of a size for a product already on file', async () => {
+    const shop = fakeShop({ counter: 'absolute' });
+    const { report } = collect();
+
+    const result = await new BasketFiller(shop).run([RICE], [], report);
+
+    expect(result.sightings[0].size).toBeUndefined();
+  });
+
+  it('leaves out a line the shop never supplied', async () => {
+    const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 0 } });
+    const { report } = collect();
+
+    const result = await new BasketFiller(shop).run([RICE], [], report);
+
+    expect(result.sightings).toEqual([]);
+  });
+});

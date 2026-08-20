@@ -40,6 +40,7 @@ chrome.runtime.onMessage.addListener(
           deliveryFees: 0,
           shortOfMinimum: 0,
           missing: [],
+          sightings: [],
         });
         console.error('[menu] basket run failed', error);
       });

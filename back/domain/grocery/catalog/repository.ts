@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
 import { KnownProduct } from '../basket/type';
 import { groceryProduct } from './schema';
-import { ObservedProduct } from './type';
+import { ObservedProduct, PriceSighting } from './type';
 
 @Injectable()
 export class GroceryCatalogRepository {
@@ -20,6 +20,26 @@ export class GroceryCatalogRepository {
       .from(groceryProduct);
 
     return new Map(records.map((record): [string, KnownProduct] => [record.foodId, record]));
+  }
+
+  // A price seen on a product already on file. The size is deliberately left
+  // alone: the cart states what a line cost, never what a unit holds, and
+  // overwriting a known size with nothing would break every count afterwards.
+  async recordPrices(sightings: PriceSighting[]): Promise<void> {
+    if (sightings.length === 0) {
+      return;
+    }
+
+    await Promise.all(
+      sightings.map((sighting) =>
+        this.database
+          .update(groceryProduct)
+          .set({ name: sighting.name, priceCents: sighting.priceCents, observedAt: new Date() })
+          .where(
+            and(eq(groceryProduct.foodId, sighting.foodId), eq(groceryProduct.ean, sighting.ean)),
+          ),
+      ),
+    );
   }
 
   // One statement rather than one per product: a run reports the whole basket

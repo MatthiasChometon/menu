@@ -28,6 +28,16 @@ export type ReportedEvent = {
 
 export type Outcome = 'SUCCEEDED' | 'FAILED' | 'BLOCKED';
 
+export type Sighting = {
+  foodId: string;
+  ean: string;
+  name: string;
+  /** What one unit cost, in cents. */
+  priceCents: number;
+  /** Only a substitute knows it; a known product keeps the size already on file. */
+  size?: number;
+};
+
 export type FillResult = {
   outcome: Outcome;
   /** What the basket holds at the end, in euros, products only. */
@@ -36,4 +46,5 @@ export type FillResult = {
   /** Still missing to reach the shop's order minimum. Above zero, it cannot be ordered. */
   shortOfMinimum: number;
   missing: string[];
+  sightings: Sighting[];
 };

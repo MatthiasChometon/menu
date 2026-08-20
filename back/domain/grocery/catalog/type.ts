@@ -7,6 +7,14 @@ export type ObservedProduct = KnownProduct & {
   priceCents?: number;
 };
 
+/** What a run saw of a product it actually put in the basket. */
+export type PriceSighting = {
+  foodId: string;
+  ean: string;
+  name: string;
+  priceCents: number;
+};
+
 /** One entry of front/content/carrefour-products.json, which seeds the table. */
 export type ReferenceEntry = {
   name?: string;

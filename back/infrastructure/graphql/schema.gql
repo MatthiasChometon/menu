@@ -175,6 +175,7 @@ enum GroceryJobOutcome {
 input GroceryJobOutcomeInput {
   deliveryFeesCents: Int
   missingFoodIds: [String!]! = []
+  observations: [GroceryObservationInput!]! = []
   outcome: GroceryJobOutcome!
 
   """Groceries only, in cents."""
@@ -195,6 +196,21 @@ enum GroceryJobStatus {
   PENDING
   RUNNING
   SUCCEEDED
+}
+
+"""A product a run actually put in the basket."""
+input GroceryObservationInput {
+  ean: String!
+  foodId: String!
+  name: String!
+
+  """What one unit cost, in cents."""
+  priceCents: Int!
+
+  """
+  Content of one unit. Only a substitute knows it; a known product keeps its own.
+  """
+  size: Int
 }
 
 """What this account wants of its orders."""

@@ -89,6 +89,7 @@ export class GroceryJobResolver {
       GroceryJobStatus[input.outcome],
       input,
       input.missingFoodIds,
+      input.observations,
     );
     if (job === undefined) {
       throw new NotFoundException();
