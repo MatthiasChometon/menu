@@ -11,6 +11,14 @@ enum Appetite {
   SMALL
 }
 
+"""Asks for the basket of a week to be filled."""
+input CreateGroceryJobInput {
+  needs: [FoodNeedInput!]!
+
+  """Monday of the week to order, as YYYY-MM-DD."""
+  weekOf: String!
+}
+
 """
 How the day is spent away from training. Asked separately from training so that a desk job and daily sessions can both be true of the same person.
 """
@@ -20,11 +28,135 @@ enum DailyActivity {
   SEATED
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""How much of one food the week calls for."""
+input FoodNeedInput {
+  foodId: String!
+
+  """Grams or millilitres over the whole week."""
+  grams: Int!
+}
+
 """What the person wants their body weight to do."""
 enum Goal {
   GAIN_MUSCLE
   LOSE_FAT
   MAINTAIN
+}
+
+"""One thing a run is meant to put in the basket."""
+type GroceryBasketLine {
+  """Barcode the shop accepts. Absent while no product is known."""
+  ean: String
+
+  """The food of the menu this stands for."""
+  foodId: String!
+
+  """Grams already at home, hence fewer units to buy."""
+  fromPantry: Int!
+
+  """Grams the menu calls for, before the cupboard is counted."""
+  grams: Int!
+  productName: String
+
+  """Usable content of one unit."""
+  unitSize: Int
+
+  """
+  How many to buy. Absent when the run still has to find the product itself.
+  """
+  units: Int
+}
+
+"""A browser allowed to run the orders of an account."""
+type GroceryDevice {
+  id: ID!
+
+  """What the owner called it, to tell two browsers apart."""
+  label: String!
+
+  """Last time it asked for work."""
+  lastSeenAt: DateTime
+  pairedAt: DateTime!
+}
+
+"""One request to fill the basket of a week."""
+type GroceryJob {
+  """
+  Warn above this total, in cents. Copied from the preferences when the run was asked for.
+  """
+  alertThresholdCents: Int
+  createdAt: DateTime!
+  events: [GroceryJobEvent!]!
+  finishedAt: DateTime
+  id: ID!
+
+  """What the run is meant to buy, frozen when it was queued."""
+  lines: [GroceryBasketLine!]!
+  startedAt: DateTime
+  status: GroceryJobStatus!
+
+  """Monday of the week being ordered, as YYYY-MM-DD."""
+  weekOf: String!
+}
+
+"""Something a run reported while it was working."""
+type GroceryJobEvent {
+  at: DateTime!
+
+  """Why, in one sentence: what was substituted and for what."""
+  detail: String
+
+  """The food of the menu this concerns, when it is about one."""
+  foodId: String
+  id: ID!
+  kind: GroceryJobEventKind!
+
+  """The product as the shop names it."""
+  label: String
+}
+
+"""What a run reports as it works."""
+input GroceryJobEventInput {
+  detail: String
+  foodId: String
+  kind: GroceryJobEventKind!
+  label: String
+}
+
+"""What a run reported while it was working."""
+enum GroceryJobEventKind {
+  BLOCKED
+  CART_EMPTIED
+  FINISHED
+  LINE_ADDED
+  LINE_MISSING
+  LINE_SUBSTITUTED
+  SLOT_BOOKED
+  SLOT_UNAVAILABLE
+  STARTED
+}
+
+"""How a run ended."""
+enum GroceryJobOutcome {
+  BLOCKED
+  FAILED
+  SUCCEEDED
+}
+
+"""
+Where an order run stands. BLOCKED means the shop asked for something a machine must not answer: a sign-in, a captcha.
+"""
+enum GroceryJobStatus {
+  BLOCKED
+  FAILED
+  PENDING
+  RUNNING
+  SUCCEEDED
 }
 
 input MeasurementsInput {
@@ -43,14 +175,38 @@ input MeasurementsInput {
 }
 
 type Mutation {
+  """
+  Takes the oldest waiting run of the account this browser is paired with.
+  """
+  claimGroceryJob: GroceryJob
+
+  """
+  Queues a basket to be filled. It waits until a paired browser comes online, so asking from a phone works.
+  """
+  createGroceryJob(input: CreateGroceryJobInput!): GroceryJob!
+
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!
+
+  """Closes a run, whatever became of it."""
+  finishGroceryJob(jobId: ID!, outcome: GroceryJobOutcome!): GroceryJob!
+
+  """
+  Pairs a browser with this account and hands it the token it will carry.
+  """
+  pairGroceryDevice(label: String!): PairedGroceryDevice!
+
+  """Reports progress on a run being worked on."""
+  reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
 
   """Creates the profile, or replaces it wholesale."""
   saveProfile(input: MeasurementsInput!): Profile!
 
   """Creates the plan for a week, or replaces it."""
   saveWeekPlan(input: WeekPlanInput!): WeekPlan!
+
+  """Revokes a browser. It stops being able to run orders immediately."""
+  unpairGroceryDevice(deviceId: ID!): Boolean!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -67,6 +223,14 @@ type NutritionTargets {
 
   """Grams of protein per day."""
   protein: Int!
+}
+
+"""
+A freshly paired browser. The token is returned once and never again: it is stored hashed.
+"""
+type PairedGroceryDevice {
+  device: GroceryDevice!
+  token: String!
 }
 
 """What was chosen for one day. Missing meals are simply absent."""
@@ -128,8 +292,19 @@ type Profile {
 }
 
 type Query {
+  """
+  One run with everything it reported, which is what the live view follows.
+  """
+  groceryJob(jobId: ID!): GroceryJob
+
   """The signed-in user."""
   me: User!
+
+  """The browsers this account has paired."""
+  myGroceryDevices: [GroceryDevice!]!
+
+  """Every run this account has asked for, newest first."""
+  myGroceryJobs: [GroceryJob!]!
 
   """
   The signed-in user profile, or null when the form has never been filled in.
