@@ -5,7 +5,7 @@
   # Nuxt inlines its hydration payload in a <script>, hence 'unsafe-inline' on
   # script-src; everything else is locked to this origin. connect-src names the
   # API, which lives on another host — and only a host that is really ours.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://menuuu.duckdns.org; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.menuuu.duckdns.org; font-src 'self' data:; connect-src 'self' https://menuuu.duckdns.org https://images.menuuu.duckdns.org; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
   # Six months, so a downgrade attack has no window to work in.
   Strict-Transport-Security: max-age=15552000; includeSubDomains
   X-Content-Type-Options: nosniff

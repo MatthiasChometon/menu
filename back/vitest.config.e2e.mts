@@ -24,6 +24,10 @@ const TEST_ENV = {
   // One of the two invitees is an administrator and the other is not, which is
   // what lets the suite check that the reports stay out of the wrong hands.
   ADMIN_EMAILS: 'matthias@example.com',
+  // Out of the way by default: the ceiling has a file of its own, which lowers
+  // it for itself. Left at its real value it would silence notices the other
+  // tests are counting on, from a rule they are not about.
+  BUG_NOTICES_PER_HOUR: '1000',
   // The contract suite signs in far more often than a human would; the test
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',

@@ -1,33 +1,58 @@
-// Images live in assets/ so Vite hashes them and, more importantly, so this
-// glob knows which ones actually exist: a missing photo falls back to a pictogram
-// instead of firing a 404 and flashing broken alt text.
-const recipeImages = import.meta.glob<string>('../../../assets/images/recipe/*.webp', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-});
+type Manifest = Record<string, Record<string, string>>;
 
-const foodImages = import.meta.glob<string>('../../../assets/images/food/*.webp', {
-  eager: true,
-  import: 'default',
-  query: '?url',
-});
-
-const indexByName = (modules: Record<string, string>): Record<string, string> =>
-  Object.fromEntries(
-    Object.entries(modules).map(([path, url]): [string, string] => [
-      path.split('/').pop()?.replace('.webp', '') ?? path,
-      url,
-    ]),
+// Which photograph belongs to which dish, and under which filename. It used to
+// be a build-time glob over assets/; the files now live on their own host, so
+// the answer comes from a manifest served beside them.
+//
+// Seeded from the copy baked in at build so the first paint already has its
+// pictures, then refreshed from the host so a photo added since shows up
+// without anybody rebuilding the site.
+//
+// Nothing here touches the Nuxt context until a function is CALLED. useImages()
+// itself must stay inert: useRecipes() invokes it while its module is being
+// evaluated, long before any component exists, and reading the config there
+// fails the whole prerender.
+const state = (): Ref<Manifest> =>
+  useState<Manifest>(
+    'images:manifest',
+    (): Manifest => (useRuntimeConfig().public.imageManifest ?? {}) as Manifest,
   );
 
-const recipeIndex = indexByName(recipeImages);
-const foodIndex = indexByName(foodImages);
+const host = (): string => String(useRuntimeConfig().public.imagesBase).replace(/\/+$/, '');
 
 export const useImages = (): {
   recipeImage: (id: string) => string | undefined;
   foodImage: (id: string) => string | undefined;
-} => ({
-  recipeImage: (id: string): string | undefined => recipeIndex[id],
-  foodImage: (id: string): string | undefined => foodIndex[id],
-});
+  everyImage: () => string[];
+  refresh: () => Promise<void>;
+} => {
+  const urlOf = (kind: string, id: string): string | undefined => {
+    const file = state().value[kind]?.[id];
+
+    // Absent from the manifest means no photograph exists — the caller shows a
+    // pictogram. Building a URL anyway would trade a clean fallback for a 404
+    // and a flash of broken image.
+    return file === undefined ? undefined : `${host()}/${kind}/${file}`;
+  };
+
+  return {
+    recipeImage: (id: string): string | undefined => urlOf('recipe', id),
+    foodImage: (id: string): string | undefined => urlOf('food', id),
+    // Every photograph the manifest knows about. Only the background warm-up
+    // needs this: pages ask for one picture at a time, by identifier.
+    everyImage: (): string[] => {
+      const manifest = state().value;
+      const base = host();
+
+      return ['recipe', 'food'].flatMap((kind): string[] =>
+        Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
+      );
+    },
+    refresh: async (): Promise<void> => {
+      const fresh = await $fetch<Manifest>(`${host()}/manifest.json`).catch(
+        (): undefined => undefined,
+      );
+      if (fresh !== undefined) state().value = fresh;
+    },
+  };
+};

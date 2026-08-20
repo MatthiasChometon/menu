@@ -1,4 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserMapper } from '../../user/mapper';
 import { UserRepository } from '../../user/repository';
@@ -48,6 +54,14 @@ export class AuthGuard implements CanActivate {
     // before — which is the one thing a reset is for.
     if ((payload.ver ?? 0) !== record.sessionVersion) {
       throw new UnauthorizedException();
+    }
+
+    // Checked here rather than at each route: a blocked account is blocked
+    // everywhere, and one forgotten check would be the whole hole. Forbidden
+    // and not Unauthorized — the session is perfectly valid, it is the account
+    // that is no longer welcome, and saying so stops a pointless sign-in loop.
+    if (record.blockedAt !== null) {
+      throw new ForbiddenException('This account has been blocked.');
     }
 
     request.currentUser = this.mapper.toUser(record);

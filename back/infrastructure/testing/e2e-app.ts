@@ -122,7 +122,15 @@ export const startTestApp = async (): Promise<TestApp> => {
 
     // Read out of the message rather than the database: if the link that
     // actually reaches a reader is wrong, no amount of correct state saves it.
-    const token = /token=([a-f0-9]{64})/.exec(sent.at(-1)?.text ?? '')?.[1];
+    //
+    // Found by looking for THIS address rather than by taking the last message
+    // sent. The app now writes to the maintainer as well as to readers, so the
+    // newest message is not always the verification one — and a helper that
+    // assumed it was failed in tests that had nothing to do with signing up.
+    const verification = [...sent]
+      .reverse()
+      .find((message): boolean => message.to === email && /token=[a-f0-9]{64}/.test(message.text));
+    const token = /token=([a-f0-9]{64})/.exec(verification?.text ?? '')?.[1];
     if (token === undefined) throw new Error('No verification link was sent.');
 
     const verified = await post('/auth/verify-email', { token });

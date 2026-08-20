@@ -33,7 +33,7 @@
       "blocked": "Compte bloqué",
       "block": "Bloquer ce compte",
       "unblock": "Débloquer",
-      "blockedNote": "Ce compte ne peut plus envoyer de signalement. Ses signalements passés restent lisibles."
+      "blockedNote": "Ce compte ne pourra plus se connecter au site. Ses données et ses signalements restent en place."
     }
   }
 }

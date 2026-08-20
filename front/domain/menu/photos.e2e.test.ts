@@ -18,20 +18,37 @@ test.describe('what a page costs in photographs', () => {
     expect(hints).toBe(0);
   });
 
-  test('downloads only the photographs it is about to show', async ({ page }) => {
+  test('leaves the page alone while it is loading', async ({ page }) => {
     const fetched: string[] = [];
     page.on('response', (response): void => {
       if (response.url().endsWith('.webp')) fetched.push(response.url());
     });
 
     await page.goto('/');
-    // Long enough for a prefetch storm to have started: before the fix the
-    // count went from four to a hundred and forty-nine inside this window.
-    await page.waitForTimeout(2500);
+    // Measured before the background warm-up is allowed to start. That is the
+    // window the reader waits through, and the only one where a photograph can
+    // cost them anything.
+    await page.waitForTimeout(900);
 
-    // A generous ceiling on purpose. What is being caught is the difference
-    // between "the images on screen" and "every image in the catalogue", not a
-    // precise number that would break the day a card gains a thumbnail.
-    expect(fetched.length).toBeLessThan(25);
+    // A generous ceiling on purpose: what is being caught is the difference
+    // between "the images on screen" and "every image in the catalogue" — the
+    // deployed site fetched 149 inside this window — not a precise number that
+    // would break the day a card gains a thumbnail.
+    expect(fetched.length).toBeLessThan(15);
+  });
+
+  test('fills the cache afterwards, so a shop with no signal still has them', async ({ page }) => {
+    const fetched = new Set<string>();
+    page.on('response', (response): void => {
+      if (response.url().endsWith('.webp')) fetched.add(response.url());
+    });
+
+    await page.goto('/');
+    await page.waitForTimeout(12_000);
+
+    // The warm-up is easy to break in a way nothing else would notice: it runs
+    // behind an idle callback, touches no pixel, and a page that never warms
+    // looks exactly like one that does — until the signal goes.
+    expect(fetched.size).toBeGreaterThan(100);
   });
 });

@@ -33,7 +33,7 @@
       "blocked": "Account blocked",
       "block": "Block this account",
       "unblock": "Unblock",
-      "blockedNote": "This account can no longer send reports. The ones it already sent stay readable."
+      "blockedNote": "This account can no longer sign in. Its data and its reports stay where they are."
     }
   }
 }
