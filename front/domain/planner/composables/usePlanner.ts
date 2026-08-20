@@ -11,7 +11,7 @@ const SLOT_RECIPES: Record<MealSlot, RecipeSlot> = {
 
 const DEFAULT_TOLERANCE: MacroTolerance = { default: 5, kcal: 4, fiber: 12 };
 
-const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const;
+export const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const;
 
 // Below this, the spread will absorb it and saying anything would only send
 // somebody hunting for a dish to fix a gap they do not have.

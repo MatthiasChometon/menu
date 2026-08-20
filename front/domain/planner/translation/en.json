@@ -87,6 +87,11 @@
       "choose": "Pick this one"
     },
     "complete": "Fill it for me",
-    "completeHint": "Fills the minimum with the dishes that fit your targets best. You can change any of them."
+    "completeHint": "Fills the minimum with the dishes that fit your targets best. You can change any of them.",
+    "household": {
+      "title": "Who this week works out for",
+      "lead": "Portions adapt to each person. A note here means the chosen dishes cannot suit everyone at once.",
+      "fits": "Works out"
+    }
   }
 }

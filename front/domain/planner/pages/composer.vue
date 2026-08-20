@@ -220,6 +220,8 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
         />
       </section>
 
+      <PlannerHouseholdBalance v-if="hasWeek" />
+
       <section
         v-if="hasWeek"
         class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"

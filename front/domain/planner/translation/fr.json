@@ -87,6 +87,11 @@
       "choose": "Choisir celui-ci"
     },
     "complete": "Compléter pour moi",
-    "completeHint": "Remplit le minimum avec les plats qui collent le mieux à tes apports. Tu peux tout changer ensuite."
+    "completeHint": "Remplit le minimum avec les plats qui collent le mieux à tes apports. Tu peux tout changer ensuite.",
+    "household": {
+      "title": "Pour qui tombe cette semaine",
+      "lead": "Les portions s'adaptent à chacun. Une mention ici veut dire que les plats choisis ne peuvent pas convenir à tout le monde à la fois.",
+      "fits": "Ça tombe juste"
+    }
   }
 }
