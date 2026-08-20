@@ -6,3 +6,12 @@ export type ObservedProduct = KnownProduct & {
   packaging?: string;
   priceCents?: number;
 };
+
+/** One entry of front/content/carrefour-products.json, which seeds the table. */
+export type ReferenceEntry = {
+  name?: string;
+  ean?: string;
+  size?: number;
+  packagingObserved?: string;
+  price?: number;
+};

@@ -36,6 +36,8 @@ de contourner la dernière relecture.
 | Seuil d'alerte | 120 € par défaut, configurable | Blocage dur : le total est de toute façon relu avant paiement |
 | Blocage ou captcha | Arrêt, capture d'écran, notification | Contournement : jamais |
 | Notifications | Push PWA, e-mail, suivi en direct | — |
+| Navigateurs | Chrome et Firefox | Chrome seul : quelqu'un d'autre que Matthias installera l'extension |
+| Diffusion de l'extension | **À trancher** au moment de la faire installer par un tiers | — |
 
 **Conséquence assumée de l'extension** : rien ne s'exécute quand aucun navigateur n'est
 ouvert. Un job déclenché depuis le téléphone attend en file et part dès qu'un poste

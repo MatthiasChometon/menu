@@ -15,6 +15,7 @@
     "lint:fix": "eslint \"{domain,infrastructure}/**/*.ts\" \"main.ts\" \"app.module.ts\" \"drizzle.config.ts\" --fix",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed:products": "nest build && node dist/domain/grocery/catalog/seed.js",
     "db:studio": "drizzle-kit studio",
     "start": "nest start",
     "start:dev": "nest start --watch",
