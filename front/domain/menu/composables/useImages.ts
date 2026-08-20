@@ -1,11 +1,9 @@
-type Kind = 'recipe' | 'food';
-
-// The shape the host actually serves, version field and all. Typed exactly
-// rather than as a bag of records: the version is a number, and pretending
-// otherwise is what the build refused.
-type Manifest = { version?: number } & Partial<Record<Kind, Record<string, string>>>;
-
-const KINDS: readonly Kind[] = ['recipe', 'food'];
+// The manifest is not a map of maps: it carries a version beside the two
+// collections, and an index signature saying "every key is a map of strings"
+// made that version a type error at build. Named for what the file actually
+// contains instead.
+type ImageKind = 'recipe' | 'food';
+type Manifest = { version?: number } & Partial<Record<ImageKind, Record<string, string>>>;
 
 // Which photograph belongs to which dish, and under which filename. It used to
 // be a build-time glob over assets/; the files now live on their own host, so
@@ -22,7 +20,10 @@ const KINDS: readonly Kind[] = ['recipe', 'food'];
 const state = (): Ref<Manifest> =>
   useState<Manifest>(
     'images:manifest',
-    (): Manifest => (useRuntimeConfig().public.imageManifest ?? {}) as Manifest,
+    // Through unknown: the file also carries a version number, which this type
+    // deliberately ignores because nothing here reads it. Without the step the
+    // production build refuses the cast outright.
+    (): Manifest => (useRuntimeConfig().public.imageManifest ?? {}) as unknown as Manifest,
   );
 
 const host = (): string => String(useRuntimeConfig().public.imagesBase).replace(/\/+$/, '');
@@ -33,7 +34,7 @@ export const useImages = (): {
   everyImage: () => string[];
   refresh: () => Promise<void>;
 } => {
-  const urlOf = (kind: Kind, id: string): string | undefined => {
+  const urlOf = (kind: ImageKind, id: string): string | undefined => {
     const file = state().value[kind]?.[id];
 
     // Absent from the manifest means no photograph exists — the caller shows a
@@ -51,7 +52,7 @@ export const useImages = (): {
       const manifest = state().value;
       const base = host();
 
-      return KINDS.flatMap((kind): string[] =>
+      return (['recipe', 'food'] as const).flatMap((kind): string[] =>
         Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
       );
     },
