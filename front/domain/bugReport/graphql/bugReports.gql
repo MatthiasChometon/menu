@@ -5,6 +5,7 @@ query bugReports {
     message
     status
     reportedBy
+    reporterBlocked
     createdAt
     context {
       page

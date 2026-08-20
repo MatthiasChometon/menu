@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
@@ -6,19 +6,24 @@ import { User } from '../user/model';
 import { BugSeverity, BugStatus } from './enum';
 import { Admins } from './admins.service';
 import { AdminGuard } from './guard';
-import { BugStatusInput, ReportBugInput } from './input';
+import { BlockReporterInput, BugStatusInput, ReportBugInput } from './input';
 import { BugReport } from './model';
 import { BugReportRepository, type ReportWithReporter } from './repository';
 import { BugReportService } from './service';
 import type { BugReportRecord } from './type';
 
-const present = (record: BugReportRecord, reporterEmail: string | null): BugReport => ({
+const present = (
+  record: BugReportRecord,
+  reporterEmail: string | null,
+  reporterBlocked = false,
+): BugReport => ({
   id: record.id,
   severity: record.severity as BugSeverity,
   message: record.message,
   context: record.context,
   status: record.status as BugStatus,
   reportedBy: reporterEmail,
+  reporterBlocked,
   createdAt: record.createdAt.toISOString(),
 });
 
@@ -61,8 +66,28 @@ export class BugReportResolver {
     const records = await this.reports.findAll();
 
     return records.map((record: ReportWithReporter): BugReport =>
-      present(record, record.reporterEmail),
+      present(record, record.reporterEmail, record.reporterBlocked),
     );
+  }
+
+  // Acts on the account behind a report rather than on an account id: the list
+  // is where a flood is seen, and a report is what you are looking at when you
+  // decide to stop it.
+  @Mutation(() => Boolean, {
+    description: 'Stops, or resumes, reports from the account behind a report.',
+  })
+  @UseGuards(AuthGuard, AdminGuard)
+  async blockReporter(@Args('input') input: BlockReporterInput): Promise<boolean> {
+    const userId = await this.reports.reporterOf(input.reportId);
+    if (userId === undefined) throw new NotFoundException('No such report.');
+
+    // The account has been closed since: there is nobody left to block, and
+    // saying so is more useful than pretending it worked.
+    if (userId === null) throw new NotFoundException('That account no longer exists.');
+
+    await this.reports.setBlocked(userId, input.blocked);
+
+    return input.blocked;
   }
 
   @Mutation(() => BugReport, {

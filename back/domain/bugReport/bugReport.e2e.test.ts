@@ -24,6 +24,12 @@ const LIST = `
   }
 `;
 
+const BLOCK = `
+  mutation Block($input: BlockReporterInput!) {
+    blockReporter(input: $input)
+  }
+`;
+
 const SET_STATUS = `
   mutation Handle($input: BugStatusInput!) {
     setBugStatus(input: $input) { id status }
@@ -98,6 +104,94 @@ describe('reporting a problem', () => {
 
     // Not a judgement on the reader: three letters cannot be reproduced, and
     // storing it would only grow a list nobody can act on.
+    expect(response.errors?.[0]?.message).toBeDefined();
+  });
+});
+
+describe('when the same account keeps filing', () => {
+  it('stops announcing after three in an hour, and keeps every report', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    const before = api.mails().length;
+
+    for (let filed = 0; filed < 5; filed += 1) {
+      await api.graphql(REPORT, reportOf('/', `Un problème rencontré, numéro ${filed}.`), session);
+    }
+
+    // Three notices, five reports. What is spammable here is attention, not
+    // storage: silencing the mail costs nobody their words.
+    expect(api.mails().length).toBe(before + 3);
+
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const list = await api.graphql<{ bugReports: unknown[] }>(LIST, undefined, admin);
+    expect(list.data?.bugReports).toHaveLength(5);
+  });
+
+  it('says in the notice how many that account has filed today', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    await api.graphql(REPORT, reportOf('/', 'Le premier de la soirée.'), session);
+    await api.graphql(REPORT, reportOf('/', 'Le deuxième de la soirée.'), session);
+
+    // The count is what still reports a flood once the cap has silenced the
+    // messages that would have shown it.
+    expect(api.mails().at(-1)?.text).toContain('24 h : 2');
+  });
+
+  it('refuses a report from an account that has been stopped', async () => {
+    const reader = await api.signUp(READER, PASSWORD);
+    const created = await api.graphql<{ reportBug: { id: string } }>(
+      REPORT,
+      reportOf('/', 'Un premier signalement, avant le blocage.'),
+      reader,
+    );
+
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    await api.graphql(
+      BLOCK,
+      { input: { reportId: created.data?.reportBug.id, blocked: true } },
+      admin,
+    );
+
+    const refused = await api.graphql(REPORT, reportOf('/', 'Et un deuxième, après.'), reader);
+    expect(refused.errors?.[0]?.message).toBeDefined();
+  });
+
+  it('lets the block be lifted again', async () => {
+    const reader = await api.signUp(READER, PASSWORD);
+    const created = await api.graphql<{ reportBug: { id: string } }>(
+      REPORT,
+      reportOf('/', 'Un signalement qui vaudra un blocage.'),
+      reader,
+    );
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const args = { input: { reportId: created.data?.reportBug.id, blocked: true } };
+
+    await api.graphql(BLOCK, args, admin);
+    await api.graphql(BLOCK, { input: { ...args.input, blocked: false } }, admin);
+
+    // Blocking is a judgement, and a judgement has to be reversible — otherwise
+    // nobody dares use it.
+    const again = await api.graphql(
+      REPORT,
+      reportOf('/', 'Un signalement après le déblocage.'),
+      reader,
+    );
+    expect(again.errors).toBeUndefined();
+  });
+
+  it('keeps the block button out of a reader hands', async () => {
+    const reader = await api.signUp(READER, PASSWORD);
+    const created = await api.graphql<{ reportBug: { id: string } }>(
+      REPORT,
+      reportOf('/', 'Un signalement tout à fait ordinaire.'),
+      reader,
+    );
+
+    const response = await api.graphql(
+      BLOCK,
+      { input: { reportId: created.data?.reportBug.id, blocked: true } },
+      reader,
+    );
+
     expect(response.errors?.[0]?.message).toBeDefined();
   });
 });
