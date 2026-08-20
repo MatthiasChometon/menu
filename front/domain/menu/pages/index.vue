@@ -9,6 +9,17 @@ const localePath = useLocalePath();
 // a week here has to move the whole app with it.
 const { selectedMenu: menu } = useSelectedWeek();
 
+// The day a card stands for, counted from the Monday the week is stored under.
+// Built here rather than in the card: only the page knows which week is on
+// screen, and a card that guessed would be wrong the moment the week changed.
+const dateOf = (index: number): Date | undefined => {
+  if (menu.value === undefined) return undefined;
+
+  const monday = new Date(`${menu.value.weekOf}T00:00:00`);
+  monday.setDate(monday.getDate() + index);
+  return monday;
+};
+
 const formatWeek = (weekOf: string): string =>
   new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
     day: 'numeric',
@@ -178,6 +189,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           :key="day.key"
           :day="day"
           :targets="menu.targets"
+          :date="dateOf(index)"
           :index="index"
           :is-today="day.key === todayKey"
           :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
