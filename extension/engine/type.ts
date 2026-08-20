@@ -30,5 +30,8 @@ export type FillResult = {
   outcome: Outcome;
   /** What the basket holds at the end, in euros, products only. */
   productsAmount: number;
+  deliveryFees: number;
+  /** Still missing to reach the shop's order minimum. Above zero, it cannot be ordered. */
+  shortOfMinimum: number;
   missing: string[];
 };

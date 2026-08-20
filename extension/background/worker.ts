@@ -49,13 +49,19 @@ const runOnce = async (): Promise<void> => {
 
   const tab = await shopTab();
   if (tab.id === undefined) {
-    await client.finish(job.id, 'FAILED');
+    await client.finish(job.id, { outcome: 'FAILED' });
     return;
   }
 
   try {
     const result = await fill(tab.id, job.lines);
-    await client.finish(job.id, result.outcome);
+    await client.finish(job.id, {
+      outcome: result.outcome,
+      // Cents on the wire: euros as a float would drift a centime at a time.
+      productsCents: Math.round(result.productsAmount * 100),
+      deliveryFeesCents: Math.round(result.deliveryFees * 100),
+      shortOfMinimumCents: Math.round(result.shortOfMinimum * 100),
+    });
     await chrome.notifications.create({
       type: 'basic',
       iconUrl: 'icon.png',
@@ -63,7 +69,7 @@ const runOnce = async (): Promise<void> => {
       message: `${result.productsAmount.toFixed(2)} € · ${result.missing.length} manquant(s). À toi de vérifier et de payer.`,
     });
   } catch (error: unknown) {
-    await client.finish(job.id, 'FAILED');
+    await client.finish(job.id, { outcome: 'FAILED' });
     console.error('[menu] run failed', error);
   }
 };

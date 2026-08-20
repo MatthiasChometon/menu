@@ -35,6 +35,8 @@ chrome.runtime.onMessage.addListener(
         respond({
           outcome: 'FAILED',
           productsAmount: 0,
+          deliveryFees: 0,
+          shortOfMinimum: 0,
           missing: [],
         });
         console.error('[menu] basket run failed', error);

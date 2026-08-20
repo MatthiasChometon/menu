@@ -21,6 +21,13 @@ export const groceryJob = pgTable('grocery_job', {
   // Copied from the preferences when the job is created: what the run was told
   // to warn above, not what the account happens to want today.
   alertThresholdCents: integer('alert_threshold_cents'),
+  // Filled in when the run closes, so the report reads against what the shop
+  // actually charged rather than against the estimate the menu carries.
+  productsCents: integer('products_cents'),
+  deliveryFeesCents: integer('delivery_fees_cents'),
+  // What was still missing to reach the shop's order minimum. Above zero, the
+  // basket cannot be ordered at all.
+  shortOfMinimumCents: integer('short_of_minimum_cents'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   startedAt: timestamp('started_at'),
   finishedAt: timestamp('finished_at'),

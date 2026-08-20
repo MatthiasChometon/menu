@@ -7,6 +7,7 @@ import { GroceryCatalogRepository } from './catalog/repository';
 import { GroceryJob } from './job/model';
 import { GroceryJobRepository } from './job/repository';
 import { GroceryPantryRepository } from './pantry/repository';
+import { GroceryPreferenceRepository } from './preference/repository';
 
 @Injectable()
 export class GroceryService {
@@ -16,6 +17,7 @@ export class GroceryService {
     private readonly catalog: GroceryCatalogRepository,
     private readonly pantry: GroceryPantryRepository,
     private readonly target: BasketTargetService,
+    private readonly preferences: GroceryPreferenceRepository,
   ) {}
 
   // The menu is worked out by the site, which has it prerendered; what to buy
@@ -23,13 +25,16 @@ export class GroceryService {
   // settled now rather than when the browser picks the run up, so the report
   // stays readable against what was asked for.
   async queue(userId: string, weekOf: string, needs: FoodNeed[]): Promise<GroceryJob> {
-    const [products, pantry] = await Promise.all([
+    const [products, pantry, preference] = await Promise.all([
       this.catalog.knownProducts(),
       this.pantry.forUser(userId),
+      this.preferences.forUser(userId),
     ]);
 
     const lines = this.target.linesFor(needs, pantry, products);
-    const job = await this.jobs.create(userId, weekOf, undefined);
+    // Copied onto the run rather than read at display time: the report has to
+    // say what it was measured against, not what the settings happen to say now.
+    const job = await this.jobs.create(userId, weekOf, preference.alertThresholdCents);
     await this.basket.saveLines(job.id, lines);
 
     return { ...job, lines: lines.map((line): GroceryBasketLine => this.toModel(line)) };

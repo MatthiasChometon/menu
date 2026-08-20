@@ -11,7 +11,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { GroceryJobEventKind } from '../enum';
+import { GroceryJobEventKind, GroceryJobOutcome } from '../enum';
 import { jobConstraints } from './utils';
 
 @InputType({ description: 'What a run reports as it works.' })
@@ -65,4 +65,32 @@ export class CreateGroceryJobInput {
   @ArrayMaxSize(jobConstraints().maxNeedsPerJob)
   @Type(() => FoodNeedInput)
   needs!: FoodNeedInput[];
+}
+
+@InputType({ description: 'What a run found once it was done.' })
+export class GroceryJobOutcomeInput {
+  @Field(() => GroceryJobOutcome)
+  @IsEnum(GroceryJobOutcome)
+  outcome!: GroceryJobOutcome;
+
+  @Field(() => Int, { nullable: true, description: 'Groceries only, in cents.' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  productsCents?: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  deliveryFeesCents?: number;
+
+  @Field(() => Int, {
+    nullable: true,
+    description: 'Still missing to reach the shop order minimum. Above zero, it cannot be ordered.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  shortOfMinimumCents?: number;
 }

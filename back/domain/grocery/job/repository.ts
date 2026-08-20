@@ -4,7 +4,7 @@ import { DATABASE, type Database } from '../../../infrastructure/database/token'
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { groceryJob, groceryJobEvent } from './schema';
-import { ReportedEvent } from './type';
+import { JobReport, ReportedEvent } from './type';
 
 @Injectable()
 export class GroceryJobRepository {
@@ -102,10 +102,17 @@ export class GroceryJobRepository {
     jobId: string,
     deviceId: string,
     status: GroceryJobStatus,
+    report: JobReport,
   ): Promise<GroceryJob | undefined> {
     const [record] = await this.database
       .update(groceryJob)
-      .set({ status, finishedAt: new Date() })
+      .set({
+        status,
+        finishedAt: new Date(),
+        productsCents: report.productsCents ?? null,
+        deliveryFeesCents: report.deliveryFeesCents ?? null,
+        shortOfMinimumCents: report.shortOfMinimumCents ?? null,
+      })
       .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)))
       .returning();
 
@@ -135,6 +142,14 @@ export class GroceryJobRepository {
       createdAt: record.createdAt,
       startedAt: record.startedAt ?? undefined,
       finishedAt: record.finishedAt ?? undefined,
+      productsCents: record.productsCents ?? undefined,
+      deliveryFeesCents: record.deliveryFeesCents ?? undefined,
+      shortOfMinimumCents: record.shortOfMinimumCents ?? undefined,
+      // A run that never reported a total has not gone over anything.
+      overThreshold:
+        record.alertThresholdCents !== null &&
+        record.productsCents !== null &&
+        record.productsCents > record.alertThresholdCents,
       events,
       lines: [],
     };

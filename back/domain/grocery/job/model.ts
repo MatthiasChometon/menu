@@ -56,6 +56,24 @@ export class GroceryJob {
   @Field({ nullable: true })
   finishedAt?: Date;
 
+  @Field(() => Int, { nullable: true, description: 'Groceries only, in cents.' })
+  productsCents?: number;
+
+  @Field(() => Int, { nullable: true })
+  deliveryFeesCents?: number;
+
+  @Field(() => Int, {
+    nullable: true,
+    description:
+      'Still missing to reach the shop order minimum. Above zero, nothing can be ordered.',
+  })
+  shortOfMinimumCents?: number;
+
+  @Field({
+    description: 'Whether the basket went over what this account asked to be warned about.',
+  })
+  overThreshold!: boolean;
+
   @Field(() => [GroceryJobEvent])
   events!: GroceryJobEvent[];
 

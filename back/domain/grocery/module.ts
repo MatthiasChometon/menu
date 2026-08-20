@@ -10,6 +10,8 @@ import { DeviceTokenService } from './device/token.service';
 import { GroceryJobRepository } from './job/repository';
 import { GroceryJobResolver } from './job/resolver';
 import { GroceryPantryRepository } from './pantry/repository';
+import { GroceryPreferenceRepository } from './preference/repository';
+import { GroceryPreferenceResolver } from './preference/resolver';
 import { GroceryService } from './service';
 
 @Module({
@@ -26,6 +28,8 @@ import { GroceryService } from './service';
     GroceryCatalogRepository,
     GroceryPantryRepository,
     BasketTargetService,
+    GroceryPreferenceResolver,
+    GroceryPreferenceRepository,
   ],
 })
 export class GroceryModule {}

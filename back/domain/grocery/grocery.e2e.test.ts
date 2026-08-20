@@ -34,10 +34,20 @@ const REPORT_EVENT = `
 `;
 
 const FINISH_JOB = `
-  mutation ($jobId: ID!, $outcome: GroceryJobOutcome!) {
-    finishGroceryJob(jobId: $jobId, outcome: $outcome) { id status }
+  mutation ($jobId: ID!, $input: GroceryJobOutcomeInput!) {
+    finishGroceryJob(jobId: $jobId, input: $input) {
+      id status productsCents deliveryFeesCents shortOfMinimumCents overThreshold
+    }
   }
 `;
+
+const SAVE_PREFERENCE = `
+  mutation ($input: GroceryPreferenceInput!) {
+    saveGroceryPreference(input: $input) { alertThresholdCents }
+  }
+`;
+
+const MY_PREFERENCE = `query { myGroceryPreference { alertThresholdCents } }`;
 
 const JOB = `
   query ($jobId: ID!) {
@@ -152,7 +162,7 @@ describe('running a queued order', () => {
     );
     await api.graphql(
       FINISH_JOB,
-      { jobId: queued.id, outcome: 'SUCCEEDED' },
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED' } },
       undefined,
       asDevice(token),
     );
@@ -329,5 +339,110 @@ describe('working out what to buy', () => {
     expect(claimed.data?.claimGroceryJob.lines).toEqual([
       expect.objectContaining({ foodId: 'brownRice', ean: RICE.ean, units: 2 }),
     ]);
+  });
+});
+
+describe('telling the reader what the basket costs', () => {
+  type Finished = {
+    status: string;
+    productsCents?: number;
+    deliveryFeesCents?: number;
+    shortOfMinimumCents?: number;
+    overThreshold: boolean;
+  };
+
+  const finish = async (
+    token: string,
+    jobId: string,
+    input: Record<string, unknown>,
+  ): Promise<Finished | undefined> => {
+    const response = await api.graphql<{ finishGroceryJob: Finished }>(
+      FINISH_JOB,
+      { jobId, input: { outcome: 'SUCCEEDED', ...input } },
+      undefined,
+      asDevice(token),
+    );
+
+    return response.data?.finishGroceryJob;
+  };
+
+  it('keeps the amounts the run came back with', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const closed = await finish(token, queued.id, {
+      productsCents: 8450,
+      deliveryFeesCents: 790,
+    });
+
+    expect(closed).toEqual(
+      expect.objectContaining({ productsCents: 8450, deliveryFeesCents: 790 }),
+    );
+  });
+
+  it('flags a basket over what the account asked to be warned about', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 5000 } }, cookie);
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const closed = await finish(token, queued.id, { productsCents: 8450 });
+
+    expect(closed?.overThreshold).toBe(true);
+  });
+
+  it('stays quiet when the basket is under it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 12000 } }, cookie);
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const closed = await finish(token, queued.id, { productsCents: 8450 });
+
+    expect(closed?.overThreshold).toBe(false);
+  });
+
+  it('measures against the threshold in force when the run was asked for', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 5000 } }, cookie);
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    // Raised after the run was queued: it must not rewrite what the run meant.
+    await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 20000 } }, cookie);
+
+    const closed = await finish(token, queued.id, { productsCents: 8450 });
+
+    expect(closed?.overThreshold).toBe(true);
+  });
+
+  it('warns by default, before anyone opens the settings', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const response = await api.graphql<{ myGroceryPreference: { alertThresholdCents: number } }>(
+      MY_PREFERENCE,
+      undefined,
+      cookie,
+    );
+
+    expect(response.data?.myGroceryPreference.alertThresholdCents).toBe(12000);
+  });
+
+  it('reports a basket that cannot be ordered at all', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const closed = await finish(token, queued.id, {
+      productsCents: 3200,
+      shortOfMinimumCents: 2800,
+    });
+
+    expect(closed?.shortOfMinimumCents).toBe(2800);
   });
 });

@@ -91,12 +91,26 @@ type GroceryJob {
   """
   alertThresholdCents: Int
   createdAt: DateTime!
+  deliveryFeesCents: Int
   events: [GroceryJobEvent!]!
   finishedAt: DateTime
   id: ID!
 
   """What the run is meant to buy, frozen when it was queued."""
   lines: [GroceryBasketLine!]!
+
+  """
+  Whether the basket went over what this account asked to be warned about.
+  """
+  overThreshold: Boolean!
+
+  """Groceries only, in cents."""
+  productsCents: Int
+
+  """
+  Still missing to reach the shop order minimum. Above zero, nothing can be ordered.
+  """
+  shortOfMinimumCents: Int
   startedAt: DateTime
   status: GroceryJobStatus!
 
@@ -148,6 +162,20 @@ enum GroceryJobOutcome {
   SUCCEEDED
 }
 
+"""What a run found once it was done."""
+input GroceryJobOutcomeInput {
+  deliveryFeesCents: Int
+  outcome: GroceryJobOutcome!
+
+  """Groceries only, in cents."""
+  productsCents: Int
+
+  """
+  Still missing to reach the shop order minimum. Above zero, it cannot be ordered.
+  """
+  shortOfMinimumCents: Int
+}
+
 """
 Where an order run stands. BLOCKED means the shop asked for something a machine must not answer: a sign-in, a captcha.
 """
@@ -157,6 +185,18 @@ enum GroceryJobStatus {
   PENDING
   RUNNING
   SUCCEEDED
+}
+
+"""What this account wants of its orders."""
+type GroceryPreference {
+  """
+  Warn when the basket goes above this, in cents. Absent means never warn.
+  """
+  alertThresholdCents: Int
+}
+
+input GroceryPreferenceInput {
+  alertThresholdCents: Int
 }
 
 input MeasurementsInput {
@@ -189,7 +229,7 @@ type Mutation {
   deleteWeekPlan(weekOf: String!): Boolean!
 
   """Closes a run, whatever became of it."""
-  finishGroceryJob(jobId: ID!, outcome: GroceryJobOutcome!): GroceryJob!
+  finishGroceryJob(input: GroceryJobOutcomeInput!, jobId: ID!): GroceryJob!
 
   """
   Pairs a browser with this account and hands it the token it will carry.
@@ -198,6 +238,7 @@ type Mutation {
 
   """Reports progress on a run being worked on."""
   reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
+  saveGroceryPreference(input: GroceryPreferenceInput!): GroceryPreference!
 
   """Creates the profile, or replaces it wholesale."""
   saveProfile(input: MeasurementsInput!): Profile!
@@ -305,6 +346,9 @@ type Query {
 
   """Every run this account has asked for, newest first."""
   myGroceryJobs: [GroceryJob!]!
+
+  """What this account wants of its orders."""
+  myGroceryPreference: GroceryPreference!
 
   """
   The signed-in user profile, or null when the form has never been filled in.

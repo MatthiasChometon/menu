@@ -24,7 +24,13 @@ export class BasketFiller {
         detail: 'Not signed in to the shop. Sign in yourself, then run this again.',
       });
 
-      return { outcome: 'BLOCKED', productsAmount: 0, missing: [] };
+      return {
+        outcome: 'BLOCKED',
+        productsAmount: 0,
+        deliveryFees: 0,
+        shortOfMinimum: 0,
+        missing: [],
+      };
     }
 
     await report({ kind: 'STARTED' });
@@ -53,7 +59,13 @@ export class BasketFiller {
       detail: `${filled.productsAmount.toFixed(2)} € of groceries, ${missing.length} line(s) short.`,
     });
 
-    return { outcome: 'SUCCEEDED', productsAmount: filled.productsAmount, missing };
+    return {
+      outcome: 'SUCCEEDED',
+      productsAmount: filled.productsAmount,
+      deliveryFees: filled.deliveryFees,
+      shortOfMinimum: filled.remainedAmount,
+      missing,
+    };
   }
 
   private async emptyExisting(report: Report): Promise<void> {

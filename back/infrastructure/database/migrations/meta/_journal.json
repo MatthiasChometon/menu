@@ -43,6 +43,13 @@
       "when": 1787212075733,
       "tag": "0005_tiny_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787225036315,
+      "tag": "0006_medical_white_tiger",
+      "breakpoints": true
     }
   ]
 }

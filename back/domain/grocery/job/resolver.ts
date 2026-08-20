@@ -6,8 +6,8 @@ import { User } from '../../user/model';
 import { CurrentDevice } from '../device/current-device';
 import { GroceryDeviceGuard } from '../device/guard';
 import { type AuthenticatedDevice } from '../device/type';
-import { GroceryJobOutcome, GroceryJobStatus } from '../enum';
-import { CreateGroceryJobInput, GroceryJobEventInput } from './input';
+import { GroceryJobStatus } from '../enum';
+import { CreateGroceryJobInput, GroceryJobEventInput, GroceryJobOutcomeInput } from './input';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { GroceryJobRepository } from './repository';
 import { GroceryService } from '../service';
@@ -80,9 +80,9 @@ export class GroceryJobResolver {
   async finishGroceryJob(
     @CurrentDevice() device: AuthenticatedDevice,
     @Args('jobId', { type: () => ID }) jobId: string,
-    @Args('outcome', { type: () => GroceryJobOutcome }) outcome: GroceryJobOutcome,
+    @Args('input') input: GroceryJobOutcomeInput,
   ): Promise<GroceryJob> {
-    const job = await this.jobs.finish(jobId, device.id, GroceryJobStatus[outcome]);
+    const job = await this.jobs.finish(jobId, device.id, GroceryJobStatus[input.outcome], input);
     if (job === undefined) {
       throw new NotFoundException();
     }

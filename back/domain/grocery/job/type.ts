@@ -9,3 +9,9 @@ export type JobEventDetails = {
 export type ReportedEvent = JobEventDetails & {
   kind: GroceryJobEventKind;
 };
+
+export type JobReport = {
+  productsCents?: number;
+  deliveryFeesCents?: number;
+  shortOfMinimumCents?: number;
+};

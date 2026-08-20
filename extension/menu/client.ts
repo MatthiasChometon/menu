@@ -1,5 +1,12 @@
 import { PlannedLine, ReportedEvent } from '../engine/type';
 
+export type JobOutcome = {
+  outcome: string;
+  productsCents?: number;
+  deliveryFeesCents?: number;
+  shortOfMinimumCents?: number;
+};
+
 type GraphqlResponse<T> = {
   data?: T;
   errors?: { message: string }[];
@@ -28,8 +35,8 @@ const REPORT = `
 `;
 
 const FINISH = `
-  mutation ($jobId: ID!, $outcome: GroceryJobOutcome!) {
-    finishGroceryJob(jobId: $jobId, outcome: $outcome) { id status }
+  mutation ($jobId: ID!, $input: GroceryJobOutcomeInput!) {
+    finishGroceryJob(jobId: $jobId, input: $input) { id status }
   }
 `;
 
@@ -49,8 +56,8 @@ export class MenuClient {
     await this.send(REPORT, { jobId, input: event });
   }
 
-  async finish(jobId: string, outcome: string): Promise<void> {
-    await this.send(FINISH, { jobId, outcome });
+  async finish(jobId: string, report: JobOutcome): Promise<void> {
+    await this.send(FINISH, { jobId, input: report });
   }
 
   private async send<T>(query: string, variables?: object): Promise<T | undefined> {
