@@ -65,7 +65,7 @@
     "recipeCount": "recettes de la semaine",
     "empty": {
       "title": "Aucun menu pour l'instant",
-      "hint": "Lance la commande menu pour générer la semaine à venir."
+      "hint": "Compose ta première semaine pour voir tes repas, tes apports et ta liste de courses."
     },
     "unit": {
       "kcal": "kcal",
@@ -79,7 +79,7 @@
       "deliveryOn": "Courses livrées",
       "beforeStart": "D'ici là, fais avec ce que tu as déjà.",
       "pastHasNext": "Passe à une semaine plus récente avec les flèches en haut.",
-      "pastNoNext": "C'est le menu le plus récent. Lance la commande menu pour préparer la semaine à venir."
+      "pastNoNext": "C'est le menu le plus récent."
     },
     "week": {
       "current": "Cette semaine",
@@ -91,6 +91,11 @@
       "choose": "Choisir la semaine",
       "today": "Aujourd'hui",
       "back": "Revenir à cette semaine"
+    },
+    "planNext": {
+      "title": "La semaine prochaine n’a pas encore de menu",
+      "hint": "Compose-la pour savoir quoi acheter et quoi cuisiner à partir du lundi",
+      "action": "Composer la semaine prochaine"
     }
   }
 }

@@ -78,13 +78,11 @@ export const useHouseholdQuantities = (): {
             name: user.value?.name ?? t('profile.household.me'),
             targets: profile.value.targets,
           },
-          ...members.value.map(
-            (member): Eater => ({
-              id: member.id,
-              name: member.name,
-              targets: member.targets,
-            }),
-          ),
+          ...members.value.map((member): Eater => ({
+            id: member.id,
+            name: member.name,
+            targets: member.targets,
+          })),
         ],
   );
 

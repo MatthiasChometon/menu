@@ -91,6 +91,14 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UIcon name="i-lucide-calendar-x" class="size-12 text-dimmed" />
         <h1 class="text-xl font-bold">{{ $t('menu.empty.title') }}</h1>
         <p class="max-w-sm text-muted">{{ $t('menu.empty.hint') }}</p>
+        <UButton
+          :to="localePath('/composer')"
+          color="primary"
+          icon="i-lucide-square-pen"
+          class="mt-2"
+        >
+          {{ $t('menu.planNext.action') }}
+        </UButton>
       </div>
     </template>
 
@@ -131,11 +139,13 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         :title="$t('menu.status.past')"
       >
         <template #description>
-          <!-- Saying a week is over is only half the message: what to do next
-               is the half the reader actually needs. -->
           {{ hasLaterWeek ? $t('menu.status.pastHasNext') : $t('menu.status.pastNoNext') }}
         </template>
       </UAlert>
+
+      <!-- Above the week itself: what to eat on Monday matters more than
+           re-reading a week already lived. -->
+      <MenuPlanNextWeek class="mt-5" />
 
       <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
         <div class="grid gap-4 sm:grid-cols-3">
