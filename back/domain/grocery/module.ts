@@ -13,6 +13,8 @@ import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
 import { GroceryPreferenceResolver } from './preference/resolver';
 import { GrocerySlotRepository } from './slot/repository';
+import { GroceryPushRepository } from './push/repository';
+import { GroceryPushResolver } from './push/resolver';
 import { GroceryReportMail } from './report/mail';
 import { GrocerySlotResolver } from './slot/resolver';
 import { UserModule } from '../user/module';
@@ -37,6 +39,8 @@ import { GroceryService } from './service';
     GrocerySlotResolver,
     GrocerySlotRepository,
     GroceryReportMail,
+    GroceryPushResolver,
+    GroceryPushRepository,
   ],
 })
 export class GroceryModule {}

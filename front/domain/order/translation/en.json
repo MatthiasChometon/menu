@@ -68,6 +68,13 @@
       "5": "Friday",
       "6": "Saturday",
       "7": "Sunday"
+    },
+    "push": {
+      "title": "Tell me on this phone",
+      "lead": "A notification when the basket is ready, or when the run stopped.",
+      "on": "Turn notifications on",
+      "off": "Stop telling me here",
+      "blocked": "Notifications are blocked for this site in the browser settings."
     }
   }
 }

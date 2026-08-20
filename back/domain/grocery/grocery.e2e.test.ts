@@ -3,6 +3,7 @@ import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app
 import { UserRepository } from '../user/repository';
 import { GroceryCatalogRepository } from './catalog/repository';
 import { GroceryPantryRepository } from './pantry/repository';
+import { GroceryPushRepository } from './push/repository';
 
 const PAIR_DEVICE = `
   mutation ($label: String!) {
@@ -765,5 +766,82 @@ describe('telling somebody the basket is ready', () => {
 
     expect(api.sentMail()[0].html).not.toContain('<script>');
     expect(api.sentMail()[0].html).toContain('&lt;script&gt;');
+  });
+});
+
+describe('agreeing to be told on a phone', () => {
+  const SUBSCRIBE = `
+    mutation ($input: PushSubscriptionInput!) {
+      subscribeToGroceryPush(input: $input)
+    }
+  `;
+  const UNSUBSCRIBE = `
+    mutation ($endpoint: String!) { unsubscribeFromGroceryPush(endpoint: $endpoint) }
+  `;
+  const KEY = `query { groceryPushKey }`;
+
+  const target = (endpoint: string): Record<string, string> => ({
+    endpoint,
+    p256dh: 'a-public-key',
+    auth: 'an-auth-secret',
+  });
+
+  const subscriptionsOf = async (email: string): Promise<unknown[]> => {
+    const account = await api.resolve(UserRepository).findRecordByEmail(email);
+
+    return api.resolve(GroceryPushRepository).forUser(account!.id);
+  };
+
+  it('remembers a browser that agreed', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
+
+    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+  });
+
+  it('takes over an endpoint rather than duplicating it', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
+
+    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+  });
+
+  it('hands a shared browser to whoever signed in last', async () => {
+    const mine = await signIn('matthias@example.com');
+    const theirs = await signIn('someone-else@example.com');
+
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/shared') }, mine);
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/shared') }, theirs);
+
+    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(0);
+    expect(await subscriptionsOf('someone-else@example.com')).toHaveLength(1);
+  });
+
+  it('forgets a browser that changed its mind', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
+
+    await api.graphql(UNSUBSCRIBE, { endpoint: 'https://push.example/1' }, cookie);
+
+    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(0);
+  });
+
+  it('will not let one account unsubscribe another one browser', async () => {
+    const mine = await signIn('matthias@example.com');
+    const theirs = await signIn('someone-else@example.com');
+    await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, mine);
+
+    await api.graphql(UNSUBSCRIBE, { endpoint: 'https://push.example/1' }, theirs);
+
+    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+  });
+
+  it('offers the public key without asking anyone to sign in', async () => {
+    const response = await api.graphql<{ groceryPushKey: string | null }>(KEY);
+
+    expect(response.errors).toBeUndefined();
   });
 });

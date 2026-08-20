@@ -5,13 +5,15 @@ import { BasketTargetService } from './basket/target.service';
 import { BasketLine, FoodNeed } from './basket/type';
 import { GroceryCatalogRepository } from './catalog/repository';
 import { PriceSighting } from './catalog/type';
-import { GroceryJobStatus } from './enum';
+import { GroceryJobEventKind, GroceryJobStatus } from './enum';
 import { GroceryJob } from './job/model';
 import { GroceryJobRepository } from './job/repository';
 import { JobReport } from './job/type';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
+import { GroceryPushRepository } from './push/repository';
 import { GroceryReportMail } from './report/mail';
+import { PushService } from '../../infrastructure/push/service';
 import { GrocerySlotRepository } from './slot/repository';
 import { MailService } from '../../infrastructure/mail/service';
 import { UserRepository } from '../user/repository';
@@ -33,6 +35,8 @@ export class GroceryService {
     private readonly reportMail: GroceryReportMail,
     private readonly users: UserRepository,
     private readonly config: ConfigService,
+    private readonly push: PushService,
+    private readonly subscriptions: GroceryPushRepository,
   ) {}
 
   // The menu is worked out by the site, which has it prerendered; what to buy
@@ -101,13 +105,34 @@ export class GroceryService {
       return;
     }
 
-    await this.mail.send(
-      this.reportMail.build(
-        account.email,
-        job,
-        `${this.config.get<string>('SHOP_BASKET_URL') ?? 'https://www.carrefour.fr/courses'}`,
-      ),
-    );
+    const basketUrl =
+      this.config.get<string>('SHOP_BASKET_URL') ?? 'https://www.carrefour.fr/courses';
+    const message = this.reportMail.build(account.email, job, basketUrl);
+
+    // Both go out at once: a phone that has notifications on gets the short
+    // version now, the mail carries the detail. Neither waits on the other.
+    const [, gone] = await Promise.all([
+      this.mail.send(message),
+      this.push.send(await this.subscriptions.forUser(userId), {
+        title: message.subject,
+        body: this.pushBodyOf(job),
+        url: basketUrl,
+      }),
+    ]);
+
+    await Promise.all(gone.map((endpoint): Promise<void> => this.subscriptions.forget(endpoint)));
+  }
+
+  private pushBodyOf(job: GroceryJob): string {
+    const shortfalls = job.events.filter(
+      (event): boolean =>
+        event.kind === GroceryJobEventKind.LINE_MISSING ||
+        event.kind === GroceryJobEventKind.LINE_SUBSTITUTED,
+    ).length;
+    const total =
+      job.productsCents === undefined ? '' : `${(job.productsCents / 100).toFixed(2)} € · `;
+
+    return `${total}${shortfalls} ligne(s) à regarder. À toi de vérifier et de payer.`;
   }
 
   // A substitute states what a unit holds, so it becomes the product of

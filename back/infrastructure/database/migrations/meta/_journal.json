@@ -57,6 +57,13 @@
       "when": 1787227914508,
       "tag": "0007_deep_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1787230991548,
+      "tag": "0008_glorious_brood",
+      "breakpoints": true
     }
   ]
 }

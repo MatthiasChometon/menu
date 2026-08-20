@@ -8,6 +8,7 @@ import { WeekPlanModule } from './domain/weekPlan/module';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
 import { MailInfrastructureModule } from './infrastructure/mail/module';
+import { PushInfrastructureModule } from './infrastructure/push/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
 import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.module';
 
@@ -18,6 +19,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     HealthInfrastructureModule,
     DatabaseInfrastructureModule,
     MailInfrastructureModule,
+    PushInfrastructureModule,
     GraphqlInfrastructureModule,
     UserModule,
     AuthModule,

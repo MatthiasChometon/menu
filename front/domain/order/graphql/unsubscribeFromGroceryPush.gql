@@ -1,0 +1,3 @@
+mutation unsubscribeFromGroceryPush($endpoint: String!) {
+  unsubscribeFromGroceryPush(endpoint: $endpoint)
+}

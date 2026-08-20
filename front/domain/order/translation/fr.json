@@ -68,6 +68,13 @@
       "5": "Vendredi",
       "6": "Samedi",
       "7": "Dimanche"
+    },
+    "push": {
+      "title": "Me prévenir sur ce téléphone",
+      "lead": "Une notification quand le panier est prêt, ou quand le remplissage s'est arrêté.",
+      "on": "Activer les notifications",
+      "off": "Ne plus me prévenir ici",
+      "blocked": "Les notifications sont bloquées pour ce site dans les réglages du navigateur."
     }
   }
 }

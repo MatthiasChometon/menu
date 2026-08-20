@@ -65,6 +65,9 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
+      // Concatenated into the generated worker, which is the only way to teach
+      // a generateSW build to receive a push.
+      importScripts: ['/push-sw.js'],
       // Everything is prerendered, so the whole app can be precached: the
       // shopping list stays readable with no signal in the shop.
       //

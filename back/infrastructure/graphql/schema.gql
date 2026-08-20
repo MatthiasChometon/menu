@@ -296,8 +296,12 @@ type Mutation {
   """Creates the plan for a week, or replaces it."""
   saveWeekPlan(input: WeekPlanInput!): WeekPlan!
 
+  """Agrees to be told on this browser."""
+  subscribeToGroceryPush(input: PushSubscriptionInput!): Boolean!
+
   """Revokes a browser. It stops being able to run orders immediately."""
   unpairGroceryDevice(deviceId: ID!): Boolean!
+  unsubscribeFromGroceryPush(endpoint: String!): Boolean!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -382,11 +386,23 @@ type Profile {
   weightKg: Int!
 }
 
+"""What a browser hands over when it agrees to be told."""
+input PushSubscriptionInput {
+  auth: String!
+  endpoint: String!
+  p256dh: String!
+}
+
 type Query {
   """
   One run with everything it reported, which is what the live view follows.
   """
   groceryJob(jobId: ID!): GroceryJob
+
+  """
+  The public key a browser needs to subscribe. Null when no keys are set, and then no push is ever sent.
+  """
+  groceryPushKey: String
 
   """The signed-in user."""
   me: User!
