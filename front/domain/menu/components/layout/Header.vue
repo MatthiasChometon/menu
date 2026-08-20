@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { locale, locales, setLocale } = useNuxtApp().$i18n;
+import type { DropdownMenuItem } from '@nuxt/ui';
+
+const { locale, locales, setLocale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
 const { entries } = useNavigation();
@@ -35,6 +37,28 @@ const currentLocale = computed({
     if (match !== undefined) setLocale(match.code);
   },
 });
+
+const { open: openBugReport } = useBugReport();
+const { isAdmin } = useAdmin();
+
+// Built here rather than in the template so the admin entry can simply not
+// exist for everybody else, instead of being rendered and hidden.
+const accountItems = computed((): DropdownMenuItem[][] => [
+  [{ label: user.value?.name ?? user.value?.email ?? '', type: 'label' as const }],
+  [
+    { label: t('bugReport.open'), icon: 'i-lucide-bug', onSelect: openBugReport },
+    ...(isAdmin.value
+      ? [
+          {
+            label: t('bugReport.admin.title'),
+            icon: 'i-lucide-list-checks',
+            to: localePath('/signalements'),
+          },
+        ]
+      : []),
+  ],
+  [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: signOut }],
+]);
 
 const isDark = computed({
   get: (): boolean => colorMode.value === 'dark',
@@ -108,23 +132,19 @@ const isDark = computed({
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
-          <div v-if="user !== undefined" class="flex items-center gap-1">
-            <UAvatar
-              :alt="user.name ?? user.email"
-              :text="initials"
-              size="sm"
-              :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
-            />
-            <UButton
-              icon="i-lucide-log-out"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :aria-label="$t('auth.signOut')"
-              :title="`${$t('auth.signedInAs')} ${user.name ?? user.email}`"
-              @click="signOut"
-            />
-          </div>
+          <!-- The avatar became a menu when there was more than one thing to
+               do with an account. Reporting a problem lives here as the calm
+               path; the floating button is the one you reach for mid-problem. -->
+          <UDropdownMenu v-if="user !== undefined" :items="accountItems">
+            <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
+              <UAvatar
+                :alt="user.name ?? user.email"
+                :text="initials"
+                size="sm"
+                :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
+              />
+            </UButton>
+          </UDropdownMenu>
           <template #fallback>
             <USkeleton class="size-8 rounded-full" />
           </template>

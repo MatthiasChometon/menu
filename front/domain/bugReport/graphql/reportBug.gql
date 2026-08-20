@@ -1,0 +1,5 @@
+mutation reportBug($input: ReportBugInput!) {
+  reportBug(input: $input) {
+    id
+  }
+}

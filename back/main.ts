@@ -1,3 +1,7 @@
+// First, and before anything from Nest: Sentry instruments modules as they
+// load, so an import placed after the framework sees a wired app and catches
+// almost nothing. Its position is the point, not a tidiness preference.
+import './infrastructure/monitoring/instrument';
 import { createServer } from 'node:http';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';

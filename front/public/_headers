@@ -2,10 +2,14 @@
 # A prerendered Nuxt app needs no inline eval and loads nothing from a third
 # party, so the policy can be strict without breaking anything.
 /*
+  # Sentry has to be named in connect-src or nothing ever reaches it: the
+  # browser refuses the report, and a line in the console is the only trace. The
+  # region is unknown until the project exists, so the three ingest hosts are
+  # allowed rather than guessing which one it turns out to be.
   # Nuxt inlines its hydration payload in a <script>, hence 'unsafe-inline' on
   # script-src; everything else is locked to this origin. connect-src names the
   # API, which lives on another host — and only a host that is really ours.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://menuuu.duckdns.org; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.menuuu.duckdns.org; font-src 'self' data:; connect-src 'self' https://menuuu.duckdns.org https://images.menuuu.duckdns.org https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://*.ingest.us.sentry.io; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests
   # Six months, so a downgrade attack has no window to work in.
   Strict-Transport-Security: max-age=15552000; includeSubDomains
   X-Content-Type-Options: nosniff

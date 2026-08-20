@@ -24,6 +24,13 @@ export type TestApp = {
     body?: object,
     cookie?: string,
   ) => Promise<{ statusCode: number; body: string; cookies: TestCookie[] }>;
+  /** Sends one file the way a browser does, for the routes that take a photograph. */
+  postFile: (
+    url: string,
+    filename: string,
+    bytes: Buffer,
+    cookie?: string,
+  ) => Promise<{ statusCode: number; body: string }>;
   /** GET a route, optionally carrying cookies and extra headers. */
   get: (
     url: string,
@@ -117,12 +124,52 @@ export const startTestApp = async (): Promise<TestApp> => {
     };
   };
 
+  // Multipart has to be assembled by hand: inject() takes a body and headers,
+  // and the routes that receive a photograph will only ever be exercised this
+  // way — a JSON stand-in would test a request the server never gets.
+  // Multipart has to be assembled by hand: inject() takes a body and headers,
+  // and the routes that receive a photograph will only ever be exercised this
+  // way — a JSON stand-in would test a request the server never gets.
+  //
+  // The line endings are CRLF because the format says so. Bare newlines parse
+  // as an unterminated part, which reads as a corrupt upload rather than as a
+  // malformed test.
+  const postFile: TestApp['postFile'] = async (url, filename, bytes, cookie) => {
+    const boundary = '----menuE2EBoundary';
+    const head = Buffer.from(
+      `--${boundary}\r\n` +
+        `Content-Disposition: form-data; name="file"; filename="${filename}"\r\n` +
+        `Content-Type: application/octet-stream\r\n\r\n`,
+    );
+    const tail = Buffer.from(`\r\n--${boundary}--\r\n`);
+
+    const response = await app.inject({
+      method: 'POST',
+      url,
+      payload: Buffer.concat([head, bytes, tail]),
+      headers: {
+        'content-type': `multipart/form-data; boundary=${boundary}`,
+        ...(cookie === undefined ? {} : { cookie }),
+      },
+    });
+
+    return { statusCode: response.statusCode, body: response.body };
+  };
+
   const signUp: TestApp['signUp'] = async (email, password) => {
     await post('/auth/register', { email, password });
 
     // Read out of the message rather than the database: if the link that
     // actually reaches a reader is wrong, no amount of correct state saves it.
-    const token = /token=([a-f0-9]{64})/.exec(sent.at(-1)?.text ?? '')?.[1];
+    //
+    // Found by looking for THIS address rather than by taking the last message
+    // sent. The app now writes to the maintainer as well as to readers, so the
+    // newest message is not always the verification one — and a helper that
+    // assumed it was failed in tests that had nothing to do with signing up.
+    const verification = [...sent]
+      .reverse()
+      .find((message): boolean => message.to === email && /token=[a-f0-9]{64}/.test(message.text));
+    const token = /token=([a-f0-9]{64})/.exec(verification?.text ?? '')?.[1];
     if (token === undefined) throw new Error('No verification link was sent.');
 
     const verified = await post('/auth/verify-email', { token });
@@ -159,6 +206,7 @@ export const startTestApp = async (): Promise<TestApp> => {
 
       return JSON.parse(response.body) as GraphqlResponse<T>;
     },
+    postFile,
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
     mails: (): MailMessage[] => sent,
     // CASCADE rather than a delete order: the profile hangs off the user, and

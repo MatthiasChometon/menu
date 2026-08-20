@@ -16,6 +16,10 @@ beforeAll(async (): Promise<void> => {
 
 afterAll(async (): Promise<void> => {
   await api.close();
+  // Put it back: the worker's environment outlives this file, and leaving the
+  // limiter armed makes a later file fail on requests its own subject never
+  // covered.
+  process.env.THROTTLE_SKIP = 'true';
 });
 
 beforeEach(async (): Promise<void> => {

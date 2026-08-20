@@ -1,0 +1,39 @@
+{
+  "bugReport": {
+    "open": "Signaler un problème",
+    "title": "Signaler un problème",
+    "lead": "Dis simplement ce qui s'est passé. La page, ton navigateur et la taille de l'écran sont joints tout seuls.",
+    "label": "Qu'est-ce qui ne va pas ?",
+    "placeholder": "Le bouton ne fait rien quand je clique dessus…",
+    "severity": "À quel point ça gêne ?",
+    "blocking": "Ça bloque",
+    "annoying": "C'est gênant",
+    "cosmetic": "C'est cosmétique",
+    "send": "Envoyer",
+    "cancel": "Annuler",
+    "sent": "Merci, c'est envoyé.",
+    "sentLead": "Le signalement est parti avec la page et ton navigateur. Rien d'autre à faire.",
+    "tooShort": "Quelques mots de plus, pour qu'on puisse retrouver le problème.",
+    "failed": "L'envoi a échoué. Réessaie dans un instant.",
+    "close": "Fermer",
+    "admin": {
+      "title": "Signalements",
+      "lead": "Ce que les lecteurs ont rencontré, le plus récent d'abord.",
+      "empty": "Aucun signalement pour le moment.",
+      "forbidden": "Cet écran est réservé à l'administration du site.",
+      "page": "Page",
+      "screen": "Écran",
+      "browser": "Navigateur",
+      "markFixed": "Marquer corrigé",
+      "dismiss": "Écarter",
+      "reopen": "Rouvrir",
+      "statusNew": "Nouveau",
+      "statusFixed": "Corrigé",
+      "statusDismissed": "Écarté",
+      "blocked": "Compte bloqué",
+      "block": "Bloquer ce compte",
+      "unblock": "Débloquer",
+      "blockedNote": "Ce compte ne pourra plus se connecter au site. Ses données et ses signalements restent en place."
+    }
+  }
+}

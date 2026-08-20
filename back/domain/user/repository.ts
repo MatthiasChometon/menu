@@ -108,10 +108,28 @@ export class UserRepository {
 
   // The whole row rather than the model: the guard needs the session counter,
   // which has no business being a GraphQL field.
+  // Erases the account itself. The profile and the composed weeks go with it,
+  // carried by the foreign keys; problem reports stay, detached from whoever
+  // filed them, because a bug does not stop existing when its finder leaves.
+  async deleteById(id: string): Promise<boolean> {
+    const deleted = await this.database.delete(user).where(eq(user.id, id)).returning();
+
+    return deleted.length > 0;
+  }
+
   async findRecordById(id: string): Promise<UserRecord | undefined> {
     const [record] = await this.database.select().from(user).where(eq(user.id, id));
 
     return record;
+  }
+
+  /** Shuts an account out of the site, or lets it back in. Reversible on
+   *  purpose: a judgement nobody dares undo is one nobody dares make. */
+  async setBlocked(id: string, blocked: boolean): Promise<void> {
+    await this.database
+      .update(user)
+      .set({ blockedAt: blocked ? new Date() : null })
+      .where(eq(user.id, id));
   }
 
   async findById(id: string): Promise<User | undefined> {

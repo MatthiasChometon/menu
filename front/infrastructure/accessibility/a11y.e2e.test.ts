@@ -11,6 +11,13 @@ const PATHS = [
   '/profil',
   '/verification',
   '/reinitialisation',
+  // Signed out it shows only its refusal, which still has to be readable.
+  '/signalements',
+  // Long prose rather than an interface, and the pages somebody reads when they
+  // are deciding whether to trust the site with their weight.
+  '/mentions-legales',
+  '/confidentialite',
+  '/conditions',
 ];
 
 for (const path of PATHS) {

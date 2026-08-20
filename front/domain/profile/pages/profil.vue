@@ -82,6 +82,8 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
           {{ $t('profile.settings.edit') }}
         </UButton>
       </section>
+
+      <AuthDeleteAccount v-if="user !== undefined" />
     </ClientOnly>
   </div>
 </template>
