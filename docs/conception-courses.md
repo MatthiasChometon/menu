@@ -46,11 +46,15 @@ d'une infrastructure nulle.
 
 ```
 PWA menu (Netlify)              API menu (o2switch)         Extension (poste utilisateur)
-  bouton « commander »   -->    POST /grocery/jobs
-  suivi en direct        <--    GET  /grocery/jobs/:id  <--   prise du job en attente
+  bouton « commander »   -->    mutation createGroceryJob
+  suivi en direct        <--    query groceryJob        <--   prise du job en attente
   rapport et historique  <--    events, report          <--   avancement, rapport
-  appairage (jeton)      -->    POST /grocery/devices   <--   onglet carrefour.fr piloté
+  appairage (jeton)      -->    mutation pairDevice     <--   onglet carrefour.fr piloté
 ```
+
+Le contrat est **GraphQL**, comme le reste du back : l'extension le consomme aussi bien
+qu'un front, et l'appairage se porte par un en-tête plutôt que par le cookie de session.
+Le REST du back reste réservé à ce que GraphQL ne peut pas faire — poser un cookie.
 
 Aucun composant nouveau à héberger : l'API et la base existent déjà sur o2switch, le front
 sur Netlify. L'extension est distribuée à l'utilisateur.
@@ -98,11 +102,25 @@ Tables Drizzle, une par sous-slice, découvertes par glob comme le reste du back
 - `groceryJobEvent` — progression : `jobId`, `at`, `kind`, `payload`. Alimente le suivi en
   direct et le rapport final.
 - `groceryPreference` — `userId`, plages de créneau acceptables, seuil d'alerte.
-- `groceryProduct` — le référentiel : `foodId`, `retailerProductId`, `ean`, `name`,
-  `size`, `price`, `observedAt`. Reprend et remplace `front/content/carrefour-products.json`.
+- `groceryProduct` — le référentiel : `foodId`, `ean`, `name`, `size`, `packaging`,
+  `priceCents`, `observedAt`. `front/content/carrefour-products.json` en reste la graine,
+  mais l'état vivant est ici : un moteur qui tourne dans un navigateur ne peut pas écrire
+  dans le dépôt.
+- `groceryPantry` — le placard par compte : `userId`, `foodId`, `grams`. Même raison.
+- `groceryBasketLine` — ce qu'un job doit acheter, figé à sa création.
 
-`orders.json` et `pantry.json` restent la source de vérité de l'historique et du placard
-tant que les scripts Python les portent ; le job les met à jour à la fin d'une exécution.
+### Qui calcule quoi
+
+**Le site sait le menu, le serveur sait le produit et le placard.** Le front cumule les
+grammes de la semaine — il a déjà le menu prérendu et le fait pour sa liste de courses — et
+les envoie avec le job. Le serveur en déduit les articles : il retranche le placard, puis
+divise par la contenance réelle du produit.
+
+Ce partage évite au back de dépendre de `front/content/` : déployé sur o2switch, il n'a pas
+ces fichiers. Et il évite au front de connaître les formats Carrefour, qui bougent.
+
+La cible est **figée à la création du job**, pas au moment où le navigateur le prend : le
+rapport doit rester lisible face à ce qui a été demandé, pas face à un menu modifié depuis.
 
 ## 5. Déroulé d'un job
 

@@ -10,10 +10,14 @@ import { GroceryJobOutcome, GroceryJobStatus } from '../enum';
 import { CreateGroceryJobInput, GroceryJobEventInput } from './input';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { GroceryJobRepository } from './repository';
+import { GroceryService } from '../service';
 
 @Resolver(() => GroceryJob)
 export class GroceryJobResolver {
-  constructor(private readonly jobs: GroceryJobRepository) {}
+  constructor(
+    private readonly jobs: GroceryJobRepository,
+    private readonly grocery: GroceryService,
+  ) {}
 
   @Query(() => [GroceryJob], { description: 'Every run this account has asked for, newest first.' })
   @UseGuards(AuthGuard)
@@ -30,7 +34,7 @@ export class GroceryJobResolver {
     @CurrentUser() user: User,
     @Args('jobId', { type: () => ID }) jobId: string,
   ): Promise<GroceryJob | undefined> {
-    return this.jobs.findForUser(user.id, jobId);
+    return this.grocery.detail(user.id, jobId);
   }
 
   @Mutation(() => GroceryJob, {
@@ -42,7 +46,7 @@ export class GroceryJobResolver {
     @CurrentUser() user: User,
     @Args('input') input: CreateGroceryJobInput,
   ): Promise<GroceryJob> {
-    return this.jobs.create(user.id, input.weekOf, undefined);
+    return this.grocery.queue(user.id, input.weekOf, input.needs);
   }
 
   @Mutation(() => GroceryJob, {
@@ -53,7 +57,7 @@ export class GroceryJobResolver {
   async claimGroceryJob(
     @CurrentDevice() device: AuthenticatedDevice,
   ): Promise<GroceryJob | undefined> {
-    return this.jobs.claimNext(device.userId, device.id);
+    return this.grocery.claim(device.userId, device.id);
   }
 
   @Mutation(() => GroceryJobEvent, { description: 'Reports progress on a run being worked on.' })

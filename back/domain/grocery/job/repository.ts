@@ -136,6 +136,7 @@ export class GroceryJobRepository {
       startedAt: record.startedAt ?? undefined,
       finishedAt: record.finishedAt ?? undefined,
       events,
+      lines: [],
     };
   }
 

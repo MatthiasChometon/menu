@@ -1,4 +1,5 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { GroceryBasketLine } from '../basket/model';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 
 @ObjectType({ description: 'Something a run reported while it was working.' })
@@ -57,4 +58,9 @@ export class GroceryJob {
 
   @Field(() => [GroceryJobEvent])
   events!: GroceryJobEvent[];
+
+  @Field(() => [GroceryBasketLine], {
+    description: 'What the run is meant to buy, frozen when it was queued.',
+  })
+  lines!: GroceryBasketLine[];
 }

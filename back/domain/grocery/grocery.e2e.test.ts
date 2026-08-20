@@ -1,5 +1,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { UserRepository } from '../user/repository';
+import { GroceryCatalogRepository } from './catalog/repository';
+import { GroceryPantryRepository } from './pantry/repository';
 
 const PAIR_DEVICE = `
   mutation ($label: String!) {
@@ -11,11 +14,18 @@ const MY_DEVICES = `query { myGroceryDevices { id label } }`;
 
 const CREATE_JOB = `
   mutation ($input: CreateGroceryJobInput!) {
-    createGroceryJob(input: $input) { id weekOf status }
+    createGroceryJob(input: $input) {
+      id weekOf status
+      lines { foodId grams fromPantry ean units }
+    }
   }
 `;
 
-const CLAIM_JOB = `mutation { claimGroceryJob { id weekOf status } }`;
+const CLAIM_JOB = `
+  mutation {
+    claimGroceryJob { id weekOf status lines { foodId units ean } }
+  }
+`;
 
 const REPORT_EVENT = `
   mutation ($jobId: ID!, $input: GroceryJobEventInput!) {
@@ -35,7 +45,14 @@ const JOB = `
   }
 `;
 
-type Job = { id: string; weekOf: string; status: string };
+type Line = {
+  foodId: string;
+  grams: number;
+  fromPantry: number;
+  ean?: string;
+  units?: number;
+};
+type Job = { id: string; weekOf: string; status: string; lines: Line[] };
 type Device = { token: string; device: { id: string; label: string } };
 
 let api: TestApp;
@@ -60,10 +77,14 @@ const asDevice = (token: string): Record<string, string> => ({
   'x-grocery-device-token': token,
 });
 
-const queueJob = async (cookie: string, weekOf = '2026-08-24'): Promise<Job> => {
+const queueJob = async (
+  cookie: string,
+  needs: { foodId: string; grams: number }[] = [{ foodId: 'brownRice', grams: 960 }],
+  weekOf = '2026-08-24',
+): Promise<Job> => {
   const response = await api.graphql<{ createGroceryJob: Job }>(
     CREATE_JOB,
-    { input: { weekOf } },
+    { input: { weekOf, needs } },
     cookie,
   );
 
@@ -247,5 +268,66 @@ describe('keeping accounts apart', () => {
     );
 
     expect(response.errors?.[0].extensions?.code).toBe('UNAUTHENTICATED');
+  });
+});
+
+describe('working out what to buy', () => {
+  const RICE = {
+    foodId: 'brownRice',
+    ean: '3560070510771',
+    name: "Riz Complet CARREFOUR CLASSIC'",
+    size: 500,
+  };
+
+  it('turns the grams of a week into whole products', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+
+    const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
+
+    expect(queued.lines).toEqual([
+      expect.objectContaining({ foodId: 'brownRice', ean: RICE.ean, units: 2, fromPantry: 0 }),
+    ]);
+  });
+
+  it('buys less when the cupboard already holds some', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+
+    const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
+    await api.resolve(GroceryPantryRepository).set(account!.id, 'brownRice', 500);
+
+    const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
+
+    expect(queued.lines[0]).toEqual(
+      expect.objectContaining({ units: 1, fromPantry: 500, grams: 960 }),
+    );
+  });
+
+  it('still carries a food whose product is unknown, so the run goes looking', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const queued = await queueJob(cookie, [{ foodId: 'tofu', grams: 400 }]);
+
+    expect(queued.lines).toEqual([expect.objectContaining({ foodId: 'tofu', grams: 400 })]);
+    expect(queued.lines[0].units).toBeNull();
+  });
+
+  it('hands the basket to the browser that takes the run', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+    const token = await pair(cookie, 'Desktop');
+    await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
+
+    const claimed = await api.graphql<{ claimGroceryJob: Job }>(
+      CLAIM_JOB,
+      undefined,
+      undefined,
+      asDevice(token),
+    );
+
+    expect(claimed.data?.claimGroceryJob.lines).toEqual([
+      expect.objectContaining({ foodId: 'brownRice', ean: RICE.ean, units: 2 }),
+    ]);
   });
 });
