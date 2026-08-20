@@ -108,6 +108,15 @@ export class UserRepository {
 
   // The whole row rather than the model: the guard needs the session counter,
   // which has no business being a GraphQL field.
+  // Erases the account itself. The profile and the composed weeks go with it,
+  // carried by the foreign keys; problem reports stay, detached from whoever
+  // filed them, because a bug does not stop existing when its finder leaves.
+  async deleteById(id: string): Promise<boolean> {
+    const deleted = await this.database.delete(user).where(eq(user.id, id)).returning();
+
+    return deleted.length > 0;
+  }
+
   async findRecordById(id: string): Promise<UserRecord | undefined> {
     const [record] = await this.database.select().from(user).where(eq(user.id, id));
 

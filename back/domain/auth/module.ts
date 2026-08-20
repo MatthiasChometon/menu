@@ -6,6 +6,7 @@ import { EmailAllowlist } from './allowlist.service';
 import { sessionSecret } from './secret';
 import { SessionCookie } from './currentUser/cookie';
 import { AuthGuard } from './currentUser/guard';
+import { AccountDeletionController } from './accountDeletion/controller';
 import { EmailAndPasswordController } from './emailAndPassword/controller';
 import { EmailVerificationController } from './emailVerification/controller';
 import { EmailVerificationService } from './emailVerification/service';
@@ -34,6 +35,7 @@ import { AuthService } from './service';
     EmailVerificationController,
     PasswordResetController,
     GoogleController,
+    AccountDeletionController,
   ],
   providers: [
     AuthService,
