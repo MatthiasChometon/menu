@@ -4,8 +4,10 @@ import { GroceryBasketRepository } from './basket/repository';
 import { BasketTargetService } from './basket/target.service';
 import { BasketLine, FoodNeed } from './basket/type';
 import { GroceryCatalogRepository } from './catalog/repository';
+import { GroceryJobStatus } from './enum';
 import { GroceryJob } from './job/model';
 import { GroceryJobRepository } from './job/repository';
+import { JobReport } from './job/type';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPreferenceRepository } from './preference/repository';
 
@@ -44,6 +46,33 @@ export class GroceryService {
     const job = await this.jobs.findForUser(userId, jobId);
 
     return job === undefined ? undefined : this.withLines(job);
+  }
+
+  // Closing a run is also when the cupboard is restated: a week that has been
+  // bought leaves something behind, and without this the next order buys a
+  // second bag of rice for the 40 g still on the shelf.
+  async close(
+    jobId: string,
+    deviceId: string,
+    userId: string,
+    status: GroceryJobStatus,
+    report: JobReport,
+    missingFoodIds: string[],
+  ): Promise<GroceryJob | undefined> {
+    const job = await this.jobs.finish(jobId, deviceId, status, report);
+    if (job === undefined) {
+      return undefined;
+    }
+
+    if (status === GroceryJobStatus.SUCCEEDED) {
+      const lines = await this.basket.linesOf(jobId);
+      // A line the shop could not supply was never bought, so it must not be
+      // counted as sitting in the cupboard.
+      const bought = lines.filter((line): boolean => !missingFoodIds.includes(line.foodId));
+      await this.pantry.replace(userId, this.target.leftoversAfter(bought));
+    }
+
+    return this.withLines(job);
   }
 
   async claim(userId: string, deviceId: string): Promise<GroceryJob | undefined> {

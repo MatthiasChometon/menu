@@ -61,6 +61,7 @@ const runOnce = async (): Promise<void> => {
       productsCents: Math.round(result.productsAmount * 100),
       deliveryFeesCents: Math.round(result.deliveryFees * 100),
       shortOfMinimumCents: Math.round(result.shortOfMinimum * 100),
+      missingFoodIds: result.missing,
     });
     await chrome.notifications.create({
       type: 'basic',

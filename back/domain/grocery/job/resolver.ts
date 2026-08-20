@@ -82,7 +82,14 @@ export class GroceryJobResolver {
     @Args('jobId', { type: () => ID }) jobId: string,
     @Args('input') input: GroceryJobOutcomeInput,
   ): Promise<GroceryJob> {
-    const job = await this.jobs.finish(jobId, device.id, GroceryJobStatus[input.outcome], input);
+    const job = await this.grocery.close(
+      jobId,
+      device.id,
+      device.userId,
+      GroceryJobStatus[input.outcome],
+      input,
+      input.missingFoodIds,
+    );
     if (job === undefined) {
       throw new NotFoundException();
     }

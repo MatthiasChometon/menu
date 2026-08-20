@@ -446,3 +446,74 @@ describe('telling the reader what the basket costs', () => {
     expect(closed?.shortOfMinimumCents).toBe(2800);
   });
 });
+
+describe('what the week leaves in the cupboard', () => {
+  const RICE = {
+    foodId: 'brownRice',
+    ean: '3560070510771',
+    name: "Riz Complet CARREFOUR CLASSIC'",
+    size: 500,
+  };
+
+  const runAndClose = async (
+    cookie: string,
+    needs: { foodId: string; grams: number }[],
+    closing: Record<string, unknown> = {},
+  ): Promise<void> => {
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie, needs);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED', ...closing } },
+      undefined,
+      asDevice(token),
+    );
+  };
+
+  const pantryOf = async (email: string): Promise<Map<string, number>> => {
+    const account = await api.resolve(UserRepository).findRecordByEmail(email);
+
+    return api.resolve(GroceryPantryRepository).forUser(account!.id);
+  };
+
+  it('keeps what was bought over what was eaten', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+
+    // Two boxes of 500 g bought for 960 g eaten.
+    await runAndClose(cookie, [{ foodId: 'brownRice', grams: 960 }]);
+
+    expect((await pantryOf('matthias@example.com')).get('brownRice')).toBe(40);
+  });
+
+  it('does not stock what the shop never supplied', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+
+    await runAndClose(cookie, [{ foodId: 'brownRice', grams: 960 }], {
+      missingFoodIds: ['brownRice'],
+    });
+
+    expect((await pantryOf('matthias@example.com')).has('brownRice')).toBe(false);
+  });
+
+  it('leaves the cupboard alone when the run did not succeed', async () => {
+    const cookie = await signIn('matthias@example.com');
+    await api.resolve(GroceryCatalogRepository).record([RICE]);
+    const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
+    await api.resolve(GroceryPantryRepository).set(account!.id, 'oats', 300);
+
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    await api.graphql(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'BLOCKED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    expect((await pantryOf('matthias@example.com')).get('oats')).toBe(300);
+  });
+});

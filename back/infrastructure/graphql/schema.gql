@@ -165,6 +165,7 @@ enum GroceryJobOutcome {
 """What a run found once it was done."""
 input GroceryJobOutcomeInput {
   deliveryFeesCents: Int
+  missingFoodIds: [String!]! = []
   outcome: GroceryJobOutcome!
 
   """Groceries only, in cents."""

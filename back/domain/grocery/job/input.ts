@@ -2,6 +2,7 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
+  IsArray,
   IsEnum,
   IsInt,
   IsISO8601,
@@ -93,4 +94,12 @@ export class GroceryJobOutcomeInput {
   @IsInt()
   @Min(0)
   shortOfMinimumCents?: number;
+
+  // What never made it into the basket. It must not be counted into the
+  // cupboard, or the next order would skip buying it again.
+  @Field(() => [String], { defaultValue: [] })
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(jobConstraints().maxNeedsPerJob)
+  missingFoodIds!: string[];
 }

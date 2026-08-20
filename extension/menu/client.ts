@@ -5,6 +5,8 @@ export type JobOutcome = {
   productsCents?: number;
   deliveryFeesCents?: number;
   shortOfMinimumCents?: number;
+  /** Foods that never made it into the basket, so the cupboard does not count them. */
+  missingFoodIds?: string[];
 };
 
 type GraphqlResponse<T> = {
