@@ -11,6 +11,8 @@ const PATHS = [
   '/profil',
   '/verification',
   '/reinitialisation',
+  // Signed out it shows only its refusal, which still has to be readable.
+  '/signalements',
 ];
 
 for (const path of PATHS) {

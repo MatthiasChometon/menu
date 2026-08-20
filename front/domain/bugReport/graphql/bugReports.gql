@@ -1,0 +1,16 @@
+query bugReports {
+  bugReports {
+    id
+    severity
+    message
+    status
+    reportedBy
+    createdAt
+    context {
+      page
+      userAgent
+      viewport
+      locale
+    }
+  }
+}

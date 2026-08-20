@@ -4,6 +4,9 @@
       <MenuHeader />
     </template>
     <slot />
+
+    <BugReportButton />
+    <BugReportDialog />
     <template #footer>
       <MenuBottomNav />
     </template>

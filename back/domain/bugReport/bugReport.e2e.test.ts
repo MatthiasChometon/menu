@@ -103,11 +103,32 @@ describe('reporting a problem', () => {
 });
 
 describe('reading the reports', () => {
+  it('tells the front whether to offer the reports at all', async () => {
+    const reader = await api.signUp(READER, PASSWORD);
+    const asReader = await api.graphql<{ amIAdmin: boolean }>(
+      'query { amIAdmin }',
+      undefined,
+      reader,
+    );
+
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const asAdmin = await api.graphql<{ amIAdmin: boolean }>(
+      'query { amIAdmin }',
+      undefined,
+      admin,
+    );
+
+    // Hiding a menu entry is not a protection — the guard above is. This only
+    // stops the site offering a door that would slam in the reader's face.
+    expect(asReader.data?.amIAdmin).toBe(false);
+    expect(asAdmin.data?.amIAdmin).toBe(true);
+  });
+
   it('keeps them from an account that is not an administrator', async () => {
     const session = await api.signUp(READER, PASSWORD);
     await api.graphql(REPORT, reportOf('/', 'Un souci quelque part sur la page.'), session);
 
-    const response = await api.graphql(LIST, undefined, session);
+    const response = await api.graphql<{ bugReports: unknown[] }>(LIST, undefined, session);
 
     // Signed in is not enough. The reports carry other people words and the
     // pages they were on, which is nobody else business.

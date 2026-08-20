@@ -52,6 +52,7 @@
       "expiredTitle": "Ce lien ne fonctionne plus",
       "expiredBody": "Il a peut-être déjà servi, ou il a expiré. Demandes-en un nouveau depuis la page de connexion.",
       "retry": "Retour à la connexion"
-    }
+    },
+    "account": "Mon compte"
   }
 }

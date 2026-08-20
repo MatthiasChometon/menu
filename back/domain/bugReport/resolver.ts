@@ -4,6 +4,7 @@ import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
 import { User } from '../user/model';
 import { BugSeverity, BugStatus } from './enum';
+import { Admins } from './admins.service';
 import { AdminGuard } from './guard';
 import { BugStatusInput, ReportBugInput } from './input';
 import { BugReport } from './model';
@@ -26,6 +27,7 @@ export class BugReportResolver {
   constructor(
     private readonly service: BugReportService,
     private readonly reports: BugReportRepository,
+    private readonly admins: Admins,
   ) {}
 
   // Signed in, but nothing more: anybody using the site may say what is broken,
@@ -39,6 +41,16 @@ export class BugReportResolver {
     const record = await this.service.report(user, input);
 
     return present(record, user.email);
+  }
+
+  // Asked by the front so it can hide a menu entry that would only ever fail.
+  // Its own question rather than a field on the user: whether somebody may read
+  // the reports is this slice's business, and the account model has no reason
+  // to learn about it.
+  @Query(() => Boolean, { description: 'Whether the signed-in account may read the reports.' })
+  @UseGuards(AuthGuard)
+  amIAdmin(@CurrentUser() user: User): boolean {
+    return this.admins.has(user.email);
   }
 
   // AuthGuard first: it is what puts the user on the request for AdminGuard to
