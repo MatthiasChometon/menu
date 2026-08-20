@@ -21,7 +21,8 @@
     "saving": {
       "signedOut": "Connecte-toi pour la retrouver sur ton téléphone.",
       "pending": "Modifications non enregistrées.",
-      "done": "Enregistrée sur ton compte."
+      "done": "Enregistrée sur ton compte à",
+      "justDone": "Enregistré"
     },
     "group": {
       "main": "Déjeuner et dîner",

@@ -183,7 +183,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
               :src="imageOf(dish)"
               :alt="nameOf(dish)"
               icon="i-lucide-cooking-pot"
-              class="transition-transform duration-500 group-hover:scale-105"
+              class="transform-gpu transition-transform duration-500 will-change-transform group-hover:scale-105"
             />
             <!-- A tinted veil over the whole photograph rather than a badge in a
                  corner: a green tick on a green dish disappears, but a card that

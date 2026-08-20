@@ -114,4 +114,29 @@ body {
   .rise {
     animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+
+  /* A confirmation that lands rather than fades: the eye catches movement it
+     did not initiate, which is exactly what a quiet colour change misses. */
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .pop {
+    display: inline-block;
+    animation: pop 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Movement is a preference, not a given. */
+  @media (prefers-reduced-motion: reduce) {
+    .pop {
+      animation: none;
+    }
+  }
 }

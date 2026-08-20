@@ -31,7 +31,7 @@ const isReady = computed((): boolean => statusOf(meal.recipe.id) === 'done');
           :src="imageOf(meal.recipe)"
           :alt="nameOf(meal.recipe)"
           icon="i-lucide-cooking-pot"
-          class="transition-transform duration-500 group-hover:scale-105"
+          class="transform-gpu transition-transform duration-500 will-change-transform group-hover:scale-105"
         />
       </div>
 

@@ -27,13 +27,37 @@ const {
 } = usePlanner();
 const { dayOrder } = useMenu();
 
+// Long enough to be noticed while looking down at a phone, short enough not to
+// hide the button's real purpose.
+const JUST_SAVED_MS = 2500;
+
+const justSaved = ref(false);
+const savedLabel = computed((): string =>
+  savedAt.value === undefined
+    ? ''
+    : new Date(savedAt.value).toLocaleTimeString(locale.value, {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+);
+
+watch(savedAt, (at): void => {
+  if (at === undefined) return;
+
+  justSaved.value = true;
+  const timer = setTimeout((): void => {
+    justSaved.value = false;
+  }, JUST_SAVED_MS);
+  onScopeDispose((): void => clearTimeout(timer));
+});
+
 const hasAnyChoice = computed((): boolean =>
   Object.values(chosenDishes.value).some((picked): boolean => (picked ?? []).length > 0),
 );
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();
 const { user } = useAuth();
-const { t } = useNuxtApp().$i18n;
+const { t, locale } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const isMounted = useMounted();
 
@@ -227,20 +251,29 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
         class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"
       >
         <div class="flex flex-wrap items-center gap-3">
+          <!-- The button confirms its own action. It is where the finger and
+               the eye already are, so nothing has to appear elsewhere and
+               nothing flies past while somebody is looking down. -->
           <UButton
-            icon="i-lucide-cloud-upload"
+            :icon="justSaved ? 'i-lucide-check' : 'i-lucide-cloud-upload'"
+            :color="justSaved ? 'success' : 'primary'"
             :loading="isSaving"
-            :disabled="!canSave"
+            :disabled="!canSave && !justSaved"
+            class="transition-colors"
             @click="save"
           >
-            {{ $t('planner.save') }}
+            <span :key="String(justSaved)" class="pop">
+              {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
+            </span>
           </UButton>
           <p v-if="user === undefined" class="text-sm text-muted">
             {{ $t('planner.saving.signedOut') }}
           </p>
           <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
-          <p v-else-if="savedAt !== undefined" class="text-sm text-primary">
-            {{ $t('planner.saving.done') }}
+          <!-- Kept afterwards, with the time: the question "is it actually
+               saved?" comes back long after the confirmation has gone. -->
+          <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
+            {{ $t('planner.saving.done') }} {{ savedLabel }}
           </p>
         </div>
       </section>

@@ -21,7 +21,8 @@
     "saving": {
       "signedOut": "Sign in to find it again on your phone.",
       "pending": "Unsaved changes.",
-      "done": "Saved to your account."
+      "done": "Saved to your account at",
+      "justDone": "Saved"
     },
     "group": {
       "main": "Lunch and dinner",

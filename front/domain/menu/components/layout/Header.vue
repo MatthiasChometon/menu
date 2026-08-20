@@ -94,7 +94,7 @@ const isDark = computed({
           aria-hidden="true"
           width="36"
           height="36"
-          class="size-9 shrink-0 rounded-xl transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
+          class="size-9 shrink-0 transform-gpu rounded-xl transition-transform duration-300 will-change-transform group-hover:-rotate-12 group-hover:scale-110"
         />
         <span class="min-w-0 leading-tight">
           <span class="block truncate text-sm font-bold sm:text-base">
