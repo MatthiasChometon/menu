@@ -134,9 +134,42 @@ La session ouverte le 03/08/2026 était **expirée au 20/08** — moins de trois
 L'utilisateur devra se reconnecter lui-même périodiquement ; le job doit détecter
 l'expiration proprement (`GET /api/me`) et la signaler sans jamais tenter de se connecter.
 
+## Créneaux : `GET /api/timeslots?facilityServiceId=<id>`
+
+Observé le 20/08/2026, session ouverte.
+
+```
+timeslots[] : { availableDay, daySlot: "friday", day: "V.", date: "21 Aou", cells[] }
+cells[]     : { ref, hourStart "06h30", hourEnd "08h30", available, selected, fees,
+                date: { begin, end, cutoff }, fillRate, capacityMax, capacityUsed,
+                dayTime: "morning", facilityServiceId, storeRef }
+```
+
+`cutoff` est l'heure limite pour commander ce créneau — à respecter, sinon le créneau
+retenu ne vaut rien. `fees` porte les frais **de ce créneau** : ils varient d'un créneau à
+l'autre, le total du panier ne les connaît qu'après coup.
+
+Le panier expose en permanence le créneau courant (`slot`) avec son `ref`, `isBooked`,
+`isDefault` : **un créneau par défaut est déjà pré-sélectionné**, non réservé.
+
+**La réservation reste à observer.** L'interface annonce « Disponible pendant 1 min » sur
+chaque créneau : la retenue est très courte, ce qui interdit de réserver avant d'avoir
+rempli le panier. L'ordre du job doit donc être remplir, puis réserver — jamais l'inverse.
+
+## Savoir si la session est ouverte : pas d'endpoint
+
+**`/api/me` répond 404 qu'il y ait une session ou non**, et il en va de même de
+`/api/user`, `/api/customer`, `/api/account`, `/api/loyalty`. S'y fier ferait refuser tous
+les runs sur une session parfaitement valide — l'erreur a été commise puis corrigée.
+
+La page, elle, dit la vérité : elle propose « Me connecter » à un visiteur et affiche
+« Bonjour &lt;prénom&gt; » à un compte. Le moteur tourne dans cette page, donc il lit la
+réponse là où l'utilisateur la lit lui-même.
+
 ## Reste à observer, session ouverte requise
 
-- L'endpoint de réservation de créneau, et si un créneau réservé est tenu.
-- Le point de blocage exact du paiement, et si `subBasketType: "drive_clcv"` change en
-  livraison à domicile connectée.
-- La sémantique de `counter`.
+- L'appel qui réserve réellement un créneau (le tunnel s'ouvre mais reste à parcourir
+  avec un panier rempli).
+- Le point de blocage exact du paiement.
+- La sémantique de `counter` — **sans objet** : le moteur écrit, relit le panier et corrige
+  l'écart, ce qui est juste sous les deux lectures possibles.

@@ -33,6 +33,18 @@ export type Session = {
   name?: string;
 };
 
+export type DeliverySlot = {
+  ref: string;
+  /** Local ISO times, as the shop states them. */
+  begin: string;
+  end: string;
+  /** Latest moment an order for this slot may be placed. */
+  cutoff?: string;
+  available: boolean;
+  selected: boolean;
+  feesCents?: number;
+};
+
 // What the engine is allowed to ask of the shop. Narrow on purpose: anything
 // wider would let the engine reach for the network on its own, and it would
 // stop being testable without one.
@@ -43,4 +55,5 @@ export type ShopClient = {
   /** Sets quantities in one call. Whether counter is absolute is the shop's business. */
   put: (items: { ean: string; counter: number }[]) => Promise<Cart>;
   search: (terms: string) => Promise<SearchHit[]>;
+  slots: () => Promise<DeliverySlot[]>;
 };

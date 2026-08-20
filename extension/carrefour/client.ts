@@ -1,4 +1,4 @@
-import { Cart, CartLine, SearchHit, Session, ShopClient } from './type';
+import { Cart, CartLine, DeliverySlot, SearchHit, Session, ShopClient } from './type';
 
 type RawCart = {
   cart?: {
@@ -20,7 +20,15 @@ type RawProduct = {
   product?: { attributes?: { ean?: string; title?: string; offerServiceId?: string } };
 };
 
-type RawSession = { firstname?: string; email?: string; isConnected?: boolean };
+type RawCell = {
+  ref?: string;
+  available?: boolean;
+  selected?: boolean;
+  fees?: number | null;
+  date?: { begin?: string; end?: string; cutoff?: string | null };
+};
+
+type RawSlots = { timeslots?: { availableDay?: boolean; cells?: RawCell[] }[] };
 
 const JSON_HEADERS = { accept: 'application/json' };
 
@@ -31,11 +39,19 @@ export class CarrefourClient implements ShopClient {
   private serviceId = '';
   private subBasketType = 'drive_clcv';
 
-  async session(): Promise<Session> {
-    const raw = await this.read<RawSession>('/api/me');
-    const name = raw.firstname;
+  // There is no endpoint that answers this. /api/me returns 404 whether or not
+  // a session exists, so asking it would have every run refuse to start on a
+  // perfectly good session. The page itself is the honest source: it shows a
+  // sign-in control to visitors and greets the account by name otherwise.
+  session(): Promise<Session> {
+    const signInControl = [...document.querySelectorAll('a, button')].some((element): boolean =>
+      /me connecter|se connecter/i.test(element.textContent ?? ''),
+    );
 
-    return { signedIn: raw.isConnected === true || name !== undefined, name };
+    return Promise.resolve({
+      signedIn: !signInControl,
+      name: document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/)?.[1],
+    });
   }
 
   async cart(): Promise<Cart> {
@@ -88,6 +104,29 @@ export class CarrefourClient implements ShopClient {
         };
       })
       .filter((hit): hit is SearchHit => hit !== undefined);
+  }
+
+  // Every day the shop offers, flattened: the engine picks by time of day, not
+  // by which column the site draws it in.
+  async slots(): Promise<DeliverySlot[]> {
+    const raw = await this.read<RawSlots>(
+      `/api/timeslots?facilityServiceId=${encodeURIComponent(this.serviceId)}`,
+    );
+
+    return (raw.timeslots ?? [])
+      .filter((day): boolean => day.availableDay !== false)
+      .flatMap((day): RawCell[] => day.cells ?? [])
+      .map((cell): DeliverySlot => ({
+        ref: cell.ref ?? '',
+        begin: cell.date?.begin ?? '',
+        end: cell.date?.end ?? '',
+        cutoff: cell.date?.cutoff ?? undefined,
+        available: cell.available !== false,
+        selected: cell.selected === true,
+        feesCents:
+          cell.fees === null || cell.fees === undefined ? undefined : Math.round(cell.fees * 100),
+      }))
+      .filter((slot): boolean => slot.ref !== '' && slot.begin !== '');
   }
 
   // Without this header the site answers with its own HTML and a status that

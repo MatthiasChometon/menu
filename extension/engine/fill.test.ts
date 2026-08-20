@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Cart, CartLine, SearchHit, ShopClient, Session } from '../carrefour/type';
+import { Cart, CartLine, DeliverySlot, SearchHit, ShopClient, Session } from '../carrefour/type';
 import { BasketFiller } from './fill';
 import { PlannedLine, ReportedEvent } from './type';
 
@@ -20,6 +20,7 @@ type ShopOptions = {
   /** Most a given barcode can reach, whatever is asked. */
   stockCap?: Record<string, number>;
   startsWith?: CartLine[];
+  slots?: DeliverySlot[];
 };
 
 // A stand-in shop, which is the point of the exercise: the engine must come out
@@ -75,6 +76,7 @@ const fakeShop = (
       return Promise.resolve(cartOf());
     },
     search: (): Promise<SearchHit[]> => Promise.resolve([]),
+    slots: (): Promise<DeliverySlot[]> => Promise.resolve(options.slots ?? []),
   };
 
   return { ...shop, held, state };
