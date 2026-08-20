@@ -6,6 +6,7 @@ const BEHAVIOUR_ONLY = [
   '**/composer.e2e.test.ts',
   '**/linkPreview.e2e.test.ts',
   '**/pointer.e2e.test.ts',
+  '**/photos.e2e.test.ts',
 ];
 
 export default defineConfig({
