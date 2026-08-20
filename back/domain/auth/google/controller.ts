@@ -1,4 +1,11 @@
-import { Controller, Get, Query, Res, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Query,
+  Res,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AUTH_WINDOW_MS, GOOGLE_ATTEMPTS } from '../../../infrastructure/http/throttler.module';
 import { ConfigService } from '@nestjs/config';
@@ -67,6 +74,15 @@ export class GoogleController {
       profile.email,
       profile.name,
     );
+
+    // A blocked account gets no session at all, rather than one the guard would
+    // refuse a moment later: signed in and unable to do anything is a worse
+    // answer than plainly signed out.
+    const record = await this.users.findRecordById(user.id);
+    if (record?.blockedAt != null) {
+      throw new ForbiddenException('This account has been blocked.');
+    }
+
     const token = await this.auth.signSession(user.id);
 
     reply

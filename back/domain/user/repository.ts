@@ -114,6 +114,15 @@ export class UserRepository {
     return record;
   }
 
+  /** Shuts an account out of the site, or lets it back in. Reversible on
+   *  purpose: a judgement nobody dares undo is one nobody dares make. */
+  async setBlocked(id: string, blocked: boolean): Promise<void> {
+    await this.database
+      .update(user)
+      .set({ blockedAt: blocked ? new Date() : null })
+      .where(eq(user.id, id));
+  }
+
   async findById(id: string): Promise<User | undefined> {
     const [record] = await this.database.select().from(user).where(eq(user.id, id));
 

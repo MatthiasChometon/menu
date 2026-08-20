@@ -61,7 +61,7 @@ const setStatus = async (id: string, status: BugStatus): Promise<void> => {
 // itself. Reversible on the spot: a judgement nobody dares undo is a judgement
 // nobody dares make.
 const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => {
-  await GqlBlockReporter({ input: { reportId, blocked } });
+  await GqlBlockAccount({ input: { reportId, blocked } });
   await refresh();
 };
 </script>

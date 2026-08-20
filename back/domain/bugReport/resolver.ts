@@ -8,6 +8,7 @@ import { Admins } from './admins.service';
 import { AdminGuard } from './guard';
 import { BlockReporterInput, BugStatusInput, ReportBugInput } from './input';
 import { BugReport } from './model';
+import { UserRepository } from '../user/repository';
 import { BugReportRepository, type ReportWithReporter } from './repository';
 import { BugReportService } from './service';
 import type { BugReportRecord } from './type';
@@ -32,6 +33,7 @@ export class BugReportResolver {
   constructor(
     private readonly service: BugReportService,
     private readonly reports: BugReportRepository,
+    private readonly users: UserRepository,
     private readonly admins: Admins,
   ) {}
 
@@ -72,12 +74,14 @@ export class BugReportResolver {
 
   // Acts on the account behind a report rather than on an account id: the list
   // is where a flood is seen, and a report is what you are looking at when you
-  // decide to stop it.
+  // decide to stop it. What it does is shut that account out of the site — not
+  // only out of reporting — because somebody worth stopping is rarely worth
+  // stopping in one place.
   @Mutation(() => Boolean, {
-    description: 'Stops, or resumes, reports from the account behind a report.',
+    description: 'Shuts the account behind a report out of the site, or lets it back in.',
   })
   @UseGuards(AuthGuard, AdminGuard)
-  async blockReporter(@Args('input') input: BlockReporterInput): Promise<boolean> {
+  async blockAccount(@Args('input') input: BlockReporterInput): Promise<boolean> {
     const userId = await this.reports.reporterOf(input.reportId);
     if (userId === undefined) throw new NotFoundException('No such report.');
 
@@ -85,7 +89,7 @@ export class BugReportResolver {
     // saying so is more useful than pretending it worked.
     if (userId === null) throw new NotFoundException('That account no longer exists.');
 
-    await this.reports.setBlocked(userId, input.blocked);
+    await this.users.setBlocked(userId, input.blocked);
 
     return input.blocked;
   }
