@@ -15,6 +15,7 @@
     "lint:fix": "eslint \"{domain,infrastructure}/**/*.ts\" \"main.ts\" \"app.module.ts\" \"drizzle.config.ts\" --fix",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed:products": "nest build && node dist/domain/grocery/catalog/seed.js",
     "db:studio": "drizzle-kit studio",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -50,7 +51,8 @@
     "postgres": "^3.4.9",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
@@ -59,6 +61,7 @@
     "@nestjs/testing": "^11.0.1",
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.1",
+    "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^4.1.9",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.18.0",

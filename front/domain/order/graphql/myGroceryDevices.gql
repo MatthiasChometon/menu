@@ -1,0 +1,8 @@
+query myGroceryDevices {
+  myGroceryDevices {
+    id
+    label
+    pairedAt
+    lastSeenAt
+  }
+}

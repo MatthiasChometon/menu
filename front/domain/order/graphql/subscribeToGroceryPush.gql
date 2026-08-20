@@ -1,0 +1,3 @@
+mutation subscribeToGroceryPush($input: PushSubscriptionInput!) {
+  subscribeToGroceryPush(input: $input)
+}

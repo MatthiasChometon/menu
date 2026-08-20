@@ -68,6 +68,14 @@ input BugStatusInput {
   status: BugStatus!
 }
 
+"""Asks for the basket of a week to be filled."""
+input CreateGroceryJobInput {
+  needs: [FoodNeedInput!]!
+
+  """Monday of the week to order, as YYYY-MM-DD."""
+  weekOf: String!
+}
+
 """
 How the day is spent away from training. Asked separately from training so that a desk job and daily sessions can both be true of the same person.
 """
@@ -77,6 +85,22 @@ enum DailyActivity {
   SEATED
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""How much of one food the week calls for."""
+input FoodNeedInput {
+  foodId: String!
+
+  """Grams or millilitres over the whole week."""
+  grams: Int!
+
+  """How the menu names this food."""
+  label: String
+}
+
 """What the person wants their body weight to do."""
 enum Goal {
   GAIN_MUSCLE
@@ -84,44 +108,199 @@ enum Goal {
   MAINTAIN
 }
 
-"""Somebody else the account holder cooks for."""
-type HouseholdMember {
-  age: Int!
-  appetite: Appetite!
-  dailyActivity: DailyActivity!
-  goal: Goal!
-  heightCm: Int!
-  id: ID!
+"""One thing a run is meant to put in the basket."""
+type GroceryBasketLine {
+  """Barcode the shop accepts. Absent while no product is known."""
+  ean: String
 
-  """What to call them on the recipe page. Not a login."""
-  name: String!
-  sex: Sex!
-  starchQuality: StarchQuality!
+  """The food of the menu this stands for."""
+  foodId: String!
+
+  """Grams already at home, hence fewer units to buy."""
+  fromPantry: Int!
+
+  """Grams the menu calls for, before the cupboard is counted."""
+  grams: Int!
+
+  """How the menu names it, which a substitute must live up to."""
+  label: String
+  productName: String
+
+  """Usable content of one unit."""
+  unitSize: Int
 
   """
-  Worked out from the answers, the same way the account holder’s own are.
+  How many to buy. Absent when the run still has to find the product itself.
   """
-  targets: NutritionTargets!
-  trainingDaysPerWeek: Int!
-  trainingType: TrainingType!
-  weightKg: Int!
+  units: Int
 }
 
-"""A person to cook for: a name, and the answers everyone else gives."""
-input HouseholdMemberInput {
-  age: Int!
-  appetite: Appetite!
-  dailyActivity: DailyActivity!
-  goal: Goal!
-  heightCm: Int!
-  name: String!
-  sex: Sex!
-  starchQuality: StarchQuality!
+"""A browser allowed to run the orders of an account."""
+type GroceryDevice {
+  id: ID!
 
-  """Training sessions in a normal week."""
-  trainingDaysPerWeek: Int!
-  trainingType: TrainingType!
-  weightKg: Int!
+  """What the owner called it, to tell two browsers apart."""
+  label: String!
+
+  """Last time it asked for work."""
+  lastSeenAt: DateTime
+  pairedAt: DateTime!
+}
+
+"""One request to fill the basket of a week."""
+type GroceryJob {
+  """
+  Warn above this total, in cents. Copied from the preferences when the run was asked for.
+  """
+  alertThresholdCents: Int
+  createdAt: DateTime!
+  deliveryFeesCents: Int
+  events: [GroceryJobEvent!]!
+  finishedAt: DateTime
+  id: ID!
+
+  """What the run is meant to buy, frozen when it was queued."""
+  lines: [GroceryBasketLine!]!
+
+  """
+  Whether the basket went over what this account asked to be warned about.
+  """
+  overThreshold: Boolean!
+
+  """Groceries only, in cents."""
+  productsCents: Int
+
+  """
+  Still missing to reach the shop order minimum. Above zero, nothing can be ordered.
+  """
+  shortOfMinimumCents: Int
+
+  """When a delivery is welcome. Empty means no slot is booked."""
+  slotWindows: [GrocerySlotWindow!]!
+  startedAt: DateTime
+  status: GroceryJobStatus!
+
+  """Monday of the week being ordered, as YYYY-MM-DD."""
+  weekOf: String!
+}
+
+"""Something a run reported while it was working."""
+type GroceryJobEvent {
+  at: DateTime!
+
+  """Why, in one sentence: what was substituted and for what."""
+  detail: String
+
+  """The food of the menu this concerns, when it is about one."""
+  foodId: String
+  id: ID!
+  kind: GroceryJobEventKind!
+
+  """The product as the shop names it."""
+  label: String
+}
+
+"""What a run reports as it works."""
+input GroceryJobEventInput {
+  detail: String
+  foodId: String
+  kind: GroceryJobEventKind!
+  label: String
+}
+
+"""What a run reported while it was working."""
+enum GroceryJobEventKind {
+  BLOCKED
+  CART_EMPTIED
+  FINISHED
+  LINE_ADDED
+  LINE_MISSING
+  LINE_SUBSTITUTED
+  SLOT_BOOKED
+  SLOT_UNAVAILABLE
+  STARTED
+}
+
+"""How a run ended."""
+enum GroceryJobOutcome {
+  BLOCKED
+  FAILED
+  SUCCEEDED
+}
+
+"""What a run found once it was done."""
+input GroceryJobOutcomeInput {
+  deliveryFeesCents: Int
+  missingFoodIds: [String!]! = []
+  observations: [GroceryObservationInput!]! = []
+  outcome: GroceryJobOutcome!
+
+  """Groceries only, in cents."""
+  productsCents: Int
+
+  """
+  Still missing to reach the shop order minimum. Above zero, it cannot be ordered.
+  """
+  shortOfMinimumCents: Int
+}
+
+"""
+Where an order run stands. BLOCKED means the shop asked for something a machine must not answer: a sign-in, a captcha.
+"""
+enum GroceryJobStatus {
+  BLOCKED
+  FAILED
+  PENDING
+  RUNNING
+  SUCCEEDED
+}
+
+"""A product a run actually put in the basket."""
+input GroceryObservationInput {
+  ean: String!
+  foodId: String!
+  name: String!
+
+  """What one unit cost, in cents."""
+  priceCents: Int!
+
+  """
+  Content of one unit. Only a substitute knows it; a known product keeps its own.
+  """
+  size: Int
+}
+
+"""What this account wants of its orders."""
+type GroceryPreference {
+  """
+  Warn when the basket goes above this, in cents. Absent means never warn.
+  """
+  alertThresholdCents: Int
+}
+
+input GroceryPreferenceInput {
+  alertThresholdCents: Int
+}
+
+"""A stretch of a weekday during which a delivery is welcome."""
+type GrocerySlotWindow {
+  endMinute: Int!
+
+  """Minutes from midnight."""
+  startMinute: Int!
+
+  """1 is Monday, 7 is Sunday, as ISO 8601 numbers them."""
+  weekday: Int!
+}
+
+input GrocerySlotWindowInput {
+  endMinute: Int!
+  startMinute: Int!
+  weekday: Int!
+}
+
+input GrocerySlotWindowsInput {
+  windows: [GrocerySlotWindowInput!]!
 }
 
 input MeasurementsInput {
@@ -140,19 +319,39 @@ input MeasurementsInput {
 }
 
 type Mutation {
-  addHouseholdMember(input: HouseholdMemberInput!): HouseholdMember!
-
   """Shuts the account behind a report out of the site, or lets it back in."""
   blockAccount(input: BlockReporterInput!): Boolean!
+
+  """
+  Takes the oldest waiting run of the account this browser is paired with.
+  """
+  claimGroceryJob: GroceryJob
+
+  """
+  Queues a basket to be filled. It waits until a paired browser comes online, so asking from a phone works.
+  """
+  createGroceryJob(input: CreateGroceryJobInput!): GroceryJob!
 
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!
 
-  """Removes a member. Their name stops appearing at once."""
-  removeHouseholdMember(id: ID!): Boolean!
+  """Closes a run, whatever became of it."""
+  finishGroceryJob(input: GroceryJobOutcomeInput!, jobId: ID!): GroceryJob!
+
+  """
+  Pairs a browser with this account and hands it the token it will carry.
+  """
+  pairGroceryDevice(label: String!): PairedGroceryDevice!
 
   """Reports a problem with the site."""
   reportBug(input: ReportBugInput!): BugReport!
+
+  """Reports progress on a run being worked on."""
+  reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
+  saveGroceryPreference(input: GroceryPreferenceInput!): GroceryPreference!
+
+  """Replaces the windows wholesale."""
+  saveGrocerySlotWindows(input: GrocerySlotWindowsInput!): [GrocerySlotWindow!]!
 
   """Creates the profile, or replaces it wholesale."""
   saveProfile(input: MeasurementsInput!): Profile!
@@ -163,8 +362,12 @@ type Mutation {
   """Marks a report as handled. Null when there is no such report."""
   setBugStatus(input: BugStatusInput!): BugReport
 
-  """Replaces a member wholesale."""
-  updateHouseholdMember(input: UpdateHouseholdMemberInput!): HouseholdMember!
+  """Agrees to be told on this browser."""
+  subscribeToGroceryPush(input: PushSubscriptionInput!): Boolean!
+
+  """Revokes a browser. It stops being able to run orders immediately."""
+  unpairGroceryDevice(deviceId: ID!): Boolean!
+  unsubscribeFromGroceryPush(endpoint: String!): Boolean!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -181,6 +384,14 @@ type NutritionTargets {
 
   """Grams of protein per day."""
   protein: Int!
+}
+
+"""
+A freshly paired browser. The token is returned once and never again: it is stored hashed.
+"""
+type PairedGroceryDevice {
+  device: GroceryDevice!
+  token: String!
 }
 
 """What was chosen for one day. Missing meals are simply absent."""
@@ -241,6 +452,13 @@ type Profile {
   weightKg: Int!
 }
 
+"""What a browser hands over when it agrees to be told."""
+input PushSubscriptionInput {
+  auth: String!
+  endpoint: String!
+  p256dh: String!
+}
+
 type Query {
   """Whether the signed-in account may read the reports."""
   amIAdmin: Boolean!
@@ -248,11 +466,30 @@ type Query {
   """Every report, newest first. Administrators only."""
   bugReports: [BugReport!]!
 
-  """Everybody the signed-in user cooks for, besides themselves."""
-  householdMembers: [HouseholdMember!]!
+  """
+  One run with everything it reported, which is what the live view follows.
+  """
+  groceryJob(jobId: ID!): GroceryJob
+
+  """
+  The public key a browser needs to subscribe. Null when no keys are set, and then no push is ever sent.
+  """
+  groceryPushKey: String
 
   """The signed-in user."""
   me: User!
+
+  """The browsers this account has paired."""
+  myGroceryDevices: [GroceryDevice!]!
+
+  """Every run this account has asked for, newest first."""
+  myGroceryJobs: [GroceryJob!]!
+
+  """What this account wants of its orders."""
+  myGroceryPreference: GroceryPreference!
+
+  """When a delivery is welcome. Empty means no slot is ever booked."""
+  myGrocerySlotWindows: [GrocerySlotWindow!]!
 
   """
   The signed-in user profile, or null when the form has never been filled in.
@@ -304,23 +541,6 @@ enum TrainingType {
   MIXED
   NONE
   STRENGTH
-}
-
-input UpdateHouseholdMemberInput {
-  age: Int!
-  appetite: Appetite!
-  dailyActivity: DailyActivity!
-  goal: Goal!
-  heightCm: Int!
-  id: ID!
-  name: String!
-  sex: Sex!
-  starchQuality: StarchQuality!
-
-  """Training sessions in a normal week."""
-  trainingDaysPerWeek: Int!
-  trainingType: TrainingType!
-  weightKg: Int!
 }
 
 type User {

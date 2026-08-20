@@ -4,8 +4,9 @@ import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { AuthModule } from './domain/auth/module';
 import { BugReportModule } from './domain/bugReport/module';
-import { ImageLibraryModule } from './domain/imageLibrary/module';
+import { GroceryModule } from './domain/grocery/module';
 import { HouseholdModule } from './domain/household/module';
+import { ImageLibraryModule } from './domain/imageLibrary/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
@@ -13,6 +14,7 @@ import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
 import { MailInfrastructureModule } from './infrastructure/mail/module';
+import { PushInfrastructureModule } from './infrastructure/push/module';
 import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.module';
 
 @Module({
@@ -23,11 +25,13 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     HealthInfrastructureModule,
     DatabaseInfrastructureModule,
     MailInfrastructureModule,
+    PushInfrastructureModule,
     GraphqlInfrastructureModule,
     UserModule,
     AuthModule,
     ProfileModule,
     HouseholdModule,
+    GroceryModule,
     WeekPlanModule,
     BugReportModule,
     ImageLibraryModule,

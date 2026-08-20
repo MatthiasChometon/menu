@@ -1,0 +1,7 @@
+query myGrocerySlotWindows {
+  myGrocerySlotWindows {
+    weekday
+    startMinute
+    endMinute
+  }
+}

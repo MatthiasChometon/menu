@@ -42,8 +42,17 @@ export type TestApp = {
     body: string;
     cookies: TestCookie[];
   }>;
-  /** Send a GraphQL operation the way the front does. */
-  graphql: <T>(query: string, variables?: object, cookie?: string) => Promise<GraphqlResponse<T>>;
+  /**
+   * Send a GraphQL operation the way the front does. Extra headers cover the
+   * callers that carry something other than a session cookie — the paired
+   * browser and its device token.
+   */
+  graphql: <T>(
+    query: string,
+    variables?: object,
+    cookie?: string,
+    headers?: Record<string, string>,
+  ) => Promise<GraphqlResponse<T>>;
   /**
    * Reach a provider directly, for the few behaviours that have no route of
    * their own — a repository answering against a real database rather than a
@@ -196,12 +205,17 @@ export const startTestApp = async (): Promise<TestApp> => {
         cookies: cookiesOf(response.cookies),
       };
     },
-    graphql: async <T>(query: string, variables?: object, cookie?: string) => {
+    graphql: async <T>(
+      query: string,
+      variables?: object,
+      cookie?: string,
+      headers?: Record<string, string>,
+    ) => {
       const response = await app.inject({
         method: 'POST',
         url: '/graphql',
         payload: { query, variables },
-        headers: cookie === undefined ? {} : { cookie },
+        headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
       });
 
       return JSON.parse(response.body) as GraphqlResponse<T>;
@@ -212,7 +226,11 @@ export const startTestApp = async (): Promise<TestApp> => {
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
     reset: async (): Promise<void> => {
-      await database.execute(sql`TRUNCATE TABLE "profile", "user" RESTART IDENTITY CASCADE`);
+      // grocery_product hangs off no account, so CASCADE never reaches it: it
+      // has to be named.
+      await database.execute(
+        sql`TRUNCATE TABLE "profile", "user", "grocery_product" RESTART IDENTITY CASCADE`,
+      );
       sent.length = 0;
     },
     close: (): Promise<void> => app.close(),

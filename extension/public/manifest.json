@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Menu — courses Carrefour",
+  "description": "Remplit le panier Carrefour à partir du menu de la semaine. Ne valide ni ne paie jamais une commande.",
+  "version": "0.1.0",
+  "permissions": [
+    "storage",
+    "tabs",
+    "notifications",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://www.carrefour.fr/*"
+  ],
+  "background": {
+    "service_worker": "background/worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_title": "Menu — courses"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.carrefour.fr/*"
+      ],
+      "js": [
+        "carrefour/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

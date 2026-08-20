@@ -1,0 +1,80 @@
+{
+  "order": {
+    "title": "Order the groceries",
+    "lead": "The Carrefour basket fills itself from this menu, on a paired browser.",
+    "action": "Fill my basket",
+    "working": "Working…",
+    "neverPays": "Ordering and paying stay yours: nothing is confirmed automatically.",
+    "waitingHint": "Open Chrome on a paired machine and the run starts by itself.",
+    "linesDone": "items in the basket",
+    "needsYou": "Worth a look",
+    "status": {
+      "PENDING": "Waiting for a browser",
+      "RUNNING": "Filling the basket",
+      "SUCCEEDED": "Basket ready",
+      "FAILED": "The run failed",
+      "BLOCKED": "Stopped: it needs you"
+    },
+    "error": {
+      "queue": "The request did not go through. Try again in a moment."
+    },
+    "device": {
+      "title": "Paired browsers",
+      "lead": "A paired browser may fill your basket. The token is shown once only.",
+      "label": "Name for this browser",
+      "labelPlaceholder": "Living room desktop",
+      "pair": "Pair a browser",
+      "pairing": "Pairing…",
+      "tokenTitle": "Pairing token",
+      "tokenHint": "Paste it into the extension, then close this. It will never be shown again.",
+      "unpair": "Remove",
+      "empty": "No paired browser yet.",
+      "lastSeen": "Last seen",
+      "never": "never",
+      "dismiss": "Dismiss"
+    },
+    "carrefour": {
+      "title": "Carrefour account",
+      "lead": "Signing in happens at Carrefour, in its own window. No password goes through this site.",
+      "connect": "Connect my Carrefour account"
+    },
+    "cost": {
+      "title": "What it costs",
+      "groceries": "Groceries",
+      "delivery": "Delivery",
+      "total": "Total",
+      "overThreshold": "Above your warning threshold. Check the quantities before paying.",
+      "belowMinimum": "Below the order minimum: this much is still missing before it can be ordered.",
+      "threshold": "Warn me above",
+      "thresholdHint": "Leave empty to never be warned.",
+      "save": "Save",
+      "saved": "Saved."
+    },
+    "slots": {
+      "title": "When to deliver",
+      "lead": "Tick when a delivery suits you. With nothing ticked, no slot is booked.",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "none": "Nothing ticked: the basket will be filled, but you pick the slot yourself.",
+      "save": "Save",
+      "saving": "Saving…"
+    },
+    "weekday": {
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday",
+      "7": "Sunday"
+    },
+    "push": {
+      "title": "Tell me on this phone",
+      "lead": "A notification when the basket is ready, or when the run stopped.",
+      "on": "Turn notifications on",
+      "off": "Stop telling me here",
+      "blocked": "Notifications are blocked for this site in the browser settings."
+    }
+  }
+}

@@ -1,0 +1,5 @@
+mutation saveGroceryPreference($input: GroceryPreferenceInput!) {
+  saveGroceryPreference(input: $input) {
+    alertThresholdCents
+  }
+}

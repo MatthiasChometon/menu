@@ -1,0 +1,26 @@
+query groceryJob($jobId: ID!) {
+  groceryJob(jobId: $jobId) {
+    id
+    weekOf
+    status
+    finishedAt
+    productsCents
+    deliveryFeesCents
+    shortOfMinimumCents
+    overThreshold
+    alertThresholdCents
+    events {
+      id
+      kind
+      at
+      foodId
+      label
+      detail
+    }
+    lines {
+      foodId
+      units
+      productName
+    }
+  }
+}
