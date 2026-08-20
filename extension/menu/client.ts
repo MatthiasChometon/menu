@@ -25,7 +25,7 @@ const CLAIM = `
     claimGroceryJob {
       id
       weekOf
-      lines { foodId grams fromPantry ean productName unitSize units }
+      lines { foodId label grams fromPantry ean productName unitSize units }
     }
   }
 `;

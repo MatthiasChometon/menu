@@ -17,6 +17,7 @@ export class GroceryBasketRepository {
       lines.map((line) => ({
         jobId,
         foodId: line.foodId,
+        label: line.label ?? null,
         grams: line.grams,
         fromPantry: line.fromPantry,
         ean: line.product?.ean ?? null,
@@ -45,6 +46,7 @@ export class GroceryBasketRepository {
 
     return {
       foodId: record.foodId,
+      label: record.label ?? undefined,
       grams: record.grams,
       fromPantry: record.fromPantry,
       product: known,

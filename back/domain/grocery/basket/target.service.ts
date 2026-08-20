@@ -34,11 +34,12 @@ export class BasketTargetService {
     // No product known means the run has to go looking for one, so the line is
     // carried through with no count rather than dropped.
     if (product === undefined) {
-      return { foodId: need.foodId, grams, fromPantry };
+      return { foodId: need.foodId, label: need.label, grams, fromPantry };
     }
 
     return {
       foodId: need.foodId,
+      label: need.label,
       grams,
       fromPantry,
       product,

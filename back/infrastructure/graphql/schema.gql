@@ -39,6 +39,9 @@ input FoodNeedInput {
 
   """Grams or millilitres over the whole week."""
   grams: Int!
+
+  """How the menu names this food."""
+  label: String
 }
 
 """What the person wants their body weight to do."""
@@ -61,6 +64,9 @@ type GroceryBasketLine {
 
   """Grams the menu calls for, before the cupboard is counted."""
   grams: Int!
+
+  """How the menu names it, which a substitute must live up to."""
+  label: String
   productName: String
 
   """Usable content of one unit."""

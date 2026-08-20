@@ -10,6 +10,7 @@ mutation createGroceryJob($input: CreateGroceryJobInput!) {
     alertThresholdCents
     lines {
       foodId
+      label
       grams
       fromPantry
       ean

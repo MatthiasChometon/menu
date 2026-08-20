@@ -1,5 +1,7 @@
 export type PlannedLine = {
   foodId: string;
+  /** How the menu names this food, for when no product is on file yet. */
+  label?: string;
   grams: number;
   fromPantry: number;
   ean?: string;

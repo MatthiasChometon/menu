@@ -50,6 +50,13 @@
       "when": 1787225036315,
       "tag": "0006_medical_white_tiger",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787227914508,
+      "tag": "0007_deep_psynapse",
+      "breakpoints": true
     }
   ]
 }

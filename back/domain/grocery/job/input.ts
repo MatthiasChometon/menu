@@ -51,6 +51,12 @@ export class FoodNeedInput {
   @IsInt()
   @Min(0)
   grams!: number;
+
+  @Field({ nullable: true, description: 'How the menu names this food.' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(jobConstraints().labelMaxLength)
+  label?: string;
 }
 
 @InputType({ description: 'Asks for the basket of a week to be filled.' })

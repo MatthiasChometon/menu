@@ -5,6 +5,12 @@ export class GroceryBasketLine {
   @Field({ description: 'The food of the menu this stands for.' })
   foodId!: string;
 
+  @Field({
+    nullable: true,
+    description: 'How the menu names it, which a substitute must live up to.',
+  })
+  label?: string;
+
   @Field(() => Int, { description: 'Grams the menu calls for, before the cupboard is counted.' })
   grams!: number;
 

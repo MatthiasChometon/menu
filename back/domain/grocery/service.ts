@@ -90,6 +90,7 @@ export class GroceryService {
   private toModel(line: BasketLine): GroceryBasketLine {
     return {
       foodId: line.foodId,
+      label: line.label,
       grams: line.grams,
       fromPantry: line.fromPantry,
       ean: line.product?.ean,

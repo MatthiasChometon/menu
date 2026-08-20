@@ -13,6 +13,8 @@ export const groceryBasketLine = pgTable('grocery_basket_line', {
     .notNull()
     .references(() => groceryJob.id, { onDelete: 'cascade' }),
   foodId: text('food_id').notNull(),
+  // What the menu calls this food. A substitute has to keep every word of it.
+  label: text('label'),
   grams: integer('grams').notNull(),
   fromPantry: integer('from_pantry').notNull(),
   // Absent when no product is known for that food: the run has to search.

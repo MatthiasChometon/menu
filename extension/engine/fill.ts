@@ -1,4 +1,5 @@
 import { Cart, ShopClient } from '../carrefour/type';
+import { Substituter } from './substitute';
 import { FillResult, PlannedLine, ReportedEvent } from './type';
 
 type Report = (event: ReportedEvent) => Promise<void>;
@@ -14,7 +15,11 @@ const isResolved = (line: PlannedLine): line is ResolvedLine =>
   line.ean !== undefined && line.units !== undefined;
 
 export class BasketFiller {
-  constructor(private readonly shop: ShopClient) {}
+  private readonly substituter: Substituter;
+
+  constructor(private readonly shop: ShopClient) {
+    this.substituter = new Substituter(shop);
+  }
 
   async run(planned: PlannedLine[], report: Report): Promise<FillResult> {
     const session = await this.shop.session();
@@ -36,22 +41,18 @@ export class BasketFiller {
     await report({ kind: 'STARTED' });
     await this.emptyExisting(report);
 
-    const resolved = planned.filter(isResolved);
-    const unresolved = planned.filter((line): boolean => !isResolved(line));
+    const known = planned.filter(isResolved);
+    const substituted = await this.substituteAll(
+      planned.filter((line): boolean => !isResolved(line)),
+      report,
+    );
+    const resolved = [...known, ...substituted.found];
 
     const filled = await this.settle(resolved, report);
 
-    for (const line of unresolved) {
-      await report({
-        kind: 'LINE_MISSING',
-        foodId: line.foodId,
-        detail: 'No product on file for this food yet.',
-      });
-    }
-
     const missing = [
       ...this.shortfalls(resolved, filled),
-      ...unresolved.map((line): string => line.foodId),
+      ...substituted.giveUp.map((line): string => line.foodId),
     ];
 
     await report({
@@ -66,6 +67,49 @@ export class BasketFiller {
       shortOfMinimum: filled.remainedAmount,
       missing,
     };
+  }
+
+  // A food with no product on file, or one the shop stopped selling, is worth
+  // looking for rather than dropping — but only a candidate that says
+  // everything the reference said is accepted, and every one is reported so it
+  // can be refused.
+  private async substituteAll(
+    lines: PlannedLine[],
+    report: Report,
+  ): Promise<{ found: ResolvedLine[]; giveUp: PlannedLine[] }> {
+    const found: ResolvedLine[] = [];
+    const giveUp: PlannedLine[] = [];
+
+    for (const line of lines) {
+      const match = await this.substituter.findFor(line);
+      if (match === undefined) {
+        giveUp.push(line);
+        await report({
+          kind: 'LINE_MISSING',
+          foodId: line.foodId,
+          detail: 'No product on file, and nothing close enough on the shelves.',
+        });
+        continue;
+      }
+
+      const missing = line.grams - line.fromPantry;
+      found.push({
+        ...line,
+        ean: match.ean,
+        productName: match.title,
+        unitSize: match.size,
+        units: Math.ceil(missing / match.size),
+      });
+
+      await report({
+        kind: 'LINE_SUBSTITUTED',
+        foodId: line.foodId,
+        label: match.title,
+        detail: `Chosen in place of the usual product, ${match.size} per unit.`,
+      });
+    }
+
+    return { found, giveUp };
   }
 
   private async emptyExisting(report: Report): Promise<void> {
