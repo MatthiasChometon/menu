@@ -22,7 +22,7 @@ const answersOf = (saved: Profile): MeasurementsInput => {
   return answers;
 };
 
-const { targetRows } = useProfileSummary();
+const { targetRows, goalLabelOf, goalIconOf } = useProfileSummary();
 
 useSeoMeta({ title: (): string => t('profile.pageTitle') });
 </script>
@@ -67,6 +67,18 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
           :title="$t('profile.settings.saved')"
         />
 
+        <!-- The goal first: the numbers underneath only mean something once
+             you know what they are aiming at. -->
+        <div
+          class="mb-4 flex items-center gap-3 rounded-2xl border border-default bg-elevated/40 px-4 py-3"
+        >
+          <UIcon :name="goalIconOf(profile)" class="size-6 shrink-0 text-primary" />
+          <div class="min-w-0">
+            <p class="text-xs text-muted">{{ $t('profile.summary.goal') }}</p>
+            <p class="truncate font-bold">{{ goalLabelOf(profile) }}</p>
+          </div>
+        </div>
+
         <div class="mb-6 grid gap-2 sm:grid-cols-2">
           <div
             v-for="row in targetRows(profile.targets)"
@@ -88,7 +100,9 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
            share until those exist. -->
       <ProfileHousehold v-if="user !== undefined && hasAnswered && !isFillingIn" />
 
-      <AuthDeleteAccount v-if="user !== undefined" />
+      <!-- Never while the form is open: an irreversible action has no business
+           sitting under a form somebody is halfway through filling in. -->
+      <AuthDeleteAccount v-if="user !== undefined && !isFillingIn" />
     </ClientOnly>
   </div>
 </template>

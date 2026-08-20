@@ -83,7 +83,8 @@
       "fat": "Fat",
       "carbs": "Carbs",
       "fiber": "Fibre",
-      "perDay": "per day"
+      "perDay": "per day",
+      "goal": "Goal"
     },
     "settings": {
       "title": "My answers",

@@ -7,6 +7,15 @@ const colorMode = useColorMode();
 const { entries } = useNavigation();
 const route = useRoute();
 const { user, signOut } = useAuth();
+const { profile } = useProfile();
+const { goalLabelOf } = useProfileSummary();
+
+// Someone's own goal when they have said what it is, a plain description of the
+// app otherwise. Announcing "Prise de masse" to a reader who is losing weight
+// is worse than saying nothing at all.
+const tagline = computed((): string =>
+  profile.value === undefined ? t('menu.tagline') : goalLabelOf(profile.value),
+);
 
 // Initials, because nothing else identifies the account at a glance and the
 // name is not always there — a Google account without one still has an address.
@@ -91,7 +100,7 @@ const isDark = computed({
           <span class="block truncate text-sm font-bold sm:text-base">
             {{ $t('menu.brand') }}
           </span>
-          <span class="hidden truncate text-xs text-muted sm:block">{{ $t('menu.tagline') }}</span>
+          <span class="hidden truncate text-xs text-muted sm:block">{{ tagline }}</span>
         </span>
       </NuxtLink>
 

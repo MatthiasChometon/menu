@@ -83,7 +83,8 @@
       "fat": "Lipides",
       "carbs": "Glucides",
       "fiber": "Fibres",
-      "perDay": "par jour"
+      "perDay": "par jour",
+      "goal": "Objectif"
     },
     "settings": {
       "title": "Mes réponses",
