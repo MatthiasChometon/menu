@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../../infrastructure/mail/service';
 import { User } from '../user/model';
-import { Admins } from './admins.service';
+import { Admins } from '../auth/admin/admins.service';
 import { bugReportEmail } from './emails';
 import type { ReportBugInput } from './input';
 import { BugReportRepository } from './repository';
