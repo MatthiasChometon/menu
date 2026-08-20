@@ -1,4 +1,9 @@
-type Manifest = Record<string, Record<string, string>>;
+// The manifest is not a map of maps: it carries a version beside the two
+// collections, and an index signature saying "every key is a map of strings"
+// made that version a type error at build. Named for what the file actually
+// contains instead.
+type ImageKind = 'recipe' | 'food';
+type Manifest = { version?: number } & Partial<Record<ImageKind, Record<string, string>>>;
 
 // Which photograph belongs to which dish, and under which filename. It used to
 // be a build-time glob over assets/; the files now live on their own host, so
@@ -26,7 +31,7 @@ export const useImages = (): {
   everyImage: () => string[];
   refresh: () => Promise<void>;
 } => {
-  const urlOf = (kind: string, id: string): string | undefined => {
+  const urlOf = (kind: ImageKind, id: string): string | undefined => {
     const file = state().value[kind]?.[id];
 
     // Absent from the manifest means no photograph exists — the caller shows a
@@ -44,7 +49,7 @@ export const useImages = (): {
       const manifest = state().value;
       const base = host();
 
-      return ['recipe', 'food'].flatMap((kind): string[] =>
+      return (['recipe', 'food'] as const).flatMap((kind): string[] =>
         Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
       );
     },
