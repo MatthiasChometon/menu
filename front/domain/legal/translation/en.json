@@ -1,0 +1,180 @@
+{
+  "legal": {
+    "updated": "Updated 20 August 2026",
+    "contactLabel": "Write to",
+    "footer": {
+      "notice": "Legal notice",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "notice": {
+      "title": "Legal notice",
+      "lead": "Who publishes this site, and who hosts it.",
+      "sections": [
+        {
+          "title": "Publisher",
+          "body": [
+            "This site is a personal project, published by a private individual and offered free of charge. It carries on no commercial activity.",
+            "First name of the publisher and editor in chief: Matthias.",
+            "French law lets a non-professional publisher withhold their full identity from the public, provided it has been given to their host, who may pass it to the judicial authority. That is the case here."
+          ]
+        },
+        {
+          "title": "Site hosting",
+          "body": [
+            "The pages you are reading are served by Netlify, Inc., 512 2nd Street, Suite 200, San Francisco, CA 94107, United States."
+          ]
+        },
+        {
+          "title": "Account and data hosting",
+          "body": [
+            "Accounts, profiles and the database are hosted in France by o2switch, 222-224 boulevard Gustave Flaubert, 63000 Clermont-Ferrand, telephone +33 4 44 44 60 40.",
+            "Email sent by the site leaves from that same infrastructure."
+          ]
+        },
+        {
+          "title": "Ownership",
+          "body": [
+            "The code, the text and the images on this site are the work of its publisher. Nutritional values come from public food composition tables.",
+            "You may quote and share these pages freely. Any commercial reuse requires prior agreement."
+          ]
+        },
+        {
+          "title": "Reporting content",
+          "body": [
+            "To report content you believe unlawful, or for any question about this notice, write to the address below. You will get an answer within a reasonable time."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy",
+      "lead": "What the site knows about you, why, and for how long.",
+      "sections": [
+        {
+          "title": "In short",
+          "body": [
+            "This site carries no advertising tracker, no analytics, and passes nothing to anyone for commercial purposes. There is no cookie banner because there is nothing to ask you to accept.",
+            "The only data kept is what you enter so the site can weigh your meals rather than somebody else's."
+          ]
+        },
+        {
+          "title": "What is stored on the server",
+          "body": [
+            "Your account: email address, a name if you give one, a hash of your password — never the password itself —, a Google identifier if you sign in that way, your chosen language, and the dates you signed up and confirmed.",
+            "Your profile: sex, age, height, weight, activity outside sport, sessions per week, kind of training, quality of starches, appetite and goal. These answers are used for nothing but working out your nutrition targets.",
+            "The weeks you compose: the dishes chosen, never the grammes — those are recomputed from your profile, so they follow your measurements when those change.",
+            "Your problem reports: your message, the severity you picked, the page concerned, your browser, your screen size and your language."
+          ]
+        },
+        {
+          "title": "What never leaves your device",
+          "body": [
+            "The ticked boxes on the shopping list, the dishes marked cooked and the meals marked eaten stay in your browser's storage. They are never sent to the server, and clearing the site's data erases them for good."
+          ]
+        },
+        {
+          "title": "Why this data is processed",
+          "body": [
+            "The account and the profile are needed for the service you asked for: a menu weighed for you. Without them the site shows the recipes as they were written, and nothing is kept.",
+            "Reports are kept in order to fix what people ran into, which is the legitimate interest of keeping the site working."
+          ]
+        },
+        {
+          "title": "For how long",
+          "body": [
+            "Your account, your profile and your weeks are kept as long as the account exists, and erased when it is deleted.",
+            "A confirmation link lasts twenty-four hours, a password reset link one hour. After that they are unusable and deleted.",
+            "A session lasts thirty days, or until you sign out.",
+            "Reports are kept as long as they help fix the problem they describe."
+          ]
+        },
+        {
+          "title": "Who else can see it",
+          "body": [
+            "Nobody. No data is sold, rented, or passed to third parties for commercial purposes.",
+            "Three providers are involved technically: o2switch, in France, which hosts the database and sends the mail; Netlify, in the United States, which serves the pages; and Google, if and only if you choose to sign in with a Google account — Google then passes us your address, your name and your identifier.",
+            "Netlify being an American company, serving the pages means a transfer outside the European Union. Those pages hold no personal data: your profile never travels through them, it is asked of the French server directly."
+          ]
+        },
+        {
+          "title": "Cookies and local storage",
+          "body": [
+            "Three cookies, no more. The session one keeps you signed in for thirty days; it is unreadable to JavaScript and travels only over HTTPS. A ten-minute one protects the Google sign-in against request forgery. The last one remembers the language you chose.",
+            "All three are strictly necessary or a display preference: the rules exempt them from consent, which is why no banner is put in your way.",
+            "Your browser's local storage holds your ticked boxes, as described above."
+          ]
+        },
+        {
+          "title": "Your rights",
+          "body": [
+            "You may ask to see the data concerning you, to correct it, to erase it, to receive a copy of it, or to object to its processing.",
+            "Write to the address below: your request will be handled within one month. Deleting an account erases the account, the profile and the saved weeks.",
+            "If the answer does not satisfy you, you may refer the matter to the Commission nationale de l'informatique et des libertés, 3 place de Fontenoy, 75007 Paris."
+          ]
+        },
+        {
+          "title": "Security",
+          "body": [
+            "Traffic is HTTPS end to end. Passwords are kept as a scrypt hash, never in the clear. The database can only be reached from the server that uses it, never from the internet.",
+            "No system is perfectly safe. If you find a flaw, write to us rather than publish it."
+          ]
+        }
+      ]
+    },
+    "terms": {
+      "title": "Terms of use",
+      "lead": "What the site offers, and what it does not promise.",
+      "sections": [
+        {
+          "title": "Purpose",
+          "body": [
+            "This site offers, free of charge, weekly menus, recipes, a shopping list and quantities worked out for a profile. It is meant for private individuals, for personal use.",
+            "Using it means accepting these terms."
+          ]
+        },
+        {
+          "title": "This is not medical advice",
+          "body": [
+            "The calorie targets and the grammes shown are estimates, worked out from public formulas and the answers you give. They are indications, not a prescription.",
+            "This site replaces neither a doctor nor a dietitian. Ask a professional before following these quantities, especially during pregnancy or breastfeeding, with diabetes, kidney, heart or liver disease, while under treatment, with an eating disorder, or for a child or a teenager.",
+            "Nutritional values come from composition tables and vary from one product to another. Allergens are not flagged: always read the label."
+          ]
+        },
+        {
+          "title": "Your account",
+          "body": [
+            "You are responsible for keeping your password to yourself and for what is done from your account. Tell us if you think it has been used without your agreement.",
+            "The answers you give should be truthful: an inaccurate profile produces inaccurate quantities."
+          ]
+        },
+        {
+          "title": "Availability",
+          "body": [
+            "This site is a personal project, offered with no guarantee of availability or continuity. It may be interrupted, changed or stopped at any time, without notice.",
+            "Recipes and menus stay readable offline once the site has been visited; signing in to an account, however, needs a connection."
+          ]
+        },
+        {
+          "title": "Liability",
+          "body": [
+            "The publisher cannot be held liable for the consequences of using the information published, for a loss of data, or for the service being unavailable.",
+            "This limit does not apply to intentional fault or personal injury, as the law provides."
+          ]
+        },
+        {
+          "title": "Ending use",
+          "body": [
+            "You may stop using the site at any time and ask for your account to be deleted. The publisher may close an account that is being plainly misused."
+          ]
+        },
+        {
+          "title": "Governing law",
+          "body": [
+            "These terms are governed by French law. In case of dispute an amicable solution will be sought first; failing that, the French courts have jurisdiction."
+          ]
+        }
+      ]
+    }
+  }
+}
