@@ -1,0 +1,42 @@
+{
+  "order": {
+    "title": "Commander les courses",
+    "lead": "Le panier Carrefour se remplit tout seul à partir de ce menu, sur un navigateur appairé.",
+    "action": "Remplir mon panier",
+    "working": "En cours…",
+    "neverPays": "La commande et le paiement restent à toi : rien n'est validé automatiquement.",
+    "waitingHint": "Ouvre Chrome sur un poste appairé et le remplissage démarre tout seul.",
+    "linesDone": "articles mis au panier",
+    "needsYou": "À regarder",
+    "status": {
+      "PENDING": "En attente d'un navigateur",
+      "RUNNING": "Remplissage en cours",
+      "SUCCEEDED": "Panier prêt",
+      "FAILED": "Le remplissage a échoué",
+      "BLOCKED": "Interrompu : il faut ton intervention"
+    },
+    "error": {
+      "queue": "La demande n'est pas partie. Réessaie dans un instant."
+    },
+    "device": {
+      "title": "Navigateurs appairés",
+      "lead": "Un navigateur appairé peut remplir ton panier. Le jeton ne s'affiche qu'une fois.",
+      "label": "Nom de ce navigateur",
+      "labelPlaceholder": "Fixe du salon",
+      "pair": "Appairer un navigateur",
+      "pairing": "Appairage…",
+      "tokenTitle": "Jeton d'appairage",
+      "tokenHint": "Colle-le dans l'extension, puis referme. Il ne sera plus jamais affiché.",
+      "unpair": "Retirer",
+      "empty": "Aucun navigateur appairé pour l'instant.",
+      "lastSeen": "Vu pour la dernière fois",
+      "never": "jamais",
+      "dismiss": "Fermer"
+    },
+    "carrefour": {
+      "title": "Compte Carrefour",
+      "lead": "La connexion se fait chez Carrefour, dans sa propre fenêtre. Aucun mot de passe ne passe par ce site.",
+      "connect": "Connecter mon compte Carrefour"
+    }
+  }
+}

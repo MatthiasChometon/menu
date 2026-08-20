@@ -1,0 +1,3 @@
+mutation unpairGroceryDevice($deviceId: ID!) {
+  unpairGroceryDevice(deviceId: $deviceId)
+}

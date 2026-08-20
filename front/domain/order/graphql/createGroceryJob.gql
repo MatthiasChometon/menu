@@ -1,0 +1,15 @@
+mutation createGroceryJob($input: CreateGroceryJobInput!) {
+  createGroceryJob(input: $input) {
+    id
+    weekOf
+    status
+    lines {
+      foodId
+      grams
+      fromPantry
+      ean
+      productName
+      units
+    }
+  }
+}

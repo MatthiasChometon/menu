@@ -1,0 +1,10 @@
+mutation pairGroceryDevice($label: String!) {
+  pairGroceryDevice(label: $label) {
+    token
+    device {
+      id
+      label
+      pairedAt
+    }
+  }
+}

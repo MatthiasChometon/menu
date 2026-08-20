@@ -6,6 +6,7 @@ const localePath = useLocalePath();
 const isMounted = useMounted();
 
 const { pickedIds, toggle, clear } = useShoppingCart(selectedWeek);
+const { user } = useAuth();
 
 const groups = computed((): ShoppingGroup[] =>
   currentMenu.value === undefined ? [] : groupsOf(currentMenu.value),
@@ -111,6 +112,8 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         :title="$t('shopping.done')"
         :description="$t('shopping.doneHint')"
       />
+
+      <OrderButton v-if="isMounted && user && currentMenu" class="mt-6" :menu="currentMenu" />
 
       <div class="mt-6 space-y-7">
         <ShoppingAisle
