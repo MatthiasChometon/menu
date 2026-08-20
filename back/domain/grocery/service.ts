@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { GroceryBasketLine } from './basket/model';
 import { GroceryBasketRepository } from './basket/repository';
 import { BasketTargetService } from './basket/target.service';
@@ -23,6 +23,8 @@ type ObservedSighting = PriceSighting & { size?: number };
 
 @Injectable()
 export class GroceryService {
+  private readonly logger = new Logger(GroceryService.name);
+
   constructor(
     private readonly jobs: GroceryJobRepository,
     private readonly basket: GroceryBasketRepository,
@@ -111,8 +113,15 @@ export class GroceryService {
 
     // Both go out at once: a phone that has notifications on gets the short
     // version now, the mail carries the detail. Neither waits on the other.
+    //
+    // A failure to send is swallowed here rather than in the mail layer, which
+    // is right to throw for a verification link nobody will ever receive. This
+    // one is a notification about work already done: losing it must not lose
+    // the order it was telling somebody about.
     const [, gone] = await Promise.all([
-      this.mail.send(message),
+      this.mail.send(message).catch((error: unknown): void => {
+        this.logger.warn(`Could not send the report to ${account.email}`, error);
+      }),
       this.push.send(await this.subscriptions.forUser(userId), {
         title: message.subject,
         body: this.pushBodyOf(job),

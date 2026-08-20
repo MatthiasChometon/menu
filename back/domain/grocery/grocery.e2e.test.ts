@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import type { MailMessage } from '../../infrastructure/mail/token';
 import { UserRepository } from '../user/repository';
 import { GroceryCatalogRepository } from './catalog/repository';
 import { GroceryPantryRepository } from './pantry/repository';
@@ -72,15 +73,8 @@ type Device = { token: string; device: { id: string; label: string } };
 
 let api: TestApp;
 
-const signIn = async (email: string): Promise<string> => {
-  const response = await api.post('/auth/register', {
-    email,
-    password: 'a-long-enough-password',
-  });
-  const session = response.cookies.find((cookie): boolean => cookie.name === 'session');
-
-  return `session=${session?.value}`;
-};
+const signIn = async (email: string): Promise<string> =>
+  api.signUp(email, 'a-long-enough-password');
 
 const pair = async (cookie: string, label: string): Promise<string> => {
   const response = await api.graphql<{ pairGroceryDevice: Device }>(PAIR_DEVICE, { label }, cookie);
@@ -701,14 +695,19 @@ describe('telling somebody the basket is ready', () => {
     );
   };
 
+  // Signing up sends its own verification mail, so the report is never the
+  // first message of a test — only the last one addressed to the reader.
+  const reportMail = (to: string): MailMessage =>
+    [...api.mails()].reverse().find((message): boolean => message.to === to)!;
+
   it('writes to the account that asked, once the run is closed', async () => {
     const cookie = await signIn('matthias@example.com');
 
     await closeWith(cookie, { productsCents: 8450, deliveryFeesCents: 790 });
 
-    expect(api.sentMail()).toEqual([
+    expect(reportMail('matthias@example.com')).toEqual(
       expect.objectContaining({ to: 'matthias@example.com', subject: 'Panier prêt' }),
-    ]);
+    );
   });
 
   it('says in the subject when the basket wants a look', async () => {
@@ -723,7 +722,7 @@ describe('telling somebody the basket is ready', () => {
 
     await closeWith(cookie, { productsCents: 8450 });
 
-    expect(api.sentMail()[0].subject).toBe('Panier prêt, à vérifier');
+    expect(reportMail('matthias@example.com').subject).toBe('Panier prêt, à vérifier');
   });
 
   it('writes even when the run was stopped, which is when it matters most', async () => {
@@ -739,7 +738,9 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect(api.sentMail()[0].subject).toBe('Courses interrompues : il faut ton intervention');
+    expect(reportMail('matthias@example.com').subject).toBe(
+      'Courses interrompues : il faut ton intervention',
+    );
   });
 
   it('escapes what the shop wrote, since it lands in an HTML document', async () => {
@@ -764,8 +765,8 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect(api.sentMail()[0].html).not.toContain('<script>');
-    expect(api.sentMail()[0].html).toContain('&lt;script&gt;');
+    expect(reportMail('matthias@example.com').html).not.toContain('<script>');
+    expect(reportMail('matthias@example.com').html).toContain('&lt;script&gt;');
   });
 });
 

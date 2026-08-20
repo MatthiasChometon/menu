@@ -6,5 +6,9 @@ export type UserRecord = {
   name: string | null;
   passwordHash: string | null;
   googleId: string | null;
+  emailVerifiedAt: Date | null;
+  locale: string;
+  blockedAt: Date | null;
+  sessionVersion: number;
   createdAt: Date;
 };

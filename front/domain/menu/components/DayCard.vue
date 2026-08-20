@@ -2,16 +2,29 @@
 const {
   day,
   targets,
+  date,
   index = 0,
   defaultOpen = false,
   isToday = false,
 } = defineProps<{
   day: Day;
   targets: Macros;
+  date?: Date;
   index?: number;
   defaultOpen?: boolean;
   isToday?: boolean;
 }>();
+
+const { locale } = useNuxtApp().$i18n;
+
+// "Lundi" alone does not say which Monday. Reading a week meant counting rows
+// to work out where today was, and a shopping list bought on the wrong week is
+// the mistake that costs a trip.
+const dateLabel = computed((): string | undefined =>
+  date === undefined
+    ? undefined
+    : date.toLocaleDateString(locale.value, { day: 'numeric', month: 'long' }),
+);
 
 const isOpen = ref(defaultOpen);
 
@@ -41,7 +54,12 @@ watch(
         :aria-controls="`day-${day.key}`"
         @click="isOpen = !isOpen"
       >
-        <span class="text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
+        <span class="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2">
+          <span class="text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
+          <span v-if="dateLabel !== undefined" class="text-sm text-muted tabular-nums">
+            {{ dateLabel }}
+          </span>
+        </span>
         <UBadge v-if="isToday" color="primary" variant="subtle" size="sm">
           {{ $t('menu.today') }}
         </UBadge>

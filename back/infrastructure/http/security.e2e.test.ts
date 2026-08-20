@@ -16,6 +16,10 @@ beforeAll(async (): Promise<void> => {
 
 afterAll(async (): Promise<void> => {
   await api.close();
+  // Put it back: the worker's environment outlives this file, and leaving the
+  // limiter armed makes a later file fail on requests its own subject never
+  // covered.
+  process.env.THROTTLE_SKIP = 'true';
 });
 
 beforeEach(async (): Promise<void> => {
@@ -58,12 +62,7 @@ describe('what the API refuses to do', () => {
   it('answers a resolver at all with the limiter armed', async () => {
     // Sign in first: the point is a reader who really is signed in being seen
     // as such, which is exactly what production got wrong.
-    const registered = await api.post('/auth/register', {
-      email: 'someone-else@example.com',
-      password: PASSWORD,
-    });
-    const session = registered.cookies.find((cookie): boolean => cookie.name === 'session');
-    expect(session).toBeDefined();
+    const cookie = await api.signUp('someone-else@example.com', PASSWORD);
 
     // The limiter reaches for the request to know who is calling, and under
     // GraphQL it is not where it is under REST. Getting that wrong failed every
@@ -77,7 +76,7 @@ describe('what the API refuses to do', () => {
     const response = await api.graphql<{ me: { id: string } }>(
       'query { me { id } }',
       undefined,
-      `session=${session?.value ?? ''}`,
+      cookie,
     );
 
     expect(response.errors).toBeUndefined();

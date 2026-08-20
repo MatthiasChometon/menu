@@ -29,6 +29,34 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Tailwind v4 removed the cursor: pointer that a <button> carried in v3, so
+   every control on the site said "nothing to click here" under the mouse. The
+   pointer is how a reader learns an element responds before they try it, and
+   losing it costs nothing to notice and everything to explain.
+   Anchors keep the browser's own default; these are the elements the framework
+   builds out of <button> and ARIA roles. */
+button:not(:disabled),
+summary,
+[role='button']:not([aria-disabled='true']),
+[role='option']:not([aria-disabled='true']),
+[role='menuitem']:not([aria-disabled='true']),
+[role='menuitemradio']:not([aria-disabled='true']),
+[role='menuitemcheckbox']:not([aria-disabled='true']),
+[role='tab']:not([aria-disabled='true']),
+[role='switch']:not([aria-disabled='true']),
+[role='checkbox']:not([aria-disabled='true']),
+[role='radio']:not([aria-disabled='true']),
+label:has(input:not(:disabled)) {
+  cursor: pointer;
+}
+
+/* And the opposite, said just as plainly: a control that cannot be used should
+   not invite the click that will do nothing. */
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
 body {
   padding-right: 0 !important;
   margin-right: 0 !important;

@@ -37,6 +37,23 @@ export default defineNuxtConfig({
       },
     },
   },
+  // The photographs are imported by a glob so the app knows which ones exist,
+  // which also makes all 144 of them dependencies of the bundle — and Nuxt then
+  // emits a <link rel="prefetch" as="image"> for every single one. Measured on
+  // the deployed site: four images at first paint, then 149 and 8.2 MB a second
+  // and a half later, to show one thumbnail. loading="lazy" cannot help, since
+  // it governs <img> and not a prefetch hint.
+  //
+  // Dropping them from the manifest drops the hints. Nothing else changes: the
+  // URLs the app uses come from the imported modules, and each photo still
+  // arrives when a card scrolls into view.
+  hooks: {
+    'build:manifest': (manifest): void => {
+      for (const entry of Object.values(manifest)) {
+        entry.assets = entry.assets?.filter((asset): boolean => !asset.endsWith('.webp'));
+      }
+    },
+  },
   css: cssList,
   components: componentsList,
   imports: { dirs: typesDirList },

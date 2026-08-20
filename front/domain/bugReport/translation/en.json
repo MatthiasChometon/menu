@@ -1,0 +1,39 @@
+{
+  "bugReport": {
+    "open": "Report a problem",
+    "title": "Report a problem",
+    "lead": "Just say what happened. The page, your browser and the screen size come along on their own.",
+    "label": "What went wrong?",
+    "placeholder": "The button does nothing when I tap it…",
+    "severity": "How much did it get in the way?",
+    "blocking": "It blocks me",
+    "annoying": "It is annoying",
+    "cosmetic": "It looks wrong",
+    "send": "Send",
+    "cancel": "Cancel",
+    "sent": "Thank you, it is on its way.",
+    "sentLead": "The report went off with the page and your browser. Nothing else to do.",
+    "tooShort": "A few more words, so the problem can be found again.",
+    "failed": "Sending failed. Try again in a moment.",
+    "close": "Close",
+    "admin": {
+      "title": "Reports",
+      "lead": "What readers ran into, newest first.",
+      "empty": "No reports yet.",
+      "forbidden": "This screen is for the site administration.",
+      "page": "Page",
+      "screen": "Screen",
+      "browser": "Browser",
+      "markFixed": "Mark fixed",
+      "dismiss": "Dismiss",
+      "reopen": "Reopen",
+      "statusNew": "New",
+      "statusFixed": "Fixed",
+      "statusDismissed": "Dismissed",
+      "blocked": "Account blocked",
+      "block": "Block this account",
+      "unblock": "Unblock",
+      "blockedNote": "This account can no longer sign in. Its data and its reports stay where they are."
+    }
+  }
+}

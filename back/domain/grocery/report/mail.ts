@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MailMessage } from '../../../infrastructure/mail/type';
+import { MailMessage } from '../../../infrastructure/mail/token';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 import { GroceryJob } from '../job/model';
 

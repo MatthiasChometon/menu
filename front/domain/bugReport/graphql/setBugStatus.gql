@@ -1,0 +1,6 @@
+mutation setBugStatus($input: BugStatusInput!) {
+  setBugStatus(input: $input) {
+    id
+    status
+  }
+}

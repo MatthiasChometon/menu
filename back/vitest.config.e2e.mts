@@ -1,3 +1,5 @@
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
@@ -21,16 +23,24 @@ const TEST_ENV = {
   // The suite exercises the guest list, so it has to be closed here: the two
   // addresses the tests sign in with are the invitees.
   ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com',
+  // One of the two invitees is an administrator and the other is not, which is
+  // what lets the suite check that the reports stay out of the wrong hands.
+  ADMIN_EMAILS: 'matthias@example.com',
+  // A folder of its own: the suite writes real files and rewrites a real
+  // manifest, and doing that in the served folder would be editing production.
+  IMAGES_ROOT: join(tmpdir(), 'menu-images-e2e'),
+  // Out of the way by default: the ceiling has a file of its own, which lowers
+  // it for itself. Left at its real value it would silence notices the other
+  // tests are counting on, from a rule they are not about.
+  BUG_NOTICES_PER_HOUR: '1000',
   // The contract suite signs in far more often than a human would; the test
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',
   ALLOWED_ORIGINS: 'http://localhost:3777,http://localhost:3778',
-  // No SMTP is reachable in a test run, and the suite stubs the mail service
-  // anyway; this only stops the transport from being built against a real host.
-  MAIL_HOST: 'localhost',
-  MAIL_PORT: '1025',
-  MAIL_SECURE: 'false',
-  MAIL_FROM: 'menu@example.com',
+  // A host has to be set for the real transport to be built at all — the suite
+  // then replaces it, so nothing is ever sent anywhere.
+  MAIL_HOST: 'mail.invalid',
+  MAIL_FROM: 'Menu <no-reply@example.test>',
 };
 
 Object.assign(process.env, TEST_ENV);

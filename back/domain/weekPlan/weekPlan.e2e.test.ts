@@ -35,12 +35,7 @@ type Plan = {
 
 let api: TestApp;
 
-const signIn = async (email: string): Promise<string> => {
-  const response = await api.post('/auth/register', { email, password: PASSWORD });
-  const session = response.cookies.find((cookie): boolean => cookie.name === 'session');
-
-  return `session=${session?.value}`;
-};
+const signIn = (email: string): Promise<string> => api.signUp(email, PASSWORD);
 
 beforeAll(async (): Promise<void> => {
   api = await startTestApp();

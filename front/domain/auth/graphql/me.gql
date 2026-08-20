@@ -3,5 +3,6 @@ query me {
     id
     email
     name
+    hasPassword
   }
 }

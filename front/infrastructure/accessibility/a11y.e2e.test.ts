@@ -1,6 +1,24 @@
 import { expect, test } from '@playwright/test';
 
-const PATHS = ['/', '/batch', '/courses', '/recette/chiliChicken'];
+// /profil and /verification carry the sign-in form and the page the mailed
+// link lands on — the two screens a newcomer meets first, and the ones a
+// keyboard or a screen reader has to get through before anything else works.
+const PATHS = [
+  '/',
+  '/batch',
+  '/courses',
+  '/recette/chiliChicken',
+  '/profil',
+  '/verification',
+  '/reinitialisation',
+  // Signed out it shows only its refusal, which still has to be readable.
+  '/signalements',
+  // Long prose rather than an interface, and the pages somebody reads when they
+  // are deciding whether to trust the site with their weight.
+  '/mentions-legales',
+  '/confidentialite',
+  '/conditions',
+];
 
 for (const path of PATHS) {
   test(`${path} exposes one main heading and the expected landmarks`, async ({ page }) => {

@@ -1,1 +1,0 @@
-ALTER TABLE "grocery_basket_line" ADD COLUMN "label" text;

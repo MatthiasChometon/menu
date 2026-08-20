@@ -11,6 +11,63 @@ enum Appetite {
   SMALL
 }
 
+input BlockReporterInput {
+  blocked: Boolean!
+
+  """A report by the account to act on."""
+  reportId: String!
+}
+
+"""What the browser told us, so nobody had to type it."""
+type BugContext {
+  locale: String!
+  page: String!
+  userAgent: String!
+  viewport: String!
+}
+
+input BugContextInput {
+  locale: String!
+  page: String!
+  userAgent: String!
+  viewport: String!
+}
+
+"""Something a reader ran into and took the trouble to describe."""
+type BugReport {
+  context: BugContext!
+  createdAt: String!
+  id: ID!
+  message: String!
+  reportedBy: String
+
+  """Whether that account may still send reports."""
+  reporterBlocked: Boolean!
+  severity: BugSeverity!
+  status: BugStatus!
+}
+
+"""
+How much the problem got in the way. Asked as one tap, because a list where everything looks equally urgent is a list nobody triages.
+"""
+enum BugSeverity {
+  ANNOYING
+  BLOCKING
+  COSMETIC
+}
+
+"""Where a report stands. Without it the list only ever grows."""
+enum BugStatus {
+  DISMISSED
+  FIXED
+  NEW
+}
+
+input BugStatusInput {
+  id: String!
+  status: BugStatus!
+}
+
 """Asks for the basket of a week to be filled."""
 input CreateGroceryJobInput {
   needs: [FoodNeedInput!]!
@@ -262,6 +319,9 @@ input MeasurementsInput {
 }
 
 type Mutation {
+  """Shuts the account behind a report out of the site, or lets it back in."""
+  blockAccount(input: BlockReporterInput!): Boolean!
+
   """
   Takes the oldest waiting run of the account this browser is paired with.
   """
@@ -283,6 +343,9 @@ type Mutation {
   """
   pairGroceryDevice(label: String!): PairedGroceryDevice!
 
+  """Reports a problem with the site."""
+  reportBug(input: ReportBugInput!): BugReport!
+
   """Reports progress on a run being worked on."""
   reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
   saveGroceryPreference(input: GroceryPreferenceInput!): GroceryPreference!
@@ -295,6 +358,9 @@ type Mutation {
 
   """Creates the plan for a week, or replaces it."""
   saveWeekPlan(input: WeekPlanInput!): WeekPlan!
+
+  """Marks a report as handled. Null when there is no such report."""
+  setBugStatus(input: BugStatusInput!): BugReport
 
   """Agrees to be told on this browser."""
   subscribeToGroceryPush(input: PushSubscriptionInput!): Boolean!
@@ -394,6 +460,12 @@ input PushSubscriptionInput {
 }
 
 type Query {
+  """Whether the signed-in account may read the reports."""
+  amIAdmin: Boolean!
+
+  """Every report, newest first. Administrators only."""
+  bugReports: [BugReport!]!
+
   """
   One run with everything it reported, which is what the live view follows.
   """
@@ -438,6 +510,14 @@ type Query {
   nutritionTargets(input: MeasurementsInput!): NutritionTargets!
 }
 
+input ReportBugInput {
+  context: BugContextInput!
+
+  """What went wrong, in the reader own words."""
+  message: String!
+  severity: BugSeverity!
+}
+
 """Biological sex, which the resting metabolic rate formula needs."""
 enum Sex {
   FEMALE
@@ -465,6 +545,7 @@ enum TrainingType {
 
 type User {
   email: String!
+  hasPassword: Boolean!
   id: ID!
   name: String
 }

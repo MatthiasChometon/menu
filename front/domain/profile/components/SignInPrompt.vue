@@ -22,15 +22,28 @@ const signInWithGoogle = (): void => {
     <h2 class="text-xl font-bold">{{ $t('profile.signedOut.title') }}</h2>
     <p class="max-w-sm text-muted">{{ $t('profile.signedOut.hint') }}</p>
 
-    <UButton
-      v-if="canSignIn"
-      size="xl"
-      icon="i-simple-icons-google"
-      class="mt-2 font-semibold text-white"
-      @click="signInWithGoogle"
-    >
-      {{ $t('auth.signInWithGoogle') }}
-    </UButton>
+    <template v-if="canSignIn">
+      <!-- Email first: it is the one that works for somebody without a Google
+           account, and the one that has to be confirmed before it opens
+           anything. Google stays as the shortcut for whoever has one. -->
+      <AuthEmailForm class="mt-2" />
+
+      <div class="flex w-full max-w-sm items-center gap-3 text-xs text-dimmed">
+        <span class="h-px flex-1 bg-default" />
+        <span>{{ $t('auth.orContinueWith') }}</span>
+        <span class="h-px flex-1 bg-default" />
+      </div>
+
+      <UButton
+        size="xl"
+        variant="subtle"
+        icon="i-simple-icons-google"
+        class="font-semibold"
+        @click="signInWithGoogle"
+      >
+        {{ $t('auth.signInWithGoogle') }}
+      </UButton>
+    </template>
 
     <p v-else class="mt-2 max-w-sm text-sm text-dimmed">
       {{ $t('profile.signedOut.unavailable') }}

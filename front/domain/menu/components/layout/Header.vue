@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { locale, locales, setLocale } = useNuxtApp().$i18n;
+import type { DropdownMenuItem } from '@nuxt/ui';
+
+const { locale, locales, setLocale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
 const { entries } = useNavigation();
@@ -36,6 +38,28 @@ const currentLocale = computed({
   },
 });
 
+const { open: openBugReport } = useBugReport();
+const { isAdmin } = useAdmin();
+
+// Built here rather than in the template so the admin entry can simply not
+// exist for everybody else, instead of being rendered and hidden.
+const accountItems = computed((): DropdownMenuItem[][] => [
+  [{ label: user.value?.name ?? user.value?.email ?? '', type: 'label' as const }],
+  [
+    { label: t('bugReport.open'), icon: 'i-lucide-bug', onSelect: openBugReport },
+    ...(isAdmin.value
+      ? [
+          {
+            label: t('bugReport.admin.title'),
+            icon: 'i-lucide-list-checks',
+            to: localePath('/signalements'),
+          },
+        ]
+      : []),
+  ],
+  [{ label: t('auth.signOut'), icon: 'i-lucide-log-out', onSelect: signOut }],
+]);
+
 const isDark = computed({
   get: (): boolean => colorMode.value === 'dark',
   set: (value: boolean): void => {
@@ -51,11 +75,18 @@ const isDark = computed({
   >
     <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
       <NuxtLink :to="localePath('/')" class="group flex min-w-0 items-center gap-2.5">
-        <span
-          class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
-        >
-          <UIcon name="i-lucide-utensils-crossed" class="size-5" />
-        </span>
+        <!-- The favicon itself, not a lookalike: the header, the browser tab,
+             the installed app and a shared link all showed a different mark,
+             and the one people recognise is the one on their home screen.
+             Pointing at the file is what keeps them from drifting apart again. -->
+        <img
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
+          width="36"
+          height="36"
+          class="size-9 shrink-0 rounded-xl transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
+        />
         <span class="min-w-0 leading-tight">
           <span class="block truncate text-sm font-bold sm:text-base">
             {{ $t('menu.brand') }}
@@ -101,23 +132,19 @@ const isDark = computed({
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
-          <div v-if="user !== undefined" class="flex items-center gap-1">
-            <UAvatar
-              :alt="user.name ?? user.email"
-              :text="initials"
-              size="sm"
-              :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
-            />
-            <UButton
-              icon="i-lucide-log-out"
-              variant="ghost"
-              color="neutral"
-              size="sm"
-              :aria-label="$t('auth.signOut')"
-              :title="`${$t('auth.signedInAs')} ${user.name ?? user.email}`"
-              @click="signOut"
-            />
-          </div>
+          <!-- The avatar became a menu when there was more than one thing to
+               do with an account. Reporting a problem lives here as the calm
+               path; the floating button is the one you reach for mid-problem. -->
+          <UDropdownMenu v-if="user !== undefined" :items="accountItems">
+            <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
+              <UAvatar
+                :alt="user.name ?? user.email"
+                :text="initials"
+                size="sm"
+                :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
+              />
+            </UButton>
+          </UDropdownMenu>
           <template #fallback>
             <USkeleton class="size-8 rounded-full" />
           </template>
