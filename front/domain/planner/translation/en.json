@@ -85,6 +85,8 @@
       "none": "No swap fixes this one. Add another dish to your selection instead.",
       "fixes": "brings the day on target",
       "choose": "Pick this one"
-    }
+    },
+    "complete": "Fill it for me",
+    "completeHint": "Fills the minimum with the dishes that fit your targets best. You can change any of them."
   }
 }

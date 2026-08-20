@@ -77,6 +77,8 @@ export const usePlanner = (): {
   suggestFor: (day: PlannedDay) => DishSwap | undefined;
   recommendedIn: (group: RecipeSlot) => Set<string>;
   selectionBalance: ComputedRef<SelectionBalance>;
+  /** Fills every group to its minimum with the dishes that fit the targets best. */
+  completeSelection: () => void;
   swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
   applySwap: (swap: DishSwap) => void;
   step: Ref<number>;
@@ -449,6 +451,39 @@ export const usePlanner = (): {
     };
   });
 
+  // Fills every group up to its minimum with whichever dish leaves the week
+  // closest to the targets, one at a time so each choice is made knowing the
+  // last. A correct starting point beats a blank page — and everything it puts
+  // in can be swapped afterwards, which is why it fills the minimum rather than
+  // the maximum: it opens the door, it does not decide the week.
+  const completeSelection = (): void => {
+    for (const group of GROUP_ORDER) {
+      while ((chosenDishes.value[group] ?? []).length < GROUP_LIMITS[group].min) {
+        const candidates = dishesFor(group).filter(
+          (recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id),
+        );
+        if (candidates.length === 0) break;
+
+        // Scored once per dish, not once per comparison: weekErrorWith builds
+        // a whole week each time, and calling it twice per candidate froze the
+        // page outright.
+        const best = candidates
+          .map((recipe): { id: string; error: number } => ({
+            id: recipe.id,
+            error: weekErrorWith(group, recipe.id),
+          }))
+          .reduce((chosen, entry): { id: string; error: number } =>
+            entry.error < chosen.error ? entry : chosen,
+          );
+
+        chosenDishes.value = {
+          ...chosenDishes.value,
+          [group]: [...(chosenDishes.value[group] ?? []), best.id],
+        };
+      }
+    }
+  };
+
   const recommendedIn = (group: RecipeSlot): Set<string> => {
     const ranked = dishesFor(group)
       .filter((recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id))
@@ -485,6 +520,7 @@ export const usePlanner = (): {
     suggestFor,
     recommendedIn,
     selectionBalance,
+    completeSelection,
     swapsForMacro,
     applySwap: (swap: DishSwap): void => {
       plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };

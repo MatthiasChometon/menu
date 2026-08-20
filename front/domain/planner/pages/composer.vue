@@ -14,6 +14,7 @@ const {
   isGroupComplete,
   limitsOf,
   chosenDishes,
+  completeSelection,
   canSpread,
   spread,
   isValid,
@@ -25,6 +26,10 @@ const {
   loadFromAccount,
 } = usePlanner();
 const { dayOrder } = useMenu();
+
+const hasAnyChoice = computed((): boolean =>
+  Object.values(chosenDishes.value).some((picked): boolean => (picked ?? []).length > 0),
+);
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();
 const { user } = useAuth();
@@ -166,6 +171,18 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
 
     <!-- One meal group at a time. -->
     <div v-if="currentGroup !== undefined" class="rise mt-6">
+      <div v-if="step === 0 && !hasAnyChoice" class="mb-5 rounded-2xl border border-default p-4">
+        <p class="text-sm text-muted">{{ $t('planner.completeHint') }}</p>
+        <UButton
+          class="mt-3"
+          icon="i-lucide-wand-sparkles"
+          variant="outline"
+          @click="completeSelection"
+        >
+          {{ $t('planner.complete') }}
+        </UButton>
+      </div>
+
       <PlannerDishPicker :group="currentGroup" />
       <!-- Under the dishes, where the next pick is about to be made. -->
       <PlannerSelectionBalance />
