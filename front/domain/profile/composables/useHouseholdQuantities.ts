@@ -59,14 +59,33 @@ export const useHouseholdQuantities = (): {
 } => {
   const { profile } = useProfile();
   const { user } = useAuth();
+  const { members } = useHousehold();
+  const { t } = useNuxtApp().$i18n;
 
-  // One person for now — the account holder. The shape is already the one a
-  // household needs, so adding people later changes where this list comes from
-  // and nothing else.
+  // The account holder first, then everybody they added, in the order the
+  // server keeps them. Whoever is signed in reads their own name at the top of
+  // the fold, which is how they recognise the list as theirs.
+  //
+  // No profile means nobody to weigh for, even when the household has people in
+  // it: the recipe is then shown exactly as written, and that stays true of
+  // every share of it.
   const eaters = computed((): Eater[] =>
     profile.value === undefined
       ? []
-      : [{ id: 'me', name: user.value?.name ?? '', targets: profile.value.targets }],
+      : [
+          {
+            id: 'me',
+            name: user.value?.name ?? t('profile.household.me'),
+            targets: profile.value.targets,
+          },
+          ...members.value.map(
+            (member): Eater => ({
+              id: member.id,
+              name: member.name,
+              targets: member.targets,
+            }),
+          ),
+        ],
   );
 
   return {

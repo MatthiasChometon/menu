@@ -2,12 +2,17 @@
 import type { MeasurementsInput } from '#gql';
 import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from '#gql/default';
 
-const { initial } = defineProps<{ initial?: MeasurementsInput }>();
+// `save` lets the same wizard fill in somebody else's answers: the questions
+// and the live preview are identical, only the destination changes.
+const { initial, save: saveAnswers } = defineProps<{
+  initial?: MeasurementsInput;
+  save?: (answers: MeasurementsInput) => Promise<unknown>;
+}>();
 const emit = defineEmits<{ saved: [] }>();
 
 const { t } = useNuxtApp().$i18n;
 const { goals, sexes, activities, trainingTypes, starchQualities, appetites } = useProfileChoices();
-const { save } = useProfile();
+const { save: saveMyProfile } = useProfile();
 
 // Sensible middle-of-the-road answers, so nobody faces an empty form.
 const answers = reactive<MeasurementsInput>(
@@ -52,16 +57,21 @@ const back = (): void => {
   if (stepIndex.value > 0) stepIndex.value -= 1;
 };
 
+// Failure is what was thrown, not what came back: a destination that saves
+// without returning anything is still a destination that saved.
 const submit = async (): Promise<void> => {
   isSaving.value = true;
   hasFailed.value = false;
-  const saved = await save({ ...answers }).catch((): undefined => undefined);
-  isSaving.value = false;
 
-  if (saved === undefined) {
+  try {
+    await (saveAnswers ?? saveMyProfile)({ ...answers });
+  } catch {
     hasFailed.value = true;
     return;
+  } finally {
+    isSaving.value = false;
   }
+
   emit('saved');
 };
 

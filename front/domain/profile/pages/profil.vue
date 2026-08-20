@@ -83,6 +83,11 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
         </UButton>
       </section>
 
+      <!-- Only once the account holder has answered for themselves: the shares
+           are worked out against their own targets, so there is nothing to
+           share until those exist. -->
+      <ProfileHousehold v-if="user !== undefined && hasAnswered && !isFillingIn" />
+
       <AuthDeleteAccount v-if="user !== undefined" />
     </ClientOnly>
   </div>
