@@ -43,6 +43,13 @@
       "when": 1787169130013,
       "tag": "0005_narrow_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787210698730,
+      "tag": "0006_ancient_nekra",
+      "breakpoints": true
     }
   ]
 }

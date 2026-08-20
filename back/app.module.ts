@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './domain/auth/module';
+import { BugReportModule } from './domain/bugReport/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
@@ -22,6 +23,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     AuthModule,
     ProfileModule,
     WeekPlanModule,
+    BugReportModule,
   ],
 })
 export class AppModule {}

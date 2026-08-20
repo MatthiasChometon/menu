@@ -52,6 +52,7 @@
       "expiredTitle": "This link no longer works",
       "expiredBody": "It may already have been used, or it expired. Ask for a new one from the sign-in page.",
       "retry": "Back to sign-in"
-    }
+    },
+    "account": "My account"
   }
 }

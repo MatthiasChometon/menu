@@ -21,6 +21,9 @@ const TEST_ENV = {
   // The suite exercises the guest list, so it has to be closed here: the two
   // addresses the tests sign in with are the invitees.
   ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com',
+  // One of the two invitees is an administrator and the other is not, which is
+  // what lets the suite check that the reports stay out of the wrong hands.
+  ADMIN_EMAILS: 'matthias@example.com',
   // The contract suite signs in far more often than a human would; the test
   // covering the limiter arms it back on for itself.
   THROTTLE_SKIP: 'true',
