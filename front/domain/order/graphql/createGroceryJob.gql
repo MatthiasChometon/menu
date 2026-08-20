@@ -3,6 +3,11 @@ mutation createGroceryJob($input: CreateGroceryJobInput!) {
     id
     weekOf
     status
+    overThreshold
+    productsCents
+    deliveryFeesCents
+    shortOfMinimumCents
+    alertThresholdCents
     lines {
       foodId
       grams

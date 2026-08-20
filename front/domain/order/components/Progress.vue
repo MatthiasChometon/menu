@@ -26,6 +26,8 @@ const isWaiting = computed((): boolean => job.status === 'PENDING');
       {{ added }} / {{ job.lines.length }} {{ $t('order.linesDone') }}
     </p>
 
+    <OrderCost :job="job" class="mt-3" />
+
     <div v-if="missing.length > 0" class="mt-3">
       <h3 class="text-sm font-semibold">{{ $t('order.needsYou') }}</h3>
       <ul class="mt-1 space-y-1 text-sm text-muted">

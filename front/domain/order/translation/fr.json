@@ -37,6 +37,18 @@
       "title": "Compte Carrefour",
       "lead": "La connexion se fait chez Carrefour, dans sa propre fenêtre. Aucun mot de passe ne passe par ce site.",
       "connect": "Connecter mon compte Carrefour"
+    },
+    "cost": {
+      "title": "Ce que ça coûte",
+      "groceries": "Courses",
+      "delivery": "Livraison",
+      "total": "Total",
+      "overThreshold": "Au-dessus de ton seuil d’alerte. Vérifie les quantités avant de payer.",
+      "belowMinimum": "Sous le minimum de commande : il manque encore ce montant pour pouvoir commander.",
+      "threshold": "M’alerter au-dessus de",
+      "thresholdHint": "Laisse vide pour ne jamais être alerté.",
+      "save": "Enregistrer",
+      "saved": "Enregistré."
     }
   }
 }

@@ -58,7 +58,7 @@ export const useGroceryOrder = (): {
     try {
       const result = await GqlCreateGroceryJob({ input: { weekOf, needs } });
       // The queued job carries no events yet; following it is what fills them in.
-      job.value = { ...result.createGroceryJob, events: [], finishedAt: undefined };
+      job.value = { ...result.createGroceryJob, events: [] };
       follow(result.createGroceryJob.id);
     } catch {
       error.value = 'order.error.queue';

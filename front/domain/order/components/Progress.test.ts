@@ -10,6 +10,11 @@ const jobWith = (overrides: Record<string, unknown>): GroceryJob =>
     weekOf: '2026-08-24',
     status: 'RUNNING',
     finishedAt: undefined,
+    productsCents: undefined,
+    deliveryFeesCents: undefined,
+    shortOfMinimumCents: undefined,
+    alertThresholdCents: 12000,
+    overThreshold: false,
     events: [],
     lines: [
       { foodId: 'brownRice', units: 2, productName: 'Riz complet' },

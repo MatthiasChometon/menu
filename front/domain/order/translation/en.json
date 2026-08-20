@@ -37,6 +37,18 @@
       "title": "Carrefour account",
       "lead": "Signing in happens at Carrefour, in its own window. No password goes through this site.",
       "connect": "Connect my Carrefour account"
+    },
+    "cost": {
+      "title": "What it costs",
+      "groceries": "Groceries",
+      "delivery": "Delivery",
+      "total": "Total",
+      "overThreshold": "Above your warning threshold. Check the quantities before paying.",
+      "belowMinimum": "Below the order minimum: this much is still missing before it can be ordered.",
+      "threshold": "Warn me above",
+      "thresholdHint": "Leave empty to never be warned.",
+      "save": "Save",
+      "saved": "Saved."
     }
   }
 }
