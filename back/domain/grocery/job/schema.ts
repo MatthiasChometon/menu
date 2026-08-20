@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { groceryDevice } from '../device/schema';
 import { user } from '../../user/schema';
+import { JobEventDetails } from './type';
 
 // One request to fill a basket. Created by the site, picked up by whichever
 // paired browser comes online next, so it outlives the tab that asked for it.
@@ -33,6 +34,6 @@ export const groceryJobEvent = pgTable('grocery_job_event', {
     .notNull()
     .references(() => groceryJob.id, { onDelete: 'cascade' }),
   kind: text('kind').notNull(),
-  payload: jsonb('payload'),
+  payload: jsonb('payload').$type<JobEventDetails>(),
   at: timestamp('at').notNull().defaultNow(),
 });

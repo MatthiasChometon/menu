@@ -14,6 +14,19 @@ registerEnumType(GroceryJobStatus, {
     'Where an order run stands. BLOCKED means the shop asked for something a machine must not answer: a sign-in, a captcha.',
 });
 
+// What a run may end as. Kept apart from the statuses so a browser cannot put a
+// run back to PENDING or RUNNING by naming it.
+export enum GroceryJobOutcome {
+  SUCCEEDED = 'SUCCEEDED',
+  FAILED = 'FAILED',
+  BLOCKED = 'BLOCKED',
+}
+
+registerEnumType(GroceryJobOutcome, {
+  name: 'GroceryJobOutcome',
+  description: 'How a run ended.',
+});
+
 export enum GroceryJobEventKind {
   STARTED = 'STARTED',
   CART_EMPTIED = 'CART_EMPTIED',
