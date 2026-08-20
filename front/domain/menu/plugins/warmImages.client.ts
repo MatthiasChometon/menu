@@ -27,8 +27,16 @@ const whenIdle = (run: () => void): void => {
   const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => void })
     .requestIdleCallback;
 
-  if (idle === undefined) window.setTimeout(run, START_DELAY_MS);
-  else idle((): void => window.setTimeout(run, START_DELAY_MS));
+  // Braces on both branches: setTimeout hands back a handle, and an arrow that
+  // returns it while promising void is exactly what the build refused.
+  if (idle === undefined) {
+    window.setTimeout(run, START_DELAY_MS);
+    return;
+  }
+
+  idle((): void => {
+    window.setTimeout(run, START_DELAY_MS);
+  });
 };
 
 // An Image rather than fetch(): the service worker keeps photographs under a
