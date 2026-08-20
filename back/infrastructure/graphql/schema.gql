@@ -303,6 +303,46 @@ input GrocerySlotWindowsInput {
   windows: [GrocerySlotWindowInput!]!
 }
 
+"""Somebody else the account holder cooks for."""
+type HouseholdMember {
+  age: Int!
+  appetite: Appetite!
+  dailyActivity: DailyActivity!
+  goal: Goal!
+  heightCm: Int!
+  id: ID!
+
+  """What to call them on the recipe page. Not a login."""
+  name: String!
+  sex: Sex!
+  starchQuality: StarchQuality!
+
+  """
+  Worked out from the answers, the same way the account holder’s own are.
+  """
+  targets: NutritionTargets!
+  trainingDaysPerWeek: Int!
+  trainingType: TrainingType!
+  weightKg: Int!
+}
+
+"""A person to cook for: a name, and the answers everyone else gives."""
+input HouseholdMemberInput {
+  age: Int!
+  appetite: Appetite!
+  dailyActivity: DailyActivity!
+  goal: Goal!
+  heightCm: Int!
+  name: String!
+  sex: Sex!
+  starchQuality: StarchQuality!
+
+  """Training sessions in a normal week."""
+  trainingDaysPerWeek: Int!
+  trainingType: TrainingType!
+  weightKg: Int!
+}
+
 input MeasurementsInput {
   age: Int!
   appetite: Appetite!
@@ -319,6 +359,8 @@ input MeasurementsInput {
 }
 
 type Mutation {
+  addHouseholdMember(input: HouseholdMemberInput!): HouseholdMember!
+
   """Shuts the account behind a report out of the site, or lets it back in."""
   blockAccount(input: BlockReporterInput!): Boolean!
 
@@ -342,6 +384,9 @@ type Mutation {
   Pairs a browser with this account and hands it the token it will carry.
   """
   pairGroceryDevice(label: String!): PairedGroceryDevice!
+
+  """Removes a member. Their name stops appearing at once."""
+  removeHouseholdMember(id: ID!): Boolean!
 
   """Reports a problem with the site."""
   reportBug(input: ReportBugInput!): BugReport!
@@ -368,6 +413,9 @@ type Mutation {
   """Revokes a browser. It stops being able to run orders immediately."""
   unpairGroceryDevice(deviceId: ID!): Boolean!
   unsubscribeFromGroceryPush(endpoint: String!): Boolean!
+
+  """Replaces a member wholesale."""
+  updateHouseholdMember(input: UpdateHouseholdMemberInput!): HouseholdMember!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -476,6 +524,9 @@ type Query {
   """
   groceryPushKey: String
 
+  """Everybody the signed-in user cooks for, besides themselves."""
+  householdMembers: [HouseholdMember!]!
+
   """The signed-in user."""
   me: User!
 
@@ -541,6 +592,23 @@ enum TrainingType {
   MIXED
   NONE
   STRENGTH
+}
+
+input UpdateHouseholdMemberInput {
+  age: Int!
+  appetite: Appetite!
+  dailyActivity: DailyActivity!
+  goal: Goal!
+  heightCm: Int!
+  id: ID!
+  name: String!
+  sex: Sex!
+  starchQuality: StarchQuality!
+
+  """Training sessions in a normal week."""
+  trainingDaysPerWeek: Int!
+  trainingType: TrainingType!
+  weightKg: Int!
 }
 
 type User {

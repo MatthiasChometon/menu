@@ -99,6 +99,25 @@
     "scaled": {
       "notice": "Quantities adapted to your profile",
       "original": "Original quantities"
+    },
+    "household": {
+      "me": "Me",
+      "title": "My household",
+      "lead": "Add the people you cook for. Each one answers the same questions, and the amounts are shared between you.",
+      "empty": "It is just you for now. Recipes are weighed for you.",
+      "add": "Add someone",
+      "name": "Their first name",
+      "namePlaceholder": "Camille",
+      "continue": "Continue",
+      "cancel": "Cancel",
+      "edit": "Edit {name}",
+      "remove": "Remove {name}",
+      "removeConfirm": "Remove {name} from your household?",
+      "removeYes": "Remove",
+      "answersFor": "{name}’s answers",
+      "kcalPerDay": "{kcal} kcal a day",
+      "full": "Your household is full.",
+      "error": "That did not work. Try again."
     }
   }
 }

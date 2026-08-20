@@ -99,6 +99,25 @@
     "scaled": {
       "notice": "Quantités adaptées à votre profil",
       "original": "Quantités d'origine"
+    },
+    "household": {
+      "me": "Moi",
+      "title": "Mon foyer",
+      "lead": "Ajoutez les personnes pour qui vous cuisinez. Chacune répond au même questionnaire, et les quantités se partagent entre vous.",
+      "empty": "Vous êtes seul pour l'instant. Les recettes sont pesées pour vous.",
+      "add": "Ajouter une personne",
+      "name": "Son prénom",
+      "namePlaceholder": "Camille",
+      "continue": "Continuer",
+      "cancel": "Annuler",
+      "edit": "Modifier {name}",
+      "remove": "Retirer {name}",
+      "removeConfirm": "Retirer {name} de votre foyer ?",
+      "removeYes": "Retirer",
+      "answersFor": "Les réponses de {name}",
+      "kcalPerDay": "{kcal} kcal par jour",
+      "full": "Votre foyer est complet.",
+      "error": "Ça n'a pas fonctionné. Réessayez."
     }
   }
 }

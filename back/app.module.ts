@@ -5,6 +5,7 @@ import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { AuthModule } from './domain/auth/module';
 import { BugReportModule } from './domain/bugReport/module';
 import { GroceryModule } from './domain/grocery/module';
+import { HouseholdModule } from './domain/household/module';
 import { ImageLibraryModule } from './domain/imageLibrary/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
@@ -29,6 +30,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     UserModule,
     AuthModule,
     ProfileModule,
+    HouseholdModule,
     GroceryModule,
     WeekPlanModule,
     BugReportModule,
