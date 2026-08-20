@@ -68,23 +68,27 @@ const warm = async (urls: string[]): Promise<void> => {
 export default defineNuxtPlugin((): void => {
   if (shouldHoldBack()) return;
 
-  const { everyImage, recipeImage, foodImage } = useImages();
+  const { everyImage, recipeImage, foodImage, refresh } = useImages();
   const { selectedMenu } = useSelectedWeek();
 
   whenIdle((): void => {
-    const menu = selectedMenu.value;
+    // Asked again before warming: a photograph uploaded since this build would
+    // otherwise be the one picture missing when the signal goes.
+    void refresh().then((): void => {
+      const menu = selectedMenu.value;
 
-    // This week's dishes first — they are the ones needed in the aisle. A visit
-    // cut short then leaves the useful half cached rather than eight lunches
-    // from a week nobody will cook.
-    const thisWeek = [
-      ...(menu?.recipes ?? []).map((recipe): string | undefined => recipeImage(recipe.id)),
-      ...(menu?.shoppingList ?? []).map((line): string | undefined => foodImage(line.food.id)),
-    ].filter((url): url is string => url !== undefined);
+      // This week's dishes first — they are the ones needed in the aisle. A visit
+      // cut short then leaves the useful half cached rather than eight lunches
+      // from a week nobody will cook.
+      const thisWeek = [
+        ...(menu?.recipes ?? []).map((recipe): string | undefined => recipeImage(recipe.id)),
+        ...(menu?.shoppingList ?? []).map((line): string | undefined => foodImage(line.food.id)),
+      ].filter((url): url is string => url !== undefined);
 
-    const first = [...new Set(thisWeek)];
-    const rest = everyImage().filter((url): boolean => !first.includes(url));
+      const first = [...new Set(thisWeek)];
+      const rest = everyImage().filter((url): boolean => !first.includes(url));
 
-    void warm([...first, ...rest]);
+      void warm([...first, ...rest]);
+    });
   });
 });
