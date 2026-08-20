@@ -1,4 +1,5 @@
 import { Cart, ShopClient } from '../carrefour/type';
+import { chooseSlot, SlotWindow } from './slot';
 import { Substituter } from './substitute';
 import { FillResult, PlannedLine, ReportedEvent } from './type';
 
@@ -21,7 +22,7 @@ export class BasketFiller {
     this.substituter = new Substituter(shop);
   }
 
-  async run(planned: PlannedLine[], report: Report): Promise<FillResult> {
+  async run(planned: PlannedLine[], windows: SlotWindow[], report: Report): Promise<FillResult> {
     const session = await this.shop.session();
     if (!session.signedIn) {
       await report({
@@ -54,6 +55,10 @@ export class BasketFiller {
       ...this.shortfalls(resolved, filled),
       ...substituted.giveUp.map((line): string => line.foodId),
     ];
+
+    // Only now: holding a slot lasts about twenty minutes, so taking one before
+    // the basket is filled would risk losing it halfway through.
+    await this.book(windows, report);
 
     await report({
       kind: 'FINISHED',
@@ -110,6 +115,25 @@ export class BasketFiller {
     }
 
     return { found, giveUp };
+  }
+
+  private async book(windows: SlotWindow[], report: Report): Promise<void> {
+    const offered = await this.shop.slots();
+    const chosen = chooseSlot(offered, windows, new Date());
+
+    if (chosen === undefined) {
+      await report({
+        kind: 'SLOT_UNAVAILABLE',
+        detail:
+          windows.length === 0
+            ? 'No delivery window set, so no slot was taken.'
+            : `None of the ${offered.length} slots on offer fits the windows set.`,
+      });
+      return;
+    }
+
+    await this.shop.bookSlot(chosen.ref);
+    await report({ kind: 'SLOT_BOOKED', detail: `${chosen.begin} to ${chosen.end}` });
   }
 
   private async emptyExisting(report: Report): Promise<void> {

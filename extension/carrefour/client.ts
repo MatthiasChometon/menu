@@ -4,11 +4,14 @@ type RawCart = {
   cart?: {
     items?: { products?: RawProduct[] }[];
     totalAmount?: number;
-    totalAmountWithoutServices?: number;
+    totalProductsPrice?: number;
+    totalAvailableQuantity?: number;
+    remainingAmountToNextDeliveryFeeThreshold?: number | null;
     remainedAmount?: number;
     deliveryFees?: number;
     facilityServiceId?: string;
     isSlotBooked?: boolean;
+    slot?: { expiresInMinutes?: number | null };
   };
 };
 
@@ -129,6 +132,20 @@ export class CarrefourClient implements ShopClient {
       .filter((slot): boolean => slot.ref !== '' && slot.begin !== '');
   }
 
+  // Holding a slot lasts about twenty minutes, so it is taken once the basket
+  // is filled and never before.
+  async bookSlot(ref: string): Promise<void> {
+    await fetch('/api/cart/slot', {
+      method: 'PUT',
+      headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        slotRef: ref,
+        origin: 'timeslots',
+        facilityServiceId: this.serviceId,
+      }),
+    });
+  }
+
   // Without this header the site answers with its own HTML and a status that
   // looks like success. Reading that as JSON fails in a way that says nothing.
   private async read<T>(path: string): Promise<T> {
@@ -156,7 +173,13 @@ export class CarrefourClient implements ShopClient {
     return {
       lines,
       totalAmount: cart.totalAmount ?? 0,
-      productsAmount: cart.totalAmountWithoutServices ?? 0,
+      // totalAmountWithoutServices looks like the groceries and is not: on a
+      // real basket it came back equal to the total, fees included. This one is
+      // the sub-total the shop itself prints.
+      productsAmount: cart.totalProductsPrice ?? 0,
+      itemCount: cart.totalAvailableQuantity ?? 0,
+      toNextFeeThreshold: cart.remainingAmountToNextDeliveryFeeThreshold ?? undefined,
+      slotHeldMinutes: cart.slot?.expiresInMinutes ?? undefined,
       remainedAmount: cart.remainedAmount ?? 0,
       deliveryFees: cart.deliveryFees ?? 0,
       serviceId: this.serviceId,

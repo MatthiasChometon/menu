@@ -12,7 +12,14 @@ export type Cart = {
   lines: CartLine[];
   /** Products plus delivery fees. Not the price of the groceries. */
   totalAmount: number;
+  /** The groceries alone. */
   productsAmount: number;
+  /** How many units the basket holds, all lines together. */
+  itemCount: number;
+  /** What is still missing to reach the next, cheaper delivery band. */
+  toNextFeeThreshold?: number;
+  /** Whether a slot is held, and for how much longer. */
+  slotHeldMinutes?: number;
   /** What is still missing to reach the shop's order minimum. */
   remainedAmount: number;
   deliveryFees: number;
@@ -56,4 +63,5 @@ export type ShopClient = {
   put: (items: { ean: string; counter: number }[]) => Promise<Cart>;
   search: (terms: string) => Promise<SearchHit[]>;
   slots: () => Promise<DeliverySlot[]>;
+  bookSlot: (ref: string) => Promise<void>;
 };

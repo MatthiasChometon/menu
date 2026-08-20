@@ -44,7 +44,10 @@ Le panier complet. Champs utiles au-delà des lignes :
 | Champ | Sens |
 |---|---|
 | `totalAmount` | **Produits plus frais de livraison** — ce n'est pas le prix des courses |
-| `totalAmountWithoutServices` | Produits seuls |
+| `totalProductsPrice` (= `totalPrice`) | **Les courses seules.** C'est le sous-total que le site affiche |
+| `totalAmountWithoutServices` | **Piège** : le nom promet les produits seuls, mais sur un vrai panier il valait le total, frais compris. Ne pas s'en servir |
+| `totalAvailableQuantity` | Nombre d'articles. `items[]` compte les rayons, pas les articles |
+| `remainingAmountToNextDeliveryFeeThreshold` | Ce qui manque pour atteindre la tranche de frais moins chère |
 | `remainedAmount` | Ce qui manque pour atteindre le minimum de 60 € |
 | `deliveryFees` | Frais appliqués |
 | `nextDeliveryFeeThresholdLevel` | Palier de frais courant |
@@ -152,9 +155,21 @@ l'autre, le total du panier ne les connaît qu'après coup.
 Le panier expose en permanence le créneau courant (`slot`) avec son `ref`, `isBooked`,
 `isDefault` : **un créneau par défaut est déjà pré-sélectionné**, non réservé.
 
-**La réservation reste à observer.** L'interface annonce « Disponible pendant 1 min » sur
-chaque créneau : la retenue est très courte, ce qui interdit de réserver avant d'avoir
-rempli le panier. L'ordre du job doit donc être remplir, puis réserver — jamais l'inverse.
+### Réserver : `PUT /api/cart/slot`
+
+```json
+{ "slotRef": "ad87d9b8-…", "origin": "timeslots", "facilityServiceId": "1415-151-900733" }
+```
+
+Le panier repasse aussitôt `isSlotBooked: true` et son `slot.expiresInMinutes` à **20**.
+La retenue vaut donc une vingtaine de minutes — le « Disponible pendant 1 min » affiché
+dans le bandeau d'accueil dit autre chose. Vingt minutes suffisent largement à un
+remplissage, mais l'ordre reste **remplir puis réserver** : prendre un créneau d'abord,
+c'est risquer de le perdre en cours de route.
+
+Les heures du panier sont en **UTC** (`slot.hour: "15h00"` pour un créneau de 17h), celles
+de `/api/timeslots` en heure locale avec décalage. Comparer les deux sans y prendre garde
+décale tout de deux heures.
 
 ## Savoir si la session est ouverte : pas d'endpoint
 

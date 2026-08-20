@@ -10,6 +10,7 @@ const shopOffering = (hits: SearchHit[]): ShopClient => ({
   put: (): Promise<Cart> => Promise.reject(new Error('not needed')),
   search: (): Promise<SearchHit[]> => Promise.resolve(hits),
   slots: (): Promise<[]> => Promise.resolve([]),
+  bookSlot: (): Promise<void> => Promise.reject(new Error('not needed')),
 });
 
 const line = (overrides: Partial<PlannedLine> = {}): PlannedLine => ({

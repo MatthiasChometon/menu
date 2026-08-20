@@ -27,14 +27,14 @@ type ShopOptions = {
 // right whichever way this one reads counter.
 const fakeShop = (
   options: ShopOptions,
-): ShopClient & { held: Map<string, number>; state: { emptied: number } } => {
+): ShopClient & { held: Map<string, number>; state: { emptied: number; booked?: string } } => {
   const held = new Map<string, number>(
     (options.startsWith ?? []).map((line): [string, number] => [line.ean, line.counter]),
   );
   const titles = new Map<string, string>(
     (options.startsWith ?? []).map((line): [string, string] => [line.ean, line.title]),
   );
-  const state = { emptied: 0 };
+  const state: { emptied: number; booked?: string } = { emptied: 0 };
 
   const cartOf = (): Cart => ({
     lines: [...held.entries()].map(([ean, counter]): CartLine => ({
@@ -46,6 +46,7 @@ const fakeShop = (
       price: 1.79 * counter,
     })),
     totalAmount: 0,
+    itemCount: [...held.values()].reduce((total, counter): number => total + counter, 0),
     productsAmount: [...held.values()].reduce(
       (total, counter): number => total + 1.79 * counter,
       0,
@@ -77,6 +78,10 @@ const fakeShop = (
     },
     search: (): Promise<SearchHit[]> => Promise.resolve([]),
     slots: (): Promise<DeliverySlot[]> => Promise.resolve(options.slots ?? []),
+    bookSlot: (ref: string): Promise<void> => {
+      state.booked = ref;
+      return Promise.resolve();
+    },
   };
 
   return { ...shop, held, state };
@@ -102,7 +107,7 @@ describe('filling a basket whatever the shop means by counter', () => {
     const shop = fakeShop({ counter: 'absolute' });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], report);
+    const result = await new BasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(2);
     expect(result.missing).toEqual([]);
@@ -115,7 +120,7 @@ describe('filling a basket whatever the shop means by counter', () => {
     const shop = fakeShop({ counter: 'increment' });
     const { report } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], report);
+    const result = await new BasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(2);
     expect(result.missing).toEqual([]);
@@ -127,7 +132,7 @@ describe('when the shop will not give what was asked', () => {
     const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 1 } });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], report);
+    const result = await new BasketFiller(shop).run([RICE], [], report);
 
     expect(result.missing).toEqual(['brownRice']);
     expect(events).toContainEqual(
@@ -139,7 +144,7 @@ describe('when the shop will not give what was asked', () => {
     const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 1 } });
     const { report } = collect();
 
-    await new BasketFiller(shop).run([RICE], report);
+    await new BasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(1);
   });
@@ -162,7 +167,7 @@ describe('starting from a basket someone already filled', () => {
     });
     const { report } = collect();
 
-    await new BasketFiller(shop).run([RICE], report);
+    await new BasketFiller(shop).run([RICE], [], report);
 
     expect(shop.state.emptied).toBe(1);
     expect(shop.held.get(RICE.ean!)).toBe(2);
@@ -184,7 +189,7 @@ describe('starting from a basket someone already filled', () => {
     });
     const { report, events } = collect();
 
-    await new BasketFiller(shop).run([RICE], report);
+    await new BasketFiller(shop).run([RICE], [], report);
 
     expect(events).toContainEqual(
       expect.objectContaining({ kind: 'CART_EMPTIED', detail: '3 x Chocolate' }),
@@ -197,7 +202,7 @@ describe('what it refuses to do', () => {
     const shop = fakeShop({ counter: 'absolute', signedIn: false });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], report);
+    const result = await new BasketFiller(shop).run([RICE], [], report);
 
     expect(result.outcome).toBe('BLOCKED');
     expect(shop.held.size).toBe(0);
@@ -210,6 +215,7 @@ describe('what it refuses to do', () => {
 
     const result = await new BasketFiller(shop).run(
       [{ foodId: 'tofu', grams: 400, fromPantry: 0 }],
+      [],
       report,
     );
 

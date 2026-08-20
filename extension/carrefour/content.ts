@@ -1,10 +1,12 @@
 import { BasketFiller } from '../engine/fill';
+import { SlotWindow } from '../engine/slot';
 import { FillResult, PlannedLine, ReportedEvent } from '../engine/type';
 import { CarrefourClient } from './client';
 
 type FillRequest = {
   kind: 'fill';
   lines: PlannedLine[];
+  windows: SlotWindow[];
 };
 
 type ProgressMessage = {
@@ -14,10 +16,10 @@ type ProgressMessage = {
 
 // The engine runs here rather than in the service worker because this is the
 // only context where the shop's own cookies travel with a request.
-const run = async (lines: PlannedLine[]): Promise<FillResult> => {
+const run = async (lines: PlannedLine[], windows: SlotWindow[]): Promise<FillResult> => {
   const filler = new BasketFiller(new CarrefourClient());
 
-  return filler.run(lines, async (event: ReportedEvent): Promise<void> => {
+  return filler.run(lines, windows, async (event: ReportedEvent): Promise<void> => {
     const message: ProgressMessage = { kind: 'progress', event };
     await chrome.runtime.sendMessage(message);
   });
@@ -29,7 +31,7 @@ chrome.runtime.onMessage.addListener(
       return false;
     }
 
-    run(request.lines)
+    run(request.lines, request.windows ?? [])
       .then(respond)
       .catch((error: unknown): void => {
         respond({
