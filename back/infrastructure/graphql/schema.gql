@@ -257,6 +257,7 @@ enum TrainingType {
 
 type User {
   email: String!
+  hasPassword: Boolean!
   id: ID!
   name: String
 }
