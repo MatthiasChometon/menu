@@ -1,6 +1,14 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { IsEnum, IsString, IsUUID, MaxLength, MinLength, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsString,
+  IsUUID,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 import { BugSeverity, BugStatus } from './enum';
 
 // Long enough to say something, short enough that the column cannot be used as
@@ -51,6 +59,17 @@ export class ReportBugInput {
   @ValidateNested()
   @Type(() => BugContextInput)
   context!: BugContextInput;
+}
+
+@InputType()
+export class BlockReporterInput {
+  @Field(() => String, { description: 'A report by the account to act on.' })
+  @IsUUID()
+  reportId!: string;
+
+  @Field(() => Boolean)
+  @IsBoolean()
+  blocked!: boolean;
 }
 
 @InputType()

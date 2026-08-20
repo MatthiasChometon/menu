@@ -38,6 +38,11 @@ export class BugReport {
   @Field(() => String, { nullable: true })
   reportedBy!: string | null;
 
+  // Shown on the screen so the same list that reveals a flood is the one where
+  // it gets stopped.
+  @Field(() => Boolean, { description: 'Whether that account may still send reports.' })
+  reporterBlocked!: boolean;
+
   @Field(() => String)
   createdAt!: string;
 }

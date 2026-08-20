@@ -11,6 +11,13 @@ enum Appetite {
   SMALL
 }
 
+input BlockReporterInput {
+  blocked: Boolean!
+
+  """A report by the account to act on."""
+  reportId: String!
+}
+
 """What the browser told us, so nobody had to type it."""
 type BugContext {
   locale: String!
@@ -33,6 +40,9 @@ type BugReport {
   id: ID!
   message: String!
   reportedBy: String
+
+  """Whether that account may still send reports."""
+  reporterBlocked: Boolean!
   severity: BugSeverity!
   status: BugStatus!
 }
@@ -90,6 +100,9 @@ input MeasurementsInput {
 }
 
 type Mutation {
+  """Stops, or resumes, reports from the account behind a report."""
+  blockReporter(input: BlockReporterInput!): Boolean!
+
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!
 

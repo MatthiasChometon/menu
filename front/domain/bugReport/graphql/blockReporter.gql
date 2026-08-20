@@ -1,0 +1,3 @@
+mutation blockReporter($input: BlockReporterInput!) {
+  blockReporter(input: $input)
+}

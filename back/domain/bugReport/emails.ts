@@ -27,12 +27,17 @@ export const bugReportEmail = (
   message: string,
   context: ReportContext,
   reportedBy: string,
+  filedToday: number,
 ): MailMessage => {
   const label = SEVERITY_LABEL[severity] ?? severity;
   const lines = [
     ['Gravité', label],
     ['Page', context.page],
     ['Signalé par', reportedBy],
+    // The count is here for one reason: once the hourly cap silences the next
+    // messages, this line is what still says a flood is under way — and it is
+    // the number that tells you whether to reach for the block button.
+    ['Signalements de ce compte en 24 h', String(filedToday)],
     ['Écran', context.viewport],
     ['Langue', context.locale],
     ['Navigateur', context.userAgent],

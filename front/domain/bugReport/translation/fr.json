@@ -29,7 +29,11 @@
       "reopen": "Rouvrir",
       "statusNew": "Nouveau",
       "statusFixed": "Corrigé",
-      "statusDismissed": "Écarté"
+      "statusDismissed": "Écarté",
+      "blocked": "Compte bloqué",
+      "block": "Bloquer ce compte",
+      "unblock": "Débloquer",
+      "blockedNote": "Ce compte ne peut plus envoyer de signalement. Ses signalements passés restent lisibles."
     }
   }
 }

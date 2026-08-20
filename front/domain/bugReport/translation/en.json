@@ -29,7 +29,11 @@
       "reopen": "Reopen",
       "statusNew": "New",
       "statusFixed": "Fixed",
-      "statusDismissed": "Dismissed"
+      "statusDismissed": "Dismissed",
+      "blocked": "Account blocked",
+      "block": "Block this account",
+      "unblock": "Unblock",
+      "blockedNote": "This account can no longer send reports. The ones it already sent stay readable."
     }
   }
 }
