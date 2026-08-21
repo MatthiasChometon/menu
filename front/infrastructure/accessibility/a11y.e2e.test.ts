@@ -54,9 +54,19 @@ for (const path of PATHS) {
     await page.goto(path);
     await page.getByRole('banner').waitFor();
 
+    // An empty alt is only a fault when the image carries meaning. Marked
+    // decorative — aria-hidden, or role="presentation" — an empty alt is the
+    // correct spelling, and flagging it would push somebody to describe a
+    // rounded corner to a screen reader.
     const unlabelled = await page.evaluate((): string[] =>
       [...document.querySelectorAll('img')]
-        .filter((image): boolean => (image.getAttribute('alt') ?? '').trim() === '')
+        .filter(
+          (image): boolean =>
+            (image.getAttribute('alt') ?? '').trim() === '' &&
+            image.getAttribute('aria-hidden') !== 'true' &&
+            image.getAttribute('role') !== 'presentation' &&
+            image.getAttribute('role') !== 'none',
+        )
         .map((image): string => image.getAttribute('src') ?? '?'),
     );
 
