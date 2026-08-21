@@ -17,6 +17,14 @@ export const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const
 // somebody hunting for a dish to fix a gap they do not have.
 const BALANCE_TOLERANCE = 5;
 
+/** A week being worked on but not saved, held while another one is looked at. */
+type WeekDraft = {
+  plan: PlannedWeek;
+  chosen: Partial<Record<RecipeSlot, string[]>>;
+  spreadFrom: string;
+  isDirty: boolean;
+};
+
 /** How far one macro sits from its target across the week, as a percentage. */
 export type MacroGap = { macro: keyof Macros; gapPercent: number };
 
@@ -101,6 +109,8 @@ export const usePlanner = (): {
   isChosen: (group: RecipeSlot, recipeId: string) => boolean;
   toggleDish: (group: RecipeSlot, recipeId: string) => void;
   canSpread: ComputedRef<boolean>;
+  /** The selection changed since the week was last spread. */
+  needsSpread: ComputedRef<boolean>;
   spread: () => void;
   isSaving: Ref<boolean>;
   savedAt: Ref<string | undefined>;
@@ -110,6 +120,8 @@ export const usePlanner = (): {
   canSave: ComputedRef<boolean>;
   save: () => Promise<void>;
   loadFromAccount: () => Promise<void>;
+  /** Moves the screen to another week, parking the current one's work. */
+  switchWeek: (week: string, previous: string | undefined) => void;
   targets: ComputedRef<Macros>;
   recipesFor: (slot: MealSlot) => Recipe[];
   chosen: (day: DayKey, slot: MealSlot) => string | undefined;
@@ -126,14 +138,14 @@ export const usePlanner = (): {
   const { macrosOfQuantities } = useNutrition();
   const { solve } = useMacroSolver();
   const { profile } = useProfile();
-  const { selectedWeek } = useSelectedWeek();
+  const { week: plannerWeek } = usePlannerWeek();
   const { user } = useAuth();
   const { load, save: persist } = useWeekPlanStore();
 
   // Shared, so leaving the page and coming back does not lose an afternoon of
   // choices. Persisting it properly is the account's job, not this composable's.
   const plan = useState<PlannedWeek>('planner:plan', (): PlannedWeek => ({
-    weekOf: selectedWeek.value,
+    weekOf: plannerWeek.value,
     days: {},
   }));
 
@@ -153,7 +165,15 @@ export const usePlanner = (): {
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
   const isDirty = useState<boolean>('planner:dirty', (): boolean => false);
   const saveFailed = useState<boolean>('planner:saveFailed', (): boolean => false);
+  // What the selection looked like when the week was last spread, so a dish
+  // swapped afterwards is not silently left out of it.
+  const spreadFrom = useState<string>('planner:spreadFrom', (): string => '');
   const loadedWeek = useState<string | undefined>('planner:loaded', (): undefined => undefined);
+  // One week's work in progress each, kept for as long as the tab lives.
+  const drafts = useState<Record<string, WeekDraft>>(
+    'planner:drafts',
+    (): Record<string, WeekDraft> => ({}),
+  );
 
   // A signed-in reader plans against their own targets; otherwise the week is
   // planned against the reference the menus are written to.
@@ -348,22 +368,85 @@ export const usePlanner = (): {
 
   // Only what belongs to an account can be stored on one, and only a week that
   // changed is worth writing.
-  const canSave = computed((): boolean => user.value !== undefined && isDirty.value);
+  const canSave = computed(
+    (): boolean => user.value !== undefined && plannerWeek.value !== '' && isDirty.value,
+  );
 
   const touch = (): void => {
     isDirty.value = true;
   };
 
+  // The dishes a stored week was built from, read back out of the days. The
+  // account keeps the week, not the shortlist that produced it — and coming
+  // back to a week with the grid empty reads as if the week had been lost.
+  const chosenFrom = (stored: PlannedWeek): Partial<Record<RecipeSlot, string[]>> =>
+    Object.fromEntries(
+      GROUP_ORDER.map((group): [RecipeSlot, string[]] => [
+        group,
+        [
+          ...new Set(
+            Object.values(stored.days).flatMap((slots): string[] =>
+              GROUP_SLOTS[group]
+                .map((slot): string | undefined => slots?.[slot])
+                .filter((id): id is string => id !== undefined),
+            ),
+          ),
+        ].slice(0, GROUP_LIMITS[group].max),
+      ]),
+    );
+
   const loadFromAccount = async (): Promise<void> => {
-    const week = selectedWeek.value;
+    const week = plannerWeek.value;
     if (user.value === undefined || week === '' || loadedWeek.value === week) return;
 
     loadedWeek.value = week;
     const stored = await load(week);
-    if (stored === undefined) return;
 
-    plan.value = stored;
+    // A week with nothing stored starts blank. Keeping the previous week's
+    // choices on screen would offer them up for saving under a date they were
+    // never chosen for.
+    plan.value = stored ?? { weekOf: week, days: {} };
+    chosenDishes.value = stored === undefined ? {} : chosenFrom(stored);
+    spreadFrom.value = stored === undefined ? '' : JSON.stringify(chosenDishes.value);
+    savedAt.value = undefined;
+    saveFailed.value = false;
     isDirty.value = false;
+  };
+
+  // Switching weeks is switching subjects: whatever is on screen belongs to the
+  // week it was read from, and cannot be carried over. What it can do is wait —
+  // an afternoon of choices must not be lost to a mis-tapped arrow, and coming
+  // back has to bring them back exactly as they were.
+  const switchWeek = (week: string, previous: string | undefined): void => {
+    if (week === '' || week === previous) return;
+
+    if (previous !== undefined && previous !== '')
+      drafts.value[previous] = {
+        plan: plan.value,
+        chosen: chosenDishes.value,
+        spreadFrom: spreadFrom.value,
+        isDirty: isDirty.value,
+      };
+
+    step.value = 0;
+    savedAt.value = undefined;
+    saveFailed.value = false;
+
+    const draft = drafts.value[week];
+    if (draft !== undefined) {
+      plan.value = draft.plan;
+      chosenDishes.value = draft.chosen;
+      spreadFrom.value = draft.spreadFrom;
+      isDirty.value = draft.isDirty;
+
+      return;
+    }
+
+    plan.value = { weekOf: week, days: {} };
+    chosenDishes.value = {};
+    spreadFrom.value = '';
+    isDirty.value = false;
+    void loadFromAccount();
   };
 
   const kindOf = (recipe: Recipe): DishKind => {
@@ -379,6 +462,10 @@ export const usePlanner = (): {
   // Nothing can be spread until there is something to eat at midday: the savoury
   // dishes are what the week is built around.
   const canSpread = computed((): boolean => (chosenDishes.value.main ?? []).length > 0);
+
+  const needsSpread = computed(
+    (): boolean => canSpread.value && spreadFrom.value !== JSON.stringify(chosenDishes.value),
+  );
 
   // Rotation, with dinner one step ahead of lunch, so the same dish never lands
   // twice in a day — the rule the week has always followed.
@@ -407,6 +494,7 @@ export const usePlanner = (): {
     for (const [index, day] of dayOrder.entries())
       plan.value.days[day] = slotsOnDay(chosenDishes.value, index);
 
+    spreadFrom.value = JSON.stringify(chosenDishes.value);
     touch();
   };
 
@@ -434,21 +522,10 @@ export const usePlanner = (): {
   // anything. Answers "what is missing" while there is still something to do
   // about it — the day view only ever says it once the choosing is over.
   const selectionBalance = computed((): SelectionBalance => {
-    // Shown as soon as a first group is served rather than once every group is,
-    // otherwise the gauge only ever appears on the last step — when there is
-    // nothing left to decide with it.
-    const isReady = GROUP_ORDER.some((group): boolean => isGroupComplete(group));
+    // Always measured, from the very first card. Appearing halfway through
+    // moved the grid a hundred pixels between two taps, and the next dish was
+    // no longer under the finger.
     const isComplete = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
-    if (!isReady) {
-      return {
-        isReady: false,
-        isComplete: false,
-        isBalanced: false,
-        gaps: [],
-        all: [],
-        toleranceOf: (): number => BALANCE_TOLERANCE,
-      };
-    }
 
     const simulated = dayOrder.map((day, index): PlannedDay =>
       buildDay(day, slotsOnDay(chosenDishes.value, index)),
@@ -632,8 +709,10 @@ export const usePlanner = (): {
           ? picked.filter((id): boolean => id !== recipeId)
           : [...picked, recipeId],
       };
+      touch();
     },
     canSpread,
+    needsSpread,
     spread,
     isSaving,
     savedAt,
@@ -646,7 +725,7 @@ export const usePlanner = (): {
       isSaving.value = true;
       saveFailed.value = false;
       try {
-        savedAt.value = await persist({ ...plan.value, weekOf: selectedWeek.value });
+        savedAt.value = await persist({ ...plan.value, weekOf: plannerWeek.value });
         isDirty.value = false;
       } catch (error: unknown) {
         // Swallowed before: the button simply went back to how it looked, and
@@ -658,6 +737,7 @@ export const usePlanner = (): {
       }
     },
     loadFromAccount,
+    switchWeek,
     targets,
     recipesFor: (slot: MealSlot): Recipe[] =>
       Object.values(recipes).filter((recipe): boolean => recipe.slot === SLOT_RECIPES[slot]),

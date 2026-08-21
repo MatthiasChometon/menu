@@ -23,7 +23,7 @@
       "pending": "Unsaved changes.",
       "done": "Saved to your account at",
       "justDone": "Saved",
-      "nothingToSave": "Nothing new to save: this week is already on your account.",
+      "nothingToSave": "Nothing new to save just yet.",
       "failed": "Saving did not go through. Try again in a moment."
     },
     "group": {
@@ -105,6 +105,11 @@
       "onTarget": "on target",
       "under": "under",
       "over": "over"
+    },
+    "weekChoice": {
+      "lead": "You're planning the week of:",
+      "choose": "Choose the week to plan",
+      "later": "Next week along"
     }
   }
 }

@@ -13,8 +13,10 @@ const pickAt = async (page: import('@playwright/test').Page, index: number): Pro
   await dishes(page).nth(index).click();
 };
 
+// Exact: the week chooser has its own "Semaine suivante" arrow, and a loose
+// match picks it up as well.
 const next = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
-  page.getByRole('button', { name: 'Suivant' });
+  page.getByRole('button', { name: 'Suivant', exact: true });
 
 // The pickers only answer once Vue has attached its listeners; clicking before
 // that is a tap into the void, and under load that window is wide.
@@ -192,4 +194,36 @@ test('saving asks for an account rather than pretending to work', async ({ page 
 
   await expect(page.getByRole('button', { name: 'Enregistrer la semaine' })).toBeDisabled();
   await expect(page.getByText('Connecte-toi pour la retrouver')).toBeVisible();
+});
+
+const chosen = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
+  page.getByRole('main').getByRole('checkbox', { checked: true });
+
+test('composes into whichever week is chosen, not only the published one', async ({ page }) => {
+  await open(page);
+
+  // Opens on the week being lived: composing is done ahead, but a Monday with
+  // nothing to eat comes first.
+  await expect(page.getByRole('combobox', { name: 'Choisir la semaine à composer' })).toHaveText(
+    'Cette semaine',
+  );
+
+  await page.getByRole('button', { name: 'Semaine suivante' }).click();
+  await expect(page.getByRole('combobox', { name: 'Choisir la semaine à composer' })).toHaveText(
+    'La semaine prochaine',
+  );
+});
+
+test("a mis-tapped arrow does not cost an afternoon's choices", async ({ page }) => {
+  await open(page);
+
+  await pick(page, 2);
+  await expect(chosen(page)).toHaveCount(2);
+
+  // Another week is another week: it starts blank rather than inheriting.
+  await page.getByRole('button', { name: 'Semaine suivante' }).click();
+  await expect(chosen(page)).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Semaine précédente' }).click();
+  await expect(chosen(page)).toHaveCount(2);
 });

@@ -23,7 +23,7 @@
       "pending": "Modifications non enregistrées.",
       "done": "Enregistrée sur ton compte à",
       "justDone": "Enregistré",
-      "nothingToSave": "Rien de nouveau à enregistrer : cette semaine est déjà sur ton compte.",
+      "nothingToSave": "Rien de nouveau à enregistrer pour l'instant.",
       "failed": "L'enregistrement n'a pas abouti. Réessaie dans un instant."
     },
     "group": {
@@ -105,6 +105,11 @@
       "onTarget": "dans la cible",
       "under": "en dessous",
       "over": "au-dessus"
+    },
+    "weekChoice": {
+      "lead": "Tu composes la semaine :",
+      "choose": "Choisir la semaine à composer",
+      "later": "Semaine suivante"
     }
   }
 }

@@ -16,6 +16,7 @@ const {
   chosenDishes,
   completeSelection,
   canSpread,
+  needsSpread,
   spread,
   isValid,
   isSaving,
@@ -25,8 +26,10 @@ const {
   savedAt,
   save,
   loadFromAccount,
+  switchWeek,
 } = usePlanner();
 const { dayOrder } = useMenu();
+const { week: plannerWeek, labelOf } = usePlannerWeek();
 
 // Long enough to be noticed while looking down at a phone, short enough not to
 // hide the button's real purpose.
@@ -97,6 +100,8 @@ const stepLabels = computed((): string[] => [
 // again the moment you walked back past it — the bar has to answer "what is
 // settled", which is not the same question as "where am I".
 const isStepDone = (index: number): boolean => {
+  if (!canReachStep(index)) return false;
+
   const group = groupOrder[index];
   return group === undefined ? hasWeek.value : isGroupComplete(group);
 };
@@ -105,7 +110,9 @@ const isStepDone = (index: number): boolean => {
 // the week is reached: the steps are clickable, and arriving through the bar
 // used to land on an empty week with nothing to save.
 const enterWeek = (): void => {
-  if (canSpread.value && !hasWeek.value) spread();
+  // Also when the selection moved since the last spread: otherwise the week
+  // still shows the dishes chosen before, and the new one never reaches it.
+  if (needsSpread.value) spread();
 };
 
 const onNext = (): void => {
@@ -126,6 +133,13 @@ watch(user, (): void => {
   void loadFromAccount();
 });
 
+// Watched from the page rather than from the composable: every picker calls
+// usePlanner too, and a watcher declared there would fire once per component,
+// each one parking the week over the last one's work.
+watch(plannerWeek, (week, previous): void => {
+  switchWeek(week, previous);
+});
+
 useSeoMeta({ title: (): string => t('planner.pageTitle') });
 </script>
 
@@ -143,6 +157,8 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
     >
       {{ $t('menu.nav.week') }}
     </UButton>
+
+    <PlannerWeekChooser class="rise mb-5" />
 
     <!-- Where you are and how much is left, in one line: four choices feel long
          only when you cannot see the end of them. -->
@@ -214,7 +230,12 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
 
     <!-- One meal group at a time. -->
     <div v-if="currentGroup !== undefined" class="rise mt-6">
-      <div v-if="step === 0 && !hasAnyChoice" class="mb-5 rounded-2xl border border-default p-4">
+      <PlannerDishPicker :group="currentGroup" />
+
+      <!-- Under the cards on purpose: it vanishes on the first pick, and
+           vanishing above the grid moved every dish out from under the
+           finger. -->
+      <div v-if="step === 0 && !hasAnyChoice" class="mt-5 rounded-2xl border border-default p-4">
         <p class="text-sm text-muted">{{ $t('planner.completeHint') }}</p>
         <UButton
           class="mt-3"
@@ -225,8 +246,6 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           {{ $t('planner.complete') }}
         </UButton>
       </div>
-
-      <PlannerDishPicker :group="currentGroup" />
     </div>
 
     <!-- The week, once the choices are made. -->
@@ -271,18 +290,6 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           <!-- The button confirms its own action. It is where the finger and
                the eye already are, so nothing has to appear elsewhere and
                nothing flies past while somebody is looking down. -->
-          <UButton
-            :icon="justSaved ? 'i-lucide-check' : 'i-lucide-cloud-upload'"
-            :color="justSaved ? 'success' : 'primary'"
-            :loading="isSaving"
-            :disabled="!canSave && !justSaved"
-            class="transition-colors"
-            @click="save"
-          >
-            <span :key="String(justSaved)" class="pop">
-              {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
-            </span>
-          </UButton>
           <p v-if="user === undefined" class="text-sm text-muted">
             {{ $t('planner.saving.signedOut') }}
           </p>
@@ -290,14 +297,15 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
             {{ $t('planner.saving.failed') }}
           </p>
           <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
-          <p v-else-if="savedAt === undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.nothingToSave') }}
-          </p>
           <!-- Kept afterwards, with the time: the question "is it actually
                saved?" comes back long after the confirmation has gone. -->
           <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.done') }} {{ savedLabel }}
+            {{ $t('planner.saving.done') }} {{ savedLabel }} —
+            {{ labelOf(plannerWeek).toLowerCase() }}
           </p>
+          <!-- Nothing saved and nothing changed: the button is grey for a
+               reason, and saying none reads as a fault. -->
+          <p v-else class="text-sm text-muted">{{ $t('planner.saving.nothingToSave') }}</p>
         </div>
       </section>
     </template>
@@ -325,6 +333,20 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           @click="onNext"
         >
           {{ $t('planner.next') }}
+        </UButton>
+        <UButton
+          v-else-if="hasWeek"
+          :icon="justSaved ? 'i-lucide-check' : 'i-lucide-cloud-upload'"
+          :color="justSaved ? 'success' : 'primary'"
+          size="lg"
+          class="ml-auto font-semibold text-white"
+          :loading="isSaving"
+          :disabled="!canSave && !justSaved"
+          @click="save"
+        >
+          <span :key="String(justSaved)" class="pop">
+            {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
+          </span>
         </UButton>
       </div>
       <p v-if="missing > 0" class="mx-auto mt-2 max-w-3xl text-xs text-error">
