@@ -52,8 +52,21 @@ const others = computed((): { gap: MacroGap; isInside: boolean; label: string }[
       </ul>
     </div>
 
+    <!-- Said plainly while meals are still missing: a cursor sitting low then
+         means the week is unfinished, not that the dishes chosen are wrong. -->
     <div
-      v-if="selectionBalance.isBalanced"
+      v-if="!selectionBalance.isComplete"
+      class="flex items-start gap-2 rounded-xl border border-default bg-elevated/40 px-3 py-2 text-sm"
+    >
+      <UIcon name="i-lucide-hourglass" class="mt-0.5 size-5 shrink-0 text-muted" />
+      <span>
+        <span class="font-semibold">{{ $t('planner.balance.unfinished') }}</span>
+        <span class="text-muted"> — {{ $t('planner.balance.unfinishedHint') }}</span>
+      </span>
+    </div>
+
+    <div
+      v-else-if="selectionBalance.isBalanced"
       class="flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-sm"
     >
       <UIcon name="i-lucide-circle-check" class="size-5 shrink-0 text-primary" />

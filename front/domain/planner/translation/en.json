@@ -79,7 +79,9 @@
       "with": "With this selection:",
       "enough": "Your selection is enough.",
       "enoughHint": "You may add more, but nothing is missing.",
-      "richIn": "High in"
+      "richIn": "High in",
+      "unfinished": "Some meals are still to choose",
+      "unfinishedHint": "the figures will rise as you add them"
     },
     "fix": {
       "open": "How to fix it",

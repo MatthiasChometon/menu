@@ -21,8 +21,10 @@ const BALANCE_TOLERANCE = 5;
 export type MacroGap = { macro: keyof Macros; gapPercent: number };
 
 export type SelectionBalance = {
-  /** Whether every group has the dishes it needs, so a week can be built at all. */
+  /** At least one group is served, so there is something to measure. */
   isReady: boolean;
+  /** Every group is served: the figures now describe a whole week. */
+  isComplete: boolean;
   isBalanced: boolean;
   /** Only the macros worth mentioning. Empty means nothing needs fixing. */
   gaps: MacroGap[];
@@ -429,10 +431,15 @@ export const usePlanner = (): {
   // anything. Answers "what is missing" while there is still something to do
   // about it — the day view only ever says it once the choosing is over.
   const selectionBalance = computed((): SelectionBalance => {
-    const isReady = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
+    // Shown as soon as a first group is served rather than once every group is,
+    // otherwise the gauge only ever appears on the last step — when there is
+    // nothing left to decide with it.
+    const isReady = GROUP_ORDER.some((group): boolean => isGroupComplete(group));
+    const isComplete = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
     if (!isReady) {
       return {
         isReady: false,
+        isComplete: false,
         isBalanced: false,
         gaps: [],
         all: [],
@@ -458,7 +465,10 @@ export const usePlanner = (): {
 
     return {
       isReady: true,
-      isBalanced: simulated.every((day): boolean => day.isValid),
+      isComplete,
+      // A week still missing meals is not balanced, it is unfinished — saying
+      // otherwise would invite stopping halfway.
+      isBalanced: isComplete && simulated.every((day): boolean => day.isValid),
       gaps: gaps.filter((gap): boolean => Math.abs(gap.gapPercent) > BALANCE_TOLERANCE),
       // Every macro, in order, whether or not it needs mentioning: a gauge has
       // to show somebody approaching the target, not only overshooting it.
