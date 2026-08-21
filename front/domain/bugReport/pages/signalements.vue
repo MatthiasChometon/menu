@@ -72,6 +72,16 @@ const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => 
     <p class="mt-1 text-muted">{{ $t('bugReport.admin.lead') }}</p>
 
     <ClientOnly>
+      <!-- The list depends on the session, which exists only in the browser.
+           Without this the page shows its title over nothing, then everything
+           lands at once. -->
+      <template #fallback>
+        <div class="mt-6 space-y-3">
+          <USkeleton v-for="row in 3" :key="row" class="h-24 rounded-xl" />
+          <span class="sr-only">{{ $t('accessibility.loading') }}</span>
+        </div>
+      </template>
+
       <p v-if="!isAdmin" class="mt-8 text-muted">{{ $t('bugReport.admin.forbidden') }}</p>
       <p v-else-if="reports.length === 0" class="mt-8 text-muted">
         {{ $t('bugReport.admin.empty') }}

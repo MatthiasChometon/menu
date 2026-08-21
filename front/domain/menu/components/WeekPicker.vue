@@ -109,7 +109,7 @@ onMounted((): void => {
       />
     </div>
 
-    <div class="flex items-center gap-2 px-2 text-xs text-muted">
+    <div class="flex min-h-5 items-center gap-2 px-2 text-xs text-muted">
       <span v-if="subtitleOf(selectedWeek)">{{ subtitleOf(selectedWeek) }}</span>
       <!-- A bare date never says whether it is behind or ahead. -->
       <UBadge

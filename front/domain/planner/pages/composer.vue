@@ -56,6 +56,7 @@ const hasAnyChoice = computed((): boolean =>
 );
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();
+const { isLoading: isLoadingProfile } = useProfile();
 const { user } = useAuth();
 const { t, locale } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
@@ -183,8 +184,16 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
       </nav>
     </div>
 
+    <!-- Never the menu's own targets while the profile is still on its way:
+         showing 3100 kcal and swapping it for 2939 tells the reader a number
+         they may already have taken for the answer. -->
+    <USkeleton v-if="step === 0 && isLoadingProfile" class="mt-5 h-20 rounded-lg" />
+    <span v-if="step === 0 && isLoadingProfile" class="sr-only">
+      {{ $t('accessibility.loading') }}
+    </span>
+
     <UAlert
-      v-if="step === 0"
+      v-else-if="step === 0"
       class="rise mt-5"
       color="neutral"
       variant="subtle"

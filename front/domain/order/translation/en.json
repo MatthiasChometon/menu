@@ -1,8 +1,8 @@
 {
   "order": {
-    "title": "Order the groceries",
-    "lead": "The Carrefour basket fills itself from this menu, on a paired browser.",
-    "action": "Fill my basket",
+    "title": "Order from Carrefour",
+    "lead": "The basket fills itself from this menu, on a paired browser.",
+    "action": "Fill my Carrefour basket",
     "working": "Working…",
     "neverPays": "Ordering and paying stay yours: nothing is confirmed automatically.",
     "waitingHint": "Open Chrome on a paired machine and the run starts by itself.",

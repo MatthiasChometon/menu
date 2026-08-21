@@ -11,9 +11,11 @@ const cachedEaters = (): Ref<Eater[]> => useLocalStorage<Eater[]>('shopping:eate
 // place, or a household of three shops for one.
 export const useShoppingQuantities = (): {
   eaters: ComputedRef<Eater[]>;
+  /** True while it is not yet known how many people this list is buying for. */
+  isLoading: ComputedRef<boolean>;
   linesFor: (menu: Menu) => ShoppingLine[];
 } => {
-  const { eaters: live } = useHouseholdQuantities();
+  const { eaters: live, isLoading } = useHouseholdQuantities();
   const { scaleQuantity } = useScaledQuantities();
   const stored = cachedEaters();
 
@@ -28,8 +30,11 @@ export const useShoppingQuantities = (): {
 
   const eaters = computed((): Eater[] => (live.value.length > 0 ? live.value : stored.value));
 
+  // A copy on the device answers instantly, so the wait only ever happens on
+  // a first visit — which is exactly when guessing would be worst.
   return {
     eaters,
+    isLoading: computed((): boolean => isLoading.value && stored.value.length === 0),
     linesFor: (menu: Menu): ShoppingLine[] =>
       menu.shoppingList.map((line): ShoppingLine => {
         // Nobody to weigh for: the list stays exactly as the menu wrote it,

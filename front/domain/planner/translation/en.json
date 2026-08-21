@@ -92,7 +92,9 @@
     "household": {
       "title": "Who this week works out for",
       "lead": "Portions adapt to each person. A note here means the chosen dishes cannot suit everyone at once.",
-      "fits": "Works out"
+      "fits": "Works out",
+      "wayOff": "Does not suit their targets",
+      "wayOffHint": "mostly"
     }
   }
 }

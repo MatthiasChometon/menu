@@ -114,6 +114,11 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <MenuWeekPicker />
       </div>
 
+      <div v-if="status === undefined" class="mt-5 space-y-3" aria-hidden="true">
+        <USkeleton class="h-20 rounded-lg" />
+      </div>
+      <span v-if="status === undefined" class="sr-only">{{ $t('accessibility.loading') }}</span>
+
       <UAlert
         v-if="status === 'upcoming'"
         class="rise mt-5"

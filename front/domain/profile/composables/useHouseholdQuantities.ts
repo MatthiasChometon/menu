@@ -55,11 +55,14 @@ export const sharePortions = (
 // what to weigh out to cook, the other what to put on a plate.
 export const useHouseholdQuantities = (): {
   eaters: ComputedRef<Eater[]>;
+  /** True while the profile or the household are still on their way. */
+  isLoading: ComputedRef<boolean>;
   scale: (quantities: FoodQuantity[], menuTargets: Targets | undefined) => SharedQuantity[];
 } => {
   const { profile } = useProfile();
   const { user } = useAuth();
-  const { members } = useHousehold();
+  const { members, isLoading: isLoadingMembers } = useHousehold();
+  const { isLoading: isLoadingProfile } = useProfile();
   const { t } = useNuxtApp().$i18n;
 
   // The account holder first, then everybody they added, in the order the
@@ -88,6 +91,7 @@ export const useHouseholdQuantities = (): {
 
   return {
     eaters,
+    isLoading: computed((): boolean => isLoadingProfile.value || isLoadingMembers.value),
     scale: (quantities, menuTargets): SharedQuantity[] =>
       sharePortions(quantities, menuTargets, eaters.value),
   };

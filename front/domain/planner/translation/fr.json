@@ -92,7 +92,9 @@
     "household": {
       "title": "Pour qui tombe cette semaine",
       "lead": "Les portions s'adaptent à chacun. Une mention ici veut dire que les plats choisis ne peuvent pas convenir à tout le monde à la fois.",
-      "fits": "Ça tombe juste"
+      "fits": "Ça tombe juste",
+      "wayOff": "Ne convient pas à ses apports",
+      "wayOffHint": "surtout"
     }
   }
 }

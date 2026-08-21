@@ -19,7 +19,7 @@ const isReady = computed((): boolean => statusOf(meal.recipe.id) === 'done');
 
 <template>
   <div
-    class="group flex items-center gap-1 rounded-2xl transition-colors"
+    class="group flex items-center gap-1 rounded-2xl pr-2 transition-colors"
     :class="eaten ? 'opacity-60' : 'hover:bg-elevated/60'"
   >
     <NuxtLink

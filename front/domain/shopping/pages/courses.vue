@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
-const { eaters, linesFor } = useShoppingQuantities();
+const { eaters, isLoading: isLoadingEaters, linesFor } = useShoppingQuantities();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const isMounted = useMounted();
@@ -122,7 +122,8 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         :description="$t('shopping.doneHint')"
       />
 
-      <p v-if="isMounted && eaters.length > 0" class="mt-3 text-sm text-muted">
+      <USkeleton v-if="!isMounted || isLoadingEaters" class="mt-3 h-5 w-56" />
+      <p v-else-if="eaters.length > 0" class="mt-3 text-sm text-muted">
         {{ $t('shopping.forHousehold') }}
         <span class="font-semibold">
           {{
@@ -133,9 +134,15 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         </span>
       </p>
 
-      <OrderButton v-if="isMounted && user && currentMenu" class="mt-6" :menu="currentMenu" />
+      <USkeleton v-if="!isMounted" class="mt-6 h-32 rounded-xl" />
+      <OrderButton v-else-if="user && currentMenu" class="mt-6" :menu="currentMenu" />
 
-      <div class="mt-6 space-y-7">
+      <div v-if="isLoadingEaters" class="mt-6 space-y-4">
+        <USkeleton v-for="row in 4" :key="row" class="h-24 rounded-xl" />
+        <span class="sr-only">{{ $t('accessibility.loading') }}</span>
+      </div>
+
+      <div v-else class="mt-6 space-y-7">
         <ShoppingAisle
           v-for="(group, index) in groups"
           :key="group.aisle"

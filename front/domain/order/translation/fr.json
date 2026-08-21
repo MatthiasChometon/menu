@@ -1,8 +1,8 @@
 {
   "order": {
-    "title": "Commander les courses",
-    "lead": "Le panier Carrefour se remplit tout seul à partir de ce menu, sur un navigateur appairé.",
-    "action": "Remplir mon panier",
+    "title": "Commander sur Carrefour",
+    "lead": "Le panier se remplit tout seul à partir de ce menu, sur un navigateur appairé.",
+    "action": "Remplir mon panier Carrefour",
     "working": "En cours…",
     "neverPays": "La commande et le paiement restent à toi : rien n'est validé automatiquement.",
     "waitingHint": "Ouvre Chrome sur un poste appairé et le remplissage démarre tout seul.",

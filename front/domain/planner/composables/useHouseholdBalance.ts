@@ -7,11 +7,16 @@ import type { Eater } from '../../profile/composables/useHouseholdQuantities';
 // Flagging it would blame the reader for arithmetic they cannot change.
 const HOUSEHOLD_TOLERANCE = 8;
 
+// Past two, a list stops being read and starts being skipped.
+const MOST_GAPS_WORTH_NAMING = 2;
+
 export type EaterVerdict = {
   eater: Eater;
   isBalanced: boolean;
-  /** The macros worth naming. Empty when the week works out for this person. */
+  /** The macros worth naming, widest first. Empty when the week works out. */
   gaps: MacroGap[];
+  /** More were off than are named: the week simply does not suit this person. */
+  isWayOff: boolean;
 };
 
 // Whether the week works out for everybody it will be served to, not only for
@@ -63,9 +68,19 @@ export const useHouseholdBalance = (): {
           };
         });
 
-        const named = gaps.filter((gap): boolean => Math.abs(gap.gapPercent) > HOUSEHOLD_TOLERANCE);
+        const named = gaps
+          .filter((gap): boolean => Math.abs(gap.gapPercent) > HOUSEHOLD_TOLERANCE)
+          .sort((left, right): number => Math.abs(right.gapPercent) - Math.abs(left.gapPercent));
 
-        return { eater, isBalanced: named.length === 0, gaps: named };
+        return {
+          eater,
+          isBalanced: named.length === 0,
+          // Two at most, the widest first. Naming all five says nothing at all:
+          // when everything is off, the reader needs to know the week does not
+          // suit this person, not to read a table of it.
+          gaps: named.slice(0, MOST_GAPS_WORTH_NAMING),
+          isWayOff: named.length > MOST_GAPS_WORTH_NAMING,
+        };
       }),
   };
 };

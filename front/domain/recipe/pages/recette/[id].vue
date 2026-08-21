@@ -9,7 +9,7 @@ const { seasoningsOf } = useSeasonings();
 const { nameOf, stepsOf } = useFoodFormat();
 const { macrosOfQuantities } = useNutrition();
 const { isPersonalised, scale } = useMyQuantities();
-const { scale: share } = useHouseholdQuantities();
+const { scale: share, isLoading: isLoadingEaters } = useHouseholdQuantities();
 
 // The whole week is the default: the point of opening a recipe is to cook it,
 // and everything it is served in gets cooked in one go.
@@ -184,7 +184,14 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
           icon="i-lucide-user-round-check"
           :title="$t('profile.scaled.notice')"
         />
-        <RecipeIngredientList :quantities="sharedQuantities" />
+        <!-- Weights are what somebody puts on a scale. Showing the recipe's
+             own grammes and correcting them a moment later invites weighing
+             the wrong amount. -->
+        <div v-if="isLoadingEaters" class="space-y-2">
+          <USkeleton v-for="row in 5" :key="row" class="h-10 rounded-lg" />
+          <span class="sr-only">{{ $t('accessibility.loading') }}</span>
+        </div>
+        <RecipeIngredientList v-else :quantities="sharedQuantities" />
       </section>
 
       <section v-if="seasonings.length > 0" class="rise space-y-3" style="animation-delay: 80ms">
