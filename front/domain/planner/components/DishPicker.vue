@@ -123,7 +123,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
 
     <!-- The requirement stated before the choice, not after a refusal: how many
          are needed, how many are allowed, and how far along you are. -->
-    <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div class="mt-4 flex min-h-6 flex-wrap items-center gap-x-3 gap-y-1">
       <div class="flex items-center gap-1.5" :aria-label="$t('planner.chosen')">
         <span
           v-for="slot in limits.max"
@@ -148,26 +148,15 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       <p v-else-if="isFull" class="text-sm text-muted">{{ $t('planner.maxReached') }}</p>
     </div>
 
-    <p v-if="!isFull" class="mt-2 flex items-center gap-1.5 text-xs text-muted">
-      <UIcon name="i-lucide-sparkles" class="size-3.5 shrink-0 text-primary" />
-      {{ $t('planner.balance.hint') }}
+    <!-- Always drawn, emptied rather than removed: hiding the whole line when
+         the group fills up pulled the cards twenty-four pixels up, right as a
+         finger was heading for the next one. -->
+    <p class="mt-2 flex min-h-4 items-center gap-1.5 text-xs text-muted">
+      <template v-if="!isFull">
+        <UIcon name="i-lucide-sparkles" class="size-3.5 shrink-0 text-primary" />
+        {{ $t('planner.balance.hint') }}
+      </template>
     </p>
-
-    <!-- What is already chosen, at a glance and removable, without hunting for
-         it among the cards. -->
-    <div v-if="chosenRecipes.length > 0" class="mt-3 flex flex-wrap gap-2">
-      <UButton
-        v-for="dish in chosenRecipes"
-        :key="dish.id"
-        trailing-icon="i-lucide-x"
-        color="primary"
-        variant="soft"
-        size="xs"
-        @click="toggleDish(group, dish.id)"
-      >
-        {{ nameOf(dish) }}
-      </UButton>
-    </div>
 
     <PlannerSelectionBalance />
 
@@ -267,5 +256,20 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       :recipe="preview"
       :group="group"
     />
+    <!-- What is already chosen, at a glance and removable, without hunting for
+         it among the cards. -->
+    <div v-if="chosenRecipes.length > 0" class="mt-4 flex flex-wrap gap-2">
+      <UButton
+        v-for="dish in chosenRecipes"
+        :key="dish.id"
+        trailing-icon="i-lucide-x"
+        color="primary"
+        variant="soft"
+        size="xs"
+        @click="toggleDish(group, dish.id)"
+      >
+        {{ nameOf(dish) }}
+      </UButton>
+    </div>
   </section>
 </template>
