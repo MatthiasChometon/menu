@@ -13,7 +13,9 @@ const {
   isGroupComplete,
   isGroupFull,
   recommendedIn,
+  fillsIn,
 } = usePlanner();
+const { t } = useNuxtApp().$i18n;
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
 
@@ -59,6 +61,16 @@ const count = computed((): number => (chosenDishes.value[group] ?? []).length);
 // under the finger on every pick; a mark leaves the choice exactly where it was
 // and still puts the balanced options first in the eye.
 const recommended = computed((): Set<string> => recommendedIn(group));
+
+// Says what the dish brings when it closes a real gap, and falls back on the
+// plain mark when nothing in particular is short.
+const markOf = (recipeId: string): string => {
+  const macro = fillsIn(group, recipeId);
+
+  return macro === undefined
+    ? t('planner.balance.mark')
+    : `${t('planner.balance.richIn')} ${t(`menu.macroLong.${macro}`).toLowerCase()}`;
+};
 
 const preview = ref<Recipe | undefined>(undefined);
 const isPreviewOpen = computed({
@@ -157,6 +169,8 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       </UButton>
     </div>
 
+    <PlannerSelectionBalance />
+
     <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
       <div
         v-for="dish in dishes"
@@ -202,7 +216,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
             class="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[0.65rem] font-bold text-primary shadow-md ring-1 ring-primary/30"
           >
             <UIcon name="i-lucide-sparkles" class="size-3" />
-            {{ $t('planner.balance.mark') }}
+            {{ markOf(dish.id) }}
           </span>
 
           <!-- White disc, coloured tick: its legibility owes nothing to whatever

@@ -78,7 +78,8 @@
       "over": "un peu hautes",
       "with": "Avec cette sélection :",
       "enough": "Ta sélection suffit.",
-      "enoughHint": "Tu peux en ajouter, mais rien ne manque."
+      "enoughHint": "Tu peux en ajouter, mais rien ne manque.",
+      "richIn": "Riche en"
     },
     "fix": {
       "open": "Comment corriger",
@@ -95,6 +96,11 @@
       "fits": "Ça tombe juste",
       "wayOff": "Ne convient pas à ses apports",
       "wayOffHint": "surtout"
+    },
+    "gauge": {
+      "onTarget": "dans la cible",
+      "under": "en dessous",
+      "over": "au-dessus"
     }
   }
 }

@@ -26,6 +26,10 @@ export type SelectionBalance = {
   isBalanced: boolean;
   /** Only the macros worth mentioning. Empty means nothing needs fixing. */
   gaps: MacroGap[];
+  /** Every macro, for the gauge. */
+  all: MacroGap[];
+  /** How far this macro may stray before it counts as off, as a percentage. */
+  toleranceOf: (macro: keyof Macros) => number;
 };
 
 // Which meals a chosen dish fills. The savoury dishes carry both lunch and
@@ -76,6 +80,8 @@ export const usePlanner = (): {
   goToStep: (index: number) => void;
   suggestFor: (day: PlannedDay) => DishSwap | undefined;
   recommendedIn: (group: RecipeSlot) => Set<string>;
+  /** The macro this dish would help most with, when one is short. */
+  fillsIn: (group: RecipeSlot, recipeId: string) => keyof Macros | undefined;
   selectionBalance: ComputedRef<SelectionBalance>;
   /** Fills every group to its minimum with the dishes that fit the targets best. */
   completeSelection: () => void;
@@ -425,7 +431,13 @@ export const usePlanner = (): {
   const selectionBalance = computed((): SelectionBalance => {
     const isReady = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
     if (!isReady) {
-      return { isReady: false, isBalanced: false, gaps: [] };
+      return {
+        isReady: false,
+        isBalanced: false,
+        gaps: [],
+        all: [],
+        toleranceOf: (): number => BALANCE_TOLERANCE,
+      };
     }
 
     const simulated = dayOrder.map((day, index): PlannedDay =>
@@ -448,6 +460,11 @@ export const usePlanner = (): {
       isReady: true,
       isBalanced: simulated.every((day): boolean => day.isValid),
       gaps: gaps.filter((gap): boolean => Math.abs(gap.gapPercent) > BALANCE_TOLERANCE),
+      // Every macro, in order, whether or not it needs mentioning: a gauge has
+      // to show somebody approaching the target, not only overshooting it.
+      all: gaps,
+      toleranceOf: (macro: keyof Macros): number =>
+        tolerance.value[macro] ?? tolerance.value.default,
     };
   });
 
@@ -482,6 +499,33 @@ export const usePlanner = (): {
         };
       }
     }
+  };
+
+  // Which macro a dish would help most with, among those currently short.
+  // Named after the dish, never after the reader: "riche en protéines" is a
+  // fact about food, "+18 %" is a score to game.
+  const fillsIn = (group: RecipeSlot, recipeId: string): keyof Macros | undefined => {
+    const short = selectionBalance.value.all
+      .filter((gap): boolean => gap.gapPercent < -selectionBalance.value.toleranceOf(gap.macro))
+      .sort((left, right): number => left.gapPercent - right.gapPercent);
+    if (short.length === 0) return undefined;
+
+    const selection = {
+      ...chosenDishes.value,
+      [group]: [...(chosenDishes.value[group] ?? []), recipeId],
+    };
+    const withDish = dayOrder.map((day, index): PlannedDay =>
+      buildDay(day, slotsOnDay(selection, index)),
+    );
+
+    // Only worth saying when the dish genuinely closes the widest gap.
+    const worst = short[0];
+    if (worst === undefined) return undefined;
+
+    const after =
+      withDish.reduce((total, day): number => total + gapOf(day, worst.macro), 0) / withDish.length;
+
+    return after > worst.gapPercent ? worst.macro : undefined;
   };
 
   const recommendedIn = (group: RecipeSlot): Set<string> => {
@@ -519,6 +563,7 @@ export const usePlanner = (): {
     canReachStep,
     suggestFor,
     recommendedIn,
+    fillsIn,
     selectionBalance,
     completeSelection,
     swapsForMacro,

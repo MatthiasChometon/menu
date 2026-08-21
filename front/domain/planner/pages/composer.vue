@@ -217,8 +217,6 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
       </div>
 
       <PlannerDishPicker :group="currentGroup" />
-      <!-- Under the dishes, where the next pick is about to be made. -->
-      <PlannerSelectionBalance />
     </div>
 
     <!-- The week, once the choices are made. -->
