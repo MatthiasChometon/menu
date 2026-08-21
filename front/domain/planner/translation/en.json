@@ -22,7 +22,9 @@
       "signedOut": "Sign in to find it again on your phone.",
       "pending": "Unsaved changes.",
       "done": "Saved to your account at",
-      "justDone": "Saved"
+      "justDone": "Saved",
+      "nothingToSave": "Nothing new to save: this week is already on your account.",
+      "failed": "Saving did not go through. Try again in a moment."
     },
     "group": {
       "main": "Lunch and dinner",

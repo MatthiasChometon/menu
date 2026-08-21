@@ -105,6 +105,8 @@ export const usePlanner = (): {
   isSaving: Ref<boolean>;
   savedAt: Ref<string | undefined>;
   isDirty: Ref<boolean>;
+  /** The last attempt to save did not go through. */
+  saveFailed: Ref<boolean>;
   canSave: ComputedRef<boolean>;
   save: () => Promise<void>;
   loadFromAccount: () => Promise<void>;
@@ -150,6 +152,7 @@ export const usePlanner = (): {
   const isSaving = useState<boolean>('planner:saving', (): boolean => false);
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
   const isDirty = useState<boolean>('planner:dirty', (): boolean => false);
+  const saveFailed = useState<boolean>('planner:saveFailed', (): boolean => false);
   const loadedWeek = useState<string | undefined>('planner:loaded', (): undefined => undefined);
 
   // A signed-in reader plans against their own targets; otherwise the week is
@@ -635,14 +638,21 @@ export const usePlanner = (): {
     isSaving,
     savedAt,
     isDirty,
+    saveFailed,
     canSave,
     save: async (): Promise<void> => {
       if (!canSave.value || isSaving.value) return;
 
       isSaving.value = true;
+      saveFailed.value = false;
       try {
         savedAt.value = await persist({ ...plan.value, weekOf: selectedWeek.value });
         isDirty.value = false;
+      } catch (error: unknown) {
+        // Swallowed before: the button simply went back to how it looked, and
+        // the week appeared saved when nothing had left the browser.
+        saveFailed.value = true;
+        console.error('[planner] saving the week failed', error);
       } finally {
         isSaving.value = false;
       }

@@ -21,6 +21,7 @@ const {
   isSaving,
   canSave,
   isDirty,
+  saveFailed,
   savedAt,
   save,
   loadFromAccount,
@@ -100,12 +101,21 @@ const isStepDone = (index: number): boolean => {
   return group === undefined ? hasWeek.value : isGroupComplete(group);
 };
 
-// Spreading is what turns four lists into a week; it happens once, on the way
-// into the last step, so the reader never has to ask for it.
+// Spreading is what turns four lists into a week, and it has to happen however
+// the week is reached: the steps are clickable, and arriving through the bar
+// used to land on an empty week with nothing to save.
+const enterWeek = (): void => {
+  if (canSpread.value && !hasWeek.value) spread();
+};
+
 const onNext = (): void => {
-  const isEnteringWeek = step.value === groupOrder.length - 1;
-  if (isEnteringWeek) spread();
+  if (step.value === groupOrder.length - 1) enterWeek();
   goNext();
+};
+
+const onStep = (index: number): void => {
+  if (index === groupOrder.length) enterWeek();
+  goToStep(index);
 };
 
 onMounted((): void => {
@@ -159,7 +169,7 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           "
           :disabled="!canReachStep(index)"
           :aria-current="index === step ? 'step' : undefined"
-          @click="goToStep(index)"
+          @click="onStep(index)"
         >
           <span
             class="h-1.5 rounded-full transition-colors"
@@ -276,7 +286,13 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           <p v-if="user === undefined" class="text-sm text-muted">
             {{ $t('planner.saving.signedOut') }}
           </p>
+          <p v-else-if="saveFailed" class="text-sm text-error" role="alert">
+            {{ $t('planner.saving.failed') }}
+          </p>
           <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
+          <p v-else-if="savedAt === undefined" class="text-sm text-muted">
+            {{ $t('planner.saving.nothingToSave') }}
+          </p>
           <!-- Kept afterwards, with the time: the question "is it actually
                saved?" comes back long after the confirmation has gone. -->
           <p v-else-if="savedAt !== undefined" class="text-sm text-muted">

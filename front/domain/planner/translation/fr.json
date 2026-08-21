@@ -22,7 +22,9 @@
       "signedOut": "Connecte-toi pour la retrouver sur ton téléphone.",
       "pending": "Modifications non enregistrées.",
       "done": "Enregistrée sur ton compte à",
-      "justDone": "Enregistré"
+      "justDone": "Enregistré",
+      "nothingToSave": "Rien de nouveau à enregistrer : cette semaine est déjà sur ton compte.",
+      "failed": "L'enregistrement n'a pas abouti. Réessaie dans un instant."
     },
     "group": {
       "main": "Déjeuner et dîner",
