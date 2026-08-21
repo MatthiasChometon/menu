@@ -28,6 +28,7 @@
     "backToWeek": "Retour à la semaine",
     "forHousehold": "Quantités pour",
     "people": "personnes",
-    "onePerson": "toi seul"
+    "onePerson": "toi seul",
+    "unscaled": "Quantités du menu : ton foyer n'a pas pu être chargé."
   }
 }

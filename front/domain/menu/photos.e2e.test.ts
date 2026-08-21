@@ -44,11 +44,14 @@ test.describe('what a page costs in photographs', () => {
     });
 
     await page.goto('/');
-    await page.waitForTimeout(12_000);
 
     // The warm-up is easy to break in a way nothing else would notice: it runs
     // behind an idle callback, touches no pixel, and a page that never warms
     // looks exactly like one that does — until the signal goes.
-    expect(fetched.size).toBeGreaterThan(100);
+    //
+    // Polled rather than timed: sharing one preview server with the rest of the
+    // suite, the warm-up takes as long as it takes, and a fixed wait only ever
+    // measures how busy the machine was.
+    await expect.poll((): number => fetched.size, { timeout: 40_000 }).toBeGreaterThan(100);
   });
 });

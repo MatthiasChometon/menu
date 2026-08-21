@@ -108,16 +108,25 @@ test('a picked shopping item reports its state', async ({ page }) => {
   // Scoped to the content: the header's theme toggle is also an aria-pressed
   // button, and it sits before any shopping item in the accessibility tree.
   const content = page.getByRole('main');
-  const picked = content.getByRole('button', { pressed: true });
+  // Spelled out rather than asked for by role: Playwright counts a button with
+  // no aria-pressed at all as "not pressed", so { pressed: false } also picks
+  // up the week arrows — and the first of those is disabled, which is a click
+  // that can never land.
+  const picked = content.locator('button[aria-pressed="true"]');
+  const unpicked = content.locator('button[aria-pressed="false"]');
+
+  // The list waits for the household before it shows any grammes, so the first
+  // item can be several seconds away. Waiting for it rather than polling blind
+  // keeps the click on a real item instead of into the skeleton.
+  const item = unpicked.first();
+  await item.waitFor({ timeout: 15_000 });
 
   // The markup is served before hydration attaches the listeners, and a click
   // landing in that window is silently lost. Retrying only while nothing is
   // picked keeps this idempotent: a second click can never undo the first.
   await expect
     .poll(async (): Promise<number> => {
-      if ((await picked.count()) === 0) {
-        await content.getByRole('button', { pressed: false }).first().click();
-      }
+      if ((await picked.count()) === 0) await item.click();
 
       return picked.count();
     })

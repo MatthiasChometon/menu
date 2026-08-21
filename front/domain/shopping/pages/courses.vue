@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
-const { eaters, isLoading: isLoadingEaters, linesFor } = useShoppingQuantities();
+const { eaters, isLoading: isLoadingEaters, isUnscaled, linesFor } = useShoppingQuantities();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const isMounted = useMounted();
@@ -123,6 +123,14 @@ useSeoMeta({ title: (): string => t('shopping.title') });
       />
 
       <USkeleton v-if="!isMounted || isLoadingEaters" class="mt-3 h-5 w-56" />
+      <!-- The household never came back — no signal at the back of a shop is
+           the usual reason. The list is still the menu's, so it is worth
+           reading; what it is not is weighed for this household, and that has
+           to be said rather than left to be discovered at the till. -->
+      <p v-else-if="isUnscaled" class="mt-3 flex items-center gap-1.5 text-sm text-warning">
+        <UIcon name="i-lucide-wifi-off" class="size-4 shrink-0" />
+        {{ $t('shopping.unscaled') }}
+      </p>
       <p v-else-if="eaters.length > 0" class="mt-3 text-sm text-muted">
         {{ $t('shopping.forHousehold') }}
         <span class="font-semibold">
@@ -137,7 +145,12 @@ useSeoMeta({ title: (): string => t('shopping.title') });
       <USkeleton v-if="!isMounted" class="mt-6 h-32 rounded-xl" />
       <OrderButton v-else-if="user && currentMenu" class="mt-6" :menu="currentMenu" />
 
-      <div v-if="isLoadingEaters" class="mt-6 space-y-4">
+      <!-- Also before mount: the prerendered HTML knows nothing of the
+           household, so it lists the menu's own grammes. Rendering them and
+           then swapping them for a skeleton made the whole list appear,
+           vanish and come back — and the numbers in between were for one
+           person in a house of three. -->
+      <div v-if="!isMounted || isLoadingEaters" class="mt-6 space-y-4">
         <USkeleton v-for="row in 4" :key="row" class="h-24 rounded-xl" />
         <span class="sr-only">{{ $t('accessibility.loading') }}</span>
       </div>

@@ -23,7 +23,11 @@ test.describe('what the pointer says about a control', () => {
   test('keeps the hand on the controls inside the page, not only the header', async ({ page }) => {
     await page.goto('/courses/');
 
-    // Ticking an item off is the gesture this site exists for.
-    expect(await cursorOf(page, 'main button, main [role="button"]')).toBe('pointer');
+    // Ticking an item off is the gesture this site exists for. Disabled
+    // controls are excluded on purpose: a week arrow with nowhere to go says
+    // not-allowed, which is right, and it happens to come first in the page.
+    expect(await cursorOf(page, 'main button:not([disabled]), main [role="button"]')).toBe(
+      'pointer',
+    );
   });
 });

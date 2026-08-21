@@ -28,6 +28,7 @@
     "backToWeek": "Back to the week",
     "forHousehold": "Quantities for",
     "people": "people",
-    "onePerson": "you alone"
+    "onePerson": "you alone",
+    "unscaled": "Quantities as the menu wrote them: your household could not be loaded."
   }
 }
