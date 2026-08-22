@@ -2,10 +2,10 @@
   "profile": {
     "nav": "Mon profil",
     "pageTitle": "Mon profil",
-    "pageLead": "Vos réponses décident des quantités affichées dans les recettes.",
+    "pageLead": "Tes réponses décident des quantités affichées dans les recettes.",
     "onboarding": {
       "title": "Faisons connaissance",
-      "lead": "Quelques questions, et les recettes s'adapteront à vous.",
+      "lead": "Quelques questions, et les recettes s'adapteront à toi.",
       "step": "Étape",
       "of": "sur",
       "next": "Continuer",
@@ -14,31 +14,31 @@
       "saving": "Enregistrement…"
     },
     "goal": {
-      "question": "Qu'aimeriez-vous faire ?",
+      "question": "Tu veux faire quoi ?",
       "LOSE_FAT": "Perdre du poids",
-      "LOSE_FAT_hint": "Manger un peu moins, en gardant vos muscles",
+      "LOSE_FAT_hint": "Manger un peu moins, en gardant tes muscles",
       "MAINTAIN": "Rester comme je suis",
       "MAINTAIN_hint": "Manger juste ce qu'il faut",
       "GAIN_MUSCLE": "Prendre du muscle",
       "GAIN_MUSCLE_hint": "Manger un peu plus, pour construire"
     },
     "sex": {
-      "question": "Vous êtes…",
+      "question": "Tu es…",
       "MALE": "Un homme",
       "FEMALE": "Une femme",
       "why": "Les besoins au repos diffèrent, la question sert uniquement au calcul."
     },
     "body": {
       "question": "Quelques mesures",
-      "age": "Votre âge",
+      "age": "Ton âge",
       "ageUnit": "ans",
-      "heightCm": "Votre taille",
+      "heightCm": "Ta taille",
       "heightUnit": "cm",
-      "weightKg": "Votre poids",
+      "weightKg": "Ton poids",
       "weightUnit": "kg"
     },
     "dailyActivity": {
-      "question": "Vos journées, en dehors du sport",
+      "question": "Tes journées, en dehors du sport",
       "SEATED": "Plutôt assis",
       "SEATED_hint": "Bureau, voiture, télétravail",
       "ON_FEET": "Souvent debout",
@@ -58,26 +58,26 @@
       "NONE": "Je ne fais pas de sport"
     },
     "starchQuality": {
-      "question": "Vos pâtes, riz et pain sont plutôt…",
+      "question": "Tes pâtes, riz et pain sont plutôt…",
       "WHOLEGRAIN": "Complets",
       "WHOLEGRAIN_hint": "Pâtes complètes, riz complet, pain complet",
       "MIXED": "Un peu des deux",
       "REFINED": "Blancs",
       "REFINED_hint": "Pâtes blanches, riz blanc, baguette",
-      "why": "C'est ce qui décide de votre objectif de fibres."
+      "why": "C'est ce qui décide de ton objectif de fibres."
     },
     "appetite": {
-      "question": "Votre appétit",
+      "question": "Ton appétit",
       "SMALL": "Petit",
       "SMALL_hint": "Je cale vite",
       "AVERAGE": "Normal",
       "LARGE": "Bon appétit",
       "LARGE_hint": "Je finis toujours mon assiette",
-      "why": "Cela ne change pas vos besoins, seulement la façon de les répartir."
+      "why": "Cela ne change pas tes besoins, seulement la façon de les répartir."
     },
     "summary": {
       "question": "Voici ce que cela donne",
-      "lead": "Vos repères pour une journée. Ils s'ajusteront si vous modifiez vos réponses.",
+      "lead": "Tes repères pour une journée. Ils s'ajusteront si tu modifies tes réponses.",
       "kcal": "Calories",
       "protein": "Protéines",
       "fat": "Lipides",
@@ -93,19 +93,19 @@
       "error": "L'enregistrement n'a pas fonctionné. Réessayez."
     },
     "signedOut": {
-      "title": "Connectez-vous pour personnaliser",
+      "title": "Connecte-toi pour personnaliser",
       "hint": "Sans compte, les recettes restent affichées telles qu'elles ont été écrites.",
       "unavailable": "Les comptes ne sont pas encore ouverts. En attendant, les recettes s'affichent telles qu'elles ont été écrites."
     },
     "scaled": {
-      "notice": "Quantités adaptées à votre profil",
+      "notice": "Quantités adaptées à ton profil",
       "original": "Quantités d'origine"
     },
     "household": {
       "me": "Moi",
       "title": "Mon foyer",
-      "lead": "Ajoutez les personnes pour qui vous cuisinez. Chacune répond au même questionnaire, et les quantités se partagent entre vous.",
-      "empty": "Vous êtes seul pour l'instant. Les recettes sont pesées pour vous.",
+      "lead": "Ajoute les personnes pour qui tu cuisines. Chacune répond au même questionnaire, et les quantités se partagent entre vous.",
+      "empty": "Tu es seul pour l'instant. Les recettes sont pesées pour toi.",
       "add": "Ajouter une personne",
       "name": "Son prénom",
       "namePlaceholder": "Camille",
@@ -113,11 +113,11 @@
       "cancel": "Annuler",
       "edit": "Modifier {name}",
       "remove": "Retirer {name}",
-      "removeConfirm": "Retirer {name} de votre foyer ?",
+      "removeConfirm": "Retirer {name} de ton foyer ?",
       "removeYes": "Retirer",
       "answersFor": "Les réponses de {name}",
       "kcalPerDay": "{kcal} kcal par jour",
-      "full": "Votre foyer est complet.",
+      "full": "Ton foyer est complet.",
       "error": "Ça n'a pas fonctionné. Réessayez."
     }
   }

@@ -62,7 +62,7 @@
     "weekSummary": "Le résumé de la semaine",
     "averagePerDay": "Moyenne par jour",
     "budget": "Budget des courses",
-    "recipeCount": "recettes de la semaine",
+    "recipeCount": "Recettes cette semaine",
     "empty": {
       "title": "Aucun menu pour l'instant",
       "hint": "Compose ta première semaine pour voir tes repas, tes apports et ta liste de courses."

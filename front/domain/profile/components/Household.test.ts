@@ -61,7 +61,7 @@ describe('the household section', () => {
 
     const wrapper = await mountSuspended(Household);
 
-    expect(wrapper.text()).toContain("Vous êtes seul pour l'instant");
+    expect(wrapper.text()).toContain("Tu es seul pour l'instant");
   });
 
   it('will not go on to the questions until the person has a name', async () => {
@@ -82,7 +82,7 @@ describe('the household section', () => {
 
     await wrapper.find('button[aria-label="Modifier Camille"] ~ button').trigger('click');
 
-    expect(wrapper.text()).toContain('Retirer Camille de votre foyer ?');
+    expect(wrapper.text()).toContain('Retirer Camille de ton foyer ?');
     expect(remove).not.toHaveBeenCalled();
   });
 });
