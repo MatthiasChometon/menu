@@ -25,7 +25,9 @@ onMounted((): void => {
     <h2 class="font-bold">{{ $t('order.device.title') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.device.lead') }}</p>
 
-    <form class="mt-3 flex gap-2" @submit.prevent="submit">
+    <!-- Stacked on a phone: side by side, the field took what it needed and
+         left the button three lines tall, its label broken across them. -->
+    <form class="mt-3 flex flex-col gap-2 sm:flex-row" @submit.prevent="submit">
       <label class="sr-only" for="device-label">{{ $t('order.device.label') }}</label>
       <input
         id="device-label"
@@ -36,7 +38,7 @@ onMounted((): void => {
       />
       <button
         type="submit"
-        class="rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
+        class="whitespace-nowrap rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
         :disabled="isPairing || label.trim() === ''"
       >
         {{ isPairing ? $t('order.device.pairing') : $t('order.device.pair') }}
