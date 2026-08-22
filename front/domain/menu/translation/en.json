@@ -104,5 +104,16 @@
       "carbs": "Carbs",
       "fiber": "Fibre"
     }
+  },
+  "error": {
+    "missing": {
+      "title": "This page does not exist",
+      "hint": "The link may be an old one, or the address has a typo in it. Your week is still where you left it."
+    },
+    "broken": {
+      "title": "Something broke",
+      "hint": "Not your doing. Try again in a moment; if it keeps happening, report it from the button at the bottom of the screen."
+    },
+    "home": "Back to the week"
   }
 }

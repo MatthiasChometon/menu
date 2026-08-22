@@ -104,5 +104,16 @@
       "carbs": "Glucides",
       "fiber": "Fibres"
     }
+  },
+  "error": {
+    "missing": {
+      "title": "Cette page n'existe pas",
+      "hint": "Le lien est peut-être ancien, ou l'adresse comporte une faute. La semaine, elle, est toujours là."
+    },
+    "broken": {
+      "title": "Quelque chose s'est cassé",
+      "hint": "Ce n'est pas toi. Réessaie dans un instant ; si ça recommence, signale-le depuis le bouton en bas de l'écran."
+    },
+    "home": "Retour à la semaine"
   }
 }
