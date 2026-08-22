@@ -3,6 +3,10 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.VISUAL_PORT) || 3778;
 
 const BEHAVIOUR_ONLY = [
+  // Ces deux-la parcourent eux-memes les trois formats : les rejouer par
+  // viewport reviendrait a neuf passages pour trois questions.
+  '**/responsive.e2e.test.ts',
+  '**/dialogs.e2e.test.ts',
   '**/composer.e2e.test.ts',
   '**/linkPreview.e2e.test.ts',
   '**/pointer.e2e.test.ts',
