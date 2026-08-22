@@ -35,8 +35,11 @@ const quantities = computed((): SharedQuantity[] =>
             {{ task.servings }}
             {{ task.servings === 1 ? $t('batch.servingsOne') : $t('batch.servings') }}
           </span>
-          <span class="text-dimmed">·</span>
-          <span class="tabular-nums">{{ task.minutes }} {{ $t('batch.minutes') }}</span>
+          <!-- The dot travels with the duration: on a narrow screen it used to
+               stay behind on the line above, hanging on its own. -->
+          <span class="whitespace-nowrap tabular-nums">
+            <span class="text-dimmed">·</span> {{ task.minutes }} {{ $t('batch.minutes') }}
+          </span>
         </p>
       </div>
 

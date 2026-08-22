@@ -27,7 +27,15 @@ for (const { name, path } of PAGES) {
       // screenshot taken over one is a baseline that changes with the weather.
       await expect(page.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 15_000 });
 
-      await expect(page).toHaveScreenshot(`${name}-${colorScheme}.png`, { fullPage: true });
+      // Photographs are masked out rather than waited for. They come from the
+      // image host over the network, some never finish while the warm-up is
+      // pulling a hundred more behind them, and one that arrived late made a
+      // page read six percent different from the same page. What this suite is
+      // for is the layout around them, and that holds still.
+      await expect(page).toHaveScreenshot(`${name}-${colorScheme}.png`, {
+        fullPage: true,
+        mask: [page.locator('img')],
+      });
     });
   }
 }
