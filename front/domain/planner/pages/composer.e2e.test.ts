@@ -227,3 +227,17 @@ test("a mis-tapped arrow does not cost an afternoon's choices", async ({ page })
   await page.getByRole('button', { name: 'Semaine précédente' }).click();
   await expect(chosen(page)).toHaveCount(2);
 });
+
+test('keeps the way forward clear of the tab bar on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page);
+
+  const forward = await next(page).boundingBox();
+  const tabs = await page.getByRole('navigation', { name: 'Semaine', exact: true }).boundingBox();
+
+  // The button ends before the tab bar begins. At bottom-0 they overlapped by
+  // twenty-six of the button's thirty-six pixels, and the tap went to the nav.
+  expect(forward).not.toBeNull();
+  expect(tabs).not.toBeNull();
+  expect((forward?.y ?? 0) + (forward?.height ?? 0)).toBeLessThanOrEqual(tabs?.y ?? 0);
+});

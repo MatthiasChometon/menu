@@ -139,4 +139,18 @@ body {
       animation: none;
     }
   }
+
+  /* A page that pins a bar of its own to the bottom of the screen says so here,
+     so the shell can leave room for it. Padding the page's own container is not
+     enough: the legal footer sits after it, in the shell, and slid under the
+     bar — readable only by scrolling to something already covered. */
+  body.has-action-bar main {
+    padding-bottom: 11rem;
+  }
+
+  @media (min-width: 640px) {
+    body.has-action-bar main {
+      padding-bottom: 7rem;
+    }
+  }
 }

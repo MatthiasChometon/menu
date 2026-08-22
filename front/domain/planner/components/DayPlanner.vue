@@ -79,7 +79,7 @@ const statusLabel = computed((): string => {
     <div class="flex flex-wrap items-center gap-3">
       <button
         type="button"
-        class="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left"
+        class="flex min-w-0 flex-1 cursor-pointer flex-wrap items-center gap-x-2 gap-y-1 text-left"
         :aria-expanded="isOpen"
         :aria-controls="`plan-${day.key}`"
         @click="isOpen = !isOpen"
@@ -90,8 +90,14 @@ const statusLabel = computed((): string => {
           :class="isOpen && 'rotate-180'"
         />
         <span class="text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
-        <UBadge :color="statusColor" variant="subtle" size="sm">{{ statusLabel }}</UBadge>
-        <span v-if="!isEmpty" class="ml-auto text-sm tabular-nums text-muted">
+        <!-- Neither the verdict nor the figure breaks across lines: "dans les
+             cibles" split over two rows on the longest day name, which made
+             Sunday's card taller than the six above it for no reason a reader
+             could see. If the row runs out of width, whole pieces move down. -->
+        <UBadge :color="statusColor" variant="subtle" size="sm" class="whitespace-nowrap">
+          {{ statusLabel }}
+        </UBadge>
+        <span v-if="!isEmpty" class="ml-auto whitespace-nowrap text-sm tabular-nums text-muted">
           {{ round(day.macros.kcal) }} {{ $t('menu.unit.kcal') }}
         </span>
       </button>

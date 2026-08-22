@@ -136,13 +136,18 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
           aria-hidden="true"
         />
       </div>
+      <!-- Red is for something gone wrong. Arriving on a step having chosen
+           nothing is not a mistake, and painting the count, the floor and the
+           button's reason all in red said the same reproach three times over.
+           The floor is a direction until the step is left, and the count only
+           turns colour to say the step is settled. -->
       <p class="text-sm">
-        <span class="font-bold tabular-nums" :class="isComplete ? 'text-primary' : 'text-error'">
+        <span class="font-bold tabular-nums" :class="isComplete ? 'text-primary' : ''">
           {{ count }}
         </span>
         <span class="text-muted"> / {{ limits.max }} {{ $t('planner.chosen') }}</span>
       </p>
-      <p v-if="!isComplete" class="text-sm font-medium text-error">
+      <p v-if="!isComplete" class="text-sm text-muted">
         {{ $t('planner.needAtLeast') }} {{ limits.min }}
       </p>
       <p v-else-if="isFull" class="text-sm text-muted">{{ $t('planner.maxReached') }}</p>

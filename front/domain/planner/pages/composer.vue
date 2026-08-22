@@ -141,13 +141,17 @@ watch(plannerWeek, (week, previous): void => {
 });
 
 useSeoMeta({ title: (): string => t('planner.pageTitle') });
+
+// Tells the shell this page pins a bar to the bottom of the screen, so the
+// footer underneath it gets out of the way. Dropped again on the way out.
+useHead({ bodyAttrs: { class: 'has-action-bar' } });
 </script>
 
 <template>
   <!-- data-hydrated marks the point where the pickers actually respond: the
        markup is served before Vue attaches its listeners, and a tap landing in
        that window does nothing at all. -->
-  <div class="mx-auto max-w-3xl px-4 py-6 pb-28" :data-hydrated="isMounted ? '' : undefined">
+  <div class="mx-auto max-w-3xl px-4 py-6" :data-hydrated="isMounted ? '' : undefined">
     <UButton
       :to="localePath('/')"
       icon="i-lucide-arrow-left"
@@ -194,8 +198,13 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
               canReachStep(index) && !isStepDone(index) ? 'group-hover:bg-primary/40' : '',
             ]"
           />
+          <!-- Read out but not drawn on a phone: five names in three hundred and
+               ninety pixels came out as "Déjeun…", "Petit-déj…", "Post-trai…",
+               which name nothing. The step's real title sits right underneath
+               in full, so the bar is left to do the one job it can do at that
+               width — show how far along the week is. -->
           <span
-            class="truncate text-[0.7rem] leading-tight transition-colors"
+            class="sr-only text-[0.7rem] leading-tight transition-colors sm:not-sr-only sm:truncate"
             :class="
               index === step
                 ? 'font-bold text-primary'
@@ -310,9 +319,15 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
       </section>
     </template>
 
-    <!-- The way forward stays under the thumb, whatever the length of the list. -->
+    <!-- The way forward stays under the thumb, whatever the length of the list.
+         Sat above the tab bar on a phone, not on top of it: at bottom-0 the
+         nav covered all but ten pixels of the button, so a thumb aiming at
+         "Suivant" opened "Mon profil" instead. The offset is the nav's own
+         height plus whatever the phone reserves at the bottom of the screen;
+         above sm there is no nav and the bar goes back to the floor. A test
+         holds the two apart, so neither can drift into the other. -->
     <div
-      class="fixed inset-x-0 bottom-0 z-30 border-t border-default bg-default/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-lg sm:bottom-0"
+      class="fixed inset-x-0 bottom-[calc(4.125rem+env(safe-area-inset-bottom))] z-30 border-t border-default bg-default/95 px-4 pb-4 pt-3 backdrop-blur-lg sm:bottom-0 sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <div class="mx-auto flex max-w-3xl items-center gap-3">
         <UButton
@@ -349,7 +364,8 @@ useSeoMeta({ title: (): string => t('planner.pageTitle') });
           </span>
         </UButton>
       </div>
-      <p v-if="missing > 0" class="mx-auto mt-2 max-w-3xl text-xs text-error">
+      <!-- Why the button is grey, in the one place the eye is already looking. -->
+      <p v-if="missing > 0" class="mx-auto mt-2 max-w-3xl text-xs text-muted">
         {{ $t('planner.stillNeeded') }} {{ missing }}
       </p>
     </div>
