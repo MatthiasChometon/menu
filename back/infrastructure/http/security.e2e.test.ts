@@ -96,6 +96,29 @@ describe('what the API refuses to do', () => {
     expect(codes).toContain(429);
   });
 
+  it('counts a spoofed X-Forwarded-For as one caller, not a fresh one each time', async () => {
+    await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+
+    // The tracker reads the address closest to the server — the one a trusted
+    // proxy appended to the right of X-Forwarded-For — never the leftmost entry,
+    // which is whatever the caller typed. Were it the other way round, rotating
+    // that left value would hand out a fresh unthrottled bucket each request.
+    // Here the left rotates and the right is fixed: all fifteen must count as
+    // one caller. A regression guard on that ordering, which is easy to invert.
+    const codes: number[] = [];
+    for (let attempt = 0; attempt < 15; attempt += 1) {
+      const response = await api.post(
+        '/auth/login',
+        { email: EMAIL, password: 'wrong-password' },
+        undefined,
+        { 'x-forwarded-for': `10.0.0.${attempt}, 203.0.113.9` },
+      );
+      codes.push(response.statusCode);
+    }
+
+    expect(codes).toContain(429);
+  });
+
   it('stops answering a burst of GraphQL queries too', async () => {
     // The sibling test above proves the guard does not BREAK GraphQL. It never
     // proved the guard COUNTS it, and those are different claims: a limiter
