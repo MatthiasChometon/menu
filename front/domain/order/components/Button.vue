@@ -3,6 +3,19 @@ const { menu } = defineProps<{ menu: Menu }>();
 
 const { needsOf } = useBasketNeeds();
 const { job, isQueueing, isRunning, error, order } = useGroceryOrder();
+const { devices, refresh: refreshDevices } = useGroceryDevices();
+const localePath = useLocalePath();
+
+// Whether a browser has ever been paired. Without one, a queued run waits for a
+// machine that never comes — the reason a fill can sit at "En cours…" with
+// nothing explaining it. Loaded here so the card can say so up front rather
+// than leave the reader watching a spinner that will never move.
+const devicesLoaded = ref(false);
+onMounted(async (): Promise<void> => {
+  await refreshDevices();
+  devicesLoaded.value = true;
+});
+const hasBrowser = computed((): boolean => devices.value.length > 0);
 
 const send = async (): Promise<void> => {
   await order(menu.weekOf, needsOf(menu));
@@ -13,6 +26,26 @@ const send = async (): Promise<void> => {
   <section class="rounded-xl border border-default p-4">
     <h2 class="font-bold">{{ $t('order.title') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.lead') }}</p>
+
+    <!-- What a "paired browser" is and where to set one up, said before the
+         button: the fill only ever starts on a machine paired beforehand, and
+         nowhere else on this card explains that. -->
+    <p class="mt-2 text-xs text-muted">{{ $t('order.howItWorks') }}</p>
+    <NuxtLink
+      :to="localePath('/courses-auto')"
+      class="mt-1 inline-block text-xs font-semibold text-primary underline"
+    >
+      {{ $t('order.setupLink') }}
+    </NuxtLink>
+
+    <!-- No browser paired: a queued run would wait forever, so the reason is
+         spelled out here rather than left to a spinner. -->
+    <p
+      v-if="devicesLoaded && !hasBrowser"
+      class="mt-3 rounded-lg border border-default bg-elevated/40 p-3 text-sm text-muted"
+    >
+      {{ $t('order.noBrowser') }}
+    </p>
 
     <button
       type="button"
