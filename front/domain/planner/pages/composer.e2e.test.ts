@@ -13,6 +13,26 @@ const pickAt = async (page: import('@playwright/test').Page, index: number): Pro
   await dishes(page).nth(index).click();
 };
 
+// On the screen that gathers post-training and the snack, each is its own
+// section under its own heading; this picks within one of them.
+const pickInGroup = async (
+  page: import('@playwright/test').Page,
+  heading: string,
+  count: number,
+): Promise<void> => {
+  const section = page
+    .getByRole('main')
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
+  for (let index = 0; index < count; index += 1) await section.getByRole('checkbox').nth(index).click();
+};
+
+// The shared screen is done once each of its two meals has a dish.
+const fillSharedStep = async (page: import('@playwright/test').Page): Promise<void> => {
+  await pickInGroup(page, 'Post-training', 1);
+  await pickInGroup(page, 'Goûter', 1);
+};
+
 // Exact: the week chooser has its own "Semaine suivante" arrow, and a loose
 // match picks it up as well.
 const next = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
@@ -67,7 +87,7 @@ test('the steps are named and can be walked back through', async ({ page }) => {
   await expect(page.getByRole('main').getByRole('checkbox', { checked: true })).toHaveCount(2);
 });
 
-test('walks the four meals and lands on a week that is on target', async ({ page }) => {
+test('walks the meals and lands on a week that is on target', async ({ page }) => {
   await open(page);
 
   await pick(page, 2);
@@ -76,9 +96,12 @@ test('walks the four meals and lands on a week that is on target', async ({ page
 
   await pick(page, 1);
   await next(page).click();
-  await pick(page, 1);
-  await next(page).click();
-  await pick(page, 1);
+
+  // One screen, two small meals: both post-training and the snack are chosen
+  // here, each under its own heading, before the week is reached.
+  await expect(page.getByRole('heading', { name: 'Post-training' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Goûter' })).toBeVisible();
+  await fillSharedStep(page);
   await next(page).click();
 
   // Spreading happens on the way in: the reader never has to ask for it.
@@ -91,10 +114,11 @@ test('a dish never lands twice in the same day', async ({ page }) => {
   await open(page);
 
   await pick(page, 2);
-  for (let step = 0; step < 4; step += 1) {
-    await next(page).click();
-    if (step < 3) await pick(page, 1);
-  }
+  await next(page).click();
+  await pick(page, 1);
+  await next(page).click();
+  await fillSharedStep(page);
+  await next(page).click();
 
   const monday = page.getByRole('main').locator('div').filter({ hasText: 'Lundi' }).first();
   const lunch = await monday.getByLabel('Déjeuner', { exact: true }).first().textContent();
@@ -110,16 +134,16 @@ test('a step stays marked done after walking back past it', async ({ page }) => 
   await next(page).click();
   await pickAt(page, 0);
   await next(page).click();
-  await pickAt(page, 0);
-  await next(page).click();
-  await pickAt(page, 0);
+  // The shared screen is filled, then left behind.
+  await fillSharedStep(page);
 
-  // Back two steps: the snack is still chosen, so its bar must stay filled.
-  await page.getByRole('button', { name: 'Post-training' }).click();
-  await expect(page.getByRole('heading', { name: 'Post-training' })).toBeVisible();
+  // Back two steps: the shared screen's meals are still chosen, so its bar must
+  // stay filled.
+  await page.getByRole('button', { name: 'Petit-déjeuner' }).click();
+  await expect(page.getByRole('heading', { name: 'Petit-déjeuner' })).toBeVisible();
 
-  const snackStep = page.getByRole('button', { name: 'Goûter' });
-  const bar = snackStep.locator('span').first();
+  const sharedStep = page.getByRole('button', { name: 'Post-training & Goûter' });
+  const bar = sharedStep.locator('span').first();
 
   // Colouring by position would grey this out; it answers "is it settled".
   await expect(bar).toHaveClass(/bg-primary(?!\/)/);
@@ -129,10 +153,11 @@ test('a step stays marked done after walking back past it', async ({ page }) => 
 const composeWeek = async (page: import('@playwright/test').Page): Promise<void> => {
   await open(page);
   await pick(page, 2);
-  for (let step = 0; step < 4; step += 1) {
-    await next(page).click();
-    if (step < 3) await pick(page, 1);
-  }
+  await next(page).click();
+  await pick(page, 1);
+  await next(page).click();
+  await fillSharedStep(page);
+  await next(page).click();
 };
 
 // The day's own card, not whatever container happens to mention the day.
@@ -187,10 +212,11 @@ test('saving asks for an account rather than pretending to work', async ({ page 
   await open(page);
 
   await pick(page, 2);
-  for (let step = 0; step < 4; step += 1) {
-    await next(page).click();
-    if (step < 3) await pick(page, 1);
-  }
+  await next(page).click();
+  await pick(page, 1);
+  await next(page).click();
+  await fillSharedStep(page);
+  await next(page).click();
 
   await expect(page.getByRole('button', { name: 'Enregistrer la semaine' })).toBeDisabled();
   await expect(page.getByText('Connecte-toi pour la retrouver')).toBeVisible();

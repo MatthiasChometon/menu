@@ -2,16 +2,16 @@
 const {
   days,
   targets,
-  groupOrder,
+  steps,
   step,
   stepCount,
-  currentGroup,
+  currentGroups,
+  isStepComplete,
   isLastStep,
   goNext,
   goBack,
   goToStep,
   canReachStep,
-  isGroupComplete,
   limitsOf,
   chosenDishes,
   completeSelection,
@@ -72,27 +72,27 @@ const filledDays = computed((): PlannedDay[] =>
 
 const hasWeek = computed((): boolean => filledDays.value.length > 0);
 
-const pickedInStep = computed((): number =>
-  currentGroup.value === undefined ? 0 : (chosenDishes.value[currentGroup.value] ?? []).length,
-);
-
 // Only the savoury dishes are required: a week with no lunch cannot be spread.
 // The other steps may be skipped, so the button says so rather than blocking.
 // Every step has a floor now: a week missing a meal is one the solver has to
 // stretch past what anyone eats, and it falls off target.
 const canLeaveStep = computed(
-  (): boolean => currentGroup.value === undefined || isGroupComplete(currentGroup.value),
+  (): boolean => currentGroups.value === undefined || isStepComplete(step.value),
 );
 
-const missing = computed((): number => {
-  if (currentGroup.value === undefined) return 0;
-  return Math.max(0, limitsOf(currentGroup.value).min - pickedInStep.value);
-});
+const missing = computed((): number =>
+  (currentGroups.value ?? []).reduce((total, group): number => {
+    const picked = (chosenDishes.value[group] ?? []).length;
+    return total + Math.max(0, limitsOf(group).min - picked);
+  }, 0),
+);
 
 // The step names, so the bar says what it is walking through rather than just
 // how far along it is.
 const stepLabels = computed((): string[] => [
-  ...groupOrder.map((group): string => t(`planner.group.${group}`)),
+  ...steps.map((groups): string =>
+    groups.map((group): string => t(`planner.group.${group}`)).join(' & '),
+  ),
   t('planner.week'),
 ]);
 
@@ -102,8 +102,7 @@ const stepLabels = computed((): string[] => [
 const isStepDone = (index: number): boolean => {
   if (!canReachStep(index)) return false;
 
-  const group = groupOrder[index];
-  return group === undefined ? hasWeek.value : isGroupComplete(group);
+  return index >= steps.length ? hasWeek.value : isStepComplete(index);
 };
 
 // Spreading is what turns four lists into a week, and it has to happen however
@@ -116,12 +115,12 @@ const enterWeek = (): void => {
 };
 
 const onNext = (): void => {
-  if (step.value === groupOrder.length - 1) enterWeek();
+  if (step.value === steps.length - 1) enterWeek();
   goNext();
 };
 
 const onStep = (index: number): void => {
-  if (index === groupOrder.length) enterWeek();
+  if (index === steps.length) enterWeek();
   goToStep(index);
 };
 
@@ -237,9 +236,12 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       :description="isPersonalised ? $t('planner.targetsMine') : $t('planner.targetsDefault')"
     />
 
-    <!-- One meal group at a time. -->
-    <div v-if="currentGroup !== undefined" class="rise mt-6">
-      <PlannerDishPicker :group="currentGroup" />
+    <!-- One screen per step; a screen may gather more than one small meal
+         (post-training and the snack), each its own picker under its own head. -->
+    <div v-if="currentGroups !== undefined" class="rise mt-6">
+      <div class="space-y-10">
+        <PlannerDishPicker v-for="group in currentGroups" :key="group" :group="group" />
+      </div>
 
       <!-- Under the cards on purpose: it vanishes on the first pick, and
            vanishing above the grid moved every dish out from under the
