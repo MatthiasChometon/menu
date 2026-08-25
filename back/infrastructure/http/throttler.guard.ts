@@ -38,18 +38,6 @@ export class GqlAwareThrottlerGuard extends ThrottlerGuard {
     }
 
     const request = RequestContext.from(context);
-    console.error(
-      '[SONDE] type=',
-      context.getType(),
-      'req?',
-      request !== undefined,
-      'ip=',
-      (request as { ip?: string } | undefined)?.ip,
-      'classe=',
-      context.getClass().name,
-      'handler=',
-      context.getHandler().name,
-    );
     const sink = { header: (): void => undefined } as unknown as FastifyReply;
 
     return { req: request as FastifyRequest, res: sink };
