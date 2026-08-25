@@ -54,6 +54,13 @@ const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
 
 const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 'snack'];
 
+// One screen at a time in the composer. Post-training and the snack share a
+// screen — two small meals nobody wants a separate step for — while staying
+// distinct groups underneath: each keeps its own dishes, its own floor, and its
+// own meal in the day. The solver never sees these; it works off GROUP_ORDER.
+const STEPS: readonly (readonly RecipeSlot[])[] = [['main'], ['breakfast'], ['postWorkout', 'snack']];
+const stepGroups = (index: number): readonly RecipeSlot[] => STEPS[index] ?? [];
+
 // How many dishes a slot needs for the week to hold together, and for the solver
 // to have a fair chance of landing on the targets.
 //
@@ -99,7 +106,13 @@ export const usePlanner = (): {
   applySwap: (swap: DishSwap) => void;
   step: Ref<number>;
   stepCount: number;
-  currentGroup: ComputedRef<RecipeSlot | undefined>;
+  /** The groups shown on the current screen — usually one, two when a screen
+   *  gathers small meals (post-training and the snack). */
+  currentGroups: ComputedRef<readonly RecipeSlot[] | undefined>;
+  /** The screens the composer walks through, each one or more groups. */
+  steps: readonly (readonly RecipeSlot[])[];
+  /** Every group on this screen is filled to its floor. */
+  isStepComplete: (index: number) => boolean;
   isLastStep: ComputedRef<boolean>;
   goNext: () => void;
   goBack: () => void;
@@ -634,14 +647,17 @@ export const usePlanner = (): {
 
   const isGroupComplete = (group: RecipeSlot): boolean => countIn(group) >= GROUP_LIMITS[group].min;
 
+  const isStepComplete = (index: number): boolean =>
+    stepGroups(index).every((group): boolean => isGroupComplete(group));
+
   // Walking forward is only allowed once everything behind is settled: a week
   // assembled from half-filled steps is one the solver cannot rescue.
   const canReachStep = (index: number): boolean =>
     index <= step.value ||
-    GROUP_ORDER.slice(0, index).every((group): boolean => isGroupComplete(group));
+    STEPS.slice(0, index).every((groups): boolean => groups.every(isGroupComplete));
 
-  const currentGroup = computed((): RecipeSlot | undefined => GROUP_ORDER[step.value]);
-  const isLastStep = computed((): boolean => step.value >= GROUP_ORDER.length);
+  const currentGroups = computed((): readonly RecipeSlot[] | undefined => STEPS[step.value]);
+  const isLastStep = computed((): boolean => step.value >= STEPS.length);
 
   return {
     plan,
@@ -662,17 +678,19 @@ export const usePlanner = (): {
       touch();
     },
     goToStep: (index: number): void => {
-      if (canReachStep(index)) step.value = Math.max(0, Math.min(GROUP_ORDER.length, index));
+      if (canReachStep(index)) step.value = Math.max(0, Math.min(STEPS.length, index));
     },
     // Twenty minutes is the line between "I can cook this tonight" and "this is
     // a Sunday job".
     isQuick: (recipe: Recipe): boolean => recipe.prepMinutes <= 20,
     step,
-    stepCount: GROUP_ORDER.length + 1,
-    currentGroup,
+    stepCount: STEPS.length + 1,
+    currentGroups,
+    steps: STEPS,
+    isStepComplete,
     isLastStep,
     goNext: (): void => {
-      step.value = Math.min(GROUP_ORDER.length, step.value + 1);
+      step.value = Math.min(STEPS.length, step.value + 1);
     },
     goBack: (): void => {
       step.value = Math.max(0, step.value - 1);
