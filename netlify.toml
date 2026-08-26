@@ -10,28 +10,28 @@
   command = "pnpm generate"
   publish = "front/.output/public"
 
-[build.environment]
-  NODE_VERSION = "24"
-  # Corepack picks the pnpm version out of package.json.
-  NPM_FLAGS = "--version"
-
+# In [build.environment], NOT [context.production.environment], on purpose. The
+# deploy is a CLI one (`netlify deploy --build --prod`) run from a worktree that
+# sits on a feature branch, so Netlify resolves a non-production build context
+# and skips the context block entirely — which baked localhost into apiBase, the
+# GraphQL host and every canonical link in production. build.environment applies
+# to every build whatever the branch, which is the only thing that is true here.
+#
 # Where the browser reaches the API — o2switch, under a free DuckDNS name.
 # o2switch's own domain cannot hold a certificate (its CAA lookup fails), and a
-# page served over https may not call an http host. The same host has to appear in connect-src in
-# public/_headers and in ALLOWED_ORIGINS on the API, or the browser drops every
-# answer it gets.
+# page served over https may not call an http host. The same host has to appear
+# in connect-src in public/_headers and in ALLOWED_ORIGINS on the API, or the
+# browser drops every answer it gets.
 #
 # Both GQL variables have to be set: clientHost alone leaves the server-side
 # host on its development default, and that default is embedded in the payload
 # every page ships. The site's own origin has to be named too, or every
 # canonical and hreflang link in the deployed pages points at localhost.
-[context.production.environment]
+[build.environment]
+  NODE_VERSION = "24"
+  # Corepack picks the pnpm version out of package.json.
+  NPM_FLAGS = "--version"
   NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
   GQL_HOST = "https://menuuu.duckdns.org/graphql"
   GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
   NUXT_PUBLIC_I18N_BASE_URL = "https://menu-semaine-887.netlify.app"
-
-[context.deploy-preview.environment]
-  NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
-  GQL_HOST = "https://menuuu.duckdns.org/graphql"
-  GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
