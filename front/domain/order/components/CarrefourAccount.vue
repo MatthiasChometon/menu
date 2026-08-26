@@ -1,8 +1,13 @@
 <script setup lang="ts">
-// Carrefour's own sign-in page, in its own window, on its own domain. This site
-// never shows a field for those credentials: a form in our colours asking for
-// them would be a phishing page, however well meant.
-const SIGN_IN_URL = 'https://www.carrefour.fr/mon-compte/connexion';
+// Carrefour's own sign-in page (Carrefour Connect / ForgeRock IAM), in its own
+// window, on its own domain. This site never shows a field for those
+// credentials: a form in our colours asking for them would be a phishing page,
+// however well meant.
+//
+// www.carrefour.fr/mon-compte/connexion is a 404 — that path no longer exists.
+// This is the live login entry the store actually uses; logging in here sets
+// the shared Carrefour Connect session the extension then works with.
+const SIGN_IN_URL = 'https://moncompte.carrefour.fr/iam/XUI/#login/';
 
 const connect = (): void => {
   window.open(SIGN_IN_URL, 'carrefour-connect', 'width=520,height=680,noopener,noreferrer');
