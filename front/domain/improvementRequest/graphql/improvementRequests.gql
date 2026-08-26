@@ -1,0 +1,16 @@
+query improvementRequests {
+  improvementRequests {
+    id
+    importance
+    message
+    status
+    requestedBy
+    createdAt
+    context {
+      page
+      userAgent
+      viewport
+      locale
+    }
+  }
+}

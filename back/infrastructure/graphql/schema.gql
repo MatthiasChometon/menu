@@ -343,6 +343,39 @@ input HouseholdMemberInput {
   weightKg: Int!
 }
 
+"""
+How much the idea matters to the person asking. One tap, so a list of wishes can be sorted by the ones people actually want.
+"""
+enum ImprovementImportance {
+  IMPORTANT
+  NICE_TO_HAVE
+  WOULD_HELP
+}
+
+"""Something a reader wished the site did, and took the time to ask for."""
+type ImprovementRequest {
+  context: SuggestionContext!
+  createdAt: String!
+  id: ID!
+  importance: ImprovementImportance!
+  message: String!
+  requestedBy: String
+  status: ImprovementStatus!
+}
+
+"""Where a suggestion stands, from just-in to shipped or set aside."""
+enum ImprovementStatus {
+  DECLINED
+  DONE
+  NEW
+  PLANNED
+}
+
+input ImprovementStatusInput {
+  id: String!
+  status: ImprovementStatus!
+}
+
 input MeasurementsInput {
   age: Int!
   appetite: Appetite!
@@ -393,6 +426,9 @@ type Mutation {
 
   """Reports progress on a run being worked on."""
   reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!
+
+  """Suggests an improvement to the site."""
+  requestImprovement(input: RequestImprovementInput!): ImprovementRequest!
   saveGroceryPreference(input: GroceryPreferenceInput!): GroceryPreference!
 
   """Replaces the windows wholesale."""
@@ -406,6 +442,11 @@ type Mutation {
 
   """Marks a report as handled. Null when there is no such report."""
   setBugStatus(input: BugStatusInput!): BugReport
+
+  """
+  Moves a suggestion along its life. Null when there is no such suggestion.
+  """
+  setImprovementStatus(input: ImprovementStatusInput!): ImprovementRequest
 
   """Agrees to be told on this browser."""
   subscribeToGroceryPush(input: PushSubscriptionInput!): Boolean!
@@ -527,6 +568,9 @@ type Query {
   """Everybody the signed-in user cooks for, besides themselves."""
   householdMembers: [HouseholdMember!]!
 
+  """Every suggestion, newest first. Administrators only."""
+  improvementRequests: [ImprovementRequest!]!
+
   """The signed-in user."""
   me: User!
 
@@ -569,6 +613,14 @@ input ReportBugInput {
   severity: BugSeverity!
 }
 
+input RequestImprovementInput {
+  context: SuggestionContextInput!
+  importance: ImprovementImportance!
+
+  """The idea, in the person own words."""
+  message: String!
+}
+
 """Biological sex, which the resting metabolic rate formula needs."""
 enum Sex {
   FEMALE
@@ -582,6 +634,21 @@ enum StarchQuality {
   MIXED
   REFINED
   WHOLEGRAIN
+}
+
+"""What the browser told us, so nobody had to type it."""
+type SuggestionContext {
+  locale: String!
+  page: String!
+  userAgent: String!
+  viewport: String!
+}
+
+input SuggestionContextInput {
+  locale: String!
+  page: String!
+  userAgent: String!
+  viewport: String!
 }
 
 """

@@ -48,6 +48,7 @@ const currentLocale = computed({
 });
 
 const { open: openBugReport } = useBugReport();
+const { open: openImprovement } = useImprovement();
 const { isAdmin } = useAdmin();
 
 // Built here rather than in the template so the admin entry can simply not
@@ -55,6 +56,7 @@ const { isAdmin } = useAdmin();
 const accountItems = computed((): DropdownMenuItem[][] => [
   [{ label: user.value?.name ?? user.value?.email ?? '', type: 'label' as const }],
   [
+    { label: t('improvement.open'), icon: 'i-lucide-lightbulb', onSelect: openImprovement },
     { label: t('bugReport.open'), icon: 'i-lucide-bug', onSelect: openBugReport },
     ...(isAdmin.value
       ? [
@@ -62,6 +64,11 @@ const accountItems = computed((): DropdownMenuItem[][] => [
             label: t('bugReport.admin.title'),
             icon: 'i-lucide-list-checks',
             to: localePath('/signalements'),
+          },
+          {
+            label: t('improvement.admin.title'),
+            icon: 'i-lucide-sparkles',
+            to: localePath('/ameliorations'),
           },
         ]
       : []),

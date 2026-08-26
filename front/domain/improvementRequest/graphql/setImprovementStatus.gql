@@ -1,0 +1,6 @@
+mutation setImprovementStatus($input: ImprovementStatusInput!) {
+  setImprovementStatus(input: $input) {
+    id
+    status
+  }
+}

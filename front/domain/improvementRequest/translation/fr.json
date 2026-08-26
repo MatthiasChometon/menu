@@ -1,0 +1,36 @@
+{
+  "improvement": {
+    "open": "Suggérer une amélioration",
+    "title": "Suggérer une amélioration",
+    "lead": "Dis ce que tu aimerais que le site fasse. La page, ton navigateur et la taille de l'écran sont joints tout seuls.",
+    "label": "Ton idée",
+    "placeholder": "Ce serait bien de pouvoir dupliquer une semaine…",
+    "importance": "À quel point ça t'aiderait ?",
+    "niceToHave": "Ce serait sympa",
+    "wouldHelp": "Ça aiderait",
+    "important": "Important",
+    "send": "Envoyer",
+    "cancel": "Annuler",
+    "sent": "Merci, c'est envoyé.",
+    "sentLead": "Ta suggestion est partie avec la page et ton navigateur. Rien d'autre à faire.",
+    "tooShort": "Quelques mots de plus, pour qu'on comprenne bien l'idée.",
+    "failed": "L'envoi a échoué. Réessaie dans un instant.",
+    "close": "Fermer",
+    "admin": {
+      "title": "Suggestions",
+      "lead": "Ce que les lecteurs aimeraient, le plus récent d'abord.",
+      "empty": "Aucune suggestion pour le moment.",
+      "forbidden": "Cet écran est réservé à l'administration du site.",
+      "page": "Page",
+      "screen": "Écran",
+      "markPlanned": "Prévu",
+      "markDone": "Fait",
+      "decline": "Écarter",
+      "reopen": "Rouvrir",
+      "statusNew": "Nouveau",
+      "statusPlanned": "Prévu",
+      "statusDone": "Fait",
+      "statusDeclined": "Écarté"
+    }
+  }
+}

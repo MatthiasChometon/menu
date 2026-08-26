@@ -7,6 +7,7 @@ import { BugReportModule } from './domain/bugReport/module';
 import { GroceryModule } from './domain/grocery/module';
 import { HouseholdModule } from './domain/household/module';
 import { ImageLibraryModule } from './domain/imageLibrary/module';
+import { ImprovementRequestModule } from './domain/improvementRequest/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
@@ -34,6 +35,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     GroceryModule,
     WeekPlanModule,
     BugReportModule,
+    ImprovementRequestModule,
     ImageLibraryModule,
   ],
   // Catches what escapes a controller or a resolver and reports it before Nest

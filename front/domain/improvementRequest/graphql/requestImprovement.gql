@@ -1,0 +1,5 @@
+mutation requestImprovement($input: RequestImprovementInput!) {
+  requestImprovement(input: $input) {
+    id
+  }
+}
