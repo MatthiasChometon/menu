@@ -26,6 +26,21 @@ const dateLabel = computed((): string | undefined =>
     : date.toLocaleDateString(locale.value, { day: 'numeric', month: 'long' }),
 );
 
+// A day already gone, dimmed so the eye skips it: the week reads as "here is
+// what is left", not "here is a list you must scan for the useful rows".
+//
+// Client-only, like the open card below: "now" on a prerendered page is the day
+// it was built, so before hydration nothing is greyed rather than the wrong
+// thing being greyed.
+const isMounted = useMounted();
+const isPast = computed((): boolean => {
+  if (!isMounted.value || date === undefined || isToday) return false;
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  return date < startOfToday;
+});
+
 const isOpen = ref(defaultOpen);
 
 // The current day is only known once mounted (a prerendered page would freeze
@@ -40,9 +55,10 @@ watch(
 
 <template>
   <UCard
-    class="rise overflow-hidden"
+    class="rise overflow-hidden transition-opacity"
     :data-today="isToday ? '' : undefined"
-    :class="isToday && 'ring-2 ring-primary/40'"
+    :data-past="isPast ? '' : undefined"
+    :class="[isToday && 'ring-2 ring-primary/40', isPast && 'opacity-55']"
     :style="{ animationDelay: `${Math.min(index, 6) * 60}ms` }"
     :ui="{ body: 'p-0 sm:p-0', header: 'p-0 sm:p-0' }"
   >
