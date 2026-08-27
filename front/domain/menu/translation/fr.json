@@ -57,7 +57,11 @@
       "creatine": "5 g de créatine, y compris les jours de repos",
       "water": "3,5 à 4 L d'eau : sous-boire coûte directement de la force",
       "vitaminD": "2 000 UI de vitamine D3 au petit-déjeuner",
-      "weighIn": "Pesée le jeudi matin à jeun, objectif +0,3 à +0,4 kg par semaine"
+      "weighIn": {
+        "GAIN_MUSCLE": "Pesée le jeudi matin à jeun, objectif +0,3 à +0,4 kg par semaine",
+        "LOSE_FAT": "Pesée le jeudi matin à jeun, objectif -0,3 à -0,5 kg par semaine",
+        "MAINTAIN": "Pesée le jeudi matin à jeun, objectif : garder le poids stable"
+      }
     },
     "weekSummary": "Le résumé de la semaine",
     "averagePerDay": "Moyenne par jour",

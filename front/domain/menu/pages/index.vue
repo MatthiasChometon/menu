@@ -40,7 +40,7 @@ const averageMacros = computed((): Macros | undefined => {
   };
 });
 
-const { hasAnswered } = useProfile();
+const { profile, hasAnswered } = useProfile();
 const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
 
 // Everything date-related waits for the client: a prerendered page would freeze
@@ -79,7 +79,13 @@ const reminders = computed((): { icon: string; text: string }[] => [
   { icon: 'i-lucide-pill', text: t('menu.reminder.creatine') },
   { icon: 'i-lucide-glass-water', text: t('menu.reminder.water') },
   { icon: 'i-lucide-sun', text: t('menu.reminder.vitaminD') },
-  { icon: 'i-lucide-scale', text: t('menu.reminder.weighIn') },
+  {
+    icon: 'i-lucide-scale',
+    // The one habit that is not the same for everyone: which way the scale is
+    // meant to move follows the goal. On the example (no profile) it reads as a
+    // bulk, which is what the sample week is.
+    text: t(`menu.reminder.weighIn.${profile.value?.goal ?? 'GAIN_MUSCLE'}`),
+  },
 ]);
 
 useSeoMeta({ title: (): string => t('menu.pageTitle') });

@@ -57,7 +57,11 @@
       "creatine": "5 g of creatine, rest days included",
       "water": "3.5 to 4 L of water: under-drinking costs strength directly",
       "vitaminD": "2,000 IU of vitamin D3 with breakfast",
-      "weighIn": "Weigh in on Thursday morning fasted, target +0.3 to +0.4 kg a week"
+      "weighIn": {
+        "GAIN_MUSCLE": "Weigh in Thursday morning, fasted — aim for +0.3 to +0.4 kg a week",
+        "LOSE_FAT": "Weigh in Thursday morning, fasted — aim for -0.3 to -0.5 kg a week",
+        "MAINTAIN": "Weigh in Thursday morning, fasted — aim to hold your weight"
+      }
     },
     "weekSummary": "Week at a glance",
     "averagePerDay": "Daily average",
