@@ -109,6 +109,16 @@
       "title": "Here is a sample week",
       "lead": "Balanced meals, exact grams, a ready shopping list. Build your own, tuned to your goals — it's free and takes two minutes.",
       "cta": "Build my week"
+    },
+    "compose": {
+      "title": "This week is not composed yet",
+      "hint": "Pick your dishes and we work out the grams, the macros and the shopping list.",
+      "action": "Compose this week"
+    },
+    "needProfile": {
+      "title": "Tell us who we are cooking for",
+      "hint": "Answer a few questions and the amounts adjust to your goals.",
+      "action": "Fill in my profile"
     }
   },
   "error": {

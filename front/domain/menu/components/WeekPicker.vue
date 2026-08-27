@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const { menus } = useMenu();
-const { selectedWeek, statusOfSelected } = useSelectedWeek();
+const { selectedWeek, statusOfSelected, weekOptions } = useSelectedWeek();
 const { keyOf } = useWeekLabel();
 const { weekToShow } = useWeekStatus();
 const { locale, t } = useNuxtApp().$i18n;
@@ -9,11 +8,9 @@ const { locale, t } = useNuxtApp().$i18n;
 // "this week" without risking saying it of the wrong one.
 const now = ref<Date | undefined>();
 
-const weeks = computed((): string[] =>
-  [...menus]
-    .map((menu): string => menu.weekOf)
-    .sort((left, right): number => left.localeCompare(right)),
-);
+// The weeks a reader moves between are their own to compose — this one and the
+// ones ahead — not a list of published files. Already in order.
+const weeks = computed((): string[] => weekOptions.value);
 
 const index = computed((): number => weeks.value.indexOf(selectedWeek.value));
 

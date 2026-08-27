@@ -40,6 +40,7 @@ const averageMacros = computed((): Macros | undefined => {
   };
 });
 
+const { hasAnswered } = useProfile();
 const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
 
 // Everything date-related waits for the client: a prerendered page would freeze
@@ -97,22 +98,6 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
     </div>
     <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
 
-    <template v-else-if="menu === undefined">
-      <div class="flex flex-col items-center gap-3 py-20 text-center">
-        <UIcon name="i-lucide-calendar-x" class="size-12 text-dimmed" />
-        <h1 class="text-xl font-bold">{{ $t('menu.empty.title') }}</h1>
-        <p class="max-w-sm text-muted">{{ $t('menu.empty.hint') }}</p>
-        <UButton
-          :to="localePath('/composer')"
-          color="primary"
-          icon="i-lucide-square-pen"
-          class="mt-2"
-        >
-          {{ $t('menu.planNext.action') }}
-        </UButton>
-      </div>
-    </template>
-
     <template v-else>
       <!-- Nobody signed in: this is the shop window. A real week, fully weighed,
            under a line that says it is an example and a button to make it real. -->
@@ -138,7 +123,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         </UButton>
       </div>
 
-      <div class="rise flex flex-wrap items-end justify-between gap-4">
+      <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
         <div class="min-w-0">
           <h1 class="text-3xl font-black tracking-tight sm:text-4xl">
             {{ $t('menu.pageTitle') }}
@@ -149,10 +134,10 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <MenuWeekPicker v-if="!isDemo" />
       </div>
 
-      <div v-if="status === undefined && !isDemo" class="mt-5 space-y-3" aria-hidden="true">
+      <div v-if="status === undefined && !isDemo && menu !== undefined" class="mt-5 space-y-3" aria-hidden="true">
         <USkeleton class="h-20 rounded-lg" />
       </div>
-      <span v-if="status === undefined && !isDemo" class="sr-only">{{ $t('accessibility.loading') }}</span>
+      <span v-if="status === undefined && !isDemo && menu !== undefined" class="sr-only">{{ $t('accessibility.loading') }}</span>
 
       <UAlert
         v-if="status === 'upcoming'"
@@ -185,8 +170,9 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
       <!-- Above the week itself: what to eat on Monday matters more than
            re-reading a week already lived. -->
-      <MenuPlanNextWeek v-if="!isDemo" class="mt-5" />
+      <MenuPlanNextWeek v-if="!isDemo && menu !== undefined" class="mt-5" />
 
+      <template v-if="menu !== undefined">
       <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
         <div class="grid gap-4 sm:grid-cols-3">
           <UCard class="sm:col-span-2">
@@ -261,6 +247,27 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           </li>
         </ul>
       </section>
+      </template>
+
+      <!-- Signed in, this week not composed yet. No profile is a different
+           answer from an empty week: one needs the questionnaire, the other the
+           Composer, and sending someone to the wrong one is a dead end. -->
+      <div v-else-if="!hasAnswered" class="flex flex-col items-center gap-3 py-20 text-center">
+        <UIcon name="i-lucide-user-round-cog" class="size-12 text-dimmed" />
+        <h2 class="text-xl font-bold">{{ $t('menu.needProfile.title') }}</h2>
+        <p class="max-w-sm text-muted">{{ $t('menu.needProfile.hint') }}</p>
+        <UButton :to="localePath('/profil')" color="primary" icon="i-lucide-user-round" class="mt-2">
+          {{ $t('menu.needProfile.action') }}
+        </UButton>
+      </div>
+      <div v-else class="flex flex-col items-center gap-3 py-20 text-center">
+        <UIcon name="i-lucide-calendar-plus" class="size-12 text-dimmed" />
+        <h2 class="text-xl font-bold">{{ $t('menu.compose.title') }}</h2>
+        <p class="max-w-sm text-muted">{{ $t('menu.compose.hint') }}</p>
+        <UButton :to="localePath('/composer')" color="primary" icon="i-lucide-square-pen" class="mt-2">
+          {{ $t('menu.compose.action') }}
+        </UButton>
+      </div>
     </template>
   </div>
 </template>

@@ -109,6 +109,16 @@
       "title": "Voici une semaine type",
       "lead": "Repas équilibrés, grammages exacts, liste de courses prête. Crée la tienne, calée sur tes objectifs — c'est gratuit et ça prend deux minutes.",
       "cta": "Composer ma semaine"
+    },
+    "compose": {
+      "title": "Cette semaine n'est pas encore composée",
+      "hint": "Choisis tes plats et on calcule les grammages, les apports et la liste de courses.",
+      "action": "Composer cette semaine"
+    },
+    "needProfile": {
+      "title": "Dis-nous pour qui on cuisine",
+      "hint": "Réponds à quelques questions et les quantités s'ajusteront à tes objectifs.",
+      "action": "Remplir mon profil"
     }
   },
   "error": {
