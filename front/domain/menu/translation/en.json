@@ -103,6 +103,12 @@
       "fat": "Fat",
       "carbs": "Carbs",
       "fiber": "Fibre"
+    },
+    "example": {
+      "badge": "Example",
+      "title": "Here is a sample week",
+      "lead": "Balanced meals, exact grams, a ready shopping list. Build your own, tuned to your goals — it's free and takes two minutes.",
+      "cta": "Build my week"
     }
   },
   "error": {

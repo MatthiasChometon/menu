@@ -103,6 +103,12 @@
       "fat": "Lipides",
       "carbs": "Glucides",
       "fiber": "Fibres"
+    },
+    "example": {
+      "badge": "Exemple",
+      "title": "Voici une semaine type",
+      "lead": "Repas équilibrés, grammages exacts, liste de courses prête. Crée la tienne, calée sur tes objectifs — c'est gratuit et ça prend deux minutes.",
+      "cta": "Composer ma semaine"
     }
   },
   "error": {

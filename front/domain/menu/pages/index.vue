@@ -7,7 +7,7 @@ const localePath = useLocalePath();
 
 // Shared with the shopping list, the cooking session and the recipes: choosing
 // a week here has to move the whole app with it.
-const { selectedMenu: menu } = useSelectedWeek();
+const { selectedMenu: menu, isLoading, isDemo } = useSelectedWeek();
 
 // The day a card stands for, counted from the Monday the week is stored under.
 // Built here rather than in the card: only the page knows which week is on
@@ -46,8 +46,10 @@ const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
 // whatever day it was built on.
 const now = computed((): Date | undefined => (isMounted.value ? new Date() : undefined));
 
+// No "this week / past week" note on the example: it stands for a week, not a
+// date, and telling a visitor the shop-window week is over reads as a bug.
 const status = computed((): WeekStatus | undefined =>
-  menu.value === undefined || now.value === undefined
+  menu.value === undefined || now.value === undefined || isDemo.value
     ? undefined
     : statusOf(menu.value.weekOf, now.value),
 );
@@ -86,7 +88,16 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
   <!-- data-hydrated marks the point where date-dependent bits (today, week
        status) are settled, so a test can wait for it instead of racing them. -->
   <div class="mx-auto max-w-5xl px-4 py-6 sm:py-10" :data-hydrated="isMounted ? '' : undefined">
-    <template v-if="menu === undefined">
+    <!-- The reader's own week is still coming: hold the space rather than flash
+         the "compose one" prompt at somebody who already has a week. -->
+    <div v-if="isLoading" class="space-y-4 py-8" aria-hidden="true">
+      <USkeleton class="h-24 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+    </div>
+    <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
+
+    <template v-else-if="menu === undefined">
       <div class="flex flex-col items-center gap-3 py-20 text-center">
         <UIcon name="i-lucide-calendar-x" class="size-12 text-dimmed" />
         <h1 class="text-xl font-bold">{{ $t('menu.empty.title') }}</h1>
@@ -103,6 +114,30 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
     </template>
 
     <template v-else>
+      <!-- Nobody signed in: this is the shop window. A real week, fully weighed,
+           under a line that says it is an example and a button to make it real. -->
+      <div
+        v-if="isDemo"
+        class="rise mb-6 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-5 sm:p-6"
+      >
+        <UBadge color="primary" variant="subtle" size="sm" class="mb-2">
+          {{ $t('menu.example.badge') }}
+        </UBadge>
+        <h2 class="text-2xl font-black tracking-tight sm:text-3xl">
+          {{ $t('menu.example.title') }}
+        </h2>
+        <p class="mt-1 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
+        <UButton
+          :to="localePath('/composer')"
+          color="primary"
+          size="xl"
+          icon="i-lucide-square-pen"
+          class="mt-4 font-semibold"
+        >
+          {{ $t('menu.example.cta') }}
+        </UButton>
+      </div>
+
       <div class="rise flex flex-wrap items-end justify-between gap-4">
         <div class="min-w-0">
           <h1 class="text-3xl font-black tracking-tight sm:text-4xl">
@@ -111,13 +146,13 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           <p class="mt-1 text-muted">{{ $t('menu.pageLead') }}</p>
         </div>
 
-        <MenuWeekPicker />
+        <MenuWeekPicker v-if="!isDemo" />
       </div>
 
-      <div v-if="status === undefined" class="mt-5 space-y-3" aria-hidden="true">
+      <div v-if="status === undefined && !isDemo" class="mt-5 space-y-3" aria-hidden="true">
         <USkeleton class="h-20 rounded-lg" />
       </div>
-      <span v-if="status === undefined" class="sr-only">{{ $t('accessibility.loading') }}</span>
+      <span v-if="status === undefined && !isDemo" class="sr-only">{{ $t('accessibility.loading') }}</span>
 
       <UAlert
         v-if="status === 'upcoming'"
@@ -150,7 +185,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
       <!-- Above the week itself: what to eat on Monday matters more than
            re-reading a week already lived. -->
-      <MenuPlanNextWeek class="mt-5" />
+      <MenuPlanNextWeek v-if="!isDemo" class="mt-5" />
 
       <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
         <div class="grid gap-4 sm:grid-cols-3">
