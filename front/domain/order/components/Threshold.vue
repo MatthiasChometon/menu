@@ -2,10 +2,13 @@
 const { thresholdCents, isSaving, isSaved, refresh, save } = useGroceryPreference();
 
 // Euros in the field, cents on the wire. Nobody types a threshold in cents.
-const euros = ref('');
+// A number input under v-model hands back a number, not a string, once the
+// browser has parsed it — so the field's value is whichever the last write was,
+// and reading it as a string would throw the moment someone actually typed.
+const euros = ref<string | number>('');
 
 const submit = async (): Promise<void> => {
-  const typed = euros.value.trim();
+  const typed = String(euros.value).trim();
   await save(typed === '' ? undefined : Math.round(Number(typed) * 100));
 };
 
