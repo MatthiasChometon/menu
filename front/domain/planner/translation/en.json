@@ -30,16 +30,17 @@
       "main": "Lunch and dinner",
       "breakfast": "Breakfast",
       "postWorkout": "Post-workout",
-      "snack": "Snack"
+      "snack": "Snacks"
     },
     "groupHint": {
       "main": "They rotate at noon and in the evening, never twice in a day.",
       "breakfast": "Rotating across the week.",
       "postWorkout": "Rotating across the week.",
-      "snack": "Rotating across the week."
+      "snack": "Two snacks rotating across the afternoon: pick at least two."
     },
     "spread": "Spread across the week",
     "spreadAgain": "Spread again",
+    "improveWeek": "Improve the whole week",
     "spreadHint": "The dishes rotate from day to day, then the portions adjust to your targets.",
     "spreadBlocked": "Pick at least one dish for lunch and dinner.",
     "week": "Your week",

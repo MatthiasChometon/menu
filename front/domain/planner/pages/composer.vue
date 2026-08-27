@@ -18,6 +18,7 @@ const {
   canSpread,
   needsSpread,
   spread,
+  improveWeek,
   isValid,
   isSaving,
   canSave,
@@ -236,8 +237,9 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       :description="isPersonalised ? $t('planner.targetsMine') : $t('planner.targetsDefault')"
     />
 
-    <!-- One screen per step; a screen may gather more than one small meal
-         (post-training and the snack), each its own picker under its own head. -->
+    <!-- One picker per screen. The afternoon en-cas used to be two lists on one
+         screen — the second went unseen — and are now a single "Goûter et
+         collation" list, two picks that fill both slots. -->
     <div v-if="currentGroups !== undefined" class="rise mt-6">
       <div class="space-y-10">
         <PlannerDishPicker v-for="group in currentGroups" :key="group" :group="group" />
@@ -266,17 +268,33 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
         <UBadge :color="isValid ? 'primary' : 'neutral'" variant="subtle">
           {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
         </UBadge>
-        <UButton
-          icon="i-lucide-refresh-cw"
-          variant="ghost"
-          color="neutral"
-          size="sm"
-          class="ml-auto"
-          :disabled="!canSpread"
-          @click="spread"
-        >
-          {{ $t('planner.spreadAgain') }}
-        </UButton>
+        <div class="ml-auto flex flex-wrap items-center gap-2">
+          <!-- One tap mends every day at once. Off-target days each take their
+               best swap; a week already on target has nothing to do, so it is
+               greyed rather than left to be pressed for no effect. -->
+          <UButton
+            v-if="hasWeek"
+            icon="i-lucide-wand-sparkles"
+            variant="soft"
+            color="primary"
+            size="sm"
+            class="font-semibold"
+            :disabled="isValid"
+            @click="improveWeek"
+          >
+            {{ $t('planner.improveWeek') }}
+          </UButton>
+          <UButton
+            icon="i-lucide-refresh-cw"
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :disabled="!canSpread"
+            @click="spread"
+          >
+            {{ $t('planner.spreadAgain') }}
+          </UButton>
+        </div>
       </div>
 
       <p v-if="!hasWeek" class="mt-3 text-sm text-muted">{{ $t('planner.spreadBlocked') }}</p>

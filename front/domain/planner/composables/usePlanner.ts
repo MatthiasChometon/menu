@@ -1,9 +1,12 @@
 // Which recipes may fill which meal. Lunch and dinner share the savoury dishes,
 // which is exactly how the week is built today: full portion at noon, reduced
 // one in the evening.
+// Which pool fills a meal slot. The two afternoon en-cas draw from the same
+// merged pool now: post-training and the snack were folded into one choice, so
+// a dish tagged either way can land in either slot.
 const SLOT_RECIPES: Record<MealSlot, RecipeSlot> = {
   breakfast: 'breakfast',
-  postWorkout: 'postWorkout',
+  postWorkout: 'snack',
   lunch: 'main',
   snack: 'snack',
   dinner: 'main',
@@ -44,21 +47,33 @@ export type SelectionBalance = {
 
 // Which meals a chosen dish fills. The savoury dishes carry both lunch and
 // dinner, which is how the week has always been built: full portion at noon,
-// the rest in the evening.
+// the rest in the evening. The snack group carries both afternoon en-cas — what
+// used to be post-training and the snack — from one merged list.
 const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
   main: ['lunch', 'dinner'],
   breakfast: ['breakfast'],
   postWorkout: ['postWorkout'],
-  snack: ['snack'],
+  snack: ['postWorkout', 'snack'],
 };
 
-const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 'snack'];
+// Which recipes a group offers. Recipes keep their content tag (a dish is still
+// a 'postWorkout' or a 'snack' in the file), but the snack group pools both:
+// the reader picks afternoon en-cas from one list, no post-training framing.
+const GROUP_RECIPE_SLOTS: Record<RecipeSlot, readonly RecipeSlot[]> = {
+  main: ['main'],
+  breakfast: ['breakfast'],
+  postWorkout: ['postWorkout'],
+  snack: ['snack', 'postWorkout'],
+};
 
-// One screen at a time in the composer. Post-training and the snack share a
-// screen — two small meals nobody wants a separate step for — while staying
-// distinct groups underneath: each keeps its own dishes, its own floor, and its
-// own meal in the day. The solver never sees these; it works off GROUP_ORDER.
-const STEPS: readonly (readonly RecipeSlot[])[] = [['main'], ['breakfast'], ['postWorkout', 'snack']];
+// postWorkout is a slot a day still has, but never a group the composer walks
+// through on its own: its dishes are chosen inside the snack group.
+const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'snack'];
+
+// One screen per meal in the composer. The two afternoon en-cas were folded
+// into a single "Goûter et collation" step: one list, two mandatory picks, one
+// per slot when spread. The solver never sees these; it works off GROUP_ORDER.
+const STEPS: readonly (readonly RecipeSlot[])[] = [['main'], ['breakfast'], ['snack']];
 const stepGroups = (index: number): readonly RecipeSlot[] => STEPS[index] ?? [];
 
 // How many dishes a slot needs for the week to hold together, and for the solver
@@ -76,7 +91,9 @@ const GROUP_LIMITS: Record<RecipeSlot, { min: number; max: number }> = {
   main: { min: 2, max: 4 },
   breakfast: { min: 1, max: 3 },
   postWorkout: { min: 1, max: 3 },
-  snack: { min: 1, max: 3 },
+  // Two, because the group fills two slots — a morning collation and an
+  // afternoon goûter — and each must have a dish for the day to hold together.
+  snack: { min: 2, max: 4 },
 };
 
 // What a dish is built around, worked out from its ingredients rather than
@@ -104,10 +121,12 @@ export const usePlanner = (): {
   completeSelection: () => void;
   swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
   applySwap: (swap: DishSwap) => void;
+  /** Applies the best single swap to every day, until each is on target or
+   *  nothing improves it. The one-tap alternative to fixing days by hand. */
+  improveWeek: () => void;
   step: Ref<number>;
   stepCount: number;
-  /** The groups shown on the current screen — usually one, two when a screen
-   *  gathers small meals (post-training and the snack). */
+  /** The groups shown on the current screen — one per step. */
   currentGroups: ComputedRef<readonly RecipeSlot[] | undefined>;
   /** The screens the composer walks through, each one or more groups. */
   steps: readonly (readonly RecipeSlot[])[];
@@ -389,6 +408,28 @@ export const usePlanner = (): {
     isDirty.value = true;
   };
 
+  const applySwap = (swap: DishSwap): void => {
+    plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };
+    touch();
+  };
+
+  // The one-tap "fix the whole week", where before every off day had to be
+  // opened and swapped by hand. Each day is settled on its own — the solver
+  // reads a day in isolation, so mending Monday never unsettles Tuesday — and a
+  // few passes let a second swap finish what the first started. A day missing a
+  // meal is left as it is: no swap can add one, and pretending otherwise would
+  // loop.
+  const improveWeek = (): void => {
+    const MAX_PASSES = 4;
+    for (const key of dayOrder) {
+      for (let pass = 0; pass < MAX_PASSES; pass += 1) {
+        const swap = suggestFor(buildDay(key));
+        if (swap === undefined) break;
+        applySwap(swap);
+      }
+    }
+  };
+
   // The dishes a stored week was built from, read back out of the days. The
   // account keeps the week, not the shortlist that produced it — and coming
   // back to a week with the grid empty reads as if the week had been lost.
@@ -470,7 +511,9 @@ export const usePlanner = (): {
   };
 
   const dishesFor = (group: RecipeSlot): Recipe[] =>
-    Object.values(recipes).filter((recipe): boolean => recipe.slot === group);
+    Object.values(recipes).filter((recipe): boolean =>
+      GROUP_RECIPE_SLOTS[group].includes(recipe.slot),
+    );
 
   // Nothing can be spread until there is something to eat at midday: the savoury
   // dishes are what the week is built around.
@@ -673,10 +716,8 @@ export const usePlanner = (): {
     selectionBalance,
     completeSelection,
     swapsForMacro,
-    applySwap: (swap: DishSwap): void => {
-      plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };
-      touch();
-    },
+    applySwap,
+    improveWeek,
     goToStep: (index: number): void => {
       if (canReachStep(index)) step.value = Math.max(0, Math.min(STEPS.length, index));
     },
@@ -757,8 +798,7 @@ export const usePlanner = (): {
     loadFromAccount,
     switchWeek,
     targets,
-    recipesFor: (slot: MealSlot): Recipe[] =>
-      Object.values(recipes).filter((recipe): boolean => recipe.slot === SLOT_RECIPES[slot]),
+    recipesFor: (slot: MealSlot): Recipe[] => dishesFor(SLOT_RECIPES[slot]),
     chosen: (day: DayKey, slot: MealSlot): string | undefined => plan.value.days[day]?.[slot],
     // Mutated in place rather than replaced wholesale. Replacing the plan object
     // invalidates every day at once, so picking one dish re-solved all seven and

@@ -13,24 +13,10 @@ const pickAt = async (page: import('@playwright/test').Page, index: number): Pro
   await dishes(page).nth(index).click();
 };
 
-// On the screen that gathers post-training and the snack, each is its own
-// section under its own heading; this picks within one of them.
-const pickInGroup = async (
-  page: import('@playwright/test').Page,
-  heading: string,
-  count: number,
-): Promise<void> => {
-  const section = page
-    .getByRole('main')
-    .locator('section')
-    .filter({ has: page.getByRole('heading', { name: heading, exact: true }) });
-  for (let index = 0; index < count; index += 1) await section.getByRole('checkbox').nth(index).click();
-};
-
-// The shared screen is done once each of its two meals has a dish.
+// The afternoon en-cas are one list now — a single "Goûter et collation" step
+// asking for two picks, which fill the day's two small meals when spread.
 const fillSharedStep = async (page: import('@playwright/test').Page): Promise<void> => {
-  await pickInGroup(page, 'Post-training', 1);
-  await pickInGroup(page, 'Goûter', 1);
+  await pick(page, 2);
 };
 
 // Exact: the week chooser has its own "Semaine suivante" arrow, and a loose
@@ -97,10 +83,9 @@ test('walks the meals and lands on a week that is on target', async ({ page }) =
   await pick(page, 1);
   await next(page).click();
 
-  // One screen, two small meals: both post-training and the snack are chosen
-  // here, each under its own heading, before the week is reached.
-  await expect(page.getByRole('heading', { name: 'Post-training' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Goûter' })).toBeVisible();
+  // One screen, one list: the two afternoon en-cas are chosen together, two
+  // picks that fill both small meals when the week is spread.
+  await expect(page.getByRole('heading', { name: 'Goûter et collation' })).toBeVisible();
   await fillSharedStep(page);
   await next(page).click();
 
@@ -142,7 +127,7 @@ test('a step stays marked done after walking back past it', async ({ page }) => 
   await page.getByRole('button', { name: 'Petit-déjeuner' }).click();
   await expect(page.getByRole('heading', { name: 'Petit-déjeuner' })).toBeVisible();
 
-  const sharedStep = page.getByRole('button', { name: 'Post-training & Goûter' });
+  const sharedStep = page.getByRole('button', { name: 'Goûter et collation' });
   const bar = sharedStep.locator('span').first();
 
   // Colouring by position would grey this out; it answers "is it settled".
@@ -160,43 +145,28 @@ const composeWeek = async (page: import('@playwright/test').Page): Promise<void>
   await next(page).click();
 };
 
-// The day's own card, not whatever container happens to mention the day.
-const monday = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
-  page.getByRole('main').locator('.rise').filter({ hasText: 'Lundi' }).first();
+const onTarget = (page: import('@playwright/test').Page): import('@playwright/test').Locator =>
+  page.getByRole('main').getByText('dans les cibles');
 
-const mealRow = (
-  page: import('@playwright/test').Page,
-  meal: string,
-): import('@playwright/test').Locator =>
-  monday(page).locator('[id^="plan-"] > div').filter({ hasText: meal });
-
-test('a day already on target is left alone', async ({ page }) => {
+test('the week is mended in one tap, not day by day', async ({ page }) => {
   await composeWeek(page);
 
-  await expect(monday(page).getByText('dans les cibles')).toBeVisible();
-  // Nothing to fix, so nothing is offered.
+  // The per-day suggestion is gone: one control now stands for the whole week.
   await expect(page.getByRole('button', { name: "Appliquer l'échange" })).toHaveCount(0);
-});
 
-test('a day off target is offered a dish to swap in', async ({ page }) => {
-  await composeWeek(page);
+  const improve = page.getByRole('button', { name: 'Améliorer toute la semaine' });
+  await expect(improve).toBeVisible();
 
-  // One meal cannot carry a day's targets whatever the portions.
-  for (const meal of ['Petit-déjeuner', 'Post-training', 'Goûter', 'Dîner']) {
-    await mealRow(page, meal).getByRole('button', { name: 'Retirer ce plat' }).click();
+  // A week already fully on target has nothing to do and says so by staying
+  // grey; otherwise one tap swaps a dish into every day that needs it, and never
+  // unsettles a day that was already right.
+  const before = await onTarget(page).count();
+  if (await improve.isEnabled()) {
+    await improve.click();
+    expect(await onTarget(page).count()).toBeGreaterThanOrEqual(before);
   }
 
-  await expect(monday(page).getByText('impossible à ajuster')).toBeVisible();
-
-  const lunch = monday(page).getByLabel('Déjeuner', { exact: true }).first();
-  const before = await lunch.textContent();
-
-  const apply = page.getByRole('button', { name: "Appliquer l'échange" });
-  await expect(apply).toBeVisible();
-  await apply.click();
-
-  // The suggestion is applied where it said it would be.
-  await expect(lunch).not.toHaveText(before ?? '');
+  await expect(page.getByText('7 / 7 jours composés')).toBeVisible();
 });
 
 test('picking at random fills a step to its ceiling', async ({ page }) => {

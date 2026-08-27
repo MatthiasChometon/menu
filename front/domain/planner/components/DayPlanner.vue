@@ -15,7 +15,7 @@ const {
 const isOpen = ref(defaultOpen);
 
 const { mealOrder } = useMenu();
-const { recipesFor, chosen, choose, clearDay, suggestFor, applySwap, swapsForMacro } = usePlanner();
+const { recipesFor, chosen, choose, clearDay, applySwap, swapsForMacro } = usePlanner();
 const { nameOf, round } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 
@@ -34,13 +34,6 @@ const gapLabel = (verdict: MacroVerdict): string => {
   const sign = verdict.gapPercent > 0 ? '+' : '';
   return `${sign}${Math.round(verdict.gapPercent)} %`;
 };
-
-// Guarded by isOpen: trying every dish in every slot is cheap for one day and
-// wasteful for seven, and a suggestion nobody has unfolded to read is one
-// nobody needed. A red badge only states the problem — this states the fix.
-const suggestion = computed((): DishSwap | undefined =>
-  isOpen.value && !isEmpty.value ? suggestFor(day) : undefined,
-);
 
 // Which macro the reader asked about. Naming one is what turns "fibres -33 %"
 // from a verdict into a question with an answer.
@@ -203,41 +196,6 @@ const statusLabel = computed((): string => {
           </UButton>
         </li>
       </ul>
-    </div>
-
-    <!-- The way out, offered rather than demanded: which meal to change, what to
-         put there, and whether it is actually enough. -->
-    <div
-      v-if="suggestion !== undefined"
-      class="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3"
-    >
-      <p class="flex items-start gap-2 text-sm font-semibold text-primary">
-        <UIcon name="i-lucide-wand-sparkles" class="mt-0.5 size-4 shrink-0" />
-        <span class="text-pretty">
-          {{ suggestion.becomesValid ? $t('planner.swap.fixes') : $t('planner.swap.closer') }}
-        </span>
-      </p>
-      <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-        <UBadge color="neutral" variant="subtle" size="sm">
-          {{ $t(`menu.meal.${suggestion.slot}`) }}
-        </UBadge>
-        <span class="font-semibold">{{ nameOf(suggestion.to) }}</span>
-        <span v-if="suggestion.from !== undefined" class="text-muted">
-          {{ $t('planner.swap.instead') }}
-        </span>
-        <span v-if="suggestion.from !== undefined" class="text-muted line-through">
-          {{ nameOf(suggestion.from) }}
-        </span>
-      </div>
-      <UButton
-        icon="i-lucide-refresh-cw"
-        size="xs"
-        variant="soft"
-        class="mt-2.5"
-        @click="applySwap(suggestion)"
-      >
-        {{ $t('planner.swap.apply') }}
-      </UButton>
     </div>
 
     <p v-if="day.isImpossible && isOpen" class="mt-3 text-sm text-error">

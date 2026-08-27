@@ -30,16 +30,17 @@
       "main": "Déjeuner et dîner",
       "breakfast": "Petit-déjeuner",
       "postWorkout": "Post-training",
-      "snack": "Goûter"
+      "snack": "Goûter et collation"
     },
     "groupHint": {
       "main": "Ils tournent midi et soir, jamais deux fois le même jour.",
       "breakfast": "En rotation sur la semaine.",
       "postWorkout": "En rotation sur la semaine.",
-      "snack": "En rotation sur la semaine."
+      "snack": "Deux en-cas qui tournent sur l'après-midi : choisis-en au moins deux."
     },
     "spread": "Répartir sur la semaine",
     "spreadAgain": "Répartir à nouveau",
+    "improveWeek": "Améliorer toute la semaine",
     "spreadHint": "Les plats tournent d'un jour à l'autre, puis les portions s'ajustent à tes cibles.",
     "spreadBlocked": "Choisis au moins un plat pour le déjeuner et le dîner.",
     "week": "Ta semaine",

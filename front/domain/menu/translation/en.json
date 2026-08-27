@@ -22,14 +22,14 @@
     },
     "meal": {
       "breakfast": "Breakfast",
-      "postWorkout": "Post-workout",
+      "postWorkout": "Mid-morning snack",
       "lunch": "Lunch",
       "snack": "Snack",
       "dinner": "Dinner"
     },
     "mealTime": {
       "breakfast": "7 am",
-      "postWorkout": "30 min after the gym",
+      "postWorkout": "10:30 am",
       "lunch": "12:30 pm",
       "snack": "4:30 pm",
       "dinner": "8:30 pm"
