@@ -12,7 +12,12 @@ const { state } = vi.hoisted(() => ({
   },
 }));
 
-type Store = { load: (weekOf: string) => Promise<PlannedWeek | undefined> };
+type Store = {
+  load: (weekOf: string) => Promise<PlannedWeek | undefined>;
+  save: () => unknown;
+  toInput: () => unknown;
+  fromApi: () => unknown;
+};
 mockNuxtImport('useWeekPlanStore', () => (): Store => ({
   load: async (): Promise<PlannedWeek | undefined> => state.plan,
   save: vi.fn(),
@@ -20,7 +25,14 @@ mockNuxtImport('useWeekPlanStore', () => (): Store => ({
   fromApi: vi.fn(),
 }));
 
-mockNuxtImport('useProfile', () => (): { profile: ComputedRef<{ targets: Record<string, number> } | undefined> } => ({
+type Prof = {
+  profile: ComputedRef<{ targets: Record<string, number> } | undefined>;
+  isLoading: ComputedRef<boolean>;
+  hasAnswered: ComputedRef<boolean>;
+  refresh: () => unknown;
+  save: () => unknown;
+};
+mockNuxtImport('useProfile', () => (): Prof => ({
   profile: computed((): { targets: Record<string, number> } | undefined =>
     state.targets === undefined ? undefined : { targets: state.targets },
   ),
