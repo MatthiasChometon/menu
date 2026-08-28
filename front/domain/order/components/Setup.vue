@@ -51,8 +51,45 @@ const confirmCarrefour = (): void => {
     // A private window with storage blocked: the tick just will not persist.
   }
 };
-const carrefourReady = computed(
-  (): boolean => latestReport.value?.carrefourSignedIn === true || confirmedHere.value,
+// A real observation from the extension wins over the manual confirmation, up or
+// down: the confirmation only fills the gap before the shop has been seen at all.
+const carrefourReady = computed((): boolean => {
+  const report = latestReport.value;
+  if (report !== undefined) {
+    return report.carrefourSignedIn === true;
+  }
+
+  return confirmedHere.value;
+});
+
+// When the extension sees the shop signed out, a stale manual tick must not hold
+// it green — drop it, and if the session had been good, say it expired so the
+// reader knows to sign in again. There is no background polling: the shop is only
+// read while a Carrefour tab is open (its cookies travel nowhere else), and a
+// fill opens one, so an expiry surfaces the next time it matters.
+watch(
+  (): boolean | null | undefined => latestReport.value?.carrefourSignedIn,
+  (now, before): void => {
+    if (now !== false) {
+      return;
+    }
+
+    if (confirmedHere.value) {
+      confirmedHere.value = false;
+      try {
+        localStorage.removeItem(CONFIRM_KEY);
+      } catch {
+        // Storage unavailable: the in-memory flag is already cleared.
+      }
+    }
+    if (before === true) {
+      toast.add({
+        title: t('order.carrefour.expired'),
+        icon: 'i-lucide-triangle-alert',
+        color: 'warning',
+      });
+    }
+  },
 );
 const carrefourCheckedAt = computed((): string | undefined =>
   latestReport.value?.carrefourCheckedAt == null

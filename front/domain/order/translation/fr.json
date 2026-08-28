@@ -67,7 +67,8 @@
       "unknown": "État inconnu pour l'instant : ouvre Carrefour sur un navigateur appairé et il se met à jour tout seul.",
       "checkedAt": "vu à",
       "confirmHint": "Déjà connecté sur Carrefour ?",
-      "confirm": "Confirme-le ici"
+      "confirm": "Confirme-le ici",
+      "expired": "Ta session Carrefour a expiré — reconnecte-toi."
     },
     "install": {
       "title": "Installer l'extension",

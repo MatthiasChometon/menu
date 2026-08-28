@@ -67,7 +67,8 @@
       "unknown": "Not known yet: open Carrefour on a paired browser and it updates on its own.",
       "checkedAt": "checked at",
       "confirmHint": "Already signed in to Carrefour?",
-      "confirm": "Confirm it here"
+      "confirm": "Confirm it here",
+      "expired": "Your Carrefour session has expired — sign in again."
     },
     "install": {
       "title": "Install the extension",
