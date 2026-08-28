@@ -32,6 +32,23 @@ export class SessionCookie {
   }
 
   options(): CookieSerializeOptions {
+    // Same-site across sibling subdomains (menu.mtxlab.xyz + api.menu.mtxlab.xyz):
+    // the cookie is issued for the shared parent domain, first-party for both the
+    // app and the api subdomain. Safari keeps it — it is not a third-party cookie —
+    // and it stays httpOnly and Lax. This is the setting that fixes iPhone sign-in,
+    // and it takes precedence over the cross-site (None) fallback below.
+    const domain = this.config.get<string>('COOKIE_DOMAIN') || undefined;
+    if (domain !== undefined) {
+      return {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: true,
+        path: '/',
+        domain,
+        maxAge: this.maxAgeSeconds(),
+      };
+    }
+
     const crossSite = this.isCrossSite();
 
     return {
