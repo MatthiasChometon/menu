@@ -2,14 +2,13 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const mondayOf = (weekOf: string): Date => new Date(`${weekOf}T00:00:00`);
 
-// Monday of the week the given day falls in, so two dates in the same week
-// compare equal.
-const startOfWeek = (day: Date): Date => {
-  const monday = new Date(day);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+// Midnight of the given day. Windows are anchored to today, not the start of the
+// calendar week, so "this window" is measured from today rather than from Monday.
+const startOfDay = (day: Date): Date => {
+  const start = new Date(day);
+  start.setHours(0, 0, 0, 0);
 
-  return monday;
+  return start;
 };
 
 // "Cette semaine" says where you are; "Semaine du 3 août" needs working out.
@@ -20,7 +19,7 @@ export const useWeekLabel = (): {
   keyOf: (weekOf: string, now: Date) => string | undefined;
 } => {
   const offsetOf = (weekOf: string, now: Date): number =>
-    Math.round((mondayOf(weekOf).getTime() - startOfWeek(now).getTime()) / (7 * DAY_MS));
+    Math.round((mondayOf(weekOf).getTime() - startOfDay(now).getTime()) / (7 * DAY_MS));
 
   return {
     offsetOf,

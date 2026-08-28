@@ -1,3 +1,4 @@
+import { daysFrom } from '../../planner/composables/usePlannerWeek';
 import type { Day, FoodQuantity, Macros, Menu, ShoppingLine } from '../types/menu.type';
 
 // Turns a week somebody composed into the same Menu shape the rest of the app
@@ -23,7 +24,7 @@ export const useComposedMenu = (): {
   const { solve } = useMacroSolver();
   const { freshOf } = useSeasonings();
   const { profile } = useProfile();
-  const { dayOrder, mealOrder } = useMenu();
+  const { mealOrder } = useMenu();
 
   // A recipe as written, before it is scaled: its ingredients at their reference
   // grammes. The solver takes these and stretches them to the day's targets.
@@ -121,7 +122,9 @@ export const useComposedMenu = (): {
       const plan = await load(weekOf);
       if (plan === undefined) return undefined;
 
-      const days = dayOrder
+      // In window order — from the day the week starts, not Monday — so the
+      // first card is the first day actually being planned.
+      const days = daysFrom(weekOf)
         .map((key): Day | undefined => {
           const slots = plan.days[key];
           return slots === undefined ? undefined : buildDay(key, slots, targets);

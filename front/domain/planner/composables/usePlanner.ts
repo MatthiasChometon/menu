@@ -1,3 +1,5 @@
+import { daysFrom, MAX_LENGTH, MIN_LENGTH } from './usePlannerWeek';
+
 // Which recipes may fill which meal. Lunch and dinner share the savoury dishes,
 // which is exactly how the week is built today: full portion at noon, reduced
 // one in the evening.
@@ -140,6 +142,8 @@ export const usePlanner = (): {
   dishesFor: (group: RecipeSlot) => Recipe[];
   isChosen: (group: RecipeSlot, recipeId: string) => boolean;
   toggleDish: (group: RecipeSlot, recipeId: string) => void;
+  /** How many days the window spans, 3 to 7. Two-way, so a selector can set it. */
+  length: Ref<number>;
   canSpread: ComputedRef<boolean>;
   /** The selection changed since the week was last spread. */
   needsSpread: ComputedRef<boolean>;
@@ -170,9 +174,17 @@ export const usePlanner = (): {
   const { macrosOfQuantities } = useNutrition();
   const { solve } = useMacroSolver();
   const { profile } = useProfile();
-  const { week: plannerWeek } = usePlannerWeek();
+  const { week: plannerWeek, length } = usePlannerWeek();
   const { user } = useAuth();
   const { load, save: persist } = useWeekPlanStore();
+
+  // The days this window covers, in order from the day it starts — the axis the
+  // dishes are spread over and the week is measured on. All windows start on the
+  // same weekday, so this is stable as the reader moves between them; it falls
+  // back to the plain week only before the browser's date is known.
+  const windowDays = computed((): readonly DayKey[] =>
+    plannerWeek.value === '' ? dayOrder : daysFrom(plannerWeek.value, length.value),
+  );
 
   // Shared, so leaving the page and coming back does not lose an afternoon of
   // choices. Persisting it properly is the account's job, not this composable's.
@@ -395,7 +407,7 @@ export const usePlanner = (): {
   };
 
   const days = computed((): PlannedDay[] =>
-    dayOrder.map((key): PlannedDay => dayComputeds.get(key)?.value ?? buildDay(key)),
+    windowDays.value.map((key): PlannedDay => dayComputeds.get(key)?.value ?? buildDay(key)),
   );
 
   // Only what belongs to an account can be stored on one, and only a week that
@@ -421,7 +433,7 @@ export const usePlanner = (): {
   // loop.
   const improveWeek = (): void => {
     const MAX_PASSES = 4;
-    for (const key of dayOrder) {
+    for (const key of windowDays.value) {
       for (let pass = 0; pass < MAX_PASSES; pass += 1) {
         const swap = suggestFor(buildDay(key));
         if (swap === undefined) break;
@@ -461,7 +473,13 @@ export const usePlanner = (): {
     // never chosen for.
     plan.value = stored ?? { weekOf: week, days: {} };
     chosenDishes.value = stored === undefined ? {} : chosenFrom(stored);
-    spreadFrom.value = stored === undefined ? '' : JSON.stringify(chosenDishes.value);
+    // A stored week carries its own length: as many days as were saved. Read it
+    // back so the window opens the size it was composed at, not the default.
+    if (stored !== undefined) {
+      const savedDays = Object.keys(stored.days).length;
+      if (savedDays > 0) length.value = Math.max(MIN_LENGTH, Math.min(MAX_LENGTH, savedDays));
+    }
+    spreadFrom.value = stored === undefined ? '' : spreadSignature();
     savedAt.value = undefined;
     saveFailed.value = false;
     isDirty.value = false;
@@ -519,8 +537,14 @@ export const usePlanner = (): {
   // dishes are what the week is built around.
   const canSpread = computed((): boolean => (chosenDishes.value.main ?? []).length > 0);
 
+  // What a spread was built from: the dishes and how many days they were spread
+  // over. The length counts, so shortening the window re-spreads rather than
+  // leaving the extra days behind.
+  const spreadSignature = (): string =>
+    JSON.stringify({ dishes: chosenDishes.value, length: length.value });
+
   const needsSpread = computed(
-    (): boolean => canSpread.value && spreadFrom.value !== JSON.stringify(chosenDishes.value),
+    (): boolean => canSpread.value && spreadFrom.value !== spreadSignature(),
   );
 
   // Rotation, with dinner one step ahead of lunch, so the same dish never lands
@@ -547,10 +571,16 @@ export const usePlanner = (): {
   const spread = (): void => {
     if (!canSpread.value) return;
 
-    for (const [index, day] of dayOrder.entries())
-      plan.value.days[day] = slotsOnDay(chosenDishes.value, index);
+    // Rebuilt from scratch over the window's days, so a day left over from a
+    // longer window before is gone rather than lingering in the plan.
+    plan.value.days = Object.fromEntries(
+      windowDays.value.map((day, index): [DayKey, Partial<Record<MealSlot, string>>] => [
+        day,
+        slotsOnDay(chosenDishes.value, index),
+      ]),
+    );
 
-    spreadFrom.value = JSON.stringify(chosenDishes.value);
+    spreadFrom.value = spreadSignature();
     touch();
   };
 
@@ -563,7 +593,7 @@ export const usePlanner = (): {
       [group]: [...(chosenDishes.value[group] ?? []), recipeId],
     };
 
-    return dayOrder.reduce(
+    return windowDays.value.reduce(
       (total, day, index): number => total + errorOf(buildDay(day, slotsOnDay(selection, index))),
       0,
     );
@@ -583,7 +613,7 @@ export const usePlanner = (): {
     // no longer under the finger.
     const isComplete = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
 
-    const simulated = dayOrder.map((day, index): PlannedDay =>
+    const simulated = windowDays.value.map((day, index): PlannedDay =>
       buildDay(day, slotsOnDay(chosenDishes.value, index)),
     );
 
@@ -660,7 +690,7 @@ export const usePlanner = (): {
       ...chosenDishes.value,
       [group]: [...(chosenDishes.value[group] ?? []), recipeId],
     };
-    const withDish = dayOrder.map((day, index): PlannedDay =>
+    const withDish = windowDays.value.map((day, index): PlannedDay =>
       buildDay(day, slotsOnDay(selection, index)),
     );
 
@@ -770,6 +800,7 @@ export const usePlanner = (): {
       };
       touch();
     },
+    length,
     canSpread,
     needsSpread,
     spread,

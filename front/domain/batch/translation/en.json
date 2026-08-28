@@ -1,7 +1,7 @@
 {
   "batch": {
     "title": "Batch cooking",
-    "lead": "What to cook on Sunday, with the whole week's quantities already added up.",
+    "lead": "What to cook on the first day, with the whole window's quantities already added up.",
     "totalTime": "Estimated cooking time",
     "minutes": "min",
     "servings": "servings to make",

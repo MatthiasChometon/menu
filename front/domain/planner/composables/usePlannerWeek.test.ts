@@ -1,30 +1,54 @@
 import { describe, expect, it } from 'vitest';
-import { mondayOf, weeksFrom, weekToCompose } from './usePlannerWeek';
+import { daysFrom, startOf, weeksFrom, weekToCompose } from './usePlannerWeek';
 
-// A Thursday, so the Monday has to be worked out rather than read off.
+// A Thursday: a window starts on the day itself now, so this is day zero.
 const THURSDAY = new Date('2026-08-20T14:00:00');
 
-describe('the weeks open to composing', () => {
-  it('starts from the Monday of the week being lived, whatever day it is', () => {
-    expect(mondayOf(THURSDAY)).toBe('2026-08-17');
-    expect(mondayOf(new Date('2026-08-17T00:00:00'))).toBe('2026-08-17');
-    expect(mondayOf(new Date('2026-08-23T23:59:00'))).toBe('2026-08-17');
+describe('the windows open to composing', () => {
+  it('starts on the day itself, at midnight — never rewound to Monday', () => {
+    expect(startOf(THURSDAY)).toBe('2026-08-20');
+    expect(startOf(new Date('2026-08-20T00:00:00'))).toBe('2026-08-20');
+    expect(startOf(THURSDAY, 1)).toBe('2026-08-27');
   });
 
-  it('offers this week and the ones to come, never one gone by', () => {
+  it('offers the window from today and the ones to come, never one gone by', () => {
     const weeks = weeksFrom(THURSDAY);
 
-    expect(weeks[0]).toBe('2026-08-17');
-    expect(weeks.at(-1)).toBe('2026-09-21');
-    expect(weeks.every((week): boolean => week >= '2026-08-17')).toBe(true);
+    expect(weeks[0]).toBe('2026-08-20');
+    expect(weeks.at(-1)).toBe('2026-09-24');
+    expect(weeks.every((week): boolean => week >= '2026-08-20')).toBe(true);
   });
 
-  it('opens on the week being lived while it has nothing to eat', () => {
-    expect(weekToCompose(THURSDAY, [])).toBe('2026-08-17');
-    expect(weekToCompose(THURSDAY, ['2026-08-10'])).toBe('2026-08-17');
+  it('opens on the window starting today while it has nothing to eat', () => {
+    expect(weekToCompose(THURSDAY, [])).toBe('2026-08-20');
+    expect(weekToCompose(THURSDAY, ['2026-08-13'])).toBe('2026-08-20');
   });
 
-  it('opens on the week to come once this one is planned', () => {
-    expect(weekToCompose(THURSDAY, ['2026-08-17'])).toBe('2026-08-24');
+  it('opens on the next window once today is planned', () => {
+    expect(weekToCompose(THURSDAY, ['2026-08-20'])).toBe('2026-08-27');
+  });
+});
+
+describe('the days a window covers', () => {
+  it('runs from the day it starts, wrapping past the weekend', () => {
+    // 2026-08-20 is a Thursday.
+    expect(daysFrom('2026-08-20')).toEqual([
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+    ]);
+  });
+
+  it('spans only as many days as asked, from the start', () => {
+    expect(daysFrom('2026-08-20', 3)).toEqual(['thursday', 'friday', 'saturday']);
+  });
+
+  it('never runs shorter than three days or longer than a week', () => {
+    expect(daysFrom('2026-08-20', 1)).toHaveLength(3);
+    expect(daysFrom('2026-08-20', 12)).toHaveLength(7);
   });
 });

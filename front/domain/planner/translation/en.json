@@ -108,9 +108,12 @@
       "over": "over"
     },
     "weekChoice": {
-      "lead": "You're planning the week of:",
-      "choose": "Choose the week to plan",
-      "later": "Next week along"
+      "lead": "You're planning from:",
+      "choose": "Choose the start day",
+      "later": "Next window along",
+      "from": "From",
+      "days": "days",
+      "duration": "Length in days"
     }
   }
 }

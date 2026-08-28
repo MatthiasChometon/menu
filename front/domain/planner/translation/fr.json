@@ -108,9 +108,12 @@
       "over": "au-dessus"
     },
     "weekChoice": {
-      "lead": "Tu composes la semaine :",
-      "choose": "Choisir la semaine à composer",
-      "later": "Semaine suivante"
+      "lead": "Tu composes à partir de :",
+      "choose": "Choisir le jour de départ",
+      "later": "Fenêtre suivante",
+      "from": "À partir du",
+      "days": "jours",
+      "duration": "Durée en jours"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { mondayOf, weeksFrom } from '../../planner/composables/usePlannerWeek';
+import { startOf, weeksFrom } from '../../planner/composables/usePlannerWeek';
 import type { Menu, WeekStatus } from '../types/menu.type';
 
 // The week every screen is looking at, and which menu fills it. Held in shared
@@ -44,7 +44,7 @@ export const useSelectedWeek = (): {
   watch(
     now,
     (value): void => {
-      if (value !== undefined && selectedWeek.value === '') selectedWeek.value = mondayOf(value);
+      if (value !== undefined && selectedWeek.value === '') selectedWeek.value = startOf(value);
     },
     { immediate: true },
   );

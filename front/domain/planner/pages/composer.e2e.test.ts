@@ -105,9 +105,11 @@ test('a dish never lands twice in the same day', async ({ page }) => {
   await fillSharedStep(page);
   await next(page).click();
 
-  const monday = page.getByRole('main').locator('div').filter({ hasText: 'Lundi' }).first();
-  const lunch = await monday.getByLabel('Déjeuner', { exact: true }).first().textContent();
-  const dinner = await monday.getByLabel('Dîner', { exact: true }).first().textContent();
+  // The first card is open by default; which weekday it is depends on the day the
+  // window starts, so target the open one rather than a named day.
+  const firstDay = page.getByRole('main').locator('[id^="plan-"]').first();
+  const lunch = await firstDay.getByLabel('Déjeuner', { exact: true }).first().textContent();
+  const dinner = await firstDay.getByLabel('Dîner', { exact: true }).first().textContent();
 
   expect(lunch).not.toBe(dinner);
 });
@@ -200,12 +202,12 @@ test('composes into whichever week is chosen, not only the published one', async
 
   // Opens on the week being lived: composing is done ahead, but a Monday with
   // nothing to eat comes first.
-  await expect(page.getByRole('combobox', { name: 'Choisir la semaine à composer' })).toHaveText(
+  await expect(page.getByRole('combobox', { name: 'Choisir le jour de départ' })).toHaveText(
     'Cette semaine',
   );
 
-  await page.getByRole('button', { name: 'Semaine suivante' }).click();
-  await expect(page.getByRole('combobox', { name: 'Choisir la semaine à composer' })).toHaveText(
+  await page.getByRole('button', { name: 'Fenêtre suivante' }).click();
+  await expect(page.getByRole('combobox', { name: 'Choisir le jour de départ' })).toHaveText(
     'La semaine prochaine',
   );
 });
@@ -217,7 +219,7 @@ test("a mis-tapped arrow does not cost an afternoon's choices", async ({ page })
   await expect(chosen(page)).toHaveCount(2);
 
   // Another week is another week: it starts blank rather than inheriting.
-  await page.getByRole('button', { name: 'Semaine suivante' }).click();
+  await page.getByRole('button', { name: 'Fenêtre suivante' }).click();
   await expect(chosen(page)).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Semaine précédente' }).click();
