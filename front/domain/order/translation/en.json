@@ -36,7 +36,8 @@
       "never": "never",
       "dismiss": "Dismiss",
       "extensionHere": "Extension detected on this browser: pairing happens on its own, nothing to paste.",
-      "autoPaired": "This browser is paired. Nothing to paste into the extension."
+      "autoPaired": "This browser is paired. Nothing to paste into the extension.",
+      "defaultLabel": "This browser"
     },
     "carrefour": {
       "title": "Carrefour account",

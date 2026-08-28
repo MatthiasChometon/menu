@@ -36,7 +36,8 @@
       "never": "jamais",
       "dismiss": "Fermer",
       "extensionHere": "Extension détectée sur ce navigateur : l'appairage se fait tout seul, rien à coller.",
-      "autoPaired": "Ce navigateur est appairé. Rien à coller dans l'extension."
+      "autoPaired": "Ce navigateur est appairé. Rien à coller dans l'extension.",
+      "defaultLabel": "Ce navigateur"
     },
     "carrefour": {
       "title": "Compte Carrefour",

@@ -7,9 +7,10 @@ const label = ref('');
 // The API address the extension should talk to — the same one this app uses.
 const endpoint = computed((): string => `${config.public.apiBase}/graphql`);
 
+// A name is a convenience, not a hurdle: pairing works with the button as it
+// is, so a reader who just wants it done is not stopped by an empty field.
 const submit = async (): Promise<void> => {
-  const named = label.value.trim();
-  if (named === '') return;
+  const named = label.value.trim() || useNuxtApp().$i18n.t('order.device.defaultLabel');
 
   await pair(named);
   // Hand the token straight to the extension when it is installed here: no popup,
@@ -53,7 +54,7 @@ onMounted((): void => {
       <button
         type="submit"
         class="whitespace-nowrap rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
-        :disabled="isPairing || label.trim() === ''"
+        :disabled="isPairing"
       >
         {{ isPairing ? $t('order.device.pairing') : $t('order.device.pair') }}
       </button>
