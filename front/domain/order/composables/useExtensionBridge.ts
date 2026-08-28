@@ -6,20 +6,29 @@
 export const useExtensionBridge = (): {
   /** The extension's content script announced itself on this page. */
   extensionHere: Ref<boolean>;
+  /** The extension already holds a pairing: nothing to configure. */
+  extensionConfigured: Ref<boolean>;
   /** The extension confirmed it stored the pairing this handed it. */
   justPaired: Ref<boolean>;
   /** Hand the extension the API address and a fresh token, same-origin only. */
   sendPairing: (endpoint: string, token: string) => void;
 } => {
   const extensionHere = ref(false);
+  const extensionConfigured = ref(false);
   const justPaired = ref(false);
 
   const onMessage = (event: MessageEvent): void => {
     if (event.source !== window) return;
 
-    const type = (event.data as { type?: unknown } | null)?.type;
-    if (type === 'menu:extension-here') extensionHere.value = true;
-    if (type === 'menu:paired') justPaired.value = true;
+    const data = event.data as { type?: unknown; configured?: unknown } | null;
+    if (data?.type === 'menu:extension-here') {
+      extensionHere.value = true;
+      extensionConfigured.value = data.configured === true;
+    }
+    if (data?.type === 'menu:paired') {
+      justPaired.value = true;
+      extensionConfigured.value = true;
+    }
   };
 
   onMounted((): void => {
@@ -32,6 +41,7 @@ export const useExtensionBridge = (): {
 
   return {
     extensionHere,
+    extensionConfigured,
     justPaired,
     sendPairing: (endpoint: string, token: string): void => {
       window.postMessage({ type: 'menu:pair', endpoint, token }, window.location.origin);

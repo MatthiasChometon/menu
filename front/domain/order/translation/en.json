@@ -20,11 +20,8 @@
         "desc": "On the computer you keep open: it is what fills the basket.",
         "hint": "Once installed, this step ticks itself off."
       },
-      "pair": {
-        "title": "Pair this browser",
-        "desc": "One click, the extension configures itself.",
-        "action": "Pair this browser"
-      },
+      "pairing": "Configuring the extension…",
+      "retry": "Retry",
       "carrefour": {
         "title": "Sign in to Carrefour",
         "desc": "Open Carrefour and sign in if needed. The extension checks your session and ticks the step."

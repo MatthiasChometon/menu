@@ -1,9 +1,10 @@
 <script setup lang="ts">
-// The one screen that turns "auto basket" on: a three-step assistant that shows
-// only the next thing to do and ticks each step off on its own. Everything it
-// needs is already in the composables — this reorders it into a path.
-const { extensionHere, justPaired, sendPairing } = useExtensionBridge();
-const { devices, isPairing, freshToken, refresh, pair, unpair } = useGroceryDevices();
+// The one screen that turns "auto basket" on. Two steps, and only one of them
+// asks anything of the reader: install the extension, and sign in to Carrefour.
+// Pairing is plumbing — it happens on its own the moment the extension is seen,
+// with no button and no token ever shown.
+const { extensionHere, extensionConfigured, justPaired, sendPairing } = useExtensionBridge();
+const { devices, freshToken, refresh, pair, unpair } = useGroceryDevices();
 const config = useRuntimeConfig();
 const { t, locale } = useNuxtApp().$i18n;
 
@@ -17,13 +18,11 @@ const SHOP_URL = 'https://www.carrefour.fr/';
 
 const endpoint = computed((): string => `${config.public.apiBase}/graphql`);
 
-// Step one: the extension's content script announced itself on this page.
-const installed = computed((): boolean => extensionHere.value || devices.value.length > 0);
+// Step one is done when the extension holds a pairing — installed *and* wired to
+// the account. That is what actually lets it fill a basket.
+const extensionReady = computed((): boolean => extensionConfigured.value);
 
-// Step two: a browser is paired to the account.
-const paired = computed((): boolean => devices.value.length > 0);
-
-// Step three: the latest report says the shop is signed in.
+// Step three's signal, read from the newest report a paired browser sent.
 const latestReport = computed((): (typeof devices.value)[number] | undefined =>
   [...devices.value]
     .filter(
@@ -35,7 +34,7 @@ const latestReport = computed((): (typeof devices.value)[number] | undefined =>
         new Date(left.carrefourCheckedAt as string).getTime(),
     )[0],
 );
-const carrefourSignedIn = computed((): boolean => latestReport.value?.carrefourSignedIn === true);
+const carrefourReady = computed((): boolean => latestReport.value?.carrefourSignedIn === true);
 const carrefourCheckedAt = computed((): string | undefined =>
   latestReport.value?.carrefourCheckedAt == null
     ? undefined
@@ -45,13 +44,12 @@ const carrefourCheckedAt = computed((): string | undefined =>
       }),
 );
 
-const ready = computed((): boolean => installed.value && paired.value && carrefourSignedIn.value);
+const ready = computed((): boolean => extensionReady.value && carrefourReady.value);
 
 // Which step the eye should land on: the first one not yet done.
 const activeStep = computed((): number => {
-  if (!installed.value) return 1;
-  if (!paired.value) return 2;
-  if (!carrefourSignedIn.value) return 3;
+  if (!extensionReady.value) return 1;
+  if (!carrefourReady.value) return 2;
   return 0;
 });
 
@@ -60,14 +58,32 @@ const stateOf = (step: number, done: boolean): 'done' | 'active' | 'locked' => {
   return activeStep.value === step ? 'active' : 'locked';
 };
 
-const pairThis = async (): Promise<void> => {
+// Pair silently: create a device, hand its token to the extension through the
+// page. Never shows the token — the extension stores it and reports back.
+const pairingSent = ref(false);
+const configure = async (): Promise<void> => {
+  if (pairingSent.value) return;
+  pairingSent.value = true;
   await pair(t('order.device.defaultLabel'));
-  // The bridge hands the token straight to the extension: no popup, no paste.
   if (freshToken.value !== undefined) sendPairing(endpoint.value, freshToken.value);
 };
+// The moment the extension is seen without a pairing, configure it. If it says
+// it is already configured, nothing happens.
+watch(
+  [extensionHere, extensionConfigured],
+  ([here, configured]): void => {
+    if (here && !configured) void configure();
+  },
+  { immediate: true },
+);
+// A manual way out if the silent handshake was missed, kept quiet.
+const retry = (): void => {
+  pairingSent.value = false;
+  void configure();
+};
 
-// Kept fresh while the page is open: the extension reports as the reader sets up
-// on other tabs, and each step should tick over without a reload.
+// Kept fresh while the page is open: the extension reports as the reader signs in
+// on the Carrefour tab, and the step should tick over without a reload.
 const REFRESH_MS = 8000;
 let timer: ReturnType<typeof setInterval> | undefined;
 
@@ -89,24 +105,19 @@ onScopeDispose((): void => {
     <p class="mt-1 text-sm text-muted">{{ $t('order.setup.intro') }}</p>
 
     <ol class="mt-4 space-y-3">
-      <!-- ① Install -->
+      <!-- ① Install (and pair, silently) -->
       <li
         class="rounded-xl border p-3 transition-colors"
-        :class="
-          stateOf(1, installed) === 'active'
-            ? 'border-primary/40 bg-primary/5'
-            : 'border-default'
-        "
+        :class="stateOf(1, extensionReady) === 'active' ? 'border-primary/40 bg-primary/5' : 'border-default'"
       >
         <div class="flex items-start gap-3">
-          <OrderStepBadge :step="1" :state="stateOf(1, installed)" />
+          <OrderStepBadge :step="1" :state="stateOf(1, extensionReady)" />
           <div class="min-w-0 flex-1">
-            <p class="font-semibold" :class="stateOf(1, installed) === 'locked' && 'text-muted'">
-              {{ $t('order.setup.install.title') }}
-            </p>
+            <p class="font-semibold">{{ $t('order.setup.install.title') }}</p>
             <p class="text-sm text-muted">{{ $t('order.setup.install.desc') }}</p>
 
-            <div v-if="!installed" class="mt-3 flex flex-col gap-2 sm:flex-row">
+            <!-- Not installed yet: the store links. -->
+            <div v-if="!extensionHere && !extensionReady" class="mt-3 flex flex-col gap-2 sm:flex-row">
               <UButton
                 :to="CHROME_STORE_URL"
                 target="_blank"
@@ -131,42 +142,27 @@ onScopeDispose((): void => {
                 <span class="sr-only">{{ $t('accessibility.newWindow') }}</span>
               </UButton>
             </div>
-            <p v-if="!installed" class="mt-2 text-xs text-muted">{{ $t('order.setup.install.hint') }}</p>
-          </div>
-        </div>
-      </li>
-
-      <!-- ② Pair -->
-      <li
-        class="rounded-xl border p-3 transition-colors"
-        :class="
-          stateOf(2, paired) === 'active' ? 'border-primary/40 bg-primary/5' : 'border-default'
-        "
-      >
-        <div class="flex items-start gap-3">
-          <OrderStepBadge :step="2" :state="stateOf(2, paired)" />
-          <div class="min-w-0 flex-1">
-            <p class="font-semibold" :class="stateOf(2, paired) === 'locked' && 'text-muted'">
-              {{ $t('order.setup.pair.title') }}
+            <p v-if="!extensionHere && !extensionReady" class="mt-2 text-xs text-muted">
+              {{ $t('order.setup.install.hint') }}
             </p>
-            <p class="text-sm text-muted">{{ $t('order.setup.pair.desc') }}</p>
 
-            <UButton
-              v-if="stateOf(2, paired) === 'active'"
-              icon="i-lucide-plug-zap"
-              color="primary"
-              class="mt-3 font-semibold text-white"
-              :loading="isPairing"
-              @click="pairThis"
+            <!-- Installed, configuring itself. No button, no token. -->
+            <p
+              v-if="extensionHere && !extensionReady"
+              class="mt-2 flex items-center gap-2 text-sm text-muted"
             >
-              {{ $t('order.setup.pair.action') }}
-            </UButton>
-            <p v-if="justPaired" class="mt-2 text-xs text-success">
+              <UIcon name="i-lucide-loader-circle" class="size-4 animate-spin" />
+              {{ $t('order.setup.pairing') }}
+              <button type="button" class="text-xs underline" @click="retry">
+                {{ $t('order.setup.retry') }}
+              </button>
+            </p>
+            <p v-if="justPaired && extensionReady" class="mt-2 text-xs text-success">
               {{ $t('order.device.autoPaired') }}
             </p>
 
-            <!-- Once paired: the browsers, with a way to drop one. -->
-            <ul v-if="paired" class="mt-2 space-y-1">
+            <!-- Done: the paired browsers, with a way to drop a stray one. -->
+            <ul v-if="extensionReady && devices.length > 0" class="mt-2 space-y-1">
               <li
                 v-for="device in devices"
                 :key="device.id"
@@ -182,28 +178,21 @@ onScopeDispose((): void => {
         </div>
       </li>
 
-      <!-- ③ Carrefour -->
+      <!-- ② Carrefour -->
       <li
         class="rounded-xl border p-3 transition-colors"
-        :class="
-          stateOf(3, carrefourSignedIn) === 'active'
-            ? 'border-primary/40 bg-primary/5'
-            : 'border-default'
-        "
+        :class="stateOf(2, carrefourReady) === 'active' ? 'border-primary/40 bg-primary/5' : 'border-default'"
       >
         <div class="flex items-start gap-3">
-          <OrderStepBadge :step="3" :state="stateOf(3, carrefourSignedIn)" />
+          <OrderStepBadge :step="2" :state="stateOf(2, carrefourReady)" />
           <div class="min-w-0 flex-1">
-            <p
-              class="font-semibold"
-              :class="stateOf(3, carrefourSignedIn) === 'locked' && 'text-muted'"
-            >
+            <p class="font-semibold" :class="stateOf(2, carrefourReady) === 'locked' && 'text-muted'">
               {{ $t('order.setup.carrefour.title') }}
             </p>
             <p class="text-sm text-muted">{{ $t('order.setup.carrefour.desc') }}</p>
 
             <UButton
-              v-if="stateOf(3, carrefourSignedIn) === 'active'"
+              v-if="stateOf(2, carrefourReady) === 'active'"
               :to="SHOP_URL"
               target="_blank"
               rel="noopener noreferrer"
@@ -214,7 +203,7 @@ onScopeDispose((): void => {
               {{ $t('order.carrefour.open') }}
               <span class="sr-only">{{ $t('accessibility.newWindow') }}</span>
             </UButton>
-            <p v-if="carrefourSignedIn && carrefourCheckedAt !== undefined" class="mt-1 text-xs text-muted">
+            <p v-if="carrefourReady && carrefourCheckedAt !== undefined" class="mt-1 text-xs text-muted">
               {{ $t('order.carrefour.checkedAt') }} {{ carrefourCheckedAt }}
             </p>
           </div>

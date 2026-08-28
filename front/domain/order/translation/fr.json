@@ -20,11 +20,8 @@
         "desc": "Sur l'ordinateur que tu gardes allumé : c'est lui qui remplira le panier.",
         "hint": "Une fois installée, cette étape se coche toute seule."
       },
-      "pair": {
-        "title": "Appaire ce navigateur",
-        "desc": "Un clic, l'extension se configure toute seule.",
-        "action": "Appairer ce navigateur"
-      },
+      "pairing": "Configuration de l'extension…",
+      "retry": "Réessayer",
       "carrefour": {
         "title": "Connecte-toi à Carrefour",
         "desc": "Ouvre Carrefour et connecte-toi si besoin. L'extension vérifie ta session et coche l'étape."
