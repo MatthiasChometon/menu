@@ -47,10 +47,20 @@ const send = async (): Promise<void> => {
       {{ $t('order.noBrowser') }}
     </p>
 
+    <!-- No paired browser: send them to set one up rather than start a run that
+         can only wait forever. The fill button appears once one exists. -->
+    <NuxtLink
+      v-if="devicesLoaded && !hasBrowser"
+      :to="localePath('/courses-auto')"
+      class="mt-3 block w-full rounded-lg bg-primary px-4 py-2 text-center font-semibold text-inverted"
+    >
+      {{ $t('order.setupCta') }}
+    </NuxtLink>
     <button
+      v-else
       type="button"
       class="mt-3 w-full rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
-      :disabled="isQueueing || isRunning"
+      :disabled="isQueueing || isRunning || !devicesLoaded"
       @click="send"
     >
       {{ isQueueing || isRunning ? $t('order.working') : $t('order.action') }}

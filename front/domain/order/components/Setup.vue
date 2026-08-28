@@ -3,8 +3,7 @@
 // asks anything of the reader: install the extension, and sign in to Carrefour.
 // Pairing is plumbing — it happens on its own the moment the extension is seen,
 // with no button and no token ever shown.
-const { extensionHere, extensionConfigured, justPaired, sendPairing, armCarrefourReturn } =
-  useExtensionBridge();
+const { extensionHere, justPaired, sendPairing, armCarrefourReturn } = useExtensionBridge();
 const { devices, freshToken, refresh, pair, unpair } = useGroceryDevices();
 const config = useRuntimeConfig();
 const { t, locale } = useNuxtApp().$i18n;
@@ -22,9 +21,12 @@ const SHOP_URL = 'https://www.carrefour.fr/';
 
 const endpoint = computed((): string => `${config.public.apiBase}/graphql`);
 
-// Step one is done when the extension holds a pairing — installed *and* wired to
-// the account. That is what actually lets it fill a basket.
-const extensionReady = computed((): boolean => extensionConfigured.value);
+// Step one is done when the *account* holds a paired browser — the extension's
+// own stored token can outlive the device it named (removed, or from another
+// account), and only a live device on the account can actually fill a basket.
+// So this reads the account, not the extension's word for it.
+const devicesLoaded = ref(false);
+const extensionReady = computed((): boolean => devices.value.length > 0);
 
 // Step three's signal, read from the newest report a paired browser sent.
 const latestReport = computed((): (typeof devices.value)[number] | undefined =>
@@ -123,12 +125,20 @@ const configure = async (): Promise<void> => {
   await pair(t('order.device.defaultLabel'));
   if (freshToken.value !== undefined) sendPairing(endpoint.value, freshToken.value);
 };
-// The moment the extension is seen without a pairing, configure it. If it says
-// it is already configured, nothing happens.
+// Once the account has a paired browser, everything is in order — and the guard
+// resets, so a later removal can be paired afresh. While it has none and the
+// extension is here to receive a token, pair it: this covers a first install and
+// an extension left holding a token for a device that no longer exists.
 watch(
-  [extensionHere, extensionConfigured],
-  ([here, configured]): void => {
-    if (here && !configured) void configure();
+  [extensionHere, (): number => devices.value.length, devicesLoaded],
+  ([here, count, loaded]): void => {
+    if (count > 0) {
+      pairingSent.value = false;
+      return;
+    }
+    if (here && loaded) {
+      void configure();
+    }
   },
   { immediate: true },
 );
@@ -149,14 +159,17 @@ const openCarrefour = (): void => {
 const REFRESH_MS = 8000;
 let timer: ReturnType<typeof setInterval> | undefined;
 
-onMounted((): void => {
+onMounted(async (): Promise<void> => {
   try {
     confirmedHere.value = localStorage.getItem(CONFIRM_KEY) === '1';
   } catch {
     // Storage unavailable: fall back to the extension's report alone.
   }
 
-  void refresh();
+  // Wait for the first device list before letting the pairing watch decide it is
+  // empty — otherwise it would pair on the blank moment before the list arrives.
+  await refresh();
+  devicesLoaded.value = true;
   timer = setInterval((): void => {
     void refresh();
   }, REFRESH_MS);
