@@ -3,6 +3,11 @@
   "name": "Menu — courses Carrefour",
   "description": "Remplit le panier Carrefour à partir du menu de la semaine. Ne valide ni ne paie jamais une commande.",
   "version": "0.1.0",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
   "permissions": [
     "storage",
     "tabs",
@@ -18,7 +23,8 @@
   },
   "action": {
     "default_popup": "popup/index.html",
-    "default_title": "Menu — courses"
+    "default_title": "Menu — courses",
+    "default_icon": "icon.png"
   },
   "content_scripts": [
     {
