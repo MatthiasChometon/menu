@@ -38,7 +38,22 @@ const latestReport = computed((): (typeof devices.value)[number] | undefined =>
         new Date(left.carrefourCheckedAt as string).getTime(),
     )[0],
 );
-const carrefourReady = computed((): boolean => latestReport.value?.carrefourSignedIn === true);
+// Detecting a Carrefour session by reading its page is best-effort — a
+// Cloudflare wall or an icon-only account menu can hide it. So the reader can
+// vouch for it too: a confirmation kept on this browser, alongside the report.
+const CONFIRM_KEY = 'menu:carrefour-confirmed';
+const confirmedHere = ref(false);
+const confirmCarrefour = (): void => {
+  confirmedHere.value = true;
+  try {
+    localStorage.setItem(CONFIRM_KEY, '1');
+  } catch {
+    // A private window with storage blocked: the tick just will not persist.
+  }
+};
+const carrefourReady = computed(
+  (): boolean => latestReport.value?.carrefourSignedIn === true || confirmedHere.value,
+);
 const carrefourCheckedAt = computed((): string | undefined =>
   latestReport.value?.carrefourCheckedAt == null
     ? undefined
@@ -98,6 +113,12 @@ const REFRESH_MS = 8000;
 let timer: ReturnType<typeof setInterval> | undefined;
 
 onMounted((): void => {
+  try {
+    confirmedHere.value = localStorage.getItem(CONFIRM_KEY) === '1';
+  } catch {
+    // Storage unavailable: fall back to the extension's report alone.
+  }
+
   void refresh();
   timer = setInterval((): void => {
     void refresh();
@@ -221,6 +242,12 @@ onScopeDispose((): void => {
               {{ $t('order.carrefour.open') }}
               <span class="sr-only">{{ $t('accessibility.newWindow') }}</span>
             </UButton>
+            <p v-if="stateOf(2, carrefourReady) === 'active'" class="mt-2 text-xs text-muted">
+              {{ $t('order.carrefour.confirmHint') }}
+              <button type="button" class="underline" @click="confirmCarrefour">
+                {{ $t('order.carrefour.confirm') }}
+              </button>
+            </p>
             <p v-if="carrefourReady && carrefourCheckedAt !== undefined" class="mt-1 text-xs text-muted">
               {{ $t('order.carrefour.checkedAt') }} {{ carrefourCheckedAt }}
             </p>

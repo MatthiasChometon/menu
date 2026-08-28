@@ -65,7 +65,9 @@
       "connected": "Connecté à Carrefour",
       "disconnected": "Non connecté à Carrefour",
       "unknown": "État inconnu pour l'instant : ouvre Carrefour sur un navigateur appairé et il se met à jour tout seul.",
-      "checkedAt": "vu à"
+      "checkedAt": "vu à",
+      "confirmHint": "Déjà connecté sur Carrefour ?",
+      "confirm": "Confirme-le ici"
     },
     "install": {
       "title": "Installer l'extension",

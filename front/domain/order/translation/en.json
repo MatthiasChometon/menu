@@ -65,7 +65,9 @@
       "connected": "Signed in to Carrefour",
       "disconnected": "Not signed in to Carrefour",
       "unknown": "Not known yet: open Carrefour on a paired browser and it updates on its own.",
-      "checkedAt": "checked at"
+      "checkedAt": "checked at",
+      "confirmHint": "Already signed in to Carrefour?",
+      "confirm": "Confirm it here"
     },
     "install": {
       "title": "Install the extension",

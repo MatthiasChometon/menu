@@ -110,6 +110,11 @@ export default defineNuxtConfig({
           options: {
             cacheName: 'menu-images',
             expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 60 },
+            // Photographs live cross-origin on images.menu.mtxlab.xyz, which sends
+            // CORS headers. Cache only a real 200 — never an opaque (status 0)
+            // response, which the worker cannot hand back to a cors-mode <img>
+            // request without failing it as a network error.
+            cacheableResponse: { statuses: [200] },
           },
         },
       ],

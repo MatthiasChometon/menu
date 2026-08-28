@@ -9,6 +9,7 @@
 
     <BugReportButton />
     <BugReportDialog />
+    <ImprovementRequestButton />
     <ImprovementRequestDialog />
     <template #footer>
       <MenuBottomNav />
