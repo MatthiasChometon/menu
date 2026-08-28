@@ -64,23 +64,33 @@ export class CarrefourClient implements ShopClient {
   }
 
   private readSession(): Session {
-    const controls = [...document.querySelectorAll('a, button')];
+    // A Cloudflare "prove you are human" wall is not the shop: read nothing from
+    // it. It has no sign-in control either, so a weaker heuristic would take it
+    // for a signed-in page and act on it.
+    if (this.isChallenge()) {
+      return { signedIn: false, name: undefined };
+    }
+
     const greeting = document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/) ?? null;
-    const signInControl = controls.some((element): boolean =>
-      /me connecter|se connecter/i.test(element.textContent ?? ''),
-    );
-    const signOutControl = controls.some(
+    const accountControl = [...document.querySelectorAll('a, button')].some(
       (element): boolean =>
-        /d[ée]connexion|se d[ée]connecter/i.test(element.textContent ?? '') ||
-        /logout|deconnexion/i.test(element.getAttribute('href') ?? ''),
+        /d[ée]connexion|se d[ée]connecter|mon compte/i.test(element.textContent ?? '') ||
+        /logout|deconnexion|mon-compte|\/compte/i.test(element.getAttribute('href') ?? ''),
     );
 
-    return {
-      // A greeting or a sign-out control is proof of a session; absence of a
-      // sign-in control is the weaker fallback for a page that shows neither.
-      signedIn: greeting !== null || signOutControl || !signInControl,
-      name: greeting?.[1],
-    };
+    // Only a positive signal counts. Absence of a sign-in button is not proof —
+    // an interstitial or a half-loaded header has none either, and reading that
+    // as signed in fires a false report and a premature redirect.
+    return { signedIn: greeting !== null || accountControl, name: greeting?.[1] };
+  }
+
+  private isChallenge(): boolean {
+    return (
+      document.getElementById('challenge-form') !== null ||
+      /vous n['’]êtes pas un robot|checking if the site connection is secure|cloudflare/i.test(
+        document.title,
+      )
+    );
   }
 
   async cart(): Promise<Cart> {
