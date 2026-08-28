@@ -81,6 +81,23 @@ const runOnce = async (): Promise<void> => {
   }
 };
 
+// Reported by the content script whenever a Carrefour page is open. Forwarded to
+// the API so the order page can tell the reader whether the shop is signed in.
+const reportCarrefourSession = async (signedIn: boolean): Promise<void> => {
+  const { endpoint, deviceToken } = await settings();
+  if (endpoint === undefined || deviceToken === undefined) {
+    return;
+  }
+
+  await new MenuClient(endpoint, deviceToken).reportCarrefourSession(signedIn).catch((): void => {});
+};
+
+api.runtime.onMessage.addListener((message: { kind?: string; signedIn?: boolean }): void => {
+  if (message.kind === 'carrefour-session' && typeof message.signedIn === 'boolean') {
+    void reportCarrefourSession(message.signedIn);
+  }
+});
+
 api.alarms.onAlarm.addListener((alarm): void => {
   if (alarm.name === POLL_ALARM) {
     void runOnce();

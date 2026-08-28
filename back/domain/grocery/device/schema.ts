@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { user } from '../../user/schema';
 
 // A browser that has been paired with an account and may run its orders. The
@@ -15,4 +15,8 @@ export const groceryDevice = pgTable('grocery_device', {
   tokenHash: text('token_hash').notNull().unique(),
   pairedAt: timestamp('paired_at').notNull().defaultNow(),
   lastSeenAt: timestamp('last_seen_at'),
+  // Whether the extension last found this browser signed in to Carrefour, and
+  // when it looked — so the order page can show the state without opening the shop.
+  carrefourSignedIn: boolean('carrefour_signed_in'),
+  carrefourCheckedAt: timestamp('carrefour_checked_at'),
 });

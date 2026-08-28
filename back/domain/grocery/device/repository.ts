@@ -52,12 +52,21 @@ export class GroceryDeviceRepository {
       .where(eq(groceryDevice.id, deviceId));
   }
 
+  async reportCarrefourSession(deviceId: string, signedIn: boolean): Promise<void> {
+    await this.database
+      .update(groceryDevice)
+      .set({ carrefourSignedIn: signedIn, carrefourCheckedAt: new Date() })
+      .where(eq(groceryDevice.id, deviceId));
+  }
+
   private toDevice(record: typeof groceryDevice.$inferSelect): GroceryDevice {
     return {
       id: record.id,
       label: record.label,
       pairedAt: record.pairedAt,
       lastSeenAt: record.lastSeenAt ?? undefined,
+      carrefourSignedIn: record.carrefourSignedIn ?? undefined,
+      carrefourCheckedAt: record.carrefourCheckedAt ?? undefined,
     };
   }
 }

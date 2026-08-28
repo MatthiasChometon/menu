@@ -41,7 +41,11 @@
     "carrefour": {
       "title": "Compte Carrefour",
       "lead": "La connexion se fait chez Carrefour, dans sa propre fenêtre. Aucun mot de passe ne passe par ce site.",
-      "connect": "Connecter mon compte Carrefour"
+      "connect": "Connecter mon compte Carrefour",
+      "connected": "Connecté à Carrefour",
+      "disconnected": "Non connecté à Carrefour",
+      "unknown": "État inconnu pour l'instant : ouvre Carrefour sur un navigateur appairé et il se met à jour tout seul.",
+      "checkedAt": "vu à"
     },
     "install": {
       "title": "Installer l'extension",

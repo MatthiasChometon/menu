@@ -3,9 +3,12 @@ import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../../auth/currentUser/current-user';
 import { AuthGuard } from '../../auth/currentUser/guard';
 import { User } from '../../user/model';
+import { CurrentDevice } from './current-device';
+import { GroceryDeviceGuard } from './guard';
 import { GroceryDevice, PairedGroceryDevice } from './model';
 import { GroceryDeviceRepository } from './repository';
 import { DeviceTokenService } from './token.service';
+import { AuthenticatedDevice } from './type';
 
 @Resolver(() => GroceryDevice)
 export class GroceryDeviceResolver {
@@ -43,5 +46,20 @@ export class GroceryDeviceResolver {
     @Args('deviceId', { type: () => ID }) deviceId: string,
   ): Promise<boolean> {
     return this.devices.unpair(user.id, deviceId);
+  }
+
+  @Mutation(() => Boolean, {
+    description:
+      'The extension reports whether the browser it runs in is signed in to Carrefour, so the order page can show it. Authenticated by the pairing token, not a session.',
+  })
+  @UseGuards(GroceryDeviceGuard)
+  async reportCarrefourSession(
+    @CurrentDevice() device: AuthenticatedDevice | undefined,
+    @Args('signedIn') signedIn: boolean,
+  ): Promise<boolean> {
+    if (device === undefined) return false;
+
+    await this.devices.reportCarrefourSession(device.id, signedIn);
+    return true;
   }
 }

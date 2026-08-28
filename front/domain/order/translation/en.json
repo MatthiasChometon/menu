@@ -41,7 +41,11 @@
     "carrefour": {
       "title": "Carrefour account",
       "lead": "Signing in happens at Carrefour, in its own window. No password goes through this site.",
-      "connect": "Connect my Carrefour account"
+      "connect": "Connect my Carrefour account",
+      "connected": "Signed in to Carrefour",
+      "disconnected": "Not signed in to Carrefour",
+      "unknown": "Not known yet: open Carrefour on a paired browser and it updates on its own.",
+      "checkedAt": "checked at"
     },
     "install": {
       "title": "Install the extension",

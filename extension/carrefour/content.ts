@@ -26,6 +26,16 @@ const run = async (lines: PlannedLine[], windows: SlotWindow[]): Promise<FillRes
   });
 };
 
+// Whenever a Carrefour page is open, tell the background whether it is signed
+// in, so the order page can show the state without the reader opening the shop.
+void new CarrefourClient()
+  .session()
+  .then(
+    (session): Promise<unknown> =>
+      api.runtime.sendMessage({ kind: 'carrefour-session', signedIn: session.signedIn }),
+  )
+  .catch((): void => {});
+
 api.runtime.onMessage.addListener(
   (request: FillRequest, _sender, respond: (result: FillResult) => void): boolean => {
     if (request.kind !== 'fill') {

@@ -145,6 +145,12 @@ type GroceryDevice {
   """Last time it asked for work."""
   lastSeenAt: DateTime
   pairedAt: DateTime!
+
+  """Whether the extension last saw this browser signed in to Carrefour."""
+  carrefourSignedIn: Boolean
+
+  """When the extension last checked the Carrefour session."""
+  carrefourCheckedAt: DateTime
 }
 
 """One request to fill the basket of a week."""
@@ -423,6 +429,11 @@ type Mutation {
 
   """Reports a problem with the site."""
   reportBug(input: ReportBugInput!): BugReport!
+
+  """
+  The extension reports whether the browser it runs in is signed in to Carrefour, so the order page can show it. Authenticated by the pairing token, not a session.
+  """
+  reportCarrefourSession(signedIn: Boolean!): Boolean!
 
   """Reports progress on a run being worked on."""
   reportGroceryJobEvent(input: GroceryJobEventInput!, jobId: ID!): GroceryJobEvent!

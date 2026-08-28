@@ -47,6 +47,12 @@ const FINISH = `
   }
 `;
 
+const CARREFOUR_SESSION = `
+  mutation ($signedIn: Boolean!) {
+    reportCarrefourSession(signedIn: $signedIn)
+  }
+`;
+
 export class MenuClient {
   constructor(
     private readonly endpoint: string,
@@ -65,6 +71,10 @@ export class MenuClient {
 
   async finish(jobId: string, report: JobOutcome): Promise<void> {
     await this.send(FINISH, { jobId, input: report });
+  }
+
+  async reportCarrefourSession(signedIn: boolean): Promise<void> {
+    await this.send(CARREFOUR_SESSION, { signedIn });
   }
 
   private async send<T>(query: string, variables?: object): Promise<T | undefined> {

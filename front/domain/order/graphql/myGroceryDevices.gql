@@ -4,5 +4,7 @@ query myGroceryDevices {
     label
     pairedAt
     lastSeenAt
+    carrefourSignedIn
+    carrefourCheckedAt
   }
 }
