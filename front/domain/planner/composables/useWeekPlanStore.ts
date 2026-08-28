@@ -82,6 +82,13 @@ export const useWeekPlanStore = (): {
     save: async (plan: PlannedWeek): Promise<string | undefined> => {
       const result = await GqlSaveWeekPlan({ input: toInput(plan) });
 
+      // The week the whole app shows (Semaine, Courses, Cuisine) is cached under
+      // this key by menu/useSelectedWeek. It is keyed by nothing that changes on
+      // a save, so without clearing it the reader lands back on the empty week
+      // they saw before composing — the menu looks unsaved when it is not.
+      // Cleared, the next page that reads it refetches and the week appears.
+      clearNuxtData('menu:shown');
+
       return result.saveWeekPlan.updatedAt;
     },
   };

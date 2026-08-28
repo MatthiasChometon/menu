@@ -31,6 +31,18 @@ const {
 } = usePlanner();
 const { dayOrder } = useMenu();
 const { week: plannerWeek, labelOf } = usePlannerWeek();
+// The week the rest of the app shows is its own state; on a successful save we
+// point it at the week just composed and go there, so the reader sees their
+// menu instead of landing on whatever week the home would have opened on.
+const { selectedWeek } = useSelectedWeek();
+
+const saveAndView = async (): Promise<void> => {
+  await save();
+  if (saveFailed.value) return;
+
+  selectedWeek.value = plannerWeek.value;
+  await navigateTo(localePath('/'));
+};
 
 // Long enough to be noticed while looking down at a phone, short enough not to
 // hide the button's real purpose.
@@ -377,7 +389,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
           class="ml-auto font-semibold text-white"
           :loading="isSaving"
           :disabled="!canSave && !justSaved"
-          @click="save"
+          @click="saveAndView"
         >
           <span :key="String(justSaved)" class="pop">
             {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
