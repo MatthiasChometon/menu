@@ -1,6 +1,6 @@
 {
   "legal": {
-    "updated": "Mise à jour du 20 août 2026",
+    "updated": "Mise à jour du 28 août 2026",
     "contactLabel": "Écrire à",
     "footer": {
       "notice": "Mentions légales",
@@ -71,6 +71,16 @@
           "title": "Ce qui ne quitte jamais votre appareil",
           "body": [
             "Les cases cochées de la liste de courses, les plats marqués cuisinés et les repas marqués mangés restent dans la mémoire de votre navigateur. Ils ne sont jamais envoyés au serveur, et vider les données du site les efface définitivement."
+          ]
+        },
+        {
+          "title": "L'extension de courses et Carrefour",
+          "body": [
+            "Le remplissage automatique du panier Carrefour passe par une extension de navigateur que vous installez vous-même. Elle est facultative : tout le reste du site fonctionne sans elle.",
+            "Si vous l'utilisez, le serveur conserve la liste de vos navigateurs appairés — un nom, un jeton d'appairage, la date de dernière activité —, l'état de votre connexion à Carrefour — connecté ou non, et l'heure du constat — et les demandes de remplissage en attente, c'est-à-dire les plats et les quantités à mettre au panier.",
+            "Sur votre appareil, l'extension retient seulement l'adresse du service et le jeton d'appairage, pour savoir à quel compte se rattacher. Aucun mot de passe n'y est stocké.",
+            "Vos identifiants Carrefour ne passent jamais par ce site ni par l'extension : vous vous connectez directement sur carrefour.fr. L'extension agit dans votre propre session, ouverte par vous, à la seule fin de lire si vous êtes connecté et de remplir votre panier à partir de votre menu. Elle ne valide ni ne paie jamais une commande : vous vérifiez et commandez vous-même.",
+            "Carrefour est un tiers indépendant : ce qu'il fait de vos données relève de sa propre politique de confidentialité. Ce site n'est pas affilié à Carrefour."
           ]
         },
         {
@@ -146,6 +156,15 @@
           "body": [
             "Vous répondez de la confidentialité de votre mot de passe et des actions menées depuis votre compte. Prévenez-nous si vous pensez qu'il a été utilisé sans votre accord.",
             "Les réponses que vous donnez doivent être sincères : un profil inexact produit des quantités inexactes."
+          ]
+        },
+        {
+          "title": "Le remplissage du panier Carrefour",
+          "body": [
+            "Le site peut, au moyen d'une extension que vous installez, remplir votre panier Carrefour à partir de votre menu. Cette fonction agit dans votre propre compte Carrefour, auquel vous vous connectez vous-même.",
+            "Elle ne valide ni ne paie jamais une commande. Le contenu du panier, les quantités, les produits substitués et le créneau de livraison restent à vérifier et à confirmer par vous avant tout paiement.",
+            "Elle est fournie sans garantie de résultat : Carrefour peut modifier son site, un produit peut manquer ou être remplacé par un autre, un contrôle anti-robot peut l'interrompre. Vérifiez toujours le panier avant de commander.",
+            "Ce site n'est pas affilié à Carrefour ni approuvé par lui. L'usage du site de Carrefour reste soumis aux conditions de Carrefour, qu'il vous appartient de respecter."
           ]
         },
         {

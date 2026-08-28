@@ -1,6 +1,6 @@
 {
   "legal": {
-    "updated": "Updated 20 August 2026",
+    "updated": "Updated 28 August 2026",
     "contactLabel": "Write to",
     "footer": {
       "notice": "Legal notice",
@@ -71,6 +71,16 @@
           "title": "What never leaves your device",
           "body": [
             "The ticked boxes on the shopping list, the dishes marked cooked and the meals marked eaten stay in your browser's storage. They are never sent to the server, and clearing the site's data erases them for good."
+          ]
+        },
+        {
+          "title": "The shopping extension and Carrefour",
+          "body": [
+            "Filling the Carrefour basket automatically goes through a browser extension you install yourself. It is optional: everything else on the site works without it.",
+            "If you use it, the server keeps the list of your paired browsers — a name, a pairing token, the date last seen —, the state of your Carrefour sign-in — signed in or not, and the time it was checked — and the pending fill requests, that is the dishes and quantities to put in the basket.",
+            "On your device, the extension only holds the service address and the pairing token, so it knows which account to attach to. No password is stored in it.",
+            "Your Carrefour credentials never pass through this site or the extension: you sign in directly on carrefour.fr. The extension acts within your own session, opened by you, only to read whether you are signed in and to fill your basket from your menu. It never confirms or pays for an order: you check and order yourself.",
+            "Carrefour is an independent third party: what it does with your data is governed by its own privacy policy. This site is not affiliated with Carrefour."
           ]
         },
         {
@@ -146,6 +156,15 @@
           "body": [
             "You are responsible for keeping your password to yourself and for what is done from your account. Tell us if you think it has been used without your agreement.",
             "The answers you give should be truthful: an inaccurate profile produces inaccurate quantities."
+          ]
+        },
+        {
+          "title": "Filling the Carrefour basket",
+          "body": [
+            "Through an extension you install, the site can fill your Carrefour basket from your menu. This feature acts within your own Carrefour account, which you sign in to yourself.",
+            "It never confirms or pays for an order. The basket's contents, the quantities, any substituted products and the delivery slot are yours to check and confirm before any payment.",
+            "It comes with no guarantee of result: Carrefour may change its site, a product may be missing or replaced by another, an anti-bot check may interrupt it. Always check the basket before ordering.",
+            "This site is not affiliated with Carrefour nor endorsed by it. Using Carrefour's site remains subject to Carrefour's own terms, which it is up to you to respect."
           ]
         },
         {
