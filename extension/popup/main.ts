@@ -1,4 +1,9 @@
 import { api } from '../browser';
+
+// The one API this extension talks to. Filled in for the reader, so pairing is
+// pasting a token at most — never typing a URL nobody has memorised.
+const DEFAULT_ENDPOINT = 'https://api.menu.mtxlab.xyz/graphql';
+
 const field = (id: string): HTMLInputElement | null =>
   document.querySelector<HTMLInputElement>(`#${id}`);
 
@@ -7,8 +12,8 @@ const statusLine = document.querySelector<HTMLParagraphElement>('#status');
 const load = async (): Promise<void> => {
   const saved = await api.storage.local.get(['endpoint', 'deviceToken']);
   const endpoint = field('endpoint');
-  if (endpoint !== null && typeof saved.endpoint === 'string') {
-    endpoint.value = saved.endpoint;
+  if (endpoint !== null) {
+    endpoint.value = typeof saved.endpoint === 'string' ? saved.endpoint : DEFAULT_ENDPOINT;
   }
 
   // The token is never read back into the form: it is shown once, at pairing.

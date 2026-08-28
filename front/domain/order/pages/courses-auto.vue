@@ -11,6 +11,7 @@ useHead({ title: t('order.title') });
     <OrderPushToggle />
     <OrderSlotWindows />
     <OrderThreshold />
+    <OrderExtensionInstall />
     <OrderDeviceList />
   </main>
 </template>

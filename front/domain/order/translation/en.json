@@ -34,12 +34,22 @@
       "empty": "No paired browser yet.",
       "lastSeen": "Last seen",
       "never": "never",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "extensionHere": "Extension detected on this browser: pairing happens on its own, nothing to paste.",
+      "autoPaired": "This browser is paired. Nothing to paste into the extension."
     },
     "carrefour": {
       "title": "Carrefour account",
       "lead": "Signing in happens at Carrefour, in its own window. No password goes through this site.",
       "connect": "Connect my Carrefour account"
+    },
+    "install": {
+      "title": "Install the extension",
+      "lead": "The basket is filled by a small extension, installed once on the browser you keep open. Then pair that browser below.",
+      "chrome": "Install on Chrome",
+      "firefox": "Install on Firefox",
+      "edgeNote": "On Edge, use the Chrome link — it is the same engine underneath.",
+      "thenPair": "Once installed, paste the API address and the pairing token generated below into the extension."
     },
     "cost": {
       "title": "What it costs",

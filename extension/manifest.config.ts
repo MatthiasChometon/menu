@@ -23,6 +23,13 @@ const base = {
       js: ['carrefour/content.js'],
       run_at: 'document_idle',
     },
+    {
+      // The bridge that lets the menu site pair this browser in one click,
+      // instead of the reader copying a token into the popup.
+      matches: ['https://menu.mtxlab.xyz/*'],
+      js: ['menu/bridge.js'],
+      run_at: 'document_idle',
+    },
   ],
 };
 

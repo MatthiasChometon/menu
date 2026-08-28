@@ -34,12 +34,22 @@
       "empty": "Aucun navigateur appairé pour l'instant.",
       "lastSeen": "Vu pour la dernière fois",
       "never": "jamais",
-      "dismiss": "Fermer"
+      "dismiss": "Fermer",
+      "extensionHere": "Extension détectée sur ce navigateur : l'appairage se fait tout seul, rien à coller.",
+      "autoPaired": "Ce navigateur est appairé. Rien à coller dans l'extension."
     },
     "carrefour": {
       "title": "Compte Carrefour",
       "lead": "La connexion se fait chez Carrefour, dans sa propre fenêtre. Aucun mot de passe ne passe par ce site.",
       "connect": "Connecter mon compte Carrefour"
+    },
+    "install": {
+      "title": "Installer l'extension",
+      "lead": "Le panier est rempli par une petite extension, à installer une fois sur le navigateur qui restera ouvert. Ensuite, appaire ce navigateur plus bas.",
+      "chrome": "Installer sur Chrome",
+      "firefox": "Installer sur Firefox",
+      "edgeNote": "Sur Edge, utilise le lien Chrome : c'est le même moteur en dessous.",
+      "thenPair": "Une fois installée, colle dans l'extension l'adresse de l'API et le jeton d'appairage généré ci-dessous."
     },
     "cost": {
       "title": "Ce que ça coûte",

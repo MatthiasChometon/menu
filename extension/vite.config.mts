@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
         input: {
           'background/worker': resolve(import.meta.dirname, 'background/worker.ts'),
           'carrefour/content': resolve(import.meta.dirname, 'carrefour/content.ts'),
+          'menu/bridge': resolve(import.meta.dirname, 'menu/bridge.ts'),
           popup: resolve(import.meta.dirname, 'popup/index.html'),
         },
         output: {
