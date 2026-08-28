@@ -9,13 +9,13 @@ const base = {
   description:
     'Remplit le panier Carrefour à partir du menu de la semaine. Ne valide ni ne paie jamais une commande.',
   version: '0.1.0',
-  icons: { '16': 'icon.png', '48': 'icon.png', '128': 'icon.png' },
+  icons: { '16': 'icon-16.png', '48': 'icon-48.png', '128': 'icon-128.png' },
   permissions: ['storage', 'tabs', 'notifications', 'alarms'],
   host_permissions: ['https://www.carrefour.fr/*'],
   action: {
     default_popup: 'popup/index.html',
     default_title: 'Menu — courses',
-    default_icon: 'icon.png',
+    default_icon: { '16': 'icon-16.png', '48': 'icon-48.png', '128': 'icon-128.png' },
   },
   content_scripts: [
     {

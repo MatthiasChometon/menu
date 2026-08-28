@@ -22,8 +22,15 @@ const isPair = (data: unknown): data is PairMessage => {
   );
 };
 
+// Announce presence, and whether a pairing is already stored: the page pairs
+// this browser silently on first install and never does it a second time.
 const announce = (): void => {
-  window.postMessage({ type: 'menu:extension-here' }, window.location.origin);
+  void api.storage.local.get('deviceToken').then((stored: { deviceToken?: unknown }): void => {
+    window.postMessage(
+      { type: 'menu:extension-here', configured: typeof stored.deviceToken === 'string' },
+      window.location.origin,
+    );
+  });
 };
 
 window.addEventListener('message', (event: MessageEvent): void => {
@@ -42,6 +49,8 @@ window.addEventListener('message', (event: MessageEvent): void => {
     .set({ endpoint: event.data.endpoint, deviceToken: event.data.token })
     .then((): void => {
       window.postMessage({ type: 'menu:paired' }, window.location.origin);
+      // Re-announce as configured, so the page settles on "done" with no reload.
+      announce();
     });
 });
 
