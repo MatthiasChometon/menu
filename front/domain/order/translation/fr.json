@@ -11,6 +11,26 @@
     "waitingHint": "Ouvre Chrome sur un poste appairé et le remplissage démarre tout seul.",
     "linesDone": "articles mis au panier",
     "needsYou": "À regarder",
+    "settings": "Réglages",
+    "setup": {
+      "title": "Mise en route",
+      "intro": "Ton panier se remplit tout seul depuis ton menu. Trois étapes une fois, puis c'est automatique.",
+      "install": {
+        "title": "Installe l'extension",
+        "desc": "Sur l'ordinateur que tu gardes allumé : c'est lui qui remplira le panier.",
+        "hint": "Une fois installée, cette étape se coche toute seule."
+      },
+      "pair": {
+        "title": "Appaire ce navigateur",
+        "desc": "Un clic, l'extension se configure toute seule.",
+        "action": "Appairer ce navigateur"
+      },
+      "carrefour": {
+        "title": "Connecte-toi à Carrefour",
+        "desc": "Ouvre Carrefour et connecte-toi si besoin. L'extension vérifie ta session et coche l'étape."
+      },
+      "ready": "Tout est prêt ! Compose ta semaine, puis « Remplir mon panier » depuis Courses."
+    },
     "status": {
       "PENDING": "En attente d'un navigateur",
       "RUNNING": "Remplissage en cours",

@@ -11,6 +11,26 @@
     "waitingHint": "Open Chrome on a paired machine and the run starts by itself.",
     "linesDone": "items in the basket",
     "needsYou": "Worth a look",
+    "settings": "Settings",
+    "setup": {
+      "title": "Getting started",
+      "intro": "Your basket fills itself from your menu. Three steps once, then it is automatic.",
+      "install": {
+        "title": "Install the extension",
+        "desc": "On the computer you keep open: it is what fills the basket.",
+        "hint": "Once installed, this step ticks itself off."
+      },
+      "pair": {
+        "title": "Pair this browser",
+        "desc": "One click, the extension configures itself.",
+        "action": "Pair this browser"
+      },
+      "carrefour": {
+        "title": "Sign in to Carrefour",
+        "desc": "Open Carrefour and sign in if needed. The extension checks your session and ticks the step."
+      },
+      "ready": "All set! Compose your week, then “Fill my basket” from Shopping."
+    },
     "status": {
       "PENDING": "Waiting for a browser",
       "RUNNING": "Filling the basket",
