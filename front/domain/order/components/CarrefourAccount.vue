@@ -1,11 +1,14 @@
 <script setup lang="ts">
-// Carrefour's own sign-in page (Carrefour Connect / ForgeRock IAM), in its own
-// tab, on its own domain. This site never shows a field for those credentials.
+// The shop itself, not the IAM sign-in page: opening it signs the reader in when
+// they are not (the shop shows its own "Se connecter"), and does nothing jarring
+// when they already are — where the sign-in URL would ask "log out and switch
+// account?". It is also the only page the extension checks, so opening it is what
+// refreshes the state below.
 //
-// The app cannot read the Carrefour session itself — it is on another domain —
-// so a paired browser's extension reports it, and the state below is the last
-// thing it saw. It refreshes on its own while this page is open.
-const SIGN_IN_URL = 'https://moncompte.carrefour.fr/iam/XUI/#login/';
+// The app cannot read the Carrefour session itself — it is on another domain — so
+// a paired browser's extension reports it, and the state below is the last thing
+// it saw. It refreshes on its own while this page is open.
+const SHOP_URL = 'https://www.carrefour.fr/';
 
 const { devices, refresh } = useGroceryDevices();
 const { locale } = useNuxtApp().$i18n;
@@ -83,12 +86,12 @@ onScopeDispose((): void => {
     <!-- Offered when the shop is not signed in, or when nobody has looked yet. -->
     <a
       v-if="!signedIn"
-      :href="SIGN_IN_URL"
+      :href="SHOP_URL"
       target="_blank"
       rel="noopener noreferrer"
       class="mt-3 block w-full rounded-lg border border-default px-4 py-2 text-center font-semibold transition-colors hover:bg-elevated/50"
     >
-      {{ $t('order.carrefour.connect') }}
+      {{ $t('order.carrefour.open') }}
       <span class="sr-only">{{ $t('accessibility.newWindow') }}</span>
     </a>
   </section>
