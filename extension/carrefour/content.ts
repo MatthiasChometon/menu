@@ -2,7 +2,13 @@ import { BasketFiller } from '../engine/fill';
 import { SlotWindow } from '../engine/slot';
 import { FillResult, PlannedLine, ReportedEvent } from '../engine/type';
 import { CarrefourClient } from './client';
-import { api } from '../browser';
+
+// The extension namespace, inlined rather than imported from ../browser: a
+// content script cannot pull in a shared chunk — Chrome will not inject an
+// ES-module content script — so its one dependency has to live in the file.
+// See ../browser for why `browser` is preferred over `chrome`.
+const api: typeof chrome =
+  (globalThis as unknown as { browser?: typeof chrome }).browser ?? chrome;
 
 type FillRequest = {
   kind: 'fill';

@@ -1,4 +1,9 @@
-import { api } from '../browser';
+// The extension namespace, inlined rather than imported from ../browser: a
+// content script cannot pull in a shared chunk — Chrome will not inject an
+// ES-module content script — so its one dependency has to live in the file.
+// See ../browser for why `browser` is preferred over `chrome`.
+const api: typeof chrome =
+  (globalThis as unknown as { browser?: typeof chrome }).browser ?? chrome;
 
 // Runs inside the menu site's page. When the site hands over pairing details —
 // the reader having clicked "pair this browser" there — it saves them, so
