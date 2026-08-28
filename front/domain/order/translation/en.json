@@ -49,7 +49,7 @@
       "chrome": "Install on Chrome",
       "firefox": "Install on Firefox",
       "edgeNote": "On Edge, use the Chrome link — it is the same engine underneath.",
-      "thenPair": "Once installed, paste the API address and the pairing token generated below into the extension."
+      "thenPair": "Once installed, come back here and click “Pair a browser” below: the extension configures itself, nothing to paste."
     },
     "cost": {
       "title": "What it costs",

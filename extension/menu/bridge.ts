@@ -17,8 +17,21 @@ const isPair = (data: unknown): data is PairMessage => {
   );
 };
 
+const announce = (): void => {
+  window.postMessage({ type: 'menu:extension-here' }, window.location.origin);
+};
+
 window.addEventListener('message', (event: MessageEvent): void => {
-  if (event.source !== window || !isPair(event.data)) return;
+  if (event.source !== window) return;
+
+  // The page asks whether an extension is here — answered so detection never
+  // depends on which loaded first, the content script or the page's listener.
+  if ((event.data as { type?: unknown } | null)?.type === 'menu:where-is-extension') {
+    announce();
+    return;
+  }
+
+  if (!isPair(event.data)) return;
 
   void api.storage.local
     .set({ endpoint: event.data.endpoint, deviceToken: event.data.token })
@@ -27,6 +40,5 @@ window.addEventListener('message', (event: MessageEvent): void => {
     });
 });
 
-// Announce that a paired-capable browser is right here, so the page can offer the
-// one-click pairing instead of the copy-paste fallback.
-window.postMessage({ type: 'menu:extension-here' }, window.location.origin);
+// Also announce on load, for a page that is already listening.
+announce();

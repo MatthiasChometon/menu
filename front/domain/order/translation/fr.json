@@ -49,7 +49,7 @@
       "chrome": "Installer sur Chrome",
       "firefox": "Installer sur Firefox",
       "edgeNote": "Sur Edge, utilise le lien Chrome : c'est le même moteur en dessous.",
-      "thenPair": "Une fois installée, colle dans l'extension l'adresse de l'API et le jeton d'appairage généré ci-dessous."
+      "thenPair": "Une fois installée, reviens ici et clique « Appairer un navigateur » plus bas : l'extension se configure toute seule, rien à coller."
     },
     "cost": {
       "title": "Ce que ça coûte",

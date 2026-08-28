@@ -22,7 +22,12 @@ export const useExtensionBridge = (): {
     if (type === 'menu:paired') justPaired.value = true;
   };
 
-  onMounted((): void => window.addEventListener('message', onMessage));
+  onMounted((): void => {
+    window.addEventListener('message', onMessage);
+    // Ask, rather than only wait: the extension may have announced itself before
+    // this page was listening, so a question guarantees an answer if it is here.
+    window.postMessage({ type: 'menu:where-is-extension' }, window.location.origin);
+  });
   onScopeDispose((): void => window.removeEventListener('message', onMessage));
 
   return {
