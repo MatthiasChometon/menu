@@ -38,6 +38,33 @@ const fill = async (
   windows: SlotWindow[],
 ): Promise<FillResult> => api.tabs.sendMessage(tabId, { kind: 'fill', lines, windows });
 
+// One notification at the end of a run, worded for what actually happened — a
+// ready basket, an expired Carrefour session to renew, or a plain failure. The
+// blocked case is the one that matters: it is how the reader learns a run did
+// nothing because they were signed out, without watching the tab.
+const notify = async (
+  outcome: FillResult['outcome'],
+  amount = 0,
+  missing = 0,
+): Promise<void> => {
+  const notices: Record<FillResult['outcome'], { title: string; message: string }> = {
+    SUCCEEDED: {
+      title: 'Panier prêt',
+      message: `${amount.toFixed(2)} € · ${missing} manquant(s). À toi de vérifier et de payer.`,
+    },
+    BLOCKED: {
+      title: 'Connexion Carrefour expirée',
+      message: 'Reconnecte-toi à Carrefour, puis relance le remplissage.',
+    },
+    FAILED: {
+      title: 'Remplissage interrompu',
+      message: 'Quelque chose a coincé. Réessaie dans un moment.',
+    },
+  };
+
+  await api.notifications.create({ type: 'basic', iconUrl: 'icon-128.png', ...notices[outcome] });
+};
+
 const runOnce = async (): Promise<void> => {
   const { endpoint, deviceToken } = await settings();
   if (endpoint === undefined || deviceToken === undefined) {
@@ -55,6 +82,7 @@ const runOnce = async (): Promise<void> => {
   const tab = await shopTab();
   if (tab.id === undefined) {
     await client.finish(job.id, { outcome: 'FAILED' });
+    await notify('FAILED');
     return;
   }
 
@@ -69,14 +97,10 @@ const runOnce = async (): Promise<void> => {
       missingFoodIds: result.missing,
       observations: result.sightings,
     });
-    await api.notifications.create({
-      type: 'basic',
-      iconUrl: 'icon.png',
-      title: 'Panier prêt',
-      message: `${result.productsAmount.toFixed(2)} € · ${result.missing.length} manquant(s). À toi de vérifier et de payer.`,
-    });
+    await notify(result.outcome, result.productsAmount, result.missing.length);
   } catch (error: unknown) {
     await client.finish(job.id, { outcome: 'FAILED' });
+    await notify('FAILED');
     console.error('[menu] run failed', error);
   }
 };
