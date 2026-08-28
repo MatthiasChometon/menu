@@ -22,6 +22,7 @@
       },
       "pairing": "Configuring the extension…",
       "retry": "Retry",
+      "connected": "Carrefour is connected 🎉",
       "carrefour": {
         "title": "Sign in to Carrefour",
         "desc": "Open Carrefour and sign in if needed. The extension checks your session and ticks the step."

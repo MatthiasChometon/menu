@@ -22,6 +22,7 @@
       },
       "pairing": "Configuration de l'extension…",
       "retry": "Réessayer",
+      "connected": "Carrefour est branché 🎉",
       "carrefour": {
         "title": "Connecte-toi à Carrefour",
         "desc": "Ouvre Carrefour et connecte-toi si besoin. L'extension vérifie ta session et coche l'étape."

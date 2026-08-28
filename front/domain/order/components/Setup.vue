@@ -3,10 +3,14 @@
 // asks anything of the reader: install the extension, and sign in to Carrefour.
 // Pairing is plumbing — it happens on its own the moment the extension is seen,
 // with no button and no token ever shown.
-const { extensionHere, extensionConfigured, justPaired, sendPairing } = useExtensionBridge();
+const { extensionHere, extensionConfigured, justPaired, sendPairing, armCarrefourReturn } =
+  useExtensionBridge();
 const { devices, freshToken, refresh, pair, unpair } = useGroceryDevices();
 const config = useRuntimeConfig();
 const { t, locale } = useNuxtApp().$i18n;
+const route = useRoute();
+const router = useRouter();
+const toast = useToast();
 
 // Store pages, placeholders until the listings exist. Edge takes the Chrome one.
 const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/menu-courses-carrefour';
@@ -82,6 +86,12 @@ const retry = (): void => {
   void configure();
 };
 
+// Before sending the reader to Carrefour, ask the extension to carry them back
+// here once signed in — the Carrefour tab returns to this page with ?connected.
+const openCarrefour = (): void => {
+  armCarrefourReturn(`${window.location.origin}${window.location.pathname}?connected=1`);
+};
+
 // Kept fresh while the page is open: the extension reports as the reader signs in
 // on the Carrefour tab, and the step should tick over without a reload.
 const REFRESH_MS = 8000;
@@ -92,6 +102,13 @@ onMounted((): void => {
   timer = setInterval((): void => {
     void refresh();
   }, REFRESH_MS);
+
+  // Carried back from Carrefour after signing in: confirm it, and drop the flag
+  // from the URL so a reload does not repeat the message.
+  if (route.query.connected === '1') {
+    toast.add({ title: t('order.setup.connected'), icon: 'i-lucide-party-popper', color: 'success' });
+    void router.replace({ query: {} });
+  }
 });
 
 onScopeDispose((): void => {
@@ -199,6 +216,7 @@ onScopeDispose((): void => {
               icon="i-lucide-external-link"
               color="primary"
               class="mt-3 font-semibold text-white"
+              @click="openCarrefour"
             >
               {{ $t('order.carrefour.open') }}
               <span class="sr-only">{{ $t('accessibility.newWindow') }}</span>

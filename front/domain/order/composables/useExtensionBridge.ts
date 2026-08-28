@@ -12,6 +12,8 @@ export const useExtensionBridge = (): {
   justPaired: Ref<boolean>;
   /** Hand the extension the API address and a fresh token, same-origin only. */
   sendPairing: (endpoint: string, token: string) => void;
+  /** Ask the extension to bring this browser back here once signed in to the shop. */
+  armCarrefourReturn: (returnUrl: string) => void;
 } => {
   const extensionHere = ref(false);
   const extensionConfigured = ref(false);
@@ -45,6 +47,9 @@ export const useExtensionBridge = (): {
     justPaired,
     sendPairing: (endpoint: string, token: string): void => {
       window.postMessage({ type: 'menu:pair', endpoint, token }, window.location.origin);
+    },
+    armCarrefourReturn: (returnUrl: string): void => {
+      window.postMessage({ type: 'menu:await-carrefour', returnUrl }, window.location.origin);
     },
   };
 };
