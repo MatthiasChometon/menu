@@ -1,6 +1,7 @@
 import { SlotWindow } from '../engine/slot';
 import { FillResult, PlannedLine, ReportedEvent } from '../engine/type';
 import { MenuClient, QueuedJob } from '../menu/client';
+import { api } from '../browser';
 
 type Settings = {
   endpoint?: string;
@@ -12,19 +13,19 @@ const POLL_ALARM = 'menu-poll';
 const POLL_MINUTES = 5;
 
 const settings = async (): Promise<Settings> =>
-  chrome.storage.local.get(['endpoint', 'deviceToken']);
+  api.storage.local.get(['endpoint', 'deviceToken']);
 
 const shopTab = async (): Promise<chrome.tabs.Tab> => {
-  const open = await chrome.tabs.query({ url: 'https://www.carrefour.fr/*' });
+  const open = await api.tabs.query({ url: 'https://www.carrefour.fr/*' });
 
-  return open[0] ?? (await chrome.tabs.create({ url: SHOP_URL, active: false }));
+  return open[0] ?? (await api.tabs.create({ url: SHOP_URL, active: false }));
 };
 
 // Progress is forwarded as it happens rather than at the end: the point of the
 // live view is to see a long run move, and a run that dies halfway should still
 // have said what it had done.
 const forwardProgress = (client: MenuClient, jobId: string): void => {
-  chrome.runtime.onMessage.addListener((message: { kind: string; event: ReportedEvent }): void => {
+  api.runtime.onMessage.addListener((message: { kind: string; event: ReportedEvent }): void => {
     if (message.kind === 'progress') {
       void client.report(jobId, message.event);
     }
@@ -35,7 +36,7 @@ const fill = async (
   tabId: number,
   lines: PlannedLine[],
   windows: SlotWindow[],
-): Promise<FillResult> => chrome.tabs.sendMessage(tabId, { kind: 'fill', lines, windows });
+): Promise<FillResult> => api.tabs.sendMessage(tabId, { kind: 'fill', lines, windows });
 
 const runOnce = async (): Promise<void> => {
   const { endpoint, deviceToken } = await settings();
@@ -68,7 +69,7 @@ const runOnce = async (): Promise<void> => {
       missingFoodIds: result.missing,
       observations: result.sightings,
     });
-    await chrome.notifications.create({
+    await api.notifications.create({
       type: 'basic',
       iconUrl: 'icon.png',
       title: 'Panier prêt',
@@ -80,16 +81,16 @@ const runOnce = async (): Promise<void> => {
   }
 };
 
-chrome.alarms.onAlarm.addListener((alarm): void => {
+api.alarms.onAlarm.addListener((alarm): void => {
   if (alarm.name === POLL_ALARM) {
     void runOnce();
   }
 });
 
-chrome.runtime.onInstalled.addListener((): void => {
-  void chrome.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
+api.runtime.onInstalled.addListener((): void => {
+  void api.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
 });
 
-chrome.runtime.onStartup.addListener((): void => {
-  void chrome.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
+api.runtime.onStartup.addListener((): void => {
+  void api.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
 });

@@ -27,12 +27,32 @@ le téléphone attend, et part au prochain démarrage.
 
 ```bash
 pnpm install
-pnpm test        # le moteur, sans navigateur ni magasin
-pnpm build       # produit dist/
+pnpm test            # le moteur, sans navigateur ni magasin
+pnpm build           # Chrome  -> dist/
+pnpm build:firefox   # Firefox -> dist-firefox/
 ```
 
-Puis dans Chrome : `chrome://extensions`, mode développeur, « Charger l'extension non
-empaquetée », choisir `dist/`.
+Le même code compile pour les deux navigateurs : `manifest.config.ts` écrit le manifest
+qui va bien (Chrome veut un `service_worker`, Firefox un `background.scripts` et un id
+gecko), et `browser.ts` expose une API `api` qui préfère `browser.*` (promesses) quand il
+existe, sinon `chrome.*` — sans quoi `await chrome.tabs.query(...)` ne résout rien sur
+Firefox.
+
+### Installer pour tester
+
+- **Chrome / Edge** : `chrome://extensions` (ou `edge://extensions`), mode développeur,
+  « Charger l'extension non empaquetée », choisir `dist/`.
+- **Firefox** : `about:debugging#/runtime/this-firefox`, « Charger un module
+  complémentaire temporaire… », choisir `dist-firefox/manifest.json`. (Temporaire : à
+  recharger à chaque redémarrage de Firefox tant que l'extension n'est pas signée sur AMO.)
+
+### Publier
+
+- **Chrome Web Store** (5 $ une fois) : zipper le contenu de `dist/` et l'envoyer sur le
+  dashboard développeur. Visibilité « non listé » pour un cercle restreint.
+- **Edge Add-ons** : gratuit, prend le même zip que Chrome.
+- **Firefox (AMO)** : gratuit, zipper `dist-firefox/` et l'envoyer sur addons.mozilla.org
+  (la signature AMO est ce qui rend l'installation permanente).
 
 ## Le point qui compte
 

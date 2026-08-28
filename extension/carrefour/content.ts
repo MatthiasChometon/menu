@@ -2,6 +2,7 @@ import { BasketFiller } from '../engine/fill';
 import { SlotWindow } from '../engine/slot';
 import { FillResult, PlannedLine, ReportedEvent } from '../engine/type';
 import { CarrefourClient } from './client';
+import { api } from '../browser';
 
 type FillRequest = {
   kind: 'fill';
@@ -21,11 +22,11 @@ const run = async (lines: PlannedLine[], windows: SlotWindow[]): Promise<FillRes
 
   return filler.run(lines, windows, async (event: ReportedEvent): Promise<void> => {
     const message: ProgressMessage = { kind: 'progress', event };
-    await chrome.runtime.sendMessage(message);
+    await api.runtime.sendMessage(message);
   });
 };
 
-chrome.runtime.onMessage.addListener(
+api.runtime.onMessage.addListener(
   (request: FillRequest, _sender, respond: (result: FillResult) => void): boolean => {
     if (request.kind !== 'fill') {
       return false;

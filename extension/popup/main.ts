@@ -1,10 +1,11 @@
+import { api } from '../browser';
 const field = (id: string): HTMLInputElement | null =>
   document.querySelector<HTMLInputElement>(`#${id}`);
 
 const statusLine = document.querySelector<HTMLParagraphElement>('#status');
 
 const load = async (): Promise<void> => {
-  const saved = await chrome.storage.local.get(['endpoint', 'deviceToken']);
+  const saved = await api.storage.local.get(['endpoint', 'deviceToken']);
   const endpoint = field('endpoint');
   if (endpoint !== null && typeof saved.endpoint === 'string') {
     endpoint.value = saved.endpoint;
@@ -32,7 +33,7 @@ document.querySelector('#save')?.addEventListener('click', (): void => {
     stored.deviceToken = token;
   }
 
-  void chrome.storage.local.set(stored).then((): void => {
+  void api.storage.local.set(stored).then((): void => {
     if (statusLine !== null) {
       statusLine.textContent = 'Enregistré.';
     }

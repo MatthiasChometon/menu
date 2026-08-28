@@ -6,7 +6,7 @@
   "packageManager": "pnpm@10.15.0",
   "scripts": {
     "build": "vite build",
-    "build:firefox": "TARGET=firefox vite build",
+    "build:firefox": "vite build --mode firefox",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"{background,carrefour,engine,menu,popup}/**/*.ts\"",
     "lint:fix": "eslint \"{background,carrefour,engine,menu,popup}/**/*.ts\" --fix",
