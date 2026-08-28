@@ -82,6 +82,13 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
+      // A new build takes over at once rather than waiting for every tab to
+      // close: the worker skips waiting and claims the open pages, and with
+      // registerType 'autoUpdate' the client then reloads them onto the fresh
+      // version. Without this a deploy stayed invisible until a hard reload.
+      skipWaiting: true,
+      clientsClaim: true,
+      cleanupOutdatedCaches: true,
       // Concatenated into the generated worker, which is the only way to teach
       // a generateSW build to receive a push.
       importScripts: ['/push-sw.js'],
