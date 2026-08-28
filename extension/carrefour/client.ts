@@ -42,19 +42,45 @@ export class CarrefourClient implements ShopClient {
   private serviceId = '';
   private subBasketType = 'drive_clcv';
 
-  // There is no endpoint that answers this. /api/me returns 404 whether or not
-  // a session exists, so asking it would have every run refuse to start on a
-  // perfectly good session. The page itself is the honest source: it shows a
-  // sign-in control to visitors and greets the account by name otherwise.
-  session(): Promise<Session> {
-    const signInControl = [...document.querySelectorAll('a, button')].some((element): boolean =>
+  // There is no endpoint that answers this: /api/me returns 404 signed in or
+  // out. The page is the honest source, but its header hydrates after load, so a
+  // single read the moment the script runs can miss a signed-in account. Poll
+  // briefly and trust a positive signal — a greeting or a sign-out control — the
+  // instant it shows; only if none appears within a few seconds is the page read
+  // as signed out.
+  async session(): Promise<Session> {
+    const attempts = 10;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      const verdict = this.readSession();
+      if (verdict.signedIn || attempt === attempts - 1) {
+        return verdict;
+      }
+      await new Promise((resolve): void => {
+        setTimeout(resolve, 500);
+      });
+    }
+
+    return this.readSession();
+  }
+
+  private readSession(): Session {
+    const controls = [...document.querySelectorAll('a, button')];
+    const greeting = document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/) ?? null;
+    const signInControl = controls.some((element): boolean =>
       /me connecter|se connecter/i.test(element.textContent ?? ''),
     );
+    const signOutControl = controls.some(
+      (element): boolean =>
+        /d[ée]connexion|se d[ée]connecter/i.test(element.textContent ?? '') ||
+        /logout|deconnexion/i.test(element.getAttribute('href') ?? ''),
+    );
 
-    return Promise.resolve({
-      signedIn: !signInControl,
-      name: document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/)?.[1],
-    });
+    return {
+      // A greeting or a sign-out control is proof of a session; absence of a
+      // sign-in control is the weaker fallback for a page that shows neither.
+      signedIn: greeting !== null || signOutControl || !signInControl,
+      name: greeting?.[1],
+    };
   }
 
   async cart(): Promise<Cart> {

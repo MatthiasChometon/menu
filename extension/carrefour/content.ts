@@ -34,12 +34,22 @@ const run = async (lines: PlannedLine[], windows: SlotWindow[]): Promise<FillRes
 
 // Whenever a Carrefour page is open, tell the background whether it is signed
 // in, so the order page can show the state without the reader opening the shop.
+// And when the reader came here from the menu site's "open Carrefour", carry
+// them back once signed in, so the site can confirm the shop is wired up.
 void new CarrefourClient()
   .session()
-  .then(
-    (session): Promise<unknown> =>
-      api.runtime.sendMessage({ kind: 'carrefour-session', signedIn: session.signedIn }),
-  )
+  .then(async (session): Promise<void> => {
+    await api.runtime.sendMessage({ kind: 'carrefour-session', signedIn: session.signedIn });
+    if (!session.signedIn) {
+      return;
+    }
+
+    const stored = await api.storage.local.get('returnUrl');
+    if (typeof stored.returnUrl === 'string' && stored.returnUrl !== '') {
+      await api.storage.local.remove('returnUrl');
+      location.assign(stored.returnUrl);
+    }
+  })
   .catch((): void => {});
 
 api.runtime.onMessage.addListener(

@@ -1,52 +1,28 @@
 import { api } from '../browser';
 
-// The one API this extension talks to. Filled in for the reader, so pairing is
-// pasting a token at most — never typing a URL nobody has memorised.
-const DEFAULT_ENDPOINT = 'https://api.menu.mtxlab.xyz/graphql';
-
-const field = (id: string): HTMLInputElement | null =>
-  document.querySelector<HTMLInputElement>(`#${id}`);
+// Pairing is automatic on the menu site now, so the popup asks for nothing. It
+// just says whether this browser is wired up, and offers the one useful action:
+// open the menu, where everything is set up and the basket is filled.
+const MENU_URL = 'https://menu.mtxlab.xyz/courses-auto';
 
 const statusLine = document.querySelector<HTMLParagraphElement>('#status');
 
-const load = async (): Promise<void> => {
-  const saved = await api.storage.local.get(['endpoint', 'deviceToken']);
-  const endpoint = field('endpoint');
-  if (endpoint !== null) {
-    endpoint.value = typeof saved.endpoint === 'string' ? saved.endpoint : DEFAULT_ENDPOINT;
-  }
+const render = async (): Promise<void> => {
+  const saved = await api.storage.local.get('deviceToken');
+  const paired = typeof saved.deviceToken === 'string';
 
-  // The token is never read back into the form: it is shown once, at pairing.
-  if (statusLine !== null && typeof saved.deviceToken === 'string') {
-    statusLine.textContent = 'Ce navigateur est appairé.';
+  if (statusLine !== null) {
+    statusLine.textContent = paired
+      ? 'Ce navigateur est branché : le panier se remplit depuis Le Menu.'
+      : "Pas encore branché. Ouvre Le Menu, va sur « Courses » : ça se configure tout seul.";
+    statusLine.dataset.paired = String(paired);
   }
 };
 
-document.querySelector('#save')?.addEventListener('click', (): void => {
-  const endpoint = field('endpoint')?.value.trim();
-  const token = field('token')?.value.trim();
-
-  if (endpoint === undefined || endpoint === '') {
-    if (statusLine !== null) {
-      statusLine.textContent = "Il manque l'adresse de l'API.";
-    }
-    return;
-  }
-
-  const stored: Record<string, string> = { endpoint };
-  if (token !== undefined && token !== '') {
-    stored.deviceToken = token;
-  }
-
-  void api.storage.local.set(stored).then((): void => {
-    if (statusLine !== null) {
-      statusLine.textContent = 'Enregistré.';
-    }
-    const tokenField = field('token');
-    if (tokenField !== null) {
-      tokenField.value = '';
-    }
-  });
+document.querySelector('#open')?.addEventListener('click', (event: Event): void => {
+  event.preventDefault();
+  void api.tabs.create({ url: MENU_URL });
+  window.close();
 });
 
-void load();
+void render();

@@ -36,10 +36,19 @@ const announce = (): void => {
 window.addEventListener('message', (event: MessageEvent): void => {
   if (event.source !== window) return;
 
+  const data = event.data as { type?: unknown; returnUrl?: unknown } | null;
+
   // The page asks whether an extension is here — answered so detection never
   // depends on which loaded first, the content script or the page's listener.
-  if ((event.data as { type?: unknown } | null)?.type === 'menu:where-is-extension') {
+  if (data?.type === 'menu:where-is-extension') {
     announce();
+    return;
+  }
+
+  // The page is sending the reader to Carrefour and wants them back here once
+  // signed in — remembered so the Carrefour content script can carry them over.
+  if (data?.type === 'menu:await-carrefour' && typeof data.returnUrl === 'string') {
+    void api.storage.local.set({ returnUrl: data.returnUrl });
     return;
   }
 
