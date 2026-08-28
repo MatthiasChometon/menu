@@ -8,7 +8,7 @@
     "howItWorks": "The fill is done by a Chrome extension on a computer you pair once. Keep that Chrome open — it is what fills the basket.",
     "setupLink": "Set up a paired browser",
     "setupCta": "Set up a browser to order",
-    "noBrowser": "No paired browser yet, so nothing can fill the basket — a run would wait forever. Pair a browser to start the fill.",
+    "noBrowser": "No paired browser yet: nothing can fill your basket.",
     "waitingHint": "Open Chrome on a paired machine and the run starts by itself.",
     "linesDone": "items in the basket",
     "needsYou": "Worth a look",

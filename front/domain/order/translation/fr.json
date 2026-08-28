@@ -8,7 +8,7 @@
     "howItWorks": "Le remplissage est fait par une extension Chrome installée sur un ordinateur que tu appaires une fois. Garde ce Chrome ouvert : c'est lui qui remplit le panier.",
     "setupLink": "Configurer un navigateur appairé",
     "setupCta": "Configure un navigateur pour commander",
-    "noBrowser": "Aucun navigateur appairé pour l'instant, donc rien ne peut remplir le panier : la demande resterait « en attente » sans fin. Appaire un navigateur pour lancer le remplissage.",
+    "noBrowser": "Aucun navigateur appairé : rien ne peut encore remplir ton panier.",
     "waitingHint": "Ouvre Chrome sur un poste appairé et le remplissage démarre tout seul.",
     "linesDone": "articles mis au panier",
     "needsYou": "À regarder",
