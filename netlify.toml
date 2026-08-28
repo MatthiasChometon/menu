@@ -31,7 +31,10 @@
   NODE_VERSION = "24"
   # Corepack picks the pnpm version out of package.json.
   NPM_FLAGS = "--version"
-  NUXT_PUBLIC_API_BASE = "https://menuuu.duckdns.org"
-  GQL_HOST = "https://menuuu.duckdns.org/graphql"
-  GQL_CLIENT_HOST = "https://menuuu.duckdns.org/graphql"
-  NUXT_PUBLIC_I18N_BASE_URL = "https://menu-semaine-887.netlify.app"
+  NUXT_PUBLIC_API_BASE = "https://api.menu.mtxlab.xyz"
+  GQL_HOST = "https://api.menu.mtxlab.xyz/graphql"
+  GQL_CLIENT_HOST = "https://api.menu.mtxlab.xyz/graphql"
+  NUXT_PUBLIC_I18N_BASE_URL = "https://menu.mtxlab.xyz"
+  # Photographs live on o2switch under a same-site subdomain (see
+  # front/infrastructure/images/nuxt.config.ts). Kept in step with the API host.
+  NUXT_PUBLIC_IMAGES_BASE = "https://images.menu.mtxlab.xyz"

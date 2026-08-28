@@ -9,7 +9,7 @@
 // So the manifest is read twice: baked in here for the first paint, and
 // refreshed in the browser for anything added since. A build with no network
 // falls back to an empty manifest and the runtime read carries it.
-const base = process.env.NUXT_PUBLIC_IMAGES_BASE ?? 'https://images.menuuu.duckdns.org';
+const base = process.env.NUXT_PUBLIC_IMAGES_BASE ?? 'https://images.menu.mtxlab.xyz';
 
 const manifestAtBuild = async (): Promise<Record<string, Record<string, string>>> => {
   try {
