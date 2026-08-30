@@ -13,7 +13,11 @@
 # code-only commits keep auto-deploying. Migrations are rare.
 #
 # One-time setup on the server — see ops/README.md.
-set -eu
+#
+# set -e, but NOT -u: the CloudLinux `activate` script sourced below reads
+# CL_VIRTUAL_ENV before it sets it, which aborts under `set -u` as an unbound
+# variable. -e alone still stops the deploy on any real failure.
+set -e
 
 REPO_DIR="$HOME/menu"                  # monorepo clone (this file lives in it)
 APP_DIR="$HOME/apps/menu-back"         # the Passenger app root (unchanged)

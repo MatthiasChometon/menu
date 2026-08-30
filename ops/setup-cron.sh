@@ -34,6 +34,9 @@ if [ ! -d "$REPO_DIR/.git" ]; then
   git clone "$REPO_URL" "$REPO_DIR"
 fi
 cd "$REPO_DIR"
+# Persist the deploy key on the clone, so the cron's own git fetch uses it too:
+# the GIT_SSH_COMMAND exported above only covers this one setup run.
+git config core.sshCommand "ssh -i $KEY -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
 git fetch origin main
 git reset --hard origin/main
 chmod +x ops/deploy.sh
