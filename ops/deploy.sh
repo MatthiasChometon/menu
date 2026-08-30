@@ -25,6 +25,11 @@ NODEENV="$HOME/nodevenv/apps/menu-back/24/bin/activate"
 BRANCH=main
 LOCK="$HOME/.menu-deploy.lock"
 
+# Use the read-only deploy key for every git operation (fetch/reset), not just the
+# initial clone — otherwise cron's git falls back to the default key and gets
+# "Permission denied (publickey)". setup-cron also persists this as core.sshCommand.
+export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/menu-deploy -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
+
 # Never let two cron ticks overlap a deploy.
 exec 9>"$LOCK"
 flock -n 9 || exit 0
