@@ -1,0 +1,78 @@
+name: CI back
+
+# Runs on every back change. The o2switch cron deploys the back only once this
+# workflow is green for the commit (ops/deploy.sh reads the public check-run status
+# before pulling). The prod DB is unreachable from a runner, so migrations against
+# PROD happen in the deploy (ops/deploy.sh); here we migrate a throwaway test DB to
+# validate the migrations and run the e2e suite.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'back/**'
+      - '.github/workflows/ci-back.yml'
+  pull_request:
+    paths:
+      - 'back/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-back-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  back:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: back
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: menu
+          POSTGRES_PASSWORD: menu
+          POSTGRES_DB: menu
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U menu -d menu"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      # The e2e config (vitest.config.e2e.mts) provides every other value; it only
+      # reads the database URL from the environment.
+      TEST_DATABASE_URL: postgres://menu:menu@localhost:5432/menu_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: back/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: back/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        # The lint script has no --fix, so it is already read-only for CI.
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Prepare test database
+        run: |
+          PGPASSWORD=menu psql -h localhost -U menu -d menu -c "CREATE DATABASE menu_test" || true
+          DATABASE_URL="$TEST_DATABASE_URL" pnpm exec drizzle-kit migrate
+
+      - name: E2E tests
+        run: pnpm test:e2e
+
+      - name: Build
+        run: pnpm build

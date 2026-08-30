@@ -7,10 +7,11 @@ refusée ») et l'IP change → on ne pousse jamais *vers* o2switch. On inverse 
 ## Front : Netlify (GitHub Action)
 
 `.github/workflows/deploy-front.yml` : à chaque push touchant `front/**` (ou le
-`schema.gql`), build statique + `netlify deploy --prod` sur le site
-`menu-semaine-887` (id `ccbc7586-c0fe-4630-962b-e67f5ac38039`). Netlify n'est pas
-derrière le pare-feu → un token suffit. Les types viennent du `schema.gql`
-versionné, donc le build ne nécessite aucune API qui tourne.
+`schema.gql`), **lint + tests**, puis build statique + `netlify deploy --prod` sur le
+site `menu-semaine-887` (id `ccbc7586-c0fe-4630-962b-e67f5ac38039`). Une étape rouge
+arrête le job **avant** le déploiement, donc un commit cassé ne part jamais en prod.
+Netlify n'est pas derrière le pare-feu → un token suffit. Les types viennent du
+`schema.gql` versionné, donc le build ne nécessite aucune API qui tourne.
 
 Réglage unique :
 1. Netlify → User settings → Applications → **New access token**.
@@ -22,15 +23,20 @@ Tant que le secret n'est pas posé, le workflow s'exécute en vert et saute le d
 
 `ops/deploy.sh` : lancé par cron toutes les ~3 min, il `git pull` `main` et, s'il y a
 du nouveau, **rsync** la source dans l'app dir existante (`~/apps/menu-back`, app root
-Passenger inchangé), rebuild (`nest build`) et `touch tmp/restart.txt`. Rien n'entre :
-ni SSH runner, ni IP à autoriser.
+Passenger inchangé), applique les migrations, rebuild (`nest build`) et
+`touch tmp/restart.txt`. Rien n'entre : ni SSH runner, ni IP à autoriser.
 
-**Migrations : manuelles.** Le journal drizzle de la prod a été rempli à la main via
-psql (tables 9.6-safe), donc `drizzle-kit migrate` risquerait de rejouer. Quand un
-commit **ajoute** une migration, le cron se met en pause (log) sans rien déployer :
-appliquer la migration à la main (psql), avancer le clone (`git -C ~/menu reset --hard
-origin/main`), puis relancer un déploiement. Les commits code-only continuent, eux, à se
-déployer tout seuls. Les migrations sont rares.
+**Gate CI.** Avant de déployer, le cron lit le statut du check `back` (workflow
+`ci-back.yml`) via l'API GitHub publique : il ne déploie **que si le CI est vert**
+(lint, typecheck, tests, migrations sur une DB de test, e2e, build). Un commit qui n'a
+pas touché le back n'a pas de check → il passe ; un check en cours → il attend le tick
+suivant ; un check rouge → il ne déploie pas.
+
+**Migrations : automatiques.** `drizzle-kit migrate` applique les nouvelles migrations
+**avant** le redémarrage, avec le `DATABASE_URL` du `.env` de l'app. Le journal drizzle
+de la prod enregistre déjà les migrations appliquées avant ce pipeline (vérifié : 13 =
+13 fichiers), donc `migrate` est un **no-op sûr** quand rien de neuf. Les migrations sont
+d'abord validées en CI sur une base jetable.
 
 Réglage unique (à faire **une** fois en SSH), tout est dans le one-shot idempotent :
 

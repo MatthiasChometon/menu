@@ -1,9 +1,10 @@
 name: Deploy front (Netlify)
 
-# Push to main -> the static front is rebuilt and deployed to Netlify. Netlify is
-# not behind the o2switch firewall, so this needs only a Netlify token (added as a
-# repo secret) — no SSH, no IP to authorise. The types come from the versioned
-# back/infrastructure/graphql/schema.gql, so the build needs no running API.
+# Push to main -> lint + tests, then the static front is built and deployed to
+# Netlify. A failing check stops the job before Deploy, so a broken commit never
+# reaches prod. Runs in parallel with the back CI (separate runner). Netlify is not
+# behind the o2switch firewall, so this needs only the NETLIFY_AUTH_TOKEN secret.
+# Types come from the versioned back schema.gql, so the build needs no running API.
 on:
   push:
     branches: [main]
@@ -25,36 +26,27 @@ jobs:
         working-directory: front
     steps:
       - uses: actions/checkout@v4
-
-      # Skip cleanly (green run, not a red failure) until the token is added, so a
-      # push before setup does not spam a failure. Add NETLIFY_AUTH_TOKEN in
-      # Settings -> Secrets and variables -> Actions.
-      - name: Check Netlify token
-        run: |
-          if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ]; then
-            echo "NETLIFY_AUTH_TOKEN not set — add it in repo settings; skipping deploy."
-            echo "SKIP=1" >> "$GITHUB_ENV"
-          fi
-
       - uses: pnpm/action-setup@v4
-        if: env.SKIP != '1'
         with:
           # The action reads packageManager from this file (it ignores
           # working-directory); the repo has no root package.json.
           package_json_file: front/package.json
       - uses: actions/setup-node@v4
-        if: env.SKIP != '1'
         with:
           node-version: 24
           cache: pnpm
           cache-dependency-path: front/pnpm-lock.yaml
 
       - name: Install
-        if: env.SKIP != '1'
         run: pnpm install --frozen-lockfile
 
+      # Gate the deploy on the checks: a failing step stops the job before Deploy.
+      - name: Lint
+        run: pnpm lint
+      - name: Test
+        run: pnpm test
+
       - name: Generate (static)
-        if: env.SKIP != '1'
         run: pnpm generate
         env:
           GQL_HOST: https://api.menu.mtxlab.xyz/graphql
@@ -64,7 +56,6 @@ jobs:
           NUXT_PUBLIC_IMAGES_BASE: https://images.menu.mtxlab.xyz
 
       - name: Deploy to Netlify
-        if: env.SKIP != '1'
         run: npx --yes netlify-cli@26 deploy --prod --no-build --dir=.output/public --site ccbc7586-c0fe-4630-962b-e67f5ac38039
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
