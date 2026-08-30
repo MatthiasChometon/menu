@@ -1,13 +1,13 @@
 # 🥗 Le Menu
 
-**A weekly meal planner that weighs your food for you** — it composes a week of meals
+**A weekly meal planner that weighs your food for you.** It composes a week of meals
 tailored to your nutrition profile, works out every recipe to the gram, builds an
 offline shopping list ordered by aisle, and can even **fill an online grocery basket**
-from the menu (you review and pay — it never does).
+from the menu (you review and pay, it never does).
 
-### ▶️ Live demo — **[menu.mtxlab.xyz](https://menu.mtxlab.xyz)**
+### ▶️ Live demo: **[menu.mtxlab.xyz](https://menu.mtxlab.xyz)**
 
-Installable as an app and usable **offline** — the shopping list stays readable with no
+Installable as an app and usable **offline**: the shopping list stays readable with no
 signal, in the middle of the supermarket. Sign in with Google or an email address.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
@@ -22,30 +22,30 @@ signal, in the middle of the supermarket. Sign in with Google or an email addres
 
 ## What it does
 
-- **A menu weighed for you** — from a short questionnaire (sex, age, height, weight,
+- **A menu weighed for you.** From a short questionnaire (sex, age, height, weight,
   activity, goal…), the app computes calorie and macro targets, then **scales every
   recipe's grammes to your profile**: the same recipe serves a bulk, a maintenance or a
   cut, and follows your measurements as they change.
-- **Every recipe in detail** — tagged ingredients, quantities adapted to the portion,
+- **Every recipe in detail.** Tagged ingredients, quantities adapted to the portion,
   and each **micronutrient as a share of the daily target**.
 - **A batch-cooking plan** to prepare the week in one go.
 - **A checkable shopping list**, ordered by aisle, that persists **offline**.
-- **Auto-filled grocery basket** — an optional browser extension fills a Carrefour
-  delivery basket from the menu. **Nothing is ever confirmed or paid** — you check and
+- **Auto-filled grocery basket.** An optional browser extension fills a Carrefour
+  delivery basket from the menu. **Nothing is ever confirmed or paid**: you check and
   order yourself.
-- **Built for real use** — installable **PWA that works offline**, French/English i18n,
+- **Built for real use.** Installable **PWA that works offline**, French/English i18n,
   dark mode, full loading/empty/error states, and a visual-regression-tested UI.
-- **Accounts** — Google OAuth and email/password with mandatory email verification and
+- **Accounts.** Google OAuth and email/password with mandatory email verification and
   password reset, over a JWT httpOnly cookie.
 
 ## The interesting bit: the auto-fill extension
 
 The site never holds your grocery-store password. Instead, an optional **Manifest V3
-extension** (Chrome **and** Firefox) does the filling **inside your own shop session**:
-a content-script **bridge** pairs the browser to your account over a same-origin
+extension** (Chrome **and** Firefox) does the filling **inside your own shop session**.
+A content-script **bridge** pairs the browser to your account over a same-origin
 `postMessage` handshake (no token ever shown), a background worker **claims fill jobs
 from a queue**, matches each ingredient to a real product, honours your delivery-slot
-preferences — and stops there. It **reads whether you are signed in and fills the
+preferences, and stops there. It **reads whether you are signed in and fills the
 basket, but never confirms or pays**: the last step, and the money, stay yours. When no
 paired browser is online, a run simply waits instead of failing.
 
@@ -60,26 +60,26 @@ paired browser is online, a run simply waits instead of failing.
 
 ## Architecture
 
-- **Monorepo** — `front/`, `back/`, `extension/`, one clone, one `docker compose up`.
-- **Vertical-slice architecture** — each feature is a slice split into `domain/` and
+- **Monorepo.** `front/`, `back/`, `extension/`, one clone, one `docker compose up`.
+- **Vertical-slice architecture.** Each feature is a slice split into `domain/` and
   `infrastructure/`, with a strict one-way dependency (`infrastructure ↛ domain`). On
   the front, each slice is a real Nuxt **layer**; on the back, Drizzle uses one table
   per slice with auto-discovery.
-- **Typed end to end** — the GraphQL schema is generated code-first on the back and the
+- **Typed end to end.** The GraphQL schema is generated code-first on the back and the
   front's client + types are generated from it, so a breaking change is a compile error,
   not a runtime surprise.
-- **Offline-first** — the site is statically generated and cached by a service worker;
+- **Offline-first.** The site is statically generated and cached by a service worker;
   recipes and the shopping list stay usable with no network.
-- **Same-site auth** — the session cookie is scoped to a shared parent domain across
+- **Same-site auth.** The session cookie is scoped to a shared parent domain across
   subdomains, so first-party auth keeps working even under Safari's third-party cookie
   blocking.
-- **Tested at every level** — pure-logic unit tests, back-end functional tests on a real
+- **Tested at every level.** Pure-logic unit tests, back-end functional tests on a real
   test database, e2e contract tests, component tests "as a user" (Testing Library), and
   deterministic **visual regression** (Playwright).
 
 ## Run it locally
 
-Everything comes up with one command — PostgreSQL, the API and the front, wired together:
+Everything comes up with one command (PostgreSQL, the API and the front, wired together):
 
 ```bash
 git clone https://github.com/MatthiasChometon/menu.git
@@ -95,7 +95,7 @@ docker compose up                # front, API and Postgres
 | Postgres| localhost:5433                |
 
 Source is bind-mounted, so edits hot-reload both the back and the front. Build the
-extension separately with `cd extension && pnpm install && pnpm build` (→ `dist/` for
+extension separately with `cd extension && pnpm install && pnpm build` (`dist/` for
 Chrome, `dist-firefox/` for Firefox), then load it unpacked from `chrome://extensions`.
 
 ## Project structure
