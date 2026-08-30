@@ -38,6 +38,10 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         if: env.SKIP != '1'
+        with:
+          # The action reads packageManager from this file (it ignores
+          # working-directory); the repo has no root package.json.
+          package_json_file: front/package.json
       - uses: actions/setup-node@v4
         if: env.SKIP != '1'
         with:
