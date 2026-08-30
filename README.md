@@ -76,6 +76,9 @@ paired browser is online, a run simply waits instead of failing.
 - **Tested at every level.** Pure-logic unit tests, back-end functional tests on a real
   test database, e2e contract tests, component tests "as a user" (Testing Library), and
   deterministic **visual regression** (Playwright).
+- **Push-to-deploy.** A push to `main` ships it: the front rebuilds and deploys to Netlify
+  from a GitHub Action, and the back self-deploys through a server-side pull cron on the
+  shared host (see [`ops/`](./ops)), so nothing ever connects into the firewalled host.
 
 ## Run it locally
 
@@ -105,15 +108,17 @@ menu/
 ├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/content/)
 ├─ back/        NestJS API     (Fastify · Apollo GraphQL · Drizzle/Postgres; accounts & profiles)
 ├─ extension/   MV3 extension  (Chrome + Firefox; auto-fills the grocery basket)
-└─ scripts/     Python tooling (macro validation, image generation)
+├─ scripts/     Python tooling (macro validation, image generation)
+└─ ops/         Deployment     (Netlify Action + o2switch self-deploy cron)
 ```
 
 ## Deployment
 
-The front is a static build on **Netlify** ([menu.mtxlab.xyz](https://menu.mtxlab.xyz)),
-the API and PostgreSQL run on **o2switch** (`api.menu.mtxlab.xyz`), and the dish photos
-are served from a same-site subdomain to stay first-party. Migrations (Drizzle) run on
-deploy.
+A push to `main` deploys: the front rebuilds on a GitHub Action and publishes to
+**Netlify** ([menu.mtxlab.xyz](https://menu.mtxlab.xyz)); the back self-deploys through a
+pull cron on **o2switch** (`api.menu.mtxlab.xyz`), which never needs a connection into the
+firewalled host. Dish photos are served from a same-site subdomain to stay first-party.
+Database migrations are applied by hand. See [`ops/README.md`](./ops/README.md) for the setup.
 
 ---
 
