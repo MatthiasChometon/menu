@@ -28,6 +28,13 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
+  // Whether "Sign in with Google" is configured: the front hides the button when
+  // it is not (e.g. a fresh dev checkout with no OAuth app), so nobody clicks a
+  // button that can only fail. Email/password still works.
+  isGoogleEnabled(): boolean {
+    return (this.config.get<string>('GOOGLE_CLIENT_ID') ?? '') !== '';
+  }
+
   async register({ email, password, name, locale }: RegisterInput): Promise<void> {
     // Checked before anything is looked up or hashed: an uninvited address must
     // not even learn whether it already has an account here.

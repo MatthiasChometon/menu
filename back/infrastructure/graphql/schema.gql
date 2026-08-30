@@ -566,6 +566,9 @@ type Query {
   """Every report, newest first. Administrators only."""
   bugReports: [BugReport!]!
 
+  """Whether Google sign-in is configured."""
+  googleEnabled: Boolean!
+
   """
   One run with everything it reported, which is what the live view follows.
   """

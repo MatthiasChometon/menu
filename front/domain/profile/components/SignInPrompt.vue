@@ -7,6 +7,16 @@ const config = useRuntimeConfig();
 const apiBase = computed((): string => String(config.public.apiBase ?? '').trim());
 const canSignIn = computed((): boolean => apiBase.value.length > 0);
 
+// Whether the back has Google OAuth configured. The button and its divider are
+// hidden when it is not (a fresh dev checkout has no OAuth app), so nobody
+// clicks one that can only fail — email/password still works. server: false
+// because the site is prerendered; default false so a broken button never flashes.
+const { data: google } = useAsyncData('google-enabled', (): Promise<{ googleEnabled: boolean }> => GqlGoogleEnabled(), {
+  server: false,
+  default: (): { googleEnabled: boolean } => ({ googleEnabled: false }),
+});
+const googleEnabled = computed((): boolean => google.value?.googleEnabled ?? false);
+
 // A full page load, not a router navigation: the OAuth dance leaves the app.
 const signInWithGoogle = (): void => {
   if (!canSignIn.value) return;
@@ -28,21 +38,26 @@ const signInWithGoogle = (): void => {
            anything. Google stays as the shortcut for whoever has one. -->
       <AuthEmailForm class="mt-2" />
 
-      <div class="flex w-full max-w-sm items-center gap-3 text-xs text-dimmed">
-        <span class="h-px flex-1 bg-default" />
-        <span>{{ $t('auth.orContinueWith') }}</span>
-        <span class="h-px flex-1 bg-default" />
-      </div>
+      <!-- Google appears only when the back has it configured (a fresh dev
+           checkout has no OAuth app): never a button, nor a divider leading to
+           one, that can only fail. -->
+      <template v-if="googleEnabled">
+        <div class="flex w-full max-w-sm items-center gap-3 text-xs text-dimmed">
+          <span class="h-px flex-1 bg-default" />
+          <span>{{ $t('auth.orContinueWith') }}</span>
+          <span class="h-px flex-1 bg-default" />
+        </div>
 
-      <UButton
-        size="xl"
-        variant="subtle"
-        icon="i-simple-icons-google"
-        class="font-semibold"
-        @click="signInWithGoogle"
-      >
-        {{ $t('auth.signInWithGoogle') }}
-      </UButton>
+        <UButton
+          size="xl"
+          variant="subtle"
+          icon="i-simple-icons-google"
+          class="font-semibold"
+          @click="signInWithGoogle"
+        >
+          {{ $t('auth.signInWithGoogle') }}
+        </UButton>
+      </template>
     </template>
 
     <p v-else class="mt-2 max-w-sm text-sm text-dimmed">
