@@ -21,6 +21,21 @@ set -eu
 
 SSH_KEY=${SSH_KEY:-$HOME/.ssh/o2switch_menu}
 SSH_HOST=${SSH_HOST:-luzi6802@bouclier.o2switch.net}
+
+# The deploy key is passphrase-protected, so the private file on disk is useless
+# on its own — the passphrase lives in an ssh-agent. On Windows that agent is a
+# Windows service reachable only by the OS's own ssh.exe, which Git Bash's ssh
+# does not talk to; so on Windows we call ssh.exe and hand it the key path in
+# Windows form. Everywhere else the plain ssh, with whatever agent or bare key
+# is set up, is what runs. SSH_BIN and SSH_KEY can override both.
+if [ -z "${SSH_BIN:-}" ]; then
+  if [ -x "$WINDIR/System32/OpenSSH/ssh.exe" ] && command -v cygpath >/dev/null 2>&1; then
+    SSH_BIN="$WINDIR/System32/OpenSSH/ssh.exe"
+    SSH_KEY=$(cygpath -w "$SSH_KEY")
+  else
+    SSH_BIN=ssh
+  fi
+fi
 APP_ROOT=apps/menu-back
 NODE_VERSION=24
 
@@ -32,7 +47,7 @@ API_ORIGIN=${API_ORIGIN:-https://menuuu.duckdns.org}
 FRONT_URL=${FRONT_URL:-https://menu-semaine-887.netlify.app}
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
-ssh_do() { ssh -i "$SSH_KEY" -o BatchMode=yes "$SSH_HOST" "$@"; }
+ssh_do() { "$SSH_BIN" -i "$SSH_KEY" -o BatchMode=yes "$SSH_HOST" "$@"; }
 
 echo "==> API $API_ORIGIN, front $FRONT_URL"
 

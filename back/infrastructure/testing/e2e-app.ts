@@ -23,6 +23,7 @@ export type TestApp = {
     url: string,
     body?: object,
     cookie?: string,
+    headers?: Record<string, string>,
   ) => Promise<{ statusCode: number; body: string; cookies: TestCookie[] }>;
   /** Sends one file the way a browser does, for the routes that take a photograph. */
   postFile: (
@@ -118,12 +119,12 @@ export const startTestApp = async (): Promise<TestApp> => {
 
   const database = app.get<Database>(DATABASE);
 
-  const post: TestApp['post'] = async (url, body, cookie) => {
+  const post: TestApp['post'] = async (url, body, cookie, headers) => {
     const response = await app.inject({
       method: 'POST',
       url,
       payload: body,
-      headers: cookie === undefined ? {} : { cookie },
+      headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
     });
 
     return {

@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   ForbiddenException,
   Injectable,
   UnauthorizedException,
@@ -12,6 +11,9 @@ import { EmailAllowlist } from './allowlist.service';
 import { PasswordService } from './emailAndPassword/password.service';
 import { LoginInput, RegisterInput } from './emailAndPassword/input';
 import { EmailVerificationService } from './emailVerification/service';
+import { ConfigService } from '@nestjs/config';
+import { MailService } from '../../infrastructure/mail/service';
+import { accountExistsEmail } from './emailAndPassword/emails';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,8 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly allowlist: EmailAllowlist,
     private readonly verification: EmailVerificationService,
+    private readonly mail: MailService,
+    private readonly config: ConfigService,
   ) {}
 
   async register({ email, password, name, locale }: RegisterInput): Promise<void> {
@@ -29,12 +33,23 @@ export class AuthService {
     // not even learn whether it already has an account here.
     this.allowlist.assertAllowed(email);
 
+    // Hashed before the existence check, always: it is the one slow step, and
+    // doing it on both paths keeps a taken address from answering faster than a
+    // free one. Response time must not become the enumeration the status code
+    // no longer is.
+    const passwordHash = await this.passwords.hash(password);
+
     const existing = await this.users.findRecordByEmail(email);
     if (existing !== undefined) {
-      throw new ConflictException('This email address is already registered.');
+      // The same 202 a real sign-up gets — telling a stranger the address is
+      // taken is exactly the account list not to hand out. The one thing that
+      // differs is a note to the address's real owner, saying somebody tried
+      // and what to do if it was them.
+      const front = this.config.getOrThrow<string>('FRONT_URL').replace(/\/+$/, '');
+      await this.mail.send(accountExistsEmail(existing.email, existing.locale, front));
+      return;
     }
 
-    const passwordHash = await this.passwords.hash(password);
     const record = await this.users.create(email, passwordHash, name, locale);
 
     // No session comes back from here. Handing one out would make the

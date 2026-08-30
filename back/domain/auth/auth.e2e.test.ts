@@ -66,12 +66,21 @@ describe('registering', () => {
     expect(cookie).toContain('session=');
   });
 
-  it('refuses an address that already has an account', async () => {
-    await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+  it('answers a taken address exactly like a free one, and warns its owner', async () => {
+    const first = await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+    api.mails().length = 0;
 
     const second = await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
 
-    expect(second.statusCode).toBe(409);
+    // Same status as the first sign-up: the response cannot be used to tell a
+    // registered address from a free one.
+    expect(second.statusCode).toBe(first.statusCode);
+    // What differs is a note, and it goes to the address's real owner alone —
+    // never a second account, never a verification link a stranger could spend.
+    const notice = api.mails().at(-1);
+    expect(notice?.to).toBe(EMAIL);
+    expect(`${notice?.subject} ${notice?.text}`.toLowerCase()).toMatch(/compte existe|account already/);
+    expect(notice?.text).not.toContain(PASSWORD);
   });
 
   it('refuses a password too short to be worth hashing', async () => {

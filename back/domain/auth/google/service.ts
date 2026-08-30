@@ -39,7 +39,18 @@ export class GoogleOAuth {
       throw new UnauthorizedException('Google refused the profile request.');
     }
 
-    return (await response.json()) as GoogleProfile;
+    const profile = (await response.json()) as GoogleProfile;
+
+    // The address is what decides which account this is — and, further along,
+    // whether that account administers the site. Google only vouches for it
+    // when it says so: a Workspace domain can hold an unverified address, and
+    // taking one at face value would let its owner arrive as somebody else.
+    // Absent counts as unverified: silence is not a guarantee.
+    if (profile.email_verified !== true) {
+      throw new UnauthorizedException('Google has not confirmed that address.');
+    }
+
+    return profile;
   }
 
   private async exchange(code: string): Promise<GoogleTokens> {
