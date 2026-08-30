@@ -65,6 +65,6 @@ jobs:
 
       - name: Deploy to Netlify
         if: env.SKIP != '1'
-        run: npx --yes netlify-cli@17 deploy --prod --no-build --dir=.output/public --site ccbc7586-c0fe-4630-962b-e67f5ac38039
+        run: npx --yes netlify-cli@17 deploy --prod --dir=.output/public --site ccbc7586-c0fe-4630-962b-e67f5ac38039
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
