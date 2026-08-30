@@ -15,7 +15,7 @@
     "settings": "Settings",
     "setup": {
       "title": "Getting started",
-      "intro": "Your basket fills itself from your menu. Three steps once, then it is automatic.",
+      "intro": "Your basket fills itself from your menu. Two steps once, then it is automatic.",
       "install": {
         "title": "Install the extension",
         "desc": "On the computer you keep open: it is what fills the basket.",
@@ -41,20 +41,8 @@
       "queue": "The request did not go through. Try again in a moment."
     },
     "device": {
-      "title": "Paired browsers",
-      "lead": "A paired browser may fill your basket. The token is shown once only.",
       "label": "Name for this browser",
-      "labelPlaceholder": "Living room desktop",
-      "pair": "Pair a browser",
-      "pairing": "Pairing…",
-      "tokenTitle": "Pairing token",
-      "tokenHint": "Paste it into the extension, then close this. It will never be shown again.",
       "unpair": "Remove",
-      "empty": "No paired browser yet.",
-      "lastSeen": "Last seen",
-      "never": "never",
-      "dismiss": "Dismiss",
-      "extensionHere": "Extension detected on this browser: pairing happens on its own, nothing to paste.",
       "autoPaired": "This browser is paired. Nothing to paste into the extension.",
       "defaultLabel": "This browser"
     },

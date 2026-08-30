@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
+const { selectedWeek, selectedMenu: currentMenu, isLoading } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
 const { eaters, isLoading: isLoadingEaters, isUnscaled, linesFor } = useShoppingQuantities();
 const { t } = useNuxtApp().$i18n;
@@ -59,8 +59,17 @@ useSeoMeta({ title: (): string => t('shopping.title') });
       {{ $t('shopping.backToWeek') }}
     </UButton>
 
+    <!-- While a signed-in week is loading, hold the space with a skeleton rather
+         than flash the empty state before the list arrives. -->
+    <div v-if="isLoading" class="space-y-4 py-8" aria-hidden="true">
+      <USkeleton class="h-24 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+    </div>
+    <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
+
     <div
-      v-if="currentMenu === undefined"
+      v-else-if="currentMenu === undefined"
       class="flex flex-col items-center gap-3 py-20 text-center"
     >
       <UIcon name="i-lucide-shopping-basket" class="size-12 text-dimmed" />

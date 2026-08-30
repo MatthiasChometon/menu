@@ -180,7 +180,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
          only when you cannot see the end of them. -->
     <div class="rise">
       <div class="flex items-center justify-between gap-3 text-sm">
-        <p class="font-semibold">{{ $t('planner.pageTitle') }}</p>
+        <h1 class="font-semibold">{{ $t('planner.pageTitle') }}</h1>
         <p class="shrink-0 tabular-nums text-muted">
           {{ Math.min(step + 1, stepCount) }} / {{ stepCount }}
         </p>

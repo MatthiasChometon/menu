@@ -29,7 +29,7 @@
     "group": {
       "main": "Déjeuner et dîner",
       "breakfast": "Petit-déjeuner",
-      "postWorkout": "Post-training",
+      "postWorkout": "Après l'entraînement",
       "snack": "Goûter et collation"
     },
     "groupHint": {
@@ -47,7 +47,7 @@
     "save": "Enregistrer la semaine",
     "random": "Au hasard",
     "chosen": "choisis",
-    "batchShort": "batch",
+    "batchShort": "à l'avance",
     "next": "Suivant",
     "skip": "Passer",
     "back": "Retour",

@@ -15,7 +15,7 @@
     "settings": "Réglages",
     "setup": {
       "title": "Mise en route",
-      "intro": "Ton panier se remplit tout seul depuis ton menu. Trois étapes une fois, puis c'est automatique.",
+      "intro": "Ton panier se remplit tout seul depuis ton menu. Deux étapes une fois, puis c'est automatique.",
       "install": {
         "title": "Installe l'extension",
         "desc": "Sur l'ordinateur que tu gardes allumé : c'est lui qui remplira le panier.",
@@ -41,20 +41,8 @@
       "queue": "La demande n'est pas partie. Réessaie dans un instant."
     },
     "device": {
-      "title": "Navigateurs appairés",
-      "lead": "Un navigateur appairé peut remplir ton panier. Le jeton ne s'affiche qu'une fois.",
       "label": "Nom de ce navigateur",
-      "labelPlaceholder": "Fixe du salon",
-      "pair": "Appairer un navigateur",
-      "pairing": "Appairage…",
-      "tokenTitle": "Jeton d'appairage",
-      "tokenHint": "Colle-le dans l'extension, puis referme. Il ne sera plus jamais affiché.",
       "unpair": "Retirer",
-      "empty": "Aucun navigateur appairé pour l'instant.",
-      "lastSeen": "Vu pour la dernière fois",
-      "never": "jamais",
-      "dismiss": "Fermer",
-      "extensionHere": "Extension détectée sur ce navigateur : l'appairage se fait tout seul, rien à coller.",
       "autoPaired": "Ce navigateur est appairé. Rien à coller dans l'extension.",
       "defaultLabel": "Ce navigateur"
     },

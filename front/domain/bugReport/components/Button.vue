@@ -1,6 +1,11 @@
 <script setup lang="ts">
 const { open } = useBugReport();
 const { user } = useAuth();
+const route = useRoute();
+
+// The composer has its own bottom action bar ("Suivant"/"Enregistrer"); a
+// floating button in the same corner would sit on top of it. Step aside there.
+const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').endsWith('/composer'));
 </script>
 
 <template>
@@ -10,7 +15,7 @@ const { user } = useAuth();
        problem happens, not to be findable later. -->
   <ClientOnly>
     <UButton
-      v-if="user !== undefined"
+      v-if="user !== undefined && !onFocusedPage"
       icon="i-lucide-bug"
       color="neutral"
       variant="solid"

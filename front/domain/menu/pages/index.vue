@@ -114,9 +114,9 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UBadge color="primary" variant="subtle" size="sm" class="mb-2">
           {{ $t('menu.example.badge') }}
         </UBadge>
-        <h2 class="text-2xl font-black tracking-tight sm:text-3xl">
+        <h1 class="text-2xl font-black tracking-tight sm:text-3xl">
           {{ $t('menu.example.title') }}
-        </h2>
+        </h1>
         <p class="mt-1 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
         <UButton
           :to="localePath('/composer')"

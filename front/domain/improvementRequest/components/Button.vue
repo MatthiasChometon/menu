@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { open } = useImprovement();
 const { user } = useAuth();
+const route = useRoute();
+
+// Hidden on the composer, whose own bottom action bar occupies this corner.
+const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').endsWith('/composer'));
 </script>
 
 <template>
@@ -10,7 +14,7 @@ const { user } = useAuth();
        address — the same rule as the bug button. -->
   <ClientOnly>
     <UButton
-      v-if="user !== undefined"
+      v-if="user !== undefined && !onFocusedPage"
       icon="i-lucide-lightbulb"
       color="primary"
       variant="solid"

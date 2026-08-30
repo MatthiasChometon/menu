@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { selectedWeek, selectedMenu: currentMenu } = useSelectedWeek();
+const { selectedWeek, selectedMenu: currentMenu, isLoading } = useSelectedWeek();
 const { planOf } = useBatchPlan();
 const { nameOf } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
@@ -69,8 +69,17 @@ useSeoMeta({ title: (): string => t('batch.title') });
       {{ $t('menu.nav.week') }}
     </UButton>
 
+    <!-- Hold the space with a skeleton while a signed-in week loads, rather than
+         flash "nothing to prepare" before the plan arrives. -->
+    <div v-if="isLoading" class="space-y-4 py-8" aria-hidden="true">
+      <USkeleton class="h-24 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+      <USkeleton class="h-40 rounded-2xl" />
+    </div>
+    <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
+
     <div
-      v-if="plan === undefined || plan.tasks.length === 0"
+      v-else-if="plan === undefined || plan.tasks.length === 0"
       class="flex flex-col items-center gap-3 py-20 text-center"
     >
       <UIcon name="i-lucide-chef-hat" class="size-12 text-dimmed" />
