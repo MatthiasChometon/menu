@@ -45,32 +45,33 @@ NEW=$(git rev-parse "origin/$BRANCH")
 
 echo "$(date -u +%FT%TZ) new commits $OLD..$NEW"
 
-# Gate on the back CI: deploy a commit only once its 'back' check has passed. The
-# repo is public, so the check-runs API needs no token. A commit that did not touch
-# the back has no such check (none) and deploys; a still-running one waits for the
-# next tick; a failed one is parked.
-gate=$(curl -sS -m 20 -H 'Accept: application/vnd.github+json' \
-  "https://api.github.com/repos/$REPO/commits/$NEW/check-runs" 2>/dev/null | python3 -c "
+# CI gate: only deploy a commit whose back CI is green. A commit that does not
+# touch back/ has no ci-back run to gate on, so deploy it straight away (the rsync
+# below is a no-op for the back anyway). For one that does, require the 'back'
+# check to be completed+success; otherwise leave HEAD untouched and let the next
+# tick re-evaluate, so it deploys as soon as the CI turns green (or a fix lands).
+# The repo is public, so the check-runs API needs no token.
+if git diff --quiet "$OLD" "$NEW" -- back/; then
+  echo "$(date -u +%FT%TZ) no back changes, skipping CI gate"
+else
+  API="https://api.github.com/repos/$REPO/commits/$NEW/check-runs"
+  verdict=$(curl -sf -H 'Accept: application/vnd.github+json' "$API" 2>/dev/null | python3 -c '
 import sys, json
-runs = [r for r in json.load(sys.stdin).get('check_runs', []) if r.get('name') == 'back']
-if not runs:
-    print('none')
-else:
-    r = runs[0]
-    print(r['conclusion'] if r['status'] == 'completed' else 'pending')
-" 2>/dev/null || echo error)
-
-case "$gate" in
-  success | none) ;; # green, or not a back-touching commit
-  pending | error)
-    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW, waiting, not deploying yet"
-    exit 0
-    ;;
-  *)
-    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW, check not green, not deploying"
-    exit 0
-    ;;
-esac
+runs = json.load(sys.stdin).get("check_runs", [])
+r = [c for c in runs if c["name"] == "back"]
+print(r[0]["status"] + "/" + str(r[0]["conclusion"]) if r else "absent")
+' 2>/dev/null) || verdict="error"
+  case "$verdict" in
+    completed/success)
+      echo "$(date -u +%FT%TZ) ci-back green for $NEW, deploying" ;;
+    completed/*)
+      echo "$(date -u +%FT%TZ) ci-back not green for $NEW ($verdict), NOT deploying"
+      exit 0 ;;
+    *)
+      echo "$(date -u +%FT%TZ) ci-back pending/unreadable for $NEW ($verdict), waiting"
+      exit 0 ;;
+  esac
+fi
 
 git reset --hard "$NEW"
 # Mirror the source into the running app dir, keeping installed deps, secrets and
