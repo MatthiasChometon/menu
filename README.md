@@ -1,137 +1,120 @@
-# Le Menu
+# 🥗 Le Menu
 
-Application web de planification de repas et de courses, pensée pour un usage quotidien
-au téléphone. Elle compose un **menu de la semaine adapté au profil nutritionnel** de chaque
-utilisateur, détaille chaque recette au gramme près, dresse la **liste de courses** rangée
-par rayon, et peut même **remplir automatiquement un panier de courses en ligne** à partir
-du menu.
+**A weekly meal planner that weighs your food for you** — it composes a week of meals
+tailored to your nutrition profile, works out every recipe to the gram, builds an
+offline shopping list ordered by aisle, and can even **fill an online grocery basket**
+from the menu (you review and pay — it never does).
 
-**➡️ En ligne : [menu.mtxlab.xyz](https://menu.mtxlab.xyz)** — installable comme une
-application, et consultable **hors ligne** (la liste de courses reste utilisable sans réseau,
-en plein supermarché).
+### ▶️ Live demo — **[menu.mtxlab.xyz](https://menu.mtxlab.xyz)**
+
+Installable as an app and usable **offline** — the shopping list stays readable with no
+signal, in the middle of the supermarket. Sign in with Google or an email address.
+
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Nuxt](https://img.shields.io/badge/Nuxt%204-00DC82?style=flat-square&logo=nuxt&logoColor=white)
+![Vue](https://img.shields.io/badge/Vue%203-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white)
+![GraphQL](https://img.shields.io/badge/GraphQL-E10098?style=flat-square&logo=graphql&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
 ---
 
-## Ce que fait l'application
+## What it does
 
-- **Un menu hebdomadaire pesé pour vous.** À partir d'un court questionnaire (sexe, âge,
-  taille, poids, activité, objectif…), l'app calcule des cibles caloriques et de
-  macronutriments, puis **ajuste les grammages de chaque recette au profil** : la même
-  recette sert une prise de masse, un maintien ou une perte de poids.
-- **Le détail de chaque recette** : ingrédients balisés, quantités adaptées à la portion,
-  et la **part de chaque micronutriment** dans la cible journalière.
-- **Un plan de batch cooking** pour tout préparer en une fois.
-- **Une liste de courses cochable**, rangée dans l'ordre des rayons, qui persiste hors ligne.
-- **Comptes multi-utilisateurs** : chacun a son profil et ses semaines.
-- **Remplissage automatique du panier Carrefour** via une extension de navigateur : le
-  panier se remplit depuis le menu, mais **rien n'est jamais validé ni payé** — l'utilisateur
-  vérifie et commande lui-même.
-- **PWA installable et hors ligne**, interface **bilingue** (fr/en), **mode sombre**.
+- **A menu weighed for you** — from a short questionnaire (sex, age, height, weight,
+  activity, goal…), the app computes calorie and macro targets, then **scales every
+  recipe's grammes to your profile**: the same recipe serves a bulk, a maintenance or a
+  cut, and follows your measurements as they change.
+- **Every recipe in detail** — tagged ingredients, quantities adapted to the portion,
+  and each **micronutrient as a share of the daily target**.
+- **A batch-cooking plan** to prepare the week in one go.
+- **A checkable shopping list**, ordered by aisle, that persists **offline**.
+- **Auto-filled grocery basket** — an optional browser extension fills a Carrefour
+  delivery basket from the menu. **Nothing is ever confirmed or paid** — you check and
+  order yourself.
+- **Built for real use** — installable **PWA that works offline**, French/English i18n,
+  dark mode, full loading/empty/error states, and a visual-regression-tested UI.
+- **Accounts** — Google OAuth and email/password with mandatory email verification and
+  password reset, over a JWT httpOnly cookie.
 
-## Stack technique
+## The interesting bit: the auto-fill extension
 
-| Brique | Technologies |
-| --- | --- |
-| **Front** | Nuxt 4 · Vue 3 · TypeScript · Nuxt UI + Tailwind CSS v4 · `@nuxtjs/i18n` · `nuxt-graphql-client` (codegen) · `@vite-pwa/nuxt` (offline) |
-| **Back** | NestJS · Fastify · GraphQL (Apollo, code-first) · Drizzle ORM · PostgreSQL · authentification maison (Google OAuth + e-mail/mot de passe) · JWT en cookie `httpOnly` |
-| **Extension** | Manifest V3 · TypeScript · Vite · Chrome **et** Firefox |
-| **Tests** | Vitest · `@nuxt/test-utils` + Testing Library · Playwright (régression visuelle) |
-| **Outillage** | Python (validation des macros, génération d'images) · pnpm workspace · Docker Compose |
-| **Déploiement** | Front statique sur **Netlify** · API + PostgreSQL sur **o2switch** · images sur un sous-domaine same-site |
+The site never holds your grocery-store password. Instead, an optional **Manifest V3
+extension** (Chrome **and** Firefox) does the filling **inside your own shop session**:
+a content-script **bridge** pairs the browser to your account over a same-origin
+`postMessage` handshake (no token ever shown), a background worker **claims fill jobs
+from a queue**, matches each ingredient to a real product, honours your delivery-slot
+preferences — and stops there. It **reads whether you are signed in and fills the
+basket, but never confirms or pays**: the last step, and the money, stay yours. When no
+paired browser is online, a run simply waits instead of failing.
 
-## Points d'architecture
+## Tech stack
 
-Le projet est un terrain d'expérimentation d'une architecture propre et testable :
+| Layer         | Stack |
+| ------------- | ----- |
+| **Frontend**  | Nuxt 4 · Vue 3 · TypeScript · Nuxt UI · Tailwind CSS v4 · `@nuxtjs/i18n` · nuxt-graphql-client (typed codegen) · PWA · static generation → **Netlify** |
+| **Backend**   | NestJS · Fastify · GraphQL (Apollo, code-first) · Drizzle ORM · PostgreSQL · JWT auth · Nodemailer → **o2switch** |
+| **Extension** | Manifest V3 · TypeScript · Vite · Chrome **and** Firefox · content-script bridge + background worker |
+| **Tooling**   | pnpm monorepo · Docker Compose · Vitest · Playwright (visual regression) · Python (macro validation, image generation) · ESLint / Prettier |
 
-- **Vertical slices.** Front comme back sont découpés par domaine métier
-  (`domain/auth`, `domain/planner`, `domain/order`…), chaque tranche autonome. Côté front,
-  chaque tranche est une **vraie layer Nuxt** ; côté back, une **règle de dépendance à sens
-  unique** (infrastructure ↛ domaine) est vérifiée par ESLint.
-- **GraphQL code-first typé de bout en bout.** Le schéma est généré depuis le back (NestJS)
-  puis consommé par le front via codegen — les requêtes sont typées à la compilation.
-- **Authentification auto-hébergée.** Google OAuth **et** e-mail/mot de passe (scrypt),
-  vérification d'e-mail obligatoire, réinitialisation par lien à durée de vie limitée,
-  session en cookie `httpOnly` `Secure` — architecture **same-site** (sous-domaines) pour
-  rester compatible avec le blocage des cookies tiers de Safari.
-- **Hors ligne d'abord.** Le site est **prérendu (SSG)** et mis en cache par un service
-  worker : les recettes et la liste de courses restent lisibles sans réseau.
-- **Stratégie de test à plusieurs niveaux.** Tests unitaires (logique pure), tests
-  fonctionnels du back sur une **vraie base de test**, tests e2e de contrat, tests de
-  composants « comme un utilisateur » (Testing Library), et **régression visuelle**
-  déterministe (Playwright).
-- **Une extension MV3 multi-navigateurs** qui parle au site via un pont same-site
-  (`postMessage`), remplit un panier en agissant dans la session de l'utilisateur, sans
-  jamais manipuler ses identifiants.
+## Architecture
 
-## Structure du dépôt
+- **Monorepo** — `front/`, `back/`, `extension/`, one clone, one `docker compose up`.
+- **Vertical-slice architecture** — each feature is a slice split into `domain/` and
+  `infrastructure/`, with a strict one-way dependency (`infrastructure ↛ domain`). On
+  the front, each slice is a real Nuxt **layer**; on the back, Drizzle uses one table
+  per slice with auto-discovery.
+- **Typed end to end** — the GraphQL schema is generated code-first on the back and the
+  front's client + types are generated from it, so a breaking change is a compile error,
+  not a runtime surprise.
+- **Offline-first** — the site is statically generated and cached by a service worker;
+  recipes and the shopping list stay usable with no network.
+- **Same-site auth** — the session cookie is scoped to a shared parent domain across
+  subdomains, so first-party auth keeps working even under Safari's third-party cookie
+  blocking.
+- **Tested at every level** — pure-logic unit tests, back-end functional tests on a real
+  test database, e2e contract tests, component tests "as a user" (Testing Library), and
+  deterministic **visual regression** (Playwright).
 
-Monorepo, une brique par dossier :
+## Run it locally
+
+Everything comes up with one command — PostgreSQL, the API and the front, wired together:
+
+```bash
+git clone https://github.com/MatthiasChometon/menu.git
+cd menu
+cp back/.env.example back/.env   # set Google credentials to enable Google login
+docker compose up                # front, API and Postgres
+```
+
+| Service | URL                           |
+| ------- | ----------------------------- |
+| Front   | http://localhost:3777         |
+| GraphQL | http://localhost:3779/graphql |
+| Postgres| localhost:5433                |
+
+Source is bind-mounted, so edits hot-reload both the back and the front. Build the
+extension separately with `cd extension && pnpm install && pnpm build` (→ `dist/` for
+Chrome, `dist-firefox/` for Firefox), then load it unpacked from `chrome://extensions`.
+
+## Project structure
 
 ```
 menu/
-├─ front/        Nuxt — le site (données du menu dans front/content/)
-├─ back/         NestJS — comptes, profils nutritionnels, file de commandes
-├─ extension/    Extension MV3 (Chrome + Firefox) de remplissage du panier
-└─ scripts/      Outillage Python : validation des macros, images
+├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/content/)
+├─ back/        NestJS API     (Fastify · Apollo GraphQL · Drizzle/Postgres; accounts & profiles)
+├─ extension/   MV3 extension  (Chrome + Firefox; auto-fills the grocery basket)
+└─ scripts/     Python tooling (macro validation, image generation)
 ```
 
-## Démarrer
+## Deployment
 
-### Avec Docker — toute la stack en une commande
-
-```bash
-cp back/.env.example back/.env    # y renseigner ses identifiants Google
-docker compose up                 # front, API et Postgres
-```
-
-Front sur `http://localhost:3777`, GraphQL sur `http://localhost:3779/graphql`, Postgres sur
-`5433`. Le code est monté dans les conteneurs : une modification est reprise en une vingtaine
-de secondes, des deux côtés.
-
-### Sans Docker
-
-Prérequis : **Node 24**, **pnpm**, un **PostgreSQL** local.
-
-```bash
-# API
-cd back && pnpm install
-cp .env.example .env               # DATABASE_URL, JWT_SECRET, GOOGLE_*…
-pnpm drizzle-kit migrate
-pnpm start:dev                     # http://localhost:3779
-
-# Front (dans un autre terminal)
-cd front && pnpm install
-pnpm dev                           # http://localhost:3777
-```
-
-### L'extension
-
-```bash
-cd extension && pnpm install
-pnpm build                         # → dist/ (Chrome) et dist-firefox/ (Firefox)
-```
-
-Puis chargez `extension/dist` dans `chrome://extensions` (mode développeur).
-
-## Tests
-
-```bash
-# Front — unitaires, composants, visuels
-cd front && pnpm test
-
-# Back — unitaires, fonctionnels (base de test), e2e
-cd back && pnpm test
-```
-
-## Déploiement
-
-- **Front** : build statique (`pnpm generate`) publié sur **Netlify**.
-- **API + base** : NestJS servi par Passenger sur **o2switch**, PostgreSQL managé sur la
-  même infrastructure, migrations Drizzle jouées au déploiement.
-- **Images** : servies depuis un **sous-domaine same-site** pour rester en première partie.
+The front is a static build on **Netlify** ([menu.mtxlab.xyz](https://menu.mtxlab.xyz)),
+the API and PostgreSQL run on **o2switch** (`api.menu.mtxlab.xyz`), and the dish photos
+are served from a same-site subdomain to stay first-party. Migrations (Drizzle) run on
+deploy.
 
 ---
 
-> Projet personnel, développé pour un usage réel au quotidien. Le code, les textes et les
-> visuels sont l'œuvre de son auteur ; les valeurs nutritionnelles proviennent de tables de
-> composition publiques.
+Built by [Matthias Chometon](https://www.linkedin.com/in/matthias-chometon-99371a177/).
