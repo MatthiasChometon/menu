@@ -1,5 +1,5 @@
 #!/bin/sh
-# menu — o2switch self-deploy (back).
+# menu: o2switch self-deploy (back).
 #
 # Run by cron every few minutes. It PULLS main and redeploys when the branch
 # advanced, so nothing ever connects INTO o2switch: no SSH from a runner, no IP to
@@ -16,7 +16,7 @@
 # journal already records the migrations applied before this pipeline existed, so
 # migrate is a safe no-op when nothing is new.
 #
-# One-time setup on the server — see ops/README.md.
+# One-time setup on the server, see ops/README.md.
 # `set -e` only (not -u): the nodevenv `activate` script references an unbound
 # CloudLinux var, which `-u` would turn into a fatal error mid-deploy.
 set -e
@@ -29,7 +29,7 @@ BRANCH=main
 LOCK="$HOME/.menu-deploy.lock"
 
 # Use the read-only deploy key for every git operation (fetch/reset), not just the
-# initial clone — otherwise cron's git falls back to the default key and gets
+# initial clone, otherwise cron's git falls back to the default key and gets
 # "Permission denied (publickey)". setup-cron also persists this as core.sshCommand.
 export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/menu-deploy -o StrictHostKeyChecking=accept-new -o BatchMode=yes"
 
@@ -63,11 +63,11 @@ else:
 case "$gate" in
   success | none) ;; # green, or not a back-touching commit
   pending | error)
-    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW — waiting, not deploying yet"
+    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW, waiting, not deploying yet"
     exit 0
     ;;
   *)
-    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW — check not green, not deploying"
+    echo "$(date -u +%FT%TZ) ci-back=$gate for $NEW, check not green, not deploying"
     exit 0
     ;;
 esac
