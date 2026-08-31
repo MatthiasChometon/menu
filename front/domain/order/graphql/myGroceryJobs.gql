@@ -1,9 +1,0 @@
-query myGroceryJobs {
-  myGroceryJobs {
-    id
-    weekOf
-    status
-    createdAt
-    finishedAt
-  }
-}
