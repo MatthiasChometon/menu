@@ -56,7 +56,7 @@ export const createCarrefourClient = (): ShopClient => {
       return { signedIn: false, name: undefined };
     }
 
-    const greeting = document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/) ?? null;
+    const greeting = document.body.textContent?.match(/Bonjour\s+([\wÀ-ÿ-]+)/) ?? undefined;
     const accountControl = [...document.querySelectorAll('a, button')].some(
       (element): boolean =>
         /d[ée]connexion|se d[ée]connecter|mon compte/i.test(element.textContent ?? '') ||
@@ -66,7 +66,7 @@ export const createCarrefourClient = (): ShopClient => {
     // Only a positive signal counts. Absence of a sign-in button is not proof —
     // an interstitial or a half-loaded header has none either, and reading that
     // as signed in fires a false report and a premature redirect.
-    return { signedIn: greeting !== null || accountControl, name: greeting?.[1] };
+    return { signedIn: greeting !== undefined || accountControl, name: greeting?.[1] };
   };
 
   // Without this header the site answers with its own HTML and a status that
