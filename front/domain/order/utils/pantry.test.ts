@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { keeps } from './pantry.ts';
-import type { Aisle, Food } from '../front/domain/menu/types/menu.type.ts';
+import { keeps, leftover } from './pantry';
+import type { Aisle, Food } from '../../menu/types/menu.type';
 
 const food = (id: string, aisle: Aisle): Food => ({
   id,
@@ -32,5 +32,19 @@ describe('keeps', () => {
 
   it('does not keep a dairy item that spoils fast', () => {
     expect(keeps(food('skyr', 'dairy'))).toBe(false);
+  });
+});
+
+describe('leftover', () => {
+  it('carries over the surplus of a whole pack', () => {
+    expect(leftover(0, 1000, 960)).toBe(40);
+  });
+
+  it('adds what the pantry already held', () => {
+    expect(leftover(200, 500, 300)).toBe(400);
+  });
+
+  it('never goes negative when the need outruns what was bought', () => {
+    expect(leftover(0, 500, 800)).toBe(0);
   });
 });

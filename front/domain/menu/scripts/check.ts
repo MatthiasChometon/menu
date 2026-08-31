@@ -3,14 +3,14 @@
 // (buildMenu / verdict); this runner only reads the files and renders the report.
 //
 // Usage:
-//   pnpm --dir scripts check front/content/menus/2026-08-03.json
-//   pnpm --dir scripts check front/content/menus/2026-08-03.json --courses --detail
+//   pnpm --dir front check content/menus/2026-08-03.json
+//   pnpm --dir front check content/menus/2026-08-03.json --courses --detail
 import { parseArgs } from 'node:util';
-import { aisleOrder } from '../front/domain/menu/utils/catalog.ts';
-import { macroKeys, sumMacros } from '../front/domain/menu/utils/nutrition.ts';
-import { toleranceFor, verdict, type Verdict } from '../front/domain/menu/utils/target.ts';
-import type { Aisle, Day, Macros, Menu } from '../front/domain/menu/types/menu.type.ts';
-import { buildMenuAt } from './lib/menu.ts';
+import { aisleOrder } from '../utils/catalog';
+import { macroKeys, sumMacros } from '../utils/nutrition';
+import { toleranceFor, verdict, type Verdict } from '../utils/target';
+import type { Aisle, Day, Macros, Menu } from '../types/menu.type';
+import { buildMenuAt } from './loader';
 
 const LABELS: Record<keyof Macros, string> = {
   kcal: 'kcal',
@@ -41,6 +41,26 @@ const totalsLine = (title: string, macros: Macros, menu: Menu): string => {
   return `${title.padEnd(12)} ${cells.join(' ')}`;
 };
 
+const mealLines = (day: Day): string[] =>
+  day.meals.map(
+    (meal): string =>
+      `  ${meal.slot.padEnd(13)} ${meal.recipe.name.fr.padEnd(24)} ` +
+      `${pad(meal.macros.kcal, 4)} kcal | P ${pad(meal.macros.protein, 4)} ` +
+      `L ${pad(meal.macros.fat, 4)} G ${pad(meal.macros.carbs, 4)}`,
+  );
+
+const averageOf = (days: Day[]): Macros => {
+  const week = sumMacros(days.map((day): Macros => day.macros));
+  const count = Math.max(1, days.length);
+  return {
+    kcal: week.kcal / count,
+    protein: week.protein / count,
+    fat: week.fat / count,
+    carbs: week.carbs / count,
+    fiber: week.fiber / count,
+  };
+};
+
 const alertsOf = (menu: Menu): string[] =>
   menu.days.flatMap((day): string[] =>
     macroKeys
@@ -66,33 +86,12 @@ const printReport = (menu: Menu, detail: boolean): void => {
     console.log(totalsLine('TOTAL', day.macros, menu));
   }
 
-  const average = averageOf(menu.days);
   console.log('\n' + RULE);
-  console.log(totalsLine('MOYENNE/J', average, menu));
+  console.log(totalsLine('MOYENNE/J', averageOf(menu.days), menu));
   console.log(
     `Cout estime: ${Math.round(menu.totalPrice)} EUR pour ${menu.days.length} jours ` +
       `(${(menu.totalPrice / Math.max(1, menu.days.length)).toFixed(1)} EUR/jour)`,
   );
-};
-
-const mealLines = (day: Day): string[] =>
-  day.meals.map(
-    (meal): string =>
-      `  ${meal.slot.padEnd(13)} ${meal.recipe.name.fr.padEnd(24)} ` +
-      `${pad(meal.macros.kcal, 4)} kcal | P ${pad(meal.macros.protein, 4)} ` +
-      `L ${pad(meal.macros.fat, 4)} G ${pad(meal.macros.carbs, 4)}`,
-  );
-
-const averageOf = (days: Day[]): Macros => {
-  const week = sumMacros(days.map((day): Macros => day.macros));
-  const count = Math.max(1, days.length);
-  return {
-    kcal: week.kcal / count,
-    protein: week.protein / count,
-    fat: week.fat / count,
-    carbs: week.carbs / count,
-    fiber: week.fiber / count,
-  };
 };
 
 const printShopping = (menu: Menu): void => {
@@ -108,9 +107,7 @@ const printShopping = (menu: Menu): void => {
     for (const line of lines) {
       const unit = line.food.unit === 'ml' ? 'L' : 'kg';
       const quantity =
-        line.grams >= 1000
-          ? `${(line.grams / 1000).toFixed(2)} ${unit}`
-          : `${line.grams} ${line.food.unit}`;
+        line.grams >= 1000 ? `${(line.grams / 1000).toFixed(2)} ${unit}` : `${line.grams} ${line.food.unit}`;
       console.log(`  ${line.food.name.fr.padEnd(32)} ${quantity.padStart(9)}   ~${line.price.toFixed(2)} EUR`);
     }
   }
@@ -124,7 +121,7 @@ const main = (): number => {
 
   const menuPath = positionals[0];
   if (menuPath === undefined) {
-    console.error('Usage: pnpm --dir scripts check <menu.json> [--courses] [--detail]');
+    console.error('Usage: pnpm --dir front check <menu.json> [--courses] [--detail]');
     return 2;
   }
 

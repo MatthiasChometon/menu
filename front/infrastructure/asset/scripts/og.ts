@@ -1,23 +1,20 @@
-// Draws the link-preview (Open Graph) cards: the plate motif and gradient of the
-// icon, plus the brand/tagline/lead read from the site's own translations, one
-// card per language. wrap() is pure and tested; drawCard()/main() do the render.
+// Draws the link-preview (Open Graph) cards: the shared plate motif plus the
+// brand/tagline/lead read from the site's own translations, one per language.
+// wrap() is pure and tested (asset/utils/og); this runner does the render.
 //
-// Usage: pnpm og
+// Usage: pnpm --dir front og
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GlobalFonts, createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
-import { FRONT, PUBLIC_DIR } from './lib/paths.ts';
+import { PLATE_PALETTE, plateWedges } from '../utils/icon';
+import { wrap } from '../utils/og';
+import { FRONT, PUBLIC_DIR } from './paths';
 
 const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
 const WIDTH = 1200;
 const HEIGHT = 630;
 const SUPERSAMPLE = 2;
-
-const TOP = '#84cc16';
-const BOTTOM = '#3f6212';
-const PLATE = '#ffffff';
-const SLICES = ['#ecfccb', '#bef264', '#65a30d'];
 const TITLE_COLOUR = '#ffffff';
 const TAGLINE_COLOUR = '#d9f99d';
 const LEAD_COLOUR = '#ecfccb';
@@ -38,23 +35,6 @@ const family = (weight: string): string => {
   return 'sans-serif';
 };
 
-/** Break `text` into lines no wider than `limit`, measuring with the given fn. */
-export const wrap = (text: string, limit: number, measure: (line: string) => number): string[] => {
-  const lines: string[] = [];
-  let current = '';
-  for (const word of text.split(/\s+/).filter(Boolean)) {
-    const candidate = `${current} ${word}`.trim();
-    if (current !== '' && measure(candidate) > limit) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = candidate;
-    }
-  }
-  if (current !== '') lines.push(current);
-  return lines;
-};
-
 export const drawCard = async (brand: string, tagline: string, lead: string): Promise<Buffer> => {
   const width = WIDTH * SUPERSAMPLE;
   const height = HEIGHT * SUPERSAMPLE;
@@ -63,8 +43,8 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
   ctx.textBaseline = 'top';
 
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, TOP);
-  gradient.addColorStop(1, BOTTOM);
+  gradient.addColorStop(0, PLATE_PALETTE.top);
+  gradient.addColorStop(1, PLATE_PALETTE.bottom);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
@@ -80,38 +60,31 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
     ctx.fillStyle = fill;
     ctx.fill();
   };
-  const deg = (value: number): number => (value * Math.PI) / 180;
 
-  disc(diameter / 2, PLATE);
-  const foodRadius = diameter * 0.34;
-  SLICES.forEach((colour, index) => {
+  disc(diameter / 2, PLATE_PALETTE.plate);
+  plateWedges().forEach((wedge, index): void => {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, foodRadius, deg(-90 + index * 120), deg(-90 + (index + 1) * 120));
+    ctx.arc(cx, cy, diameter * 0.34, wedge.start, wedge.end);
     ctx.closePath();
-    ctx.fillStyle = colour;
+    ctx.fillStyle = PLATE_PALETTE.wedges[index]!;
     ctx.fill();
   });
-  disc(diameter * 0.16, PLATE);
+  disc(diameter * 0.16, PLATE_PALETTE.plate);
 
   const titleSize = 84 * SUPERSAMPLE;
   const taglineSize = 40 * SUPERSAMPLE;
   const leadSize = 32 * SUPERSAMPLE;
-  const boldFamily = family('bold');
-  const semiFamily = family('semibold');
-  const regularFamily = family('regular');
   const margin = 72 * SUPERSAMPLE;
   const textWidth = left - margin * 1.6;
-  const measureWith = (font: string): ((line: string) => number) => {
-    return (line) => {
-      ctx.font = font;
-      return ctx.measureText(line).width;
-    };
+  const measureWith = (font: string): ((line: string) => number) => (line): number => {
+    ctx.font = font;
+    return ctx.measureText(line).width;
   };
 
   let y = margin + 40 * SUPERSAMPLE;
   ctx.fillStyle = TITLE_COLOUR;
-  const titleFont = `${titleSize}px "${boldFamily}"`;
+  const titleFont = `${titleSize}px "${family('bold')}"`;
   for (const line of wrap(brand, textWidth, measureWith(titleFont))) {
     ctx.font = titleFont;
     ctx.fillText(line, margin, y);
@@ -119,12 +92,12 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
   }
 
   y += 12 * SUPERSAMPLE;
-  ctx.font = `${taglineSize}px "${semiFamily}"`;
+  ctx.font = `${taglineSize}px "${family('semibold')}"`;
   ctx.fillStyle = TAGLINE_COLOUR;
   ctx.fillText(tagline, margin, y);
   y += taglineSize * 1.9;
 
-  const leadFont = `${leadSize}px "${regularFamily}"`;
+  const leadFont = `${leadSize}px "${family('regular')}"`;
   ctx.fillStyle = LEAD_COLOUR;
   for (const line of wrap(lead, textWidth, measureWith(leadFont))) {
     ctx.font = leadFont;
@@ -138,8 +111,6 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
 const main = async (): Promise<void> => {
   mkdirSync(PUBLIC_DIR, { recursive: true });
   for (const locale of ['fr', 'en'] as const) {
-    // The words come from the site's translations, never copied here: a card that
-    // contradicts the page it announces is worse than no card.
     const messages = JSON.parse(readFileSync(join(TRANSLATION_DIR, `${locale}.json`), 'utf8')) as {
       menu: { brand: string; tagline: string; pageLead: string };
     };

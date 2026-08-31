@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildWorkflow, seedFor } from './generate.ts';
+import { buildWorkflow, seedFor, type Workflow } from './workflow';
 
 describe('seedFor', () => {
   it('is deterministic for the same id and subject', () => {
     expect(seedFor('banana', 'a banana')).toBe(seedFor('banana', 'a banana'));
   });
 
-  it('matches the Python crc32 seed, so images reproduce (banana|a banana)', () => {
+  it('matches the crc32 seed, so images reproduce (banana|a banana)', () => {
     expect(seedFor('banana', 'a banana')).toBe(553570855);
   });
 
@@ -23,7 +23,7 @@ describe('seedFor', () => {
 });
 
 describe('buildWorkflow', () => {
-  const template = () => ({
+  const template = (): Workflow => ({
     '3': { inputs: { seed: 0 } },
     '5': { inputs: { width: 0, height: 0 } },
     '6': { inputs: { text: '' } },

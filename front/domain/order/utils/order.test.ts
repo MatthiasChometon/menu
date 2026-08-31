@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { describe as describeLine, orderLine } from './order.ts';
-import type { Food } from '../front/domain/menu/types/menu.type.ts';
+import { describeOrderLine, orderLine } from './order';
+import type { Food } from '../../menu/types/menu.type';
 
 const food = (overrides: Partial<Food>): Food => ({
   id: 'x',
@@ -58,10 +58,10 @@ describe('orderLine', () => {
   });
 });
 
-describe('describeLine', () => {
+describe('describeOrderLine', () => {
   it('reads a pack line with its need', () => {
     const line = orderLine(food({ id: 'rice' }), 960, {}, { rice: 1000 });
 
-    expect(describeLine(line!)).toBe('1 x 1000 g (besoin 960 g)');
+    expect(describeOrderLine(line!)).toBe('1 x 1000 g (besoin 960 g)');
   });
 });

@@ -1,40 +1,27 @@
 // Works out what is left in the pantry after the week and deducts it from the
 // next order: whole packs are bought but only the need is used, so the surplus
-// carries over. Needs come from the menu domain; the keep/perish rules are the
-// tooling's own, matching the grocery server's pantry.
+// carries over. Needs come from the menu domain, keep/leftover from
+// domain/order/utils; this runner reads carrefour-products.json and prints.
 //
 // Usage:
-//   pnpm --dir scripts pantry --preview   # what will be left, writing nothing
-//   pnpm --dir scripts pantry --update    # write content/pantry.json
-//   pnpm --dir scripts pantry --show      # the currently recorded stock
+//   pnpm --dir front pantry --preview   # what will be left, writing nothing
+//   pnpm --dir front pantry --update    # write content/pantry.json
+//   pnpm --dir front pantry --show      # the currently recorded stock
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
-import type { Food } from '../front/domain/menu/types/menu.type.ts';
-import { readContent } from './lib/content.ts';
-import { latestMenu, menuCatalog, needsOf } from './lib/menu.ts';
-import { CONTENT } from './lib/paths.ts';
+import type { Food } from '../../menu/types/menu.type';
+import { latestMenu, menuCatalog, needsOf } from '../../menu/scripts/loader';
+import { keeps, leftover } from '../utils/pantry';
+import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
+import { readContent } from '../../../infrastructure/asset/scripts/content';
 
 const PANTRY = join(CONTENT, 'pantry.json');
 
 type Product = { size: number; units: number; name: string };
 type PantryFile = { afterWeek: string; items: Record<string, number> };
 
-// What does not keep from one week to the next: no point counting leftover
-// salmon or salad as stock.
-const PERISHABLE_AISLES = new Set(['butcher', 'produce']);
-const PERISHABLE_IDS = new Set(['skyr', 'quark', 'egg', 'wholeMilk', 'semiSkimmedMilk', 'hardCheese']);
-
-export const keeps = (food: Food): boolean =>
-  !PERISHABLE_IDS.has(food.id) && !PERISHABLE_AISLES.has(food.aisle);
-
-type PantryRow = {
-  food: Food;
-  purchased: number;
-  used: number;
-  left: number;
-  keeps: boolean;
-};
+type PantryRow = { food: Food; purchased: number; used: number; left: number; keeps: boolean };
 
 const pantryRows = (): PantryRow[] => {
   const menu = latestMenu();
@@ -50,9 +37,13 @@ const pantryRows = (): PantryRow[] => {
       if (food === undefined) throw new Error(`aliment '${id}' absent de foods.json`);
 
       const purchased = product.size * product.units;
-      const used = Math.round(needs[id] ?? 0);
-      const left = Math.max(0, Math.round((previous[id] ?? 0) + purchased - (needs[id] ?? 0)));
-      return { food, purchased, used, left, keeps: keeps(food) };
+      return {
+        food,
+        purchased,
+        used: Math.round(needs[id] ?? 0),
+        left: leftover(previous[id] ?? 0, purchased, needs[id] ?? 0),
+        keeps: keeps(food),
+      };
     })
     .sort((left, right): number => Number(right.keeps) - Number(left.keeps) || right.left - left.left);
 };
@@ -113,7 +104,7 @@ const main = (): number => {
     const kept = rows.filter((row): boolean => row.keeps && row.left > 0);
     const items = Object.fromEntries(kept.map((row): [string, number] => [row.food.id, row.left]));
     writeFileSync(PANTRY, JSON.stringify({ afterWeek: menu.weekOf, items }, null, 2) + '\n', 'utf8');
-    console.log(`\n${kept.length} produits enregistres dans front/content/pantry.json`);
+    console.log(`\n${kept.length} produits enregistres dans content/pantry.json`);
   }
 
   return 0;

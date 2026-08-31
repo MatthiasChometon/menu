@@ -1,31 +1,26 @@
-// Generates the dish and ingredient photos with ComfyUI (running on :8188).
-// buildWorkflow()/seedFor() are pure and tested; the rest drives ComfyUI over
-// its HTTP API and writes assets/images/<recipe|food>/<id>.webp.
+// Generates the dish and ingredient photos with ComfyUI (running on :8188). The
+// seed and workflow building are pure (asset/utils/workflow); this runner drives
+// ComfyUI over its HTTP API and writes assets/images/<recipe|food>/<id>.webp.
 //
 // Usage:
-//   pnpm generate --only chiliChicken,banana   # a targeted try
-//   pnpm generate --recipes                     # every dish
-//   pnpm generate --foods                       # every ingredient
-//   pnpm generate --all --force                 # regenerate everything
+//   pnpm --dir front generate --only chiliChicken,banana
+//   pnpm --dir front generate --recipes
+//   pnpm --dir front generate --foods
+//   pnpm --dir front generate --all --force
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { crc32 } from 'node:zlib';
 import sharp from 'sharp';
-import { ASSETS } from './lib/paths.ts';
-import { readJsonAt } from './lib/content.ts';
+import { buildWorkflow, seedFor, type Workflow } from '../utils/workflow';
+import { ASSETS, COMFY } from './paths';
+import { readJsonAt } from './content';
 
-const COMFY = 'http://127.0.0.1:8188';
+const COMFY_URL = 'http://127.0.0.1:8188';
 const IMAGES = join(ASSETS, 'images');
-const COMFY_DIR = join(dirname(fileURLToPath(import.meta.url)), 'comfy');
-
 const RECIPE_SIZE: [number, number] = [1024, 640];
 const FOOD_SIZE: [number, number] = [768, 768];
 const WEBP_QUALITY = 82;
 
-type Node = { inputs: Record<string, unknown> };
-type Workflow = Record<string, Node>;
 type Prompts = {
   recipeStyle: string;
   foodStyle: string;
@@ -34,30 +29,8 @@ type Prompts = {
   foods: Record<string, string>;
 };
 
-/** A stable seed from the subject, so a reworded prompt gives a new image and a
- *  re-run of the same one reproduces it. crc32 (not a random hash) is stable. */
-export const seedFor = (id: string, subject: string): number =>
-  crc32(`${id}|${subject}`) % 2_147_483_647;
-
-/** A copy of the template with the prompt, negative, size and seed filled in. */
-export const buildWorkflow = (
-  template: Workflow,
-  prompt: string,
-  negative: string,
-  [width, height]: [number, number],
-  seed: number,
-): Workflow => {
-  const workflow = structuredClone(template);
-  workflow['6']!.inputs.text = prompt;
-  workflow['7']!.inputs.text = negative;
-  workflow['5']!.inputs.width = width;
-  workflow['5']!.inputs.height = height;
-  workflow['3']!.inputs.seed = seed;
-  return workflow;
-};
-
 const postPrompt = async (workflow: Workflow): Promise<string> => {
-  const response = await fetch(`${COMFY}/prompt`, {
+  const response = await fetch(`${COMFY_URL}/prompt`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt: workflow }),
@@ -77,7 +50,7 @@ const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(
 const waitForImage = async (promptId: string, timeoutMs = 300_000): Promise<Buffer> => {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const history = (await (await fetch(`${COMFY}/history/${promptId}`)).json()) as History;
+    const history = (await (await fetch(`${COMFY_URL}/history/${promptId}`)).json()) as History;
     const entry = history[promptId];
     if (entry !== undefined) {
       if (entry.status?.status_str === 'error') throw new Error(`ComfyUI a echoue: ${promptId}`);
@@ -88,7 +61,7 @@ const waitForImage = async (promptId: string, timeoutMs = 300_000): Promise<Buff
             subfolder: image.subfolder ?? '',
             type: image.type ?? 'output',
           });
-          const view = await fetch(`${COMFY}/view?${query.toString()}`);
+          const view = await fetch(`${COMFY_URL}/view?${query.toString()}`);
           return Buffer.from(await view.arrayBuffer());
         }
       }
@@ -111,8 +84,7 @@ const generateOne = async (
   template: Workflow,
   force: boolean,
 ): Promise<boolean> => {
-  const folder = kind === 'recipe' ? 'recipe' : 'food';
-  const destination = join(IMAGES, folder, `${id}.webp`);
+  const destination = join(IMAGES, kind, `${id}.webp`);
   if (existsSync(destination) && !force) {
     console.log(`  = ${id} (deja la)`);
     return false;
@@ -120,13 +92,7 @@ const generateOne = async (
 
   const style = kind === 'recipe' ? prompts.recipeStyle : prompts.foodStyle;
   const size = kind === 'recipe' ? RECIPE_SIZE : FOOD_SIZE;
-  const workflow = buildWorkflow(
-    template,
-    style.replace('{subject}', subject),
-    prompts.negative,
-    size,
-    seedFor(id, subject),
-  );
+  const workflow = buildWorkflow(template, style.replace('{subject}', subject), prompts.negative, size, seedFor(id, subject));
 
   const started = Date.now();
   await saveWebp(await waitForImage(await postPrompt(workflow)), destination);
@@ -146,8 +112,8 @@ const main = async (): Promise<number> => {
     },
   });
 
-  const prompts = readJsonAt<Prompts>(join(COMFY_DIR, 'prompts.json'));
-  const template = readJsonAt<Workflow>(join(COMFY_DIR, 'food-photo.api.json'));
+  const prompts = readJsonAt<Prompts>(join(COMFY, 'prompts.json'));
+  const template = readJsonAt<Workflow>(join(COMFY, 'food-photo.api.json'));
   const wanted = values.only ? new Set(values.only.split(',')) : undefined;
 
   const targets: [kind: 'recipe' | 'food', id: string, subject: string][] = [];
