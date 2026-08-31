@@ -1,5 +1,3 @@
-import { browser } from '#imports';
-import type { Browser } from '#imports';
 import type { FillResult, PlannedLine, ReportedEvent, SlotWindow } from '../carrefour/type';
 import { createMenuClient, type MenuClient } from './client';
 

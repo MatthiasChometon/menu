@@ -1,4 +1,3 @@
-import { defineContentScript } from '#imports';
 import { startCarrefourContent } from '../domain/carrefour/content';
 
 export default defineContentScript({

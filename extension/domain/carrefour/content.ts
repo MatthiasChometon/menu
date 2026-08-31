@@ -1,4 +1,3 @@
-import { browser } from '#imports';
 import { createBasketFiller } from './fill';
 import { createCarrefourClient } from './client';
 import type { FillResult, PlannedLine, ReportedEvent, SlotWindow } from './type';

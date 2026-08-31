@@ -4,10 +4,13 @@ import { defineConfig } from 'wxt';
 // each content script standalone (no shared chunk), provides a unified `browser`
 // namespace for both stores, and builds Chrome and Firefox from the same code.
 //
-// Auto-imports are off on purpose: every WXT API is imported explicitly from
-// '#imports', the way the rest of the codebase imports its own modules.
+// Auto-imports on, the Nuxt way: `browser`, `defineBackground`, `defineContentScript`
+// and the rest are used without importing them; eslintrc generates the globals so
+// the linter knows them too.
 export default defineConfig({
-  imports: false,
+  imports: {
+    eslintrc: { enabled: 9 },
+  },
   manifest: {
     name: 'Menu — courses Carrefour',
     description:

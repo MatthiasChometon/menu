@@ -1,4 +1,3 @@
-import { browser, defineBackground } from '#imports';
 import { createGroceryWorker } from '../domain/job/worker';
 
 const POLL_ALARM = 'menu-poll';

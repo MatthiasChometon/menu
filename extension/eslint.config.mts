@@ -3,11 +3,15 @@ import { defineConfig } from 'eslint/config';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import autoImports from './.wxt/eslint-auto-imports.mjs';
 
 export default defineConfig(
   {
     ignores: ['.wxt/**', '.output/**', 'eslint.config.mts', 'vitest.config.ts', 'wxt.config.ts'],
   },
+  // WXT's generated globals, so the linter knows the auto-imported `browser`,
+  // `defineBackground`, `defineContentScript`, and the rest.
+  autoImports,
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
@@ -48,6 +52,7 @@ export default defineConfig(
   {
     rules: {
       '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       'func-style': ['error', 'expression'],
       'prefer-arrow-callback': 'error',
       '@typescript-eslint/explicit-function-return-type': [

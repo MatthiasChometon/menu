@@ -1,4 +1,3 @@
-import { defineContentScript } from '#imports';
 import { startPairingBridge } from '../domain/pairing/bridge';
 
 export default defineContentScript({

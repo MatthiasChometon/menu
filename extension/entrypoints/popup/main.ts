@@ -1,5 +1,3 @@
-import { browser } from '#imports';
-
 // Pairing is automatic on the menu site now, so the popup asks for nothing. It
 // just says whether this browser is wired up, and offers the one useful action:
 // open the menu, where everything is set up and the basket is filled.
