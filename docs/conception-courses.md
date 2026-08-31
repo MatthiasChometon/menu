@@ -112,7 +112,7 @@ Tables Drizzle, une par sous-slice, découvertes par glob comme le reste du back
   direct et le rapport final.
 - `groceryPreference` — `userId`, plages de créneau acceptables, seuil d'alerte.
 - `groceryProduct` — le référentiel : `foodId`, `ean`, `name`, `size`, `packaging`,
-  `priceCents`, `observedAt`. `front/content/carrefour-products.json` en reste la graine,
+  `priceCents`, `observedAt`. `front/domain/menu/content/carrefour-products.json` en reste la graine,
   mais l'état vivant est ici : un moteur qui tourne dans un navigateur ne peut pas écrire
   dans le dépôt.
 - `groceryPantry` — le placard par compte : `userId`, `foodId`, `grams`. Même raison.
@@ -125,7 +125,7 @@ grammes de la semaine — il a déjà le menu prérendu et le fait pour sa liste
 les envoie avec le job. Le serveur en déduit les articles : il retranche le placard, puis
 divise par la contenance réelle du produit.
 
-Ce partage évite au back de dépendre de `front/content/` : déployé sur o2switch, il n'a pas
+Ce partage évite au back de dépendre de `front/domain/menu/content/` : déployé sur o2switch, il n'a pas
 ces fichiers. Et il évite au front de connaître les formats Carrefour, qui bougent.
 
 La cible est **figée à la création du job**, pas au moment où le navigateur le prend : le

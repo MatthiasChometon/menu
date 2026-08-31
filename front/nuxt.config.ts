@@ -32,7 +32,7 @@ export default defineNuxtConfig({
         // Anything missed here is fetched from the Iconify API at runtime, which
         // the site's own Content-Security-Policy forbids — so it simply would
         // not appear.
-        globInclude: ['**/*.{vue,ts}', 'content/**/*.json'],
+        globInclude: ['**/*.{vue,ts}', 'domain/menu/content/**/*.json'],
         globExclude: ['node_modules', 'dist', '.output', '.nuxt', '**/*.test.ts'],
       },
     },

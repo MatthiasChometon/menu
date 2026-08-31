@@ -6,7 +6,7 @@ import { ObservedProduct, ReferenceEntry } from './type';
 export class GroceryCatalogSeeder {
   constructor(private readonly catalog: GroceryCatalogRepository) {}
 
-  // front/content/carrefour-products.json is the seed, not the live state: it
+  // front/domain/menu/content/carrefour-products.json is the seed, not the live state: it
   // is what the /menu skill reads, and it cannot be written by a browser. Once
   // seeded, runs keep the table current on their own.
   async seed(reference: Record<string, ReferenceEntry | string>): Promise<ObservedProduct[]> {

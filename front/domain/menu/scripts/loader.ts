@@ -28,7 +28,7 @@ export const buildMenuAt = (path: string): Menu => buildMenu(readJsonAt(path), m
 export const latestMenu = (): Menu => {
   const files = readdirSync(join(CONTENT, 'menus')).filter((name): boolean => name.endsWith('.json')).sort();
   const latest = files.at(-1);
-  if (latest === undefined) throw new Error('aucun menu dans content/menus');
+  if (latest === undefined) throw new Error('aucun menu dans domain/menu/content/menus');
   return buildMenuAt(join(CONTENT, 'menus', latest));
 };
 

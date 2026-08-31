@@ -9,7 +9,7 @@ import { GlobalFonts, createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
 import { PLATE_PALETTE, plateWedges } from '../utils/icon';
 import { wrap } from '../utils/og';
-import { FRONT, PUBLIC_DIR } from './paths';
+import { FRONT, SEO_PUBLIC } from './paths';
 
 const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
 const WIDTH = 1200;
@@ -109,13 +109,13 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
 };
 
 const main = async (): Promise<void> => {
-  mkdirSync(PUBLIC_DIR, { recursive: true });
+  mkdirSync(SEO_PUBLIC, { recursive: true });
   for (const locale of ['fr', 'en'] as const) {
     const messages = JSON.parse(readFileSync(join(TRANSLATION_DIR, `${locale}.json`), 'utf8')) as {
       menu: { brand: string; tagline: string; pageLead: string };
     };
     const { brand, tagline, pageLead } = messages.menu;
-    writeFileSync(join(PUBLIC_DIR, `og-${locale}.png`), await drawCard(brand, tagline, pageLead));
+    writeFileSync(join(SEO_PUBLIC, `og-${locale}.png`), await drawCard(brand, tagline, pageLead));
     console.log(`og-${locale}.png (${WIDTH}x${HEIGHT})`);
   }
 };

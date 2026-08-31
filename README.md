@@ -55,8 +55,8 @@ paired browser is online, a run simply waits instead of failing.
 | ------------- | ----- |
 | **Frontend**  | Nuxt 4 · Vue 3 · TypeScript · Nuxt UI · Tailwind CSS v4 · `@nuxtjs/i18n` · nuxt-graphql-client (typed codegen) · PWA · static generation → **Netlify** |
 | **Backend**   | NestJS · Fastify · GraphQL (Apollo, code-first) · Drizzle ORM · PostgreSQL · JWT auth · Nodemailer → **o2switch** |
-| **Extension** | Manifest V3 · TypeScript · Vite · Chrome **and** Firefox · content-script bridge + background worker |
-| **Tooling**   | pnpm monorepo · Docker Compose · Vitest · Playwright (visual regression) · Python (macro validation, image generation) · ESLint / Prettier |
+| **Extension** | Manifest V3 · TypeScript · WXT · Chrome **and** Firefox · content-script bridge + background worker |
+| **Tooling**   | pnpm monorepo · Docker Compose · Vitest · Playwright (visual regression) · TypeScript tooling (macro validation, image generation) · ESLint / Prettier |
 
 ## Architecture
 
@@ -106,7 +106,7 @@ extension separately with `cd extension && pnpm install && pnpm build` (`.output
 
 ```
 menu/
-├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/content/;
+├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/domain/menu/content/;
 │               │              tooling in the slices' scripts/ folders)
 ├─ back/        NestJS API     (Fastify · Apollo GraphQL · Drizzle/Postgres; accounts & profiles)
 ├─ extension/   WXT extension  (Chrome + Firefox; auto-fills the grocery basket)

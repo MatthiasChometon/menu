@@ -5,7 +5,7 @@
 //
 // Usage:
 //   pnpm --dir front pantry --preview   # what will be left, writing nothing
-//   pnpm --dir front pantry --update    # write content/pantry.json
+//   pnpm --dir front pantry --update    # write domain/menu/content/pantry.json
 //   pnpm --dir front pantry --show      # the currently recorded stock
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -104,7 +104,7 @@ const main = (): number => {
     const kept = rows.filter((row): boolean => row.keeps && row.left > 0);
     const items = Object.fromEntries(kept.map((row): [string, number] => [row.food.id, row.left]));
     writeFileSync(PANTRY, JSON.stringify({ afterWeek: menu.weekOf, items }, null, 2) + '\n', 'utf8');
-    console.log(`\n${kept.length} produits enregistres dans content/pantry.json`);
+    console.log(`\n${kept.length} produits enregistres dans domain/menu/content/pantry.json`);
   }
 
   return 0;

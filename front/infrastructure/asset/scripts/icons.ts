@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
 import { FAVICON_SVG, PLATE_PALETTE, plateWedges } from '../utils/icon';
-import { PUBLIC_DIR } from './paths';
+import { SEO_PUBLIC } from './paths';
 
 const SIZES: Record<string, number> = {
   'pwa-192x192.png': 192,
@@ -52,12 +52,12 @@ export const drawIcon = async (size: number): Promise<Buffer> => {
 };
 
 const main = async (): Promise<void> => {
-  mkdirSync(PUBLIC_DIR, { recursive: true });
+  mkdirSync(SEO_PUBLIC, { recursive: true });
   for (const [name, size] of Object.entries(SIZES)) {
-    writeFileSync(join(PUBLIC_DIR, name), await drawIcon(size));
+    writeFileSync(join(SEO_PUBLIC, name), await drawIcon(size));
     console.log(`${name} (${size}x${size})`);
   }
-  writeFileSync(join(PUBLIC_DIR, 'favicon.svg'), FAVICON_SVG, 'utf8');
+  writeFileSync(join(SEO_PUBLIC, 'favicon.svg'), FAVICON_SVG, 'utf8');
   console.log('favicon.svg');
 };
 

@@ -29,8 +29,21 @@ useHead({
          pages, so it only appears when a navigation actually waits on something —
          a chunk not yet cached, or a signed-in page fetching its week. -->
     <NuxtLoadingIndicator color="var(--ui-primary)" />
-    <NuxtLayout>
+    <UiAppShell>
+      <template #header>
+        <MenuHeader />
+      </template>
       <NuxtPage />
-    </NuxtLayout>
+
+      <LegalFooter />
+
+      <BugReportButton />
+      <BugReportDialog />
+      <ImprovementRequestButton />
+      <ImprovementRequestDialog />
+      <template #footer>
+        <MenuBottomNav />
+      </template>
+    </UiAppShell>
   </UApp>
 </template>

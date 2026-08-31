@@ -1,4 +1,4 @@
-import foodData from '~~/content/foods.json';
+import foodData from '~~/domain/menu/content/foods.json';
 import { aisleOrder, buildFoodCatalog } from '../utils/catalog';
 import type { Aisle, Food } from '../types/menu.type';
 

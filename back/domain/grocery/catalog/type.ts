@@ -15,7 +15,7 @@ export type PriceSighting = {
   priceCents: number;
 };
 
-/** One entry of front/content/carrefour-products.json, which seeds the table. */
+/** One entry of front/domain/menu/content/carrefour-products.json, which seeds the table. */
 export type ReferenceEntry = {
   name?: string;
   ean?: string;

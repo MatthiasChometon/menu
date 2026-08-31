@@ -41,5 +41,5 @@ export const componentsList = layerList.map((layerPath) => ({
 // it is on this week's menu.
 export const recipeRouteList = (): string[] =>
   Object.keys(
-    JSON.parse(readFileSync('content/recipes.json', 'utf8')) as Record<string, unknown>,
+    JSON.parse(readFileSync('domain/menu/content/recipes.json', 'utf8')) as Record<string, unknown>,
   ).map((id) => `/recette/${id}`);

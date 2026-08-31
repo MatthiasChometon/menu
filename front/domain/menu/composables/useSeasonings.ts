@@ -1,4 +1,4 @@
-import seasoningData from '~~/content/seasonings.json';
+import seasoningData from '~~/domain/menu/content/seasonings.json';
 import { buildSeasoningCatalog, freshSeasonings } from '../utils/catalog';
 import type { Recipe, Seasoning } from '../types/menu.type';
 

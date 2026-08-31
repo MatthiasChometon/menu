@@ -1,4 +1,4 @@
-import recipeData from '~~/content/recipes.json';
+import recipeData from '~~/domain/menu/content/recipes.json';
 import { buildRecipeCatalog } from '../utils/catalog';
 import type { Recipe } from '../types/menu.type';
 

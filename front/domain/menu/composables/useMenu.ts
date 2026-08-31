@@ -1,7 +1,7 @@
 import { buildMenu, dayOrder, mealOrder, type MenuCatalog, type RawMenu } from '../utils/menu';
 import type { DayKey, MealSlot, Menu } from '../types/menu.type';
 
-const menuModules = import.meta.glob<{ default: RawMenu }>('../../../content/menus/*.json', {
+const menuModules = import.meta.glob<{ default: RawMenu }>('../content/menus/*.json', {
   eager: true,
 });
 

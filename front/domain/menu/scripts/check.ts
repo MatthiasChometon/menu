@@ -3,8 +3,8 @@
 // (buildMenu / verdict); this runner only reads the files and renders the report.
 //
 // Usage:
-//   pnpm --dir front check content/menus/2026-08-03.json
-//   pnpm --dir front check content/menus/2026-08-03.json --courses --detail
+//   pnpm --dir front check domain/menu/content/menus/2026-08-03.json
+//   pnpm --dir front check domain/menu/content/menus/2026-08-03.json --courses --detail
 import { parseArgs } from 'node:util';
 import { aisleOrder } from '../utils/catalog';
 import { macroKeys, sumMacros } from '../utils/nutrition';
