@@ -81,16 +81,20 @@ domain/grocery/
 Le back **ne pilote aucun navigateur** : il calcule la cible, garde l'état, expose la file.
 Toute connaissance de Carrefour vit dans l'extension.
 
-### Découpage extension (`extension/`)
+### Découpage extension (`extension/`, projet [WXT](https://wxt.dev))
 
 ```
 extension/
-├─ manifest.json           Manifest V3, permission hôte www.carrefour.fr
-├─ background/             service worker : sondage de la file, cycle du job
-├─ carrefour/              client de l'enseigne : recherche, panier, créneaux
-├─ engine/                 remplissage, substitution, réconciliation
-└─ popup/                  état, appairage, journal local
+├─ wxt.config.ts             manifest dérivé des entrypoints, permission hôte www.carrefour.fr
+├─ entrypoints/              points d'entrée fins : *.content.ts, background.ts, popup/
+├─ domain/carrefour/         client de l'enseigne + engine (remplissage, substitution, créneaux)
+├─ domain/pairing/           bridge d'appairage site ↔ extension (protocole partagé avec le front)
+└─ domain/job/               file de jobs (claim/report/finish) + orchestration du cycle
 ```
+
+WXT fournit le namespace `browser` unifié (fini le shim), bundle chaque content script en
+autonome (fini le hack d'inline), génère le manifest et build Chrome (MV3) et Firefox (MV2)
+depuis le même code.
 
 Le client Carrefour est **hybride** : il rejoue les appels JSON internes du site quand
 c'est possible (rapide, stable) et retombe sur le pilotage de l'interface quand un

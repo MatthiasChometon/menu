@@ -1,27 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "ES2023",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "strict": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "types": [
-      "node",
-      "chrome",
-      "vitest/globals"
-    ]
-  },
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "extends": "./.wxt/tsconfig.json",
+  "exclude": ["node_modules", ".output", "*.config.ts", "*.config.mts", "eslint.config.mts"]
 }

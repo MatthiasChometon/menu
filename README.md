@@ -60,7 +60,8 @@ paired browser is online, a run simply waits instead of failing.
 
 ## Architecture
 
-- **Monorepo.** `front/`, `back/`, `extension/`, one clone, one `docker compose up`.
+- **Monorepo.** `front/`, `back/` and `extension/`, one clone, one `docker compose up`.
+  The extension is a [WXT](https://wxt.dev) project and shares the front's pairing protocol.
 - **Vertical-slice architecture.** Each feature is a slice split into `domain/` and
   `infrastructure/`, with a strict one-way dependency (`infrastructure ↛ domain`). On
   the front, each slice is a real Nuxt **layer**; on the back, Drizzle uses one table
@@ -98,17 +99,17 @@ docker compose up                # front, API and Postgres
 | Postgres| localhost:5433                |
 
 Source is bind-mounted, so edits hot-reload both the back and the front. Build the
-extension separately with `cd extension && pnpm install && pnpm build` (`dist/` for
-Chrome, `dist-firefox/` for Firefox), then load it unpacked from `chrome://extensions`.
+extension separately with `cd extension && pnpm install && pnpm build` (`.output/chrome-mv3`;
+`pnpm build:firefox` for Firefox), then load it unpacked from `chrome://extensions`.
 
 ## Project structure
 
 ```
 menu/
-├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/content/)
+├─ front/       Nuxt app       (Nuxt UI · Tailwind · i18n · PWA; menu data in front/content/;
+│               │              tooling in the slices' scripts/ folders)
 ├─ back/        NestJS API     (Fastify · Apollo GraphQL · Drizzle/Postgres; accounts & profiles)
-├─ extension/   MV3 extension  (Chrome + Firefox; auto-fills the grocery basket)
-├─ scripts/     Python tooling (macro validation, image generation)
+├─ extension/   WXT extension  (Chrome + Firefox; auto-fills the grocery basket)
 └─ ops/         Deployment     (Netlify Action + o2switch self-deploy cron)
 ```
 

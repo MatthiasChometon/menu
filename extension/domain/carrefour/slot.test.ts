@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DeliverySlot } from '../carrefour/type';
-import { chooseSlot, SlotWindow } from './slot';
+import { chooseSlot } from './slot';
+import type { DeliverySlot, SlotWindow } from './type';
 
 // Friday 21 August 2026 is a Friday, so weekday 5.
 const slot = (begin: string, overrides: Partial<DeliverySlot> = {}): DeliverySlot => ({

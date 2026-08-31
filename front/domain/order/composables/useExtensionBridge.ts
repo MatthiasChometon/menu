@@ -22,12 +22,11 @@ export const useExtensionBridge = (): {
   const onMessage = (event: MessageEvent): void => {
     if (event.source !== window) return;
 
-    const data = event.data as { type?: unknown; configured?: unknown } | null;
-    if (data?.type === 'menu:extension-here') {
+    if (isExtensionHere(event.data)) {
       extensionHere.value = true;
-      extensionConfigured.value = data.configured === true;
+      extensionConfigured.value = event.data.configured;
     }
-    if (data?.type === 'menu:paired') {
+    if (isPaired(event.data)) {
       justPaired.value = true;
       extensionConfigured.value = true;
     }
@@ -37,7 +36,8 @@ export const useExtensionBridge = (): {
     window.addEventListener('message', onMessage);
     // Ask, rather than only wait: the extension may have announced itself before
     // this page was listening, so a question guarantees an answer if it is here.
-    window.postMessage({ type: 'menu:where-is-extension' }, window.location.origin);
+    const ask: WhereIsExtensionMessage = { type: 'menu:where-is-extension' };
+    window.postMessage(ask, window.location.origin);
   });
   onScopeDispose((): void => window.removeEventListener('message', onMessage));
 
@@ -46,10 +46,12 @@ export const useExtensionBridge = (): {
     extensionConfigured,
     justPaired,
     sendPairing: (endpoint: string, token: string): void => {
-      window.postMessage({ type: 'menu:pair', endpoint, token }, window.location.origin);
+      const message: PairMessage = { type: 'menu:pair', endpoint, token };
+      window.postMessage(message, window.location.origin);
     },
     armCarrefourReturn: (returnUrl: string): void => {
-      window.postMessage({ type: 'menu:await-carrefour', returnUrl }, window.location.origin);
+      const message: AwaitCarrefourMessage = { type: 'menu:await-carrefour', returnUrl };
+      window.postMessage(message, window.location.origin);
     },
   };
 };

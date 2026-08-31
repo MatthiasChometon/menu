@@ -1,11 +1,4 @@
-import { DeliverySlot } from '../carrefour/type';
-
-export type SlotWindow = {
-  /** 1 is Monday, 7 is Sunday, as ISO 8601 numbers them. */
-  weekday: number;
-  startMinute: number;
-  endMinute: number;
-};
+import type { DeliverySlot, SlotWindow } from './type';
 
 const minutesOf = (date: Date): number => date.getHours() * 60 + date.getMinutes();
 
@@ -14,9 +7,7 @@ const weekdayOf = (date: Date): number => (date.getDay() === 0 ? 7 : date.getDay
 
 const fits = (slot: DeliverySlot, windows: SlotWindow[]): boolean => {
   const begin = new Date(slot.begin);
-  if (Number.isNaN(begin.getTime())) {
-    return false;
-  }
+  if (Number.isNaN(begin.getTime())) return false;
 
   const weekday = weekdayOf(begin);
   const minute = minutesOf(begin);
@@ -39,9 +30,7 @@ export const chooseSlot = (
 ): DeliverySlot | undefined => {
   // No window means no slot is acceptable, so none is taken and the report
   // lists what was on offer instead.
-  if (windows.length === 0) {
-    return undefined;
-  }
+  if (windows.length === 0) return undefined;
 
   return slots
     .filter((slot): boolean => slot.available)

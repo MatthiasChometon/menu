@@ -1,4 +1,4 @@
-import { api } from '../browser';
+import { browser } from '#imports';
 
 // Pairing is automatic on the menu site now, so the popup asks for nothing. It
 // just says whether this browser is wired up, and offers the one useful action:
@@ -8,20 +8,20 @@ const MENU_URL = 'https://menu.mtxlab.xyz/courses-auto';
 const statusLine = document.querySelector<HTMLParagraphElement>('#status');
 
 const render = async (): Promise<void> => {
-  const saved = await api.storage.local.get('deviceToken');
+  const saved = await browser.storage.local.get('deviceToken');
   const paired = typeof saved.deviceToken === 'string';
 
   if (statusLine !== null) {
     statusLine.textContent = paired
       ? 'Ce navigateur est branché : le panier se remplit depuis Le Menu.'
-      : "Pas encore branché. Ouvre Le Menu, va sur « Courses » : ça se configure tout seul.";
+      : 'Pas encore branché. Ouvre Le Menu, va sur « Courses » : ça se configure tout seul.';
     statusLine.dataset.paired = String(paired);
   }
 };
 
 document.querySelector('#open')?.addEventListener('click', (event: Event): void => {
   event.preventDefault();
-  void api.tabs.create({ url: MENU_URL });
+  void browser.tabs.create({ url: MENU_URL });
   window.close();
 });
 

@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { Cart, CartLine, DeliverySlot, SearchHit, ShopClient, Session } from '../carrefour/type';
-import { BasketFiller } from './fill';
-import { PlannedLine, ReportedEvent } from './type';
+import { createBasketFiller } from './fill';
+import type {
+  Cart,
+  CartLine,
+  DeliverySlot,
+  PlannedLine,
+  ReportedEvent,
+  SearchHit,
+  Session,
+  ShopClient,
+} from './type';
 
 const RICE: PlannedLine = {
   foodId: 'brownRice',
@@ -107,7 +115,7 @@ describe('filling a basket whatever the shop means by counter', () => {
     const shop = fakeShop({ counter: 'absolute' });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(2);
     expect(result.missing).toEqual([]);
@@ -120,7 +128,7 @@ describe('filling a basket whatever the shop means by counter', () => {
     const shop = fakeShop({ counter: 'increment' });
     const { report } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(2);
     expect(result.missing).toEqual([]);
@@ -132,7 +140,7 @@ describe('when the shop will not give what was asked', () => {
     const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 1 } });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(result.missing).toEqual(['brownRice']);
     expect(events).toContainEqual(
@@ -144,7 +152,7 @@ describe('when the shop will not give what was asked', () => {
     const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 1 } });
     const { report } = collect();
 
-    await new BasketFiller(shop).run([RICE], [], report);
+    await createBasketFiller(shop).run([RICE], [], report);
 
     expect(shop.held.get(RICE.ean!)).toBe(1);
   });
@@ -167,7 +175,7 @@ describe('starting from a basket someone already filled', () => {
     });
     const { report } = collect();
 
-    await new BasketFiller(shop).run([RICE], [], report);
+    await createBasketFiller(shop).run([RICE], [], report);
 
     expect(shop.state.emptied).toBe(1);
     expect(shop.held.get(RICE.ean!)).toBe(2);
@@ -189,7 +197,7 @@ describe('starting from a basket someone already filled', () => {
     });
     const { report, events } = collect();
 
-    await new BasketFiller(shop).run([RICE], [], report);
+    await createBasketFiller(shop).run([RICE], [], report);
 
     expect(events).toContainEqual(
       expect.objectContaining({ kind: 'CART_EMPTIED', detail: '3 x Chocolate' }),
@@ -202,7 +210,7 @@ describe('what it refuses to do', () => {
     const shop = fakeShop({ counter: 'absolute', signedIn: false });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(result.outcome).toBe('BLOCKED');
     expect(shop.held.size).toBe(0);
@@ -213,7 +221,7 @@ describe('what it refuses to do', () => {
     const shop = fakeShop({ counter: 'absolute' });
     const { report, events } = collect();
 
-    const result = await new BasketFiller(shop).run(
+    const result = await createBasketFiller(shop).run(
       [{ foodId: 'tofu', grams: 400, fromPantry: 0 }],
       [],
       report,
@@ -232,7 +240,7 @@ describe('what the run brings back about the products', () => {
     const { report } = collect();
 
     // The fake charges 1.79 a unit and the plan asks for two.
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(result.sightings).toEqual([
       expect.objectContaining({ foodId: 'brownRice', priceCents: 179 }),
@@ -243,16 +251,16 @@ describe('what the run brings back about the products', () => {
     const shop = fakeShop({ counter: 'absolute' });
     const { report } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
-    expect(result.sightings[0].size).toBeUndefined();
+    expect(result.sightings[0]?.size).toBeUndefined();
   });
 
   it('leaves out a line the shop never supplied', async () => {
     const shop = fakeShop({ counter: 'absolute', stockCap: { [RICE.ean!]: 0 } });
     const { report } = collect();
 
-    const result = await new BasketFiller(shop).run([RICE], [], report);
+    const result = await createBasketFiller(shop).run([RICE], [], report);
 
     expect(result.sightings).toEqual([]);
   });

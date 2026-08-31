@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { Cart, SearchHit, Session, ShopClient } from '../carrefour/type';
-import { Substituter } from './substitute';
-import { PlannedLine } from './type';
+import { createSubstituter } from './substitute';
+import type { Cart, PlannedLine, SearchHit, Session, ShopClient } from './type';
 
 const shopOffering = (hits: SearchHit[]): ShopClient => ({
   session: (): Promise<Session> => Promise.resolve({ signedIn: true }),
@@ -33,7 +32,7 @@ describe('finding a stand-in product', () => {
   it('refuses a candidate that drops what the menu insisted on', async () => {
     const shop = shopOffering([hit('Riz Long Grain BEN’S', 'le paquet de 500g')]);
 
-    const found = await new Substituter(shop).findFor(line());
+    const found = await createSubstituter(shop).findFor(line());
 
     expect(found).toBeUndefined();
   });
@@ -44,7 +43,7 @@ describe('finding a stand-in product', () => {
       hit('Riz Complet Bio CARREFOUR', 'le paquet de 500g', '222'),
     ]);
 
-    const found = await new Substituter(shop).findFor(line());
+    const found = await createSubstituter(shop).findFor(line());
 
     expect(found).toEqual(expect.objectContaining({ ean: '222', size: 500 }));
   });
@@ -55,7 +54,7 @@ describe('finding a stand-in product', () => {
       hit('Riz Complet CARREFOUR BIO', 'le paquet de 500g', '222'),
     ]);
 
-    const found = await new Substituter(shop).findFor(line());
+    const found = await createSubstituter(shop).findFor(line());
 
     expect(found?.ean).toBe('222');
   });
@@ -63,7 +62,7 @@ describe('finding a stand-in product', () => {
   it('turns down a product whose content the shop never states', async () => {
     const shop = shopOffering([hit('Riz Complet CARREFOUR', 'la boite', '111')]);
 
-    const found = await new Substituter(shop).findFor(line());
+    const found = await createSubstituter(shop).findFor(line());
 
     expect(found).toBeUndefined();
   });
@@ -71,7 +70,7 @@ describe('finding a stand-in product', () => {
   it('falls back on how the menu names the food when no product is on file', async () => {
     const shop = shopOffering([hit('Tofu nature BJORG', 'le bloc de 200g', '333')]);
 
-    const found = await new Substituter(shop).findFor(
+    const found = await createSubstituter(shop).findFor(
       line({
         foodId: 'tofu',
         productName: undefined,
@@ -86,7 +85,7 @@ describe('finding a stand-in product', () => {
   it('has nothing to search on when the food has no name at all', async () => {
     const shop = shopOffering([hit('Tofu nature', 'le bloc de 200g')]);
 
-    const found = await new Substituter(shop).findFor(
+    const found = await createSubstituter(shop).findFor(
       line({ productName: undefined, label: undefined }),
     );
 
@@ -94,7 +93,7 @@ describe('finding a stand-in product', () => {
   });
 
   it('says nothing when the shelves come back empty', async () => {
-    const found = await new Substituter(shopOffering([])).findFor(line());
+    const found = await createSubstituter(shopOffering([])).findFor(line());
 
     expect(found).toBeUndefined();
   });

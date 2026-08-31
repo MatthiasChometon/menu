@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mts', 'vite.config.mts', 'dist/**'],
+    ignores: ['.wxt/**', '.output/**', 'eslint.config.mts', 'vitest.config.ts', 'wxt.config.ts'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -29,16 +29,21 @@ export default defineConfig(
     },
   },
   {
-    // The engine decides what to do; only the carrefour and menu layers may
-    // talk to the network. Keeping it that way is what makes the engine
-    // testable without a browser or a shop.
-    files: ['engine/**/*.ts'],
+    // The engine decides what to do; only the client adapter may reach the
+    // network. Keeping it that way is what makes the engine testable without a
+    // browser or a shop.
+    files: ['domain/carrefour/**/*.ts'],
     rules: {
       'no-restricted-globals': [
         'error',
         { name: 'fetch', message: 'the engine goes through its clients, never the network.' },
       ],
     },
+  },
+  {
+    // The client is the adapter: the one place the shop is actually called.
+    files: ['domain/carrefour/client.ts'],
+    rules: { 'no-restricted-globals': 'off' },
   },
   {
     rules: {
