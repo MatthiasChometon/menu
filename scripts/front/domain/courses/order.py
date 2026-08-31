@@ -1,10 +1,10 @@
 """Prepare la commande drive de la semaine : quoi acheter, en combien d'articles.
 
 Usage:
-    python scripts/shopping_order.py --list          # la liste a commander
-    python scripts/shopping_order.py --check         # la semaine a-t-elle deja ete commandee ?
-    python scripts/shopping_order.py --record        # marquer la semaine comme commandee
-    python scripts/shopping_order.py --history       # les semaines deja commandees
+    python scripts/front/domain/courses/order.py --list          # la liste a commander
+    python scripts/front/domain/courses/order.py --check         # la semaine a-t-elle deja ete commandee ?
+    python scripts/front/domain/courses/order.py --record        # marquer la semaine comme commandee
+    python scripts/front/domain/courses/order.py --history       # les semaines deja commandees
 
 Convertit chaque besoin en nombre d'articles reels : on n'achete pas 960 g de
 riz mais un paquet de 1 kg. Les fruits et legumes sans conditionnement sont
@@ -19,7 +19,7 @@ import math
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 CONTENT = PROJECT_ROOT / "front" / "content"
 ORDERS = CONTENT / "orders.json"
 

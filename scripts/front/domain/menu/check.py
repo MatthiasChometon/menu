@@ -1,8 +1,8 @@
 """Verifie qu'un menu de la semaine atteint les cibles nutritionnelles de Matthias.
 
 Usage:
-    python scripts/check_menu.py content/menus/2026-08-03.json
-    python scripts/check_menu.py content/menus/2026-08-03.json --courses --detail
+    python scripts/front/domain/menu/check.py content/menus/2026-08-03.json
+    python scripts/front/domain/menu/check.py content/menus/2026-08-03.json --courses --detail
 
 Le menu decrit chaque jour, chaque repas (recette + grammages reels en g ou ml).
 Les macros viennent de content/foods.json. Voir le SKILL.md de menu.
@@ -20,7 +20,7 @@ LABELS = {"kcal": "kcal", "protein": "Prot", "fat": "Lip", "carbs": "Gluc", "fib
 MEAL_ORDER = ("breakfast", "postWorkout", "lunch", "snack", "dinner")
 AISLE_ORDER = ("butcher", "dairy", "produce", "frozen", "grocery", "supplement")
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 FRONT = PROJECT_ROOT / "front"
 
 

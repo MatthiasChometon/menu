@@ -1,7 +1,7 @@
 """Envoie les photos du depot vers l'hebergement d'images o2switch.
 
 Usage:
-    python scripts/seed_images_o2switch.py [--dry-run]
+    python ops/seed-images.py [--dry-run]
 
 Sert une seule fois : a partir de la, les photos vivent sur le serveur et la
 route d'envoi de l'API prend le relais. Le script reste commite parce qu'il

@@ -1,7 +1,7 @@
 """Genere les icones PWA du projet (ecran d'accueil iOS/Android + favicon).
 
 Usage:
-    python scripts/generate_icons.py
+    python scripts/front/infrastructure/assets/icons.py
 
 Dessine une assiette vue de dessus sur un fond degrade lime, avec trois parts
 colorees qui evoquent la repartition proteines / glucides / lipides.
@@ -13,7 +13,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 FRONT = PROJECT_ROOT / "front"
 PUBLIC_DIR = FRONT / "public"
 

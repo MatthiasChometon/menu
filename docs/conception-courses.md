@@ -130,7 +130,7 @@ rapport doit rester lisible face à ce qui a été demandé, pas face à un menu
 ## 5. Déroulé d'un job
 
 1. **Cible** — le back calcule les lignes attendues (menu de la semaine, déduction du
-   placard, conversion en articles). Même logique que `scripts/shopping_order.py`.
+   placard, conversion en articles). Même logique que `scripts/front/domain/courses/order.py`.
 2. **Prise en charge** — l'extension d'un poste appairé prend le job en attente.
 3. **Session** — elle vérifie que l'utilisateur est connecté sur Carrefour et en livraison
    à domicile. Sinon : job `blocked`, notification, aucune tentative de connexion.

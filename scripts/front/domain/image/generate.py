@@ -3,10 +3,10 @@
 Prerequis : ComfyUI lance sur http://127.0.0.1:8188.
 
 Usage:
-    python scripts/generate_images.py --only chiliChicken,banana   # essai cible
-    python scripts/generate_images.py --recipes                    # les 16 plats
-    python scripts/generate_images.py --foods                      # les ingredients
-    python scripts/generate_images.py --all --force                # tout regenerer
+    python scripts/front/domain/image/generate.py --only chiliChicken,banana   # essai cible
+    python scripts/front/domain/image/generate.py --recipes                    # les 16 plats
+    python scripts/front/domain/image/generate.py --foods                      # les ingredients
+    python scripts/front/domain/image/generate.py --all --force                # tout regenerer
 
 Les images arrivent dans assets/images/recipe|food/<id>.webp, ou le site les
 decouvre par glob. Une image deja presente est ignoree sauf avec --force.
@@ -27,7 +27,7 @@ from pathlib import Path
 from PIL import Image
 
 COMFY = "http://127.0.0.1:8188"
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 COMFY_DIR = Path(__file__).resolve().parent / "comfy"
 ASSETS = PROJECT_ROOT / "front" / "assets" / "images"
 

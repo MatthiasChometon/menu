@@ -1,9 +1,9 @@
 """Calcule ce qui reste en stock apres la semaine, et le deduit de la prochaine commande.
 
 Usage:
-    python scripts/pantry.py --preview     # ce qu'il restera, sans rien ecrire
-    python scripts/pantry.py --update      # ecrit content/pantry.json
-    python scripts/pantry.py --show        # le stock actuellement enregistre
+    python scripts/front/domain/courses/pantry.py --preview     # ce qu'il restera, sans rien ecrire
+    python scripts/front/domain/courses/pantry.py --update      # ecrit content/pantry.json
+    python scripts/front/domain/courses/pantry.py --show        # le stock actuellement enregistre
 
 On achete des paquets entiers mais on ne consomme que le besoin : un litre d'huile
 pour 114 ml utilises laisse 386 ml pour la semaine suivante. Ce fichier evite de
@@ -17,7 +17,7 @@ import json
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 CONTENT = PROJECT_ROOT / "front" / "content"
 PANTRY = CONTENT / "pantry.json"
 

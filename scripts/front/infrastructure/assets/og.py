@@ -1,7 +1,7 @@
 """Genere les images d'apercu de lien (Open Graph) du site.
 
 Usage:
-    python scripts/generate_og_image.py
+    python scripts/front/infrastructure/assets/og.py
 
 Quand on colle l'URL du site dans Discord, WhatsApp ou Slack, la plateforme va
 lire les balises og: de la page et fabrique une carte. Sans image, la carte est
@@ -21,7 +21,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
 FRONT = PROJECT_ROOT / "front"
 PUBLIC_DIR = FRONT / "public"
 TRANSLATION_DIR = FRONT / "domain" / "menu" / "translation"

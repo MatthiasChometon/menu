@@ -1,7 +1,7 @@
 #!/bin/sh
 # Deploys the API and its schema to the o2switch account.
 #
-#   ./scripts/deploy-o2switch.sh
+#   ./ops/deploy-o2switch.sh
 #
 # The front is NOT deployed here: it stays on Netlify, which serves it over a
 # trusted certificate for free. o2switch holds the API and the database.
