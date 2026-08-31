@@ -1,36 +1,8 @@
 import recipeData from '~~/content/recipes.json';
+import { buildRecipeCatalog } from '../utils/catalog';
+import type { Recipe } from '../types/menu.type';
 
-type RawRecipe = {
-  slot: string;
-  name: LocalizedText;
-  prepMinutes: number;
-  batch: boolean;
-  ingredients: Record<string, number>;
-  seasonings?: string[];
-  steps: LocalizedSteps;
-};
-
-const SLOT_LIST: readonly RecipeSlot[] = ['main', 'breakfast', 'postWorkout', 'snack'];
-
-const rawRecipes: Record<string, RawRecipe> = recipeData;
-
-const toSlot = (value: string): RecipeSlot => SLOT_LIST.find((slot) => slot === value) ?? 'main';
-
-const catalog: Record<string, Recipe> = Object.fromEntries(
-  Object.entries(rawRecipes).map(([id, raw]): [string, Recipe] => [
-    id,
-    {
-      id,
-      slot: toSlot(raw.slot),
-      name: raw.name,
-      prepMinutes: raw.prepMinutes,
-      batch: raw.batch,
-      ingredients: raw.ingredients,
-      seasonings: raw.seasonings ?? [],
-      steps: raw.steps,
-    },
-  ]),
-);
+const catalog = buildRecipeCatalog(recipeData);
 
 export const useRecipes = (): {
   recipes: Record<string, Recipe>;

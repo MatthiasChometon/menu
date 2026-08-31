@@ -7,7 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
-import { PUBLIC_DIR } from '../../../lib/paths.ts';
+import { PUBLIC_DIR } from './lib/paths.ts';
 
 const SIZES: Record<string, number> = {
   'pwa-192x192.png': 192,

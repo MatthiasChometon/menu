@@ -1,25 +1,8 @@
 import seasoningData from '~~/content/seasonings.json';
+import { buildSeasoningCatalog, freshSeasonings } from '../utils/catalog';
+import type { Recipe, Seasoning } from '../types/menu.type';
 
-type RawSeasoning = {
-  name: LocalizedText;
-  icon: string;
-  fresh?: boolean;
-  amount?: LocalizedText;
-};
-
-const rawSeasonings: Record<string, RawSeasoning> = seasoningData;
-
-const catalog: Record<string, Seasoning> = Object.fromEntries(
-  Object.entries(rawSeasonings).map(([id, raw]): [string, Seasoning] => [
-    id,
-    { id, name: raw.name, icon: raw.icon, fresh: raw.fresh === true, amount: raw.amount },
-  ]),
-);
-
-const resolve = (ids: string[]): Seasoning[] =>
-  ids
-    .map((id): Seasoning | undefined => catalog[id])
-    .filter((seasoning): seasoning is Seasoning => seasoning !== undefined);
+const catalog = buildSeasoningCatalog(seasoningData);
 
 export const useSeasonings = (): {
   seasoningOf: (id: string) => Seasoning | undefined;
@@ -27,11 +10,9 @@ export const useSeasonings = (): {
   freshOf: (recipes: Recipe[]) => Seasoning[];
 } => ({
   seasoningOf: (id: string): Seasoning | undefined => catalog[id],
-  seasoningsOf: (recipe: Recipe): Seasoning[] => resolve(recipe.seasonings),
-  // What has to be bought for the week: the same head of garlic serves every
-  // recipe that calls for it, so each one appears once.
-  freshOf: (recipes: Recipe[]): Seasoning[] =>
-    resolve([...new Set(recipes.flatMap((recipe): string[] => recipe.seasonings))]).filter(
-      (seasoning): boolean => seasoning.fresh,
-    ),
+  seasoningsOf: (recipe: Recipe): Seasoning[] =>
+    recipe.seasonings
+      .map((id): Seasoning | undefined => catalog[id])
+      .filter((seasoning): seasoning is Seasoning => seasoning !== undefined),
+  freshOf: (recipes: Recipe[]): Seasoning[] => freshSeasonings(recipes, catalog),
 });

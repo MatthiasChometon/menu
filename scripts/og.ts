@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GlobalFonts, createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
-import { FRONT, PUBLIC_DIR } from '../../../lib/paths.ts';
+import { FRONT, PUBLIC_DIR } from './lib/paths.ts';
 
 const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
 const WIDTH = 1200;

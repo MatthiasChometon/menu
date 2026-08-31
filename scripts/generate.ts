@@ -13,8 +13,8 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { crc32 } from 'node:zlib';
 import sharp from 'sharp';
-import { ASSETS } from '../../../lib/paths.ts';
-import { readJson } from '../../../lib/content.ts';
+import { ASSETS } from './lib/paths.ts';
+import { readJsonAt } from './lib/content.ts';
 
 const COMFY = 'http://127.0.0.1:8188';
 const IMAGES = join(ASSETS, 'images');
@@ -146,8 +146,8 @@ const main = async (): Promise<number> => {
     },
   });
 
-  const prompts = readJson<Prompts>(join(COMFY_DIR, 'prompts.json'));
-  const template = readJson<Workflow>(join(COMFY_DIR, 'food-photo.api.json'));
+  const prompts = readJsonAt<Prompts>(join(COMFY_DIR, 'prompts.json'));
+  const template = readJsonAt<Workflow>(join(COMFY_DIR, 'food-photo.api.json'));
   const wanted = values.only ? new Set(values.only.split(',')) : undefined;
 
   const targets: [kind: 'recipe' | 'food', id: string, subject: string][] = [];
