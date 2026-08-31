@@ -1,0 +1,28 @@
+{
+  "name": "menu-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Repo tooling (menu validation, grocery ordering, image + asset generation), run with tsx.",
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "check": "tsx front/domain/menu/check.ts",
+    "pantry": "tsx front/domain/courses/pantry.ts",
+    "order": "tsx front/domain/courses/order.ts",
+    "generate": "tsx front/domain/image/generate.ts",
+    "icons": "tsx front/infrastructure/assets/icons.ts",
+    "og": "tsx front/infrastructure/assets/og.ts",
+    "seed-images": "tsx front/infrastructure/assets/seed.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.8",
+    "sharp": "^0.35.4"
+  }
+}
