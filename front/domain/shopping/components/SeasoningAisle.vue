@@ -9,13 +9,17 @@ const {
   index?: number;
 }>();
 
-const emit = defineEmits<{ toggle: [seasoningId: string] }>();
+const emit = defineEmits<{ toggle: [seasoningId: string]; pantry: [seasoningId: string] }>();
 
 const { nameOf } = useFoodFormat();
+const { t } = useNuxtApp().$i18n;
 
 const pickedCount = computed(
   (): number => seasonings.filter((seasoning): boolean => pickedIds.includes(seasoning.id)).length,
 );
+
+const pantryLabel = (seasoning: Seasoning): string =>
+  `${t('shopping.pantry.add')} — ${nameOf(seasoning)}`;
 </script>
 
 <template>
@@ -28,10 +32,10 @@ const pickedCount = computed(
     </div>
     <p class="mb-2 px-1 text-sm text-muted">{{ $t('shopping.seasoningHint') }}</p>
     <ul class="space-y-2">
-      <li v-for="seasoning in seasonings" :key="seasoning.id">
+      <li v-for="seasoning in seasonings" :key="seasoning.id" class="flex items-stretch gap-2">
         <button
           type="button"
-          class="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200"
+          class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200"
           :class="
             pickedIds.includes(seasoning.id)
               ? 'border-transparent bg-elevated/40 opacity-55'
@@ -69,6 +73,16 @@ const pickedCount = computed(
           <p v-if="seasoning.amount !== undefined" class="shrink-0 font-bold">
             {{ nameOf({ name: seasoning.amount }) }}
           </p>
+        </button>
+
+        <button
+          type="button"
+          class="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl border border-default text-dimmed transition-colors hover:border-primary/40 hover:text-primary"
+          :aria-label="pantryLabel(seasoning)"
+          :title="pantryLabel(seasoning)"
+          @click="emit('pantry', seasoning.id)"
+        >
+          <UIcon name="i-lucide-archive" class="size-4" aria-hidden="true" />
         </button>
       </li>
     </ul>

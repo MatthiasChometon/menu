@@ -29,6 +29,20 @@
     "forHousehold": "Quantities for",
     "people": "people",
     "onePerson": "you alone",
-    "unscaled": "Quantities as the menu wrote them: your household could not be loaded."
+    "unscaled": "Quantities as the menu wrote them: your household could not be loaded.",
+    "pantry": {
+      "add": "Already in the pantry",
+      "remove": "Put back on the list",
+      "sectionTitle": "Already in the pantry",
+      "sectionHint": "These no longer count towards the total or the checklist."
+    },
+    "share": {
+      "button": "Share",
+      "copied": "List copied to the clipboard."
+    },
+    "online": {
+      "online": "Online",
+      "offline": "Offline: your ticks stay saved on this phone."
+    }
   }
 }
