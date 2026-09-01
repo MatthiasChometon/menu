@@ -13,6 +13,62 @@
     "ingredientsTotal": "Quantités totales",
     "openRecipe": "Voir les étapes",
     "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées.",
+    "kitchenMode": {
+      "open": "Mode cuisine",
+      "title": "Mode cuisine",
+      "back": "Quitter",
+      "wakeLockOn": "Écran maintenu allumé",
+      "empty": {
+        "title": "Rien à cuisiner",
+        "hint": "Retourne au batch cooking pour choisir une semaine."
+      }
+    },
+    "equipment": {
+      "title": "Avant de commencer",
+      "hint": "Sors tout ça sur le plan de travail : plus besoin de fouiller un tiroir en pleine cuisson.",
+      "items": {
+        "knife": "Couteau",
+        "cuttingBoard": "Planche à découper",
+        "scale": "Balance",
+        "mixingBowl": "Saladier",
+        "ladle": "Louche / spatule",
+        "colander": "Passoire",
+        "ovenTray": "Plaque de four",
+        "cookingVessel": "Marmites / poêles",
+        "container": "Boîtes de conservation"
+      }
+    },
+    "timeline": {
+      "title": "Feuille de route",
+      "hint": "L'ordre pour tout sortir en même temps : ce qui mijote pendant que tu découpes le reste.",
+      "readyIn": "Tout est prêt en",
+      "insteadOf": "au lieu de",
+      "startsAt": "Démarre à",
+      "handsOn": "À préparer",
+      "simmers": "Mijote sans toi",
+      "doneAt": "Session terminée à"
+    },
+    "containers": {
+      "title": "Boîtes & étiquettes",
+      "hint": "Une boîte par repas, déjà datée d'après le menu de la semaine.",
+      "count": "boîtes au total",
+      "bestBefore": "à consommer le"
+    },
+    "timers": {
+      "title": "Minuteurs",
+      "hint": "Un minuteur par plat qui cuit seul : lance-le et occupe-toi du reste.",
+      "labelField": "Nom",
+      "labelPlaceholder": "Riz",
+      "minutesField": "Minutes",
+      "add": "Ajouter",
+      "empty": "Aucun minuteur pour l'instant.",
+      "start": "Démarrer",
+      "pause": "Mettre en pause",
+      "reset": "Réinitialiser",
+      "remove": "Supprimer",
+      "done": "Terminé !",
+      "playSound": "Jouer le son"
+    },
     "tips": {
       "title": "Trois réflexes qui font gagner du temps",
       "start": "Lancer les féculents en premier : ils cuisent seuls pendant que tu prépares le reste.",

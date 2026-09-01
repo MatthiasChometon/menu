@@ -13,6 +13,62 @@
     "ingredientsTotal": "Total quantities",
     "openRecipe": "See the method",
     "raw": "Weigh grains and meat raw, tinned pulses drained.",
+    "kitchenMode": {
+      "open": "Kitchen mode",
+      "title": "Kitchen mode",
+      "back": "Exit",
+      "wakeLockOn": "Screen kept on",
+      "empty": {
+        "title": "Nothing to cook",
+        "hint": "Go back to batch cooking to pick a week."
+      }
+    },
+    "equipment": {
+      "title": "Before you start",
+      "hint": "Get all of this out on the counter: nothing to dig for mid-cook.",
+      "items": {
+        "knife": "Knife",
+        "cuttingBoard": "Cutting board",
+        "scale": "Scale",
+        "mixingBowl": "Mixing bowl",
+        "ladle": "Ladle / spatula",
+        "colander": "Colander",
+        "ovenTray": "Oven tray",
+        "cookingVessel": "Pots / pans",
+        "container": "Storage containers"
+      }
+    },
+    "timeline": {
+      "title": "Roadmap",
+      "hint": "The order that gets everything done together: what simmers while you chop the rest.",
+      "readyIn": "Everything is ready in",
+      "insteadOf": "instead of",
+      "startsAt": "Starts at",
+      "handsOn": "Hands-on",
+      "simmers": "Simmers on its own",
+      "doneAt": "Session done at"
+    },
+    "containers": {
+      "title": "Boxes & labels",
+      "hint": "One box per meal, already dated from the week's menu.",
+      "count": "boxes total",
+      "bestBefore": "eat by"
+    },
+    "timers": {
+      "title": "Timers",
+      "hint": "One timer per dish that cooks on its own: start it and move on to the rest.",
+      "labelField": "Name",
+      "labelPlaceholder": "Rice",
+      "minutesField": "Minutes",
+      "add": "Add",
+      "empty": "No timer yet.",
+      "start": "Start",
+      "pause": "Pause",
+      "reset": "Reset",
+      "remove": "Remove",
+      "done": "Done!",
+      "playSound": "Play sound"
+    },
     "tips": {
       "title": "Three habits that save time",
       "start": "Start the grains first: they cook on their own while you prepare the rest.",
