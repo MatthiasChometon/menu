@@ -19,6 +19,7 @@ const {
   needsSpread,
   spread,
   improveWeek,
+  isImproving,
   isValid,
   isSaving,
   canSave,
@@ -275,37 +276,75 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
 
     <!-- The week, once the choices are made. -->
     <template v-else>
-      <div class="rise mt-6 flex flex-wrap items-center gap-2">
-        <h2 class="text-2xl font-black tracking-tight">{{ $t('planner.week') }}</h2>
-        <UBadge :color="isValid ? 'primary' : 'neutral'" variant="subtle">
-          {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
-        </UBadge>
-        <div class="ml-auto flex flex-wrap items-center gap-2">
-          <!-- One tap mends every day at once. Off-target days each take their
-               best swap; a week already on target has nothing to do, so it is
-               greyed rather than left to be pressed for no effect. -->
-          <UButton
-            v-if="hasWeek"
-            icon="i-lucide-wand-sparkles"
-            variant="soft"
-            color="primary"
-            size="sm"
-            class="font-semibold"
-            :disabled="isValid"
-            @click="improveWeek"
-          >
-            {{ $t('planner.improveWeek') }}
-          </UButton>
-          <UButton
-            icon="i-lucide-refresh-cw"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            :disabled="!canSpread"
-            @click="spread"
-          >
-            {{ $t('planner.spreadAgain') }}
-          </UButton>
+      <div class="rise mt-6">
+        <div class="flex flex-wrap items-center gap-2">
+          <h2 class="font-serif text-3xl tracking-tight">{{ $t('planner.week') }}</h2>
+          <UBadge :color="isValid ? 'primary' : 'neutral'" variant="subtle">
+            {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
+          </UBadge>
+          <div class="ml-auto flex flex-wrap items-center gap-2">
+            <!-- One tap mends every day at once. Off-target days each take their
+                 best swap; a week already on target has nothing to do, so it is
+                 greyed rather than left to be pressed for no effect. It solves a
+                 whole week's swaps, so it spins while it works rather than
+                 freezing the page. -->
+            <UButton
+              v-if="hasWeek"
+              icon="i-lucide-wand-sparkles"
+              variant="soft"
+              color="primary"
+              size="sm"
+              class="font-semibold"
+              :loading="isImproving"
+              :disabled="isValid || isImproving"
+              @click="improveWeek"
+            >
+              {{ $t('planner.improveWeek') }}
+            </UButton>
+            <UButton
+              icon="i-lucide-refresh-cw"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :disabled="!canSpread"
+              @click="spread"
+            >
+              {{ $t('planner.spreadAgain') }}
+            </UButton>
+            <!-- Save lives here, next to the week it saves and the badge that
+                 says it is on target, rather than only in the bottom bar. -->
+            <UButton
+              v-if="hasWeek"
+              :icon="justSaved ? 'i-lucide-check' : 'i-lucide-cloud-upload'"
+              :color="justSaved ? 'success' : 'primary'"
+              size="sm"
+              class="font-semibold text-white"
+              :loading="isSaving"
+              :disabled="!canSave && !justSaved"
+              @click="saveAndView"
+            >
+              <span :key="String(justSaved)" class="pop">
+                {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
+              </span>
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Why the save button is grey, right under it: signed out, nothing
+             changed, or already done — said where the eye already is. -->
+        <div v-if="hasWeek" class="mt-2" aria-live="polite">
+          <p v-if="user === undefined" class="text-sm text-muted">
+            {{ $t('planner.saving.signedOut') }}
+          </p>
+          <p v-else-if="saveFailed" class="text-sm text-error" role="alert">
+            {{ $t('planner.saving.failed') }}
+          </p>
+          <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
+          <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
+            {{ $t('planner.saving.done') }} {{ savedLabel }} —
+            {{ labelOf(plannerWeek).toLowerCase() }}
+          </p>
+          <p v-else class="text-sm text-muted">{{ $t('planner.saving.nothingToSave') }}</p>
         </div>
       </div>
 
@@ -322,33 +361,6 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       </section>
 
       <PlannerHouseholdBalance v-if="hasWeek" />
-
-      <section
-        v-if="hasWeek"
-        class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"
-      >
-        <div class="flex flex-wrap items-center gap-3">
-          <!-- The button confirms its own action. It is where the finger and
-               the eye already are, so nothing has to appear elsewhere and
-               nothing flies past while somebody is looking down. -->
-          <p v-if="user === undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.signedOut') }}
-          </p>
-          <p v-else-if="saveFailed" class="text-sm text-error" role="alert">
-            {{ $t('planner.saving.failed') }}
-          </p>
-          <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
-          <!-- Kept afterwards, with the time: the question "is it actually
-               saved?" comes back long after the confirmation has gone. -->
-          <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.done') }} {{ savedLabel }} —
-            {{ labelOf(plannerWeek).toLowerCase() }}
-          </p>
-          <!-- Nothing saved and nothing changed: the button is grey for a
-               reason, and saying none reads as a fault. -->
-          <p v-else class="text-sm text-muted">{{ $t('planner.saving.nothingToSave') }}</p>
-        </div>
-      </section>
     </template>
 
     <!-- The way forward stays under the thumb, whatever the length of the list.
@@ -380,20 +392,6 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
           @click="onNext"
         >
           {{ $t('planner.next') }}
-        </UButton>
-        <UButton
-          v-else-if="hasWeek"
-          :icon="justSaved ? 'i-lucide-check' : 'i-lucide-cloud-upload'"
-          :color="justSaved ? 'success' : 'primary'"
-          size="lg"
-          class="ml-auto font-semibold text-white"
-          :loading="isSaving"
-          :disabled="!canSave && !justSaved"
-          @click="saveAndView"
-        >
-          <span :key="String(justSaved)" class="pop">
-            {{ justSaved ? $t('planner.saving.justDone') : $t('planner.save') }}
-          </span>
         </UButton>
       </div>
       <!-- Why the button is grey, in the one place the eye is already looking. -->

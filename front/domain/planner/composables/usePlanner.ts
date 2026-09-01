@@ -124,8 +124,11 @@ export const usePlanner = (): {
   swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
   applySwap: (swap: DishSwap) => void;
   /** Applies the best single swap to every day, until each is on target or
-   *  nothing improves it. The one-tap alternative to fixing days by hand. */
-  improveWeek: () => void;
+   *  nothing improves it. The one-tap alternative to fixing days by hand.
+   *  Async so the tab stays responsive while a whole week is solved. */
+  improveWeek: () => Promise<void>;
+  /** True while improveWeek is working, to spin its button and lock it. */
+  isImproving: Ref<boolean>;
   step: Ref<number>;
   stepCount: number;
   /** The groups shown on the current screen — one per step. */
@@ -206,6 +209,7 @@ export const usePlanner = (): {
   const step = useState<number>('planner:step', (): number => 0);
 
   const isSaving = useState<boolean>('planner:saving', (): boolean => false);
+  const isImproving = useState<boolean>('planner:improving', (): boolean => false);
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
   const isDirty = useState<boolean>('planner:dirty', (): boolean => false);
   const saveFailed = useState<boolean>('planner:saveFailed', (): boolean => false);
@@ -425,20 +429,38 @@ export const usePlanner = (): {
     touch();
   };
 
+  // Solving every allowed swap for a whole week is thousands of buildDay/solve
+  // calls; run on the spot in one go, they freeze the tab for seconds and the
+  // button reads as if it had crashed. Handing the frame back after each swap
+  // lets the grid repaint and the spinner turn, so the wait is visible progress
+  // instead of a dead page.
+  const yieldToBrowser = (): Promise<void> =>
+    new Promise((resolve): void => {
+      setTimeout(resolve);
+    });
+
   // The one-tap "fix the whole week", where before every off day had to be
   // opened and swapped by hand. Each day is settled on its own — the solver
   // reads a day in isolation, so mending Monday never unsettles Tuesday — and a
   // few passes let a second swap finish what the first started. A day missing a
   // meal is left as it is: no swap can add one, and pretending otherwise would
   // loop.
-  const improveWeek = (): void => {
-    const MAX_PASSES = 4;
-    for (const key of windowDays.value) {
-      for (let pass = 0; pass < MAX_PASSES; pass += 1) {
-        const swap = suggestFor(buildDay(key));
-        if (swap === undefined) break;
-        applySwap(swap);
+  const improveWeek = async (): Promise<void> => {
+    if (isImproving.value) return;
+
+    isImproving.value = true;
+    try {
+      const MAX_PASSES = 4;
+      for (const key of windowDays.value) {
+        for (let pass = 0; pass < MAX_PASSES; pass += 1) {
+          const swap = suggestFor(buildDay(key));
+          if (swap === undefined) break;
+          applySwap(swap);
+          await yieldToBrowser();
+        }
       }
+    } finally {
+      isImproving.value = false;
     }
   };
 
@@ -748,6 +770,7 @@ export const usePlanner = (): {
     swapsForMacro,
     applySwap,
     improveWeek,
+    isImproving,
     goToStep: (index: number): void => {
       if (canReachStep(index)) step.value = Math.max(0, Math.min(STEPS.length, index));
     },
