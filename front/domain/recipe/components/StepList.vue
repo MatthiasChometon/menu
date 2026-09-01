@@ -1,7 +1,10 @@
 <script setup lang="ts">
-const { steps, quantities = [] } = defineProps<{
+const { steps, quantities = [], showWakeLockToggle = true } = defineProps<{
   steps: string[];
   quantities?: FoodQuantity[];
+  /** Off inside kitchen mode: that screen already holds one lock for every
+   *  dish, and a second toggle per card would only invite confusion. */
+  showWakeLockToggle?: boolean;
 }>();
 
 const { segmentsOf } = useRecipeSteps();
@@ -62,7 +65,7 @@ onBeforeUnmount((): void => {
            so the server has no way to render this button the same way. -->
       <ClientOnly>
         <UButton
-          v-if="isSupported"
+          v-if="isSupported && showWakeLockToggle"
           :icon="isActive ? 'i-lucide-lightbulb' : 'i-lucide-lightbulb-off'"
           :color="isActive ? 'primary' : 'neutral'"
           :variant="isActive ? 'solid' : 'outline'"
@@ -86,7 +89,7 @@ onBeforeUnmount((): void => {
       </UButton>
     </div>
     <ClientOnly>
-      <p v-if="isSupported && isActive" class="text-xs text-muted">
+      <p v-if="isSupported && isActive && showWakeLockToggle" class="text-xs text-muted">
         {{ $t('recipe.cookModeHint') }}
       </p>
     </ClientOnly>
