@@ -15,7 +15,8 @@ const {
 const isOpen = ref(defaultOpen);
 
 const { mealOrder } = useMenu();
-const { recipesFor, chosen, choose, clearDay, applySwap, swapsForMacro } = usePlanner();
+const { recipesFor, chosen, choose, clearDay, applySwap, swapsForMacro, isLocked, toggleLock } =
+  usePlanner();
 const { nameOf, round } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 
@@ -116,12 +117,28 @@ const statusLabel = computed((): string => {
           value-key="value"
           size="sm"
           class="min-w-0 flex-1"
+          :disabled="isLocked(day.key, slot)"
           :placeholder="$t('planner.choose')"
           :aria-label="$t(`menu.meal.${slot}`)"
           @update:model-value="(value: string) => choose(day.key, slot, value)"
         />
+        <!-- Pinning is only possible once a dish sits here, and it is the one
+             control an automatic pass never touches — the reader's word on
+             this slot outranks the solver's. -->
         <UButton
           v-if="chosen(day.key, slot) !== undefined"
+          :icon="isLocked(day.key, slot) ? 'i-lucide-lock' : 'i-lucide-lock-open'"
+          variant="ghost"
+          :color="isLocked(day.key, slot) ? 'primary' : 'neutral'"
+          size="sm"
+          :aria-pressed="isLocked(day.key, slot)"
+          :aria-label="
+            isLocked(day.key, slot) ? $t('planner.lock.unpin') : $t('planner.lock.pin')
+          "
+          @click="toggleLock(day.key, slot)"
+        />
+        <UButton
+          v-if="chosen(day.key, slot) !== undefined && !isLocked(day.key, slot)"
           icon="i-lucide-x"
           variant="ghost"
           color="neutral"

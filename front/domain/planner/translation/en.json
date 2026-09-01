@@ -95,6 +95,32 @@
     },
     "complete": "Fill it for me",
     "completeHint": "Fills the minimum with the dishes that fit your targets best. You can change any of them.",
+    "lock": {
+      "pin": "Lock this dish",
+      "unpin": "Unlock this dish"
+    },
+    "generate": {
+      "action": "Generate my week",
+      "hint": "Fills the choices for variety and the targets, spreads them across the days, then mends them — in one click. Locked dishes never move.",
+      "working": "Generating…"
+    },
+    "preferences": {
+      "open": "Preferences",
+      "title": "Composing preferences",
+      "lead": "They steer the suggestions and the one-click generation. You can always pick something else by hand.",
+      "avoid": "Avoid automatically",
+      "maxPrep": "Longest prep time",
+      "maxPrepNone": "No limit",
+      "maxRepeats": "Same dish, at most",
+      "maxRepeatsNone": "No limit",
+      "timesPerWeek": "times a week",
+      "done": "Done"
+    },
+    "duplicate": {
+      "label": "Start from a composed week",
+      "action": "Use as a base",
+      "none": "No week composed yet."
+    },
     "household": {
       "title": "Who this week works out for",
       "lead": "Portions adapt to each person. A note here means the chosen dishes cannot suit everyone at once.",

@@ -58,3 +58,9 @@ export type MacroSwap = {
   gain: number;
   becomesValid: boolean;
 };
+
+/** Which meal slots are pinned, day by day. A locked slot keeps its dish
+ *  through a spread, an improve pass, or a one-click generation — the reader
+ *  is telling the composer "not this one" rather than picking it again every
+ *  time the week is rebuilt. */
+export type LockedSlots = Partial<Record<DayKey, Partial<Record<MealSlot, true>>>>;
