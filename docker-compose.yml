@@ -63,6 +63,11 @@ services:
       # Poll for file changes so nest --watch reloads over the bind mount:
       # inotify events are not delivered through a Windows/WSL2 mount.
       CHOKIDAR_USEPOLLING: 'true'
+      # Non-interactive pnpm: before running start:dev it re-checks the installed
+      # dependencies and, on any mismatch, aborts trying to purge node_modules
+      # with no TTY (ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY). CI mode makes it
+      # proceed without prompting — same reason as the front service below.
+      CI: 'true'
       DATABASE_URL: postgres://menu:menu@postgres:5432/menu
       TEST_DATABASE_URL: postgres://menu:menu@postgres:5432/menu_test
       # Both are browser-facing addresses: one builds the OAuth redirect URI,
