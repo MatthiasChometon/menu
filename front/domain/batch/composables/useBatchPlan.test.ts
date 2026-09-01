@@ -69,4 +69,44 @@ describe('useBatchPlan', () => {
 
     expect(plan.totalMinutes).toBe(sum);
   });
+
+  it('schedules one timeline step per batch task', () => {
+    const plan = currentPlan();
+
+    expect(plan.timeline.map((step): string => step.task.recipe.id)).toEqual(
+      plan.tasks.map((task): string => task.recipe.id),
+    );
+  });
+
+  it('never asks the cook to be hands-on on two dishes at once', () => {
+    const timeline = currentPlan().timeline;
+
+    for (let index = 1; index < timeline.length; index += 1) {
+      const previous = timeline[index - 1];
+      const current = timeline[index];
+      if (previous === undefined || current === undefined) continue;
+
+      expect(current.startsAt).toBeGreaterThanOrEqual(previous.handsOnUntil);
+    }
+  });
+
+  it('lets a dish simmer no longer than its own cooking time', () => {
+    for (const step of currentPlan().timeline) {
+      expect(step.handsOnUntil).toBeLessThanOrEqual(step.endsAt);
+      expect(step.startsAt).toBeLessThanOrEqual(step.handsOnUntil);
+    }
+  });
+
+  it('finishes the session no later than cooking every dish back to back', () => {
+    const plan = currentPlan();
+
+    expect(plan.makespanMinutes).toBeLessThanOrEqual(plan.totalMinutes);
+  });
+
+  it('never finishes before the single longest dish is done', () => {
+    const plan = currentPlan();
+    const longest = Math.max(0, ...plan.tasks.map((task): number => task.minutes));
+
+    expect(plan.makespanMinutes).toBeGreaterThanOrEqual(longest);
+  });
 });
