@@ -1,0 +1,59 @@
+{
+  "weight": {
+    "nav": "Weight",
+    "pageTitle": "My weight",
+    "pageLead": "Track your curve and adjust your calories as you go.",
+    "serverNote": "For now, this diary stays on this device. Syncing it with your account is coming later.",
+    "log": {
+      "addTitle": "New weigh-in",
+      "kgLabel": "Weight",
+      "kgUnit": "kg",
+      "dateLabel": "Date",
+      "save": "Save",
+      "saved": "Saved",
+      "cancel": "Cancel",
+      "edit": "Edit the weigh-in from",
+      "delete": "Delete the weigh-in from",
+      "deleteConfirm": "Delete this weigh-in?",
+      "deleteYes": "Delete",
+      "error": {
+        "date": "That date is not valid.",
+        "future": "A weigh-in cannot be logged in the future.",
+        "range": "That weight looks out of range. Check the value you typed."
+      }
+    },
+    "empty": {
+      "title": "No weigh-in yet",
+      "hint": "Add your first weigh-in to see your trend line and get a first piece of advice.",
+      "cta": "Add my first weigh-in"
+    },
+    "chart": {
+      "title": "Weight curve",
+      "notEnoughData": "Add a second weigh-in to see your curve appear.",
+      "rawLabel": "Weigh-ins",
+      "trendLabel": "Trend",
+      "targetLabel": "Target"
+    },
+    "coach": {
+      "rate": "Current pace:",
+      "perWeek": "kg / week",
+      "disclaimer": "For guidance only — it does not change your saved targets.",
+      "notEnoughData": {
+        "title": "Not enough data yet",
+        "description": "Come back after your second weigh-in for a first piece of advice."
+      },
+      "tooSlow": {
+        "title": "You're stalling",
+        "description": "Try +150 kcal a day?"
+      },
+      "onTrack": {
+        "title": "Right on track",
+        "description": "Your pace matches the bulking target. Keep it up."
+      },
+      "tooFast": {
+        "title": "Rising too fast",
+        "description": "Try −100 kcal a day?"
+      }
+    }
+  }
+}

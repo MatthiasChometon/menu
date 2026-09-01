@@ -1,0 +1,59 @@
+{
+  "weight": {
+    "nav": "Poids",
+    "pageTitle": "Mon poids",
+    "pageLead": "Suis ta courbe et ajuste tes calories en fonction de ta progression.",
+    "serverNote": "Pour l'instant, ce journal reste sur cet appareil. La synchronisation avec ton compte arrivera plus tard.",
+    "log": {
+      "addTitle": "Nouvelle pesée",
+      "kgLabel": "Poids",
+      "kgUnit": "kg",
+      "dateLabel": "Date",
+      "save": "Enregistrer",
+      "saved": "Enregistré",
+      "cancel": "Annuler",
+      "edit": "Modifier la pesée du",
+      "delete": "Supprimer la pesée du",
+      "deleteConfirm": "Supprimer cette pesée ?",
+      "deleteYes": "Supprimer",
+      "error": {
+        "date": "Cette date n'est pas valide.",
+        "future": "Impossible d'ajouter une pesée dans le futur.",
+        "range": "Ce poids semble hors de portée. Vérifie la valeur saisie."
+      }
+    },
+    "empty": {
+      "title": "Aucune pesée pour l'instant",
+      "hint": "Ajoute ta première pesée pour voir ta courbe de tendance et recevoir un premier conseil.",
+      "cta": "Ajouter ma première pesée"
+    },
+    "chart": {
+      "title": "Courbe de poids",
+      "notEnoughData": "Ajoute une deuxième pesée pour voir apparaître ta courbe.",
+      "rawLabel": "Pesées",
+      "trendLabel": "Tendance",
+      "targetLabel": "Objectif"
+    },
+    "coach": {
+      "rate": "Rythme actuel :",
+      "perWeek": "kg / semaine",
+      "disclaimer": "Indicatif seulement — ne modifie pas tes cibles enregistrées.",
+      "notEnoughData": {
+        "title": "Pas encore assez de données",
+        "description": "Reviens après ta deuxième pesée pour un premier conseil."
+      },
+      "tooSlow": {
+        "title": "Tu stagnes",
+        "description": "Essaie +150 kcal par jour ?"
+      },
+      "onTrack": {
+        "title": "Sur la bonne trajectoire",
+        "description": "Ton rythme colle à l'objectif de prise de masse. Continue comme ça."
+      },
+      "tooFast": {
+        "title": "Tu montes trop vite",
+        "description": "Essaie −100 kcal par jour ?"
+      }
+    }
+  }
+}
