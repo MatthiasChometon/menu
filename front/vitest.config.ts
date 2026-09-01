@@ -13,5 +13,8 @@ export default defineVitestConfig({
     exclude: ['**/node_modules/**', '**/*visual.test.ts', '**/*e2e.test.ts'],
     // The Nuxt test environment boots a full app; 10s is not enough on a loaded machine.
     hookTimeout: 60_000,
+    // Same reasoning for individual tests: mountSuspended/renderSuspended can pass
+    // 5s once several Suspense-mounted component tests run in parallel workers.
+    testTimeout: 20_000,
   },
 });
