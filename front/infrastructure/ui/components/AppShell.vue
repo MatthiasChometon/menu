@@ -1,5 +1,9 @@
 <template>
-  <div class="flex min-h-screen flex-col bg-default text-default">
+  <!-- No background of its own: the body paints the tinted canvas and the two
+       soft forest veils behind everything (in main.css, as ::before/::after so
+       a decorative layer never trips the layout guards). Cards, header and
+       inputs keep Nuxt UI's surface (--ui-bg). -->
+  <div class="flex min-h-screen flex-col text-default">
     <a href="#content" class="skip-link">{{ $t('accessibility.skipToContent') }}</a>
     <slot name="header" />
     <!-- Bottom padding clears the mobile navigation bar. -->

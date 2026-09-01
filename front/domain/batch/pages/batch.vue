@@ -89,7 +89,7 @@ useSeoMeta({ title: (): string => t('batch.title') });
 
     <template v-else>
       <header class="rise">
-        <h1 class="text-3xl font-black tracking-tight">{{ $t('batch.title') }}</h1>
+        <h1 class="font-serif text-4xl tracking-tight">{{ $t('batch.title') }}</h1>
         <p class="mt-1 text-muted">{{ $t('batch.lead') }}</p>
         <MenuWeekPicker class="mt-3" />
         <div class="mt-3 flex flex-wrap items-center gap-2">

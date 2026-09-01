@@ -57,7 +57,7 @@ const setStatus = async (id: string, status: ImprovementStatus): Promise<void> =
 
 <template>
   <UContainer class="py-6">
-    <h1 class="text-3xl font-black">{{ $t('improvement.admin.title') }}</h1>
+    <h1 class="font-serif text-4xl">{{ $t('improvement.admin.title') }}</h1>
     <p class="mt-1 text-muted">{{ $t('improvement.admin.lead') }}</p>
 
     <ClientOnly>
@@ -77,7 +77,9 @@ const setStatus = async (id: string, status: ImprovementStatus): Promise<void> =
         <li v-for="suggestion in suggestions" :key="suggestion.id">
           <UCard
             :ui="{ body: 'space-y-3' }"
-            :class="(suggestion.status === 'DONE' || suggestion.status === 'DECLINED') && 'opacity-60'"
+            :class="
+              (suggestion.status === 'DONE' || suggestion.status === 'DECLINED') && 'opacity-60'
+            "
           >
             <div class="flex flex-wrap items-center gap-2">
               <UBadge :color="importanceColour(suggestion.importance)" variant="subtle" size="sm">

@@ -4,19 +4,110 @@
 @source '../../../domain';
 @source '../../../infrastructure';
 
-/* Static so Nuxt UI's dark-mode shades (primary-400) survive tree-shaking. */
+/* ---------------------------------------------------------------------------
+   Design system — "Balance" : instrument de précision, mais chaleureux.
+   Le chiffre pesé est le héros ; le vert chard et l'ambre l'entourent.
+   Static so Nuxt UI's dark-mode shades (primary-400, neutral-…) survive
+   Tailwind's tree-shaking of nuances never written as a class.
+--------------------------------------------------------------------------- */
 @theme static {
-  --color-lime-50: #f7fee7;
-  --color-lime-100: #ecfccb;
-  --color-lime-200: #d9f99d;
-  --color-lime-300: #bef264;
-  --color-lime-400: #a3e635;
-  --color-lime-500: #84cc16;
-  --color-lime-600: #65a30d;
-  --color-lime-700: #4d7c0f;
-  --color-lime-800: #3f6212;
-  --color-lime-900: #365314;
-  --color-lime-950: #1a2e05;
+  /* Fonts self-hosted by @nuxt/fonts (bundled with Nuxt UI): offline-safe in a
+     supermarket aisle, and served same-origin so the site's CSP admits them. */
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, 'Times New Roman', serif;
+
+  /* primary — "forest" : the deep chard green that carries the brand. */
+  --color-forest-50: #eef6ef;
+  --color-forest-100: #d6ebd9;
+  --color-forest-200: #aed7b4;
+  --color-forest-300: #7cbb88;
+  --color-forest-400: #4f9d63;
+  --color-forest-500: #37814b;
+  --color-forest-600: #2b683c;
+  --color-forest-700: #235030;
+  --color-forest-800: #1d4028;
+  --color-forest-900: #183422;
+  --color-forest-950: #0c1c11;
+
+  /* neutral — "sage" : a warm grey with a faint green bias, never a dead grey. */
+  --color-sage-50: #f7f8f4;
+  --color-sage-100: #edf0e8;
+  --color-sage-200: #dde1d4;
+  --color-sage-300: #c6cbb9;
+  --color-sage-400: #a7ad97;
+  --color-sage-500: #848b73;
+  --color-sage-600: #666d58;
+  --color-sage-700: #4e5443;
+  --color-sage-800: #343a2c;
+  --color-sage-900: #23271d;
+  --color-sage-950: #15180f;
+
+  /* warning / accent — "turmeric" : the warm signal, on prices and near-target. */
+  --color-turmeric-50: #fbf3e6;
+  --color-turmeric-100: #f5e2be;
+  --color-turmeric-200: #ecc784;
+  --color-turmeric-300: #e0a94e;
+  --color-turmeric-400: #cf8f2a;
+  --color-turmeric-500: #b6771f;
+  --color-turmeric-600: #965f1b;
+  --color-turmeric-700: #74491a;
+  --color-turmeric-800: #5b3a18;
+  --color-turmeric-900: #4b3116;
+  --color-turmeric-950: #2a1a09;
+}
+
+/* ---- the canvas the app floats on -------------------------------------------
+   The page ground is a tinted porcelain (light) / a green-black (dark), a shade
+   away from the white cards and near-black surfaces Nuxt UI paints on top, so
+   cards read as raised without a heavy shadow. Kept off --ui-bg on purpose:
+   Nuxt UI cards, inputs and popovers stay on --ui-bg, which is the surface. */
+:root {
+  --canvas: #eaeee3;
+}
+
+.dark {
+  --canvas: #0f1208;
+}
+
+/* The three macros carry their own stable colours — protein green (the muscle),
+   carbs wheat-gold (the starches), fat copper (the oils), fibre a quiet sage.
+   Used as bar fills and dots (graphic contrast ≥ 3:1); each mode keeps its own. */
+:root {
+  --macro-protein: #2b683c;
+  --macro-carbs: #9a7212;
+  --macro-fat: #a84e2b;
+  --macro-fiber: #6b7256;
+}
+
+.dark {
+  --macro-protein: #6cb27f;
+  --macro-carbs: #d9b657;
+  --macro-fat: #db8560;
+  --macro-fiber: #a7ad97;
+}
+
+/* Nuxt UI primary: shade 700 on the light ground, 400 on the dark one, both
+   measured ≥ 4.5:1 for text. Kept from the previous system, new palette. */
+:root {
+  --ui-primary: var(--ui-color-primary-700);
+}
+
+.dark {
+  --ui-primary: var(--ui-color-primary-400);
+}
+
+/* Warning and success are read as text on the light ground (the "off target"
+   banner, the "in the fridge" note): shade 500 falls short of 4.5:1 there, so
+   the light mode borrows shade 600. Dark keeps the brighter 400 the night
+   ground needs. */
+:root {
+  --ui-warning: var(--ui-color-warning-600);
+  --ui-success: var(--ui-color-success-600);
+}
+
+.dark {
+  --ui-warning: var(--ui-color-warning-400);
+  --ui-success: var(--ui-color-success-400);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -61,20 +152,78 @@ body {
   padding-right: 0 !important;
   margin-right: 0 !important;
   overflow-x: clip;
+  background: var(--canvas);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Two soft forest veils breathing behind everything — enough to keep the
+   porcelain from reading as flat, never enough to compete with a card. Drawn as
+   body pseudo-elements on purpose: a decorative layer must not show up as a DOM
+   node to the layout guards (nothing overflows, no fixed bar overlaps another).
+   They sit inside the viewport (inset: 0); the glow rays in from the corners. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  background: radial-gradient(
+    38rem 38rem at -6% -12%,
+    color-mix(in oklab, var(--color-forest-400) 20%, transparent),
+    transparent 60%
+  );
+}
+
+body::after {
+  background: radial-gradient(
+    40rem 40rem at 108% 112%,
+    color-mix(in oklab, var(--color-forest-500) 16%, transparent),
+    transparent 60%
+  );
+}
+
+.dark body::before,
+.dark body::after {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body::before {
+    animation: ambient-drift-one 26s ease-in-out infinite alternate;
+  }
+
+  body::after {
+    animation: ambient-drift-two 32s ease-in-out infinite alternate;
+  }
+
+  @keyframes ambient-drift-one {
+    to {
+      transform: translate3d(2.5rem, 1.5rem, 0) scale(1.1);
+    }
+  }
+
+  @keyframes ambient-drift-two {
+    to {
+      transform: translate3d(-2rem, -1.5rem, 0) scale(1.08);
+    }
+  }
+}
+
+/* Tabular figures everywhere digits are read as data — the app weighs to the
+   gram, so a column of grams must line up like a scale's readout. */
+.tabular-nums,
+[class*='tabular-nums'] {
+  font-variant-numeric: tabular-nums;
 }
 
 ::selection {
-  background-color: var(--color-lime-500);
+  background-color: var(--color-forest-500);
   color: white;
-}
-
-:root {
-  --ui-primary: var(--ui-color-primary-700);
-}
-
-.dark {
-  --ui-primary: var(--ui-color-primary-400);
 }
 
 :focus-visible {
@@ -139,18 +288,18 @@ body {
       animation: none;
     }
   }
+}
 
-  /* A page that pins a bar of its own to the bottom of the screen says so here,
-     so the shell can leave room for it. Padding the page's own container is not
-     enough: the legal footer sits after it, in the shell, and slid under the
-     bar — readable only by scrolling to something already covered. */
+/* A page that pins a bar of its own to the bottom of the screen says so here,
+   so the shell can leave room for it. Padding the page's own container is not
+   enough: the legal footer sits after it, in the shell, and slid under the
+   bar — readable only by scrolling to something already covered. */
+body.has-action-bar main {
+  padding-bottom: 11rem;
+}
+
+@media (min-width: 640px) {
   body.has-action-bar main {
-    padding-bottom: 11rem;
-  }
-
-  @media (min-width: 640px) {
-    body.has-action-bar main {
-      padding-bottom: 7rem;
-    }
+    padding-bottom: 7rem;
   }
 }

@@ -15,8 +15,8 @@ describe('plateWedges', () => {
 });
 
 describe('FAVICON_SVG', () => {
-  it('is a self-contained svg carrying the lime gradient', () => {
+  it('is a self-contained svg carrying the forest gradient', () => {
     expect(FAVICON_SVG).toContain('<svg');
-    expect(FAVICON_SVG).toContain('#84cc16');
+    expect(FAVICON_SVG).toContain(PLATE_PALETTE.top);
   });
 });

@@ -68,7 +68,7 @@ const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => 
 
 <template>
   <UContainer class="py-6">
-    <h1 class="text-3xl font-black">{{ $t('bugReport.admin.title') }}</h1>
+    <h1 class="font-serif text-4xl">{{ $t('bugReport.admin.title') }}</h1>
     <p class="mt-1 text-muted">{{ $t('bugReport.admin.lead') }}</p>
 
     <ClientOnly>

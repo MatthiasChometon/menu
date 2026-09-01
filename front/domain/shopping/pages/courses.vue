@@ -79,7 +79,7 @@ useSeoMeta({ title: (): string => t('shopping.title') });
 
     <template v-else>
       <header class="rise">
-        <h1 class="text-3xl font-black tracking-tight">{{ $t('shopping.title') }}</h1>
+        <h1 class="font-serif text-4xl tracking-tight">{{ $t('shopping.title') }}</h1>
         <p class="mt-1 text-muted">{{ $t('shopping.lead') }}</p>
         <!-- The basket is per week: without saying which, a list built for next
              week reads as a mistake in this one. -->

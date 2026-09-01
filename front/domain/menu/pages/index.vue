@@ -114,10 +114,10 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UBadge color="primary" variant="subtle" size="sm" class="mb-2">
           {{ $t('menu.example.badge') }}
         </UBadge>
-        <h1 class="text-2xl font-black tracking-tight sm:text-3xl">
+        <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
           {{ $t('menu.example.title') }}
         </h1>
-        <p class="mt-1 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
+        <p class="mt-2 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
         <UButton
           :to="localePath('/composer')"
           color="primary"
@@ -131,19 +131,25 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
       <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
         <div class="min-w-0">
-          <h1 class="text-3xl font-black tracking-tight sm:text-4xl">
+          <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
             {{ $t('menu.pageTitle') }}
           </h1>
-          <p class="mt-1 text-muted">{{ $t('menu.pageLead') }}</p>
+          <p class="mt-1.5 text-muted">{{ $t('menu.pageLead') }}</p>
         </div>
 
         <MenuWeekPicker v-if="!isDemo" />
       </div>
 
-      <div v-if="status === undefined && !isDemo && menu !== undefined" class="mt-5 space-y-3" aria-hidden="true">
+      <div
+        v-if="status === undefined && !isDemo && menu !== undefined"
+        class="mt-5 space-y-3"
+        aria-hidden="true"
+      >
         <USkeleton class="h-20 rounded-lg" />
       </div>
-      <span v-if="status === undefined && !isDemo && menu !== undefined" class="sr-only">{{ $t('accessibility.loading') }}</span>
+      <span v-if="status === undefined && !isDemo && menu !== undefined" class="sr-only">{{
+        $t('accessibility.loading')
+      }}</span>
 
       <UAlert
         v-if="status === 'upcoming'"
@@ -179,80 +185,87 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
       <MenuPlanNextWeek v-if="!isDemo && menu !== undefined" class="mt-5" />
 
       <template v-if="menu !== undefined">
-      <section class="rise mt-6" style="animation-delay: 80ms" :aria-label="$t('menu.weekSummary')">
-        <div class="grid gap-4 sm:grid-cols-3">
-          <UCard class="sm:col-span-2">
-            <p class="mb-3 text-sm font-semibold text-muted">{{ $t('menu.averagePerDay') }}</p>
-            <MenuMacroBar
-              v-if="averageMacros !== undefined"
-              :macros="averageMacros"
-              :targets="menu.targets"
-            />
-          </UCard>
+        <section
+          class="rise mt-6"
+          style="animation-delay: 80ms"
+          :aria-label="$t('menu.weekSummary')"
+        >
+          <div class="grid gap-4 sm:grid-cols-3">
+            <UCard class="sm:col-span-2">
+              <p class="mb-4 text-sm font-semibold text-muted">{{ $t('menu.averagePerDay') }}</p>
+              <div class="grid gap-5 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
+                <MenuMacroPlate v-if="averageMacros !== undefined" :macros="averageMacros" />
+                <MenuMacroBar
+                  v-if="averageMacros !== undefined"
+                  :macros="averageMacros"
+                  :targets="menu.targets"
+                />
+              </div>
+            </UCard>
 
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-1">
-            <UCard>
-              <p class="text-sm text-muted">{{ $t('menu.budget') }}</p>
-              <p class="mt-1 text-2xl font-black tabular-nums">{{ round(menu.totalPrice) }} €</p>
-            </UCard>
-            <UCard>
-              <p class="text-sm text-muted">{{ $t('menu.recipeCount') }}</p>
-              <p class="mt-1 text-2xl font-black tabular-nums">{{ menu.recipes.length }}</p>
-            </UCard>
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-1">
+              <UCard>
+                <p class="text-sm text-muted">{{ $t('menu.budget') }}</p>
+                <p class="mt-1 text-2xl font-black tabular-nums">{{ round(menu.totalPrice) }} €</p>
+              </UCard>
+              <UCard>
+                <p class="text-sm text-muted">{{ $t('menu.recipeCount') }}</p>
+                <p class="mt-1 text-2xl font-black tabular-nums">{{ menu.recipes.length }}</p>
+              </UCard>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="rise mt-6 grid gap-3 sm:grid-cols-2" style="animation-delay: 140ms">
-        <UButton
-          :to="localePath('/courses')"
-          icon="i-lucide-shopping-basket"
-          size="xl"
-          block
-          class="font-semibold text-white"
+        <section class="rise mt-6 grid gap-3 sm:grid-cols-2" style="animation-delay: 140ms">
+          <UButton
+            :to="localePath('/courses')"
+            icon="i-lucide-shopping-basket"
+            size="xl"
+            block
+            class="font-semibold text-white"
+          >
+            {{ $t('menu.nav.shopping') }}
+          </UButton>
+          <UButton
+            :to="localePath('/batch')"
+            icon="i-lucide-chef-hat"
+            size="xl"
+            block
+            variant="outline"
+            class="font-semibold"
+          >
+            {{ $t('menu.nav.batch') }}
+          </UButton>
+        </section>
+
+        <section class="mt-8 space-y-4">
+          <MenuDayCard
+            v-for="(day, index) in menu.days"
+            :key="day.key"
+            :day="day"
+            :targets="menu.targets"
+            :date="dateOf(index)"
+            :index="index"
+            :is-today="day.key === todayKey"
+            :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
+          />
+        </section>
+
+        <section
+          class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"
+          style="animation-delay: 120ms"
         >
-          {{ $t('menu.nav.shopping') }}
-        </UButton>
-        <UButton
-          :to="localePath('/batch')"
-          icon="i-lucide-chef-hat"
-          size="xl"
-          block
-          variant="outline"
-          class="font-semibold"
-        >
-          {{ $t('menu.nav.batch') }}
-        </UButton>
-      </section>
-
-      <section class="mt-8 space-y-4">
-        <MenuDayCard
-          v-for="(day, index) in menu.days"
-          :key="day.key"
-          :day="day"
-          :targets="menu.targets"
-          :date="dateOf(index)"
-          :index="index"
-          :is-today="day.key === todayKey"
-          :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
-        />
-      </section>
-
-      <section
-        class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"
-        style="animation-delay: 120ms"
-      >
-        <h2 class="mb-3 flex items-center gap-2 font-bold">
-          <UIcon name="i-lucide-alarm-clock-check" class="size-5 text-primary" />
-          {{ $t('menu.reminder.title') }}
-        </h2>
-        <ul class="space-y-2">
-          <li v-for="reminder in reminders" :key="reminder.text" class="flex items-start gap-2.5">
-            <UIcon :name="reminder.icon" class="mt-0.5 size-4 shrink-0 text-primary" />
-            <span class="text-sm text-muted">{{ reminder.text }}</span>
-          </li>
-        </ul>
-      </section>
+          <h2 class="mb-3 flex items-center gap-2 font-bold">
+            <UIcon name="i-lucide-alarm-clock-check" class="size-5 text-primary" />
+            {{ $t('menu.reminder.title') }}
+          </h2>
+          <ul class="space-y-2">
+            <li v-for="reminder in reminders" :key="reminder.text" class="flex items-start gap-2.5">
+              <UIcon :name="reminder.icon" class="mt-0.5 size-4 shrink-0 text-primary" />
+              <span class="text-sm text-muted">{{ reminder.text }}</span>
+            </li>
+          </ul>
+        </section>
       </template>
 
       <!-- Signed in, this week not composed yet. No profile is a different
@@ -262,7 +275,12 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UIcon name="i-lucide-user-round-cog" class="size-12 text-dimmed" />
         <h2 class="text-xl font-bold">{{ $t('menu.needProfile.title') }}</h2>
         <p class="max-w-sm text-muted">{{ $t('menu.needProfile.hint') }}</p>
-        <UButton :to="localePath('/profil')" color="primary" icon="i-lucide-user-round" class="mt-2">
+        <UButton
+          :to="localePath('/profil')"
+          color="primary"
+          icon="i-lucide-user-round"
+          class="mt-2"
+        >
           {{ $t('menu.needProfile.action') }}
         </UButton>
       </div>
@@ -270,7 +288,12 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UIcon name="i-lucide-calendar-plus" class="size-12 text-dimmed" />
         <h2 class="text-xl font-bold">{{ $t('menu.compose.title') }}</h2>
         <p class="max-w-sm text-muted">{{ $t('menu.compose.hint') }}</p>
-        <UButton :to="localePath('/composer')" color="primary" icon="i-lucide-square-pen" class="mt-2">
+        <UButton
+          :to="localePath('/composer')"
+          color="primary"
+          icon="i-lucide-square-pen"
+          class="mt-2"
+        >
           {{ $t('menu.compose.action') }}
         </UButton>
       </div>

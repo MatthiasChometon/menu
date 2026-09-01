@@ -35,6 +35,10 @@ const rows = computed((): MacroRow[] =>
 const kcalPercent = computed((): number =>
   targets.kcal === 0 ? 0 : Math.min(100, (macros.kcal / targets.kcal) * 100),
 );
+
+// Each macro keeps its own colour — protein green, carbs wheat, fat copper,
+// fibre sage — so a glance down the day reads which nutrient runs short.
+const fillOf = (key: keyof Macros): string => `var(--macro-${key})`;
 </script>
 
 <template>
@@ -56,7 +60,14 @@ const kcalPercent = computed((): number =>
     <dl class="grid grid-cols-2 gap-x-4 gap-y-2 pt-1">
       <div v-for="row in rows" :key="row.key" class="min-w-0">
         <div class="flex items-baseline justify-between gap-1">
-          <dt class="truncate text-xs text-muted">{{ $t(`menu.macroShort.${row.key}`) }}</dt>
+          <dt class="flex min-w-0 items-center gap-1.5 truncate text-xs text-muted">
+            <span
+              class="size-1.5 shrink-0 rounded-full"
+              :style="{ backgroundColor: fillOf(row.key) }"
+              aria-hidden="true"
+            />
+            {{ $t(`menu.macroShort.${row.key}`) }}
+          </dt>
           <dd class="text-xs font-semibold tabular-nums">
             {{ round(row.value) }}{{ row.unit }}
             <span class="font-normal text-dimmed">/ {{ round(row.target) }}</span>
@@ -64,8 +75,8 @@ const kcalPercent = computed((): number =>
         </div>
         <div class="mt-1 h-1 overflow-hidden rounded-full bg-elevated">
           <div
-            class="h-full rounded-full bg-primary/60 transition-[width] duration-700 ease-out"
-            :style="{ width: `${row.percent}%` }"
+            class="h-full rounded-full transition-[width] duration-700 ease-out"
+            :style="{ width: `${row.percent}%`, backgroundColor: fillOf(row.key) }"
           />
         </div>
       </div>

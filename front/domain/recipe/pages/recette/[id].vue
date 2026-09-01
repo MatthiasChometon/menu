@@ -133,7 +133,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
         </div>
 
         <div class="space-y-3">
-          <h1 class="text-pretty text-3xl font-black tracking-tight">{{ nameOf(recipe) }}</h1>
+          <h1 class="text-pretty font-serif text-4xl tracking-tight">{{ nameOf(recipe) }}</h1>
 
           <div class="flex flex-wrap items-center gap-2">
             <UBadge color="neutral" variant="subtle" icon="i-lucide-timer">

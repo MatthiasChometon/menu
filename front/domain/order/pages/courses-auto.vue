@@ -6,7 +6,7 @@ useHead({ title: t('order.title') });
 
 <template>
   <div class="mx-auto max-w-2xl space-y-4 p-4">
-    <h1 class="text-3xl font-black tracking-tight">{{ $t('order.title') }}</h1>
+    <h1 class="font-serif text-4xl tracking-tight">{{ $t('order.title') }}</h1>
 
     <OrderSetup />
 

@@ -29,7 +29,7 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
 
 <template>
   <div class="mx-auto max-w-3xl px-4 py-6 sm:py-10">
-    <h1 class="text-3xl font-black tracking-tight sm:text-4xl">{{ $t('profile.pageTitle') }}</h1>
+    <h1 class="font-serif text-4xl tracking-tight sm:text-5xl">{{ $t('profile.pageTitle') }}</h1>
     <p class="mt-1 mb-8 text-muted">{{ $t('profile.pageLead') }}</p>
 
     <!-- Everything below depends on the session cookie, which exists only in the
