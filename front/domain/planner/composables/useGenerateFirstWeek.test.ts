@@ -1,17 +1,27 @@
 import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { generateWeek, save, isGenerating, saveFailed, plannerWeek, user, selectedWeek, navigate } =
-  vi.hoisted(() => ({
-    generateWeek: vi.fn(async (): Promise<void> => {}),
-    save: vi.fn(async (): Promise<void> => {}),
-    isGenerating: { value: false },
-    saveFailed: { value: false },
-    plannerWeek: { value: '2026-09-07' },
-    user: { value: undefined as { id: string } | undefined },
-    selectedWeek: { value: '' },
-    navigate: vi.fn(async (): Promise<void> => {}),
-  }));
+const {
+  generateWeek,
+  save,
+  isGenerating,
+  saveFailed,
+  plannerWeek,
+  user,
+  selectedWeek,
+  navigate,
+  refresh,
+} = vi.hoisted(() => ({
+  generateWeek: vi.fn(async (): Promise<void> => {}),
+  save: vi.fn(async (): Promise<void> => {}),
+  isGenerating: { value: false },
+  saveFailed: { value: false },
+  plannerWeek: { value: '2026-09-07' },
+  user: { value: undefined as { id: string } | undefined },
+  selectedWeek: { value: '' },
+  navigate: vi.fn(async (): Promise<void> => {}),
+  refresh: vi.fn(async (): Promise<void> => {}),
+}));
 
 type PlannerStub = {
   generateWeek: typeof generateWeek;
@@ -39,12 +49,14 @@ mockNuxtImport(
       path,
 );
 mockNuxtImport('navigateTo', () => navigate);
+mockNuxtImport('refreshNuxtData', () => refresh);
 
 describe('generating a first week from anywhere in the app', () => {
   beforeEach((): void => {
     generateWeek.mockClear();
     save.mockClear();
     navigate.mockClear();
+    refresh.mockClear();
     saveFailed.value = false;
     user.value = undefined;
     selectedWeek.value = '';
@@ -68,6 +80,9 @@ describe('generating a first week from anywhere in the app', () => {
 
     expect(save).toHaveBeenCalledOnce();
     expect(selectedWeek.value).toBe(plannerWeek.value);
+    // Generating from the current week moves nothing on its own, so the saved
+    // week only shows if the cached menu is refetched in place before landing.
+    expect(refresh).toHaveBeenCalledWith('menu:shown');
     expect(navigate).toHaveBeenCalledWith('/');
   });
 
@@ -78,6 +93,7 @@ describe('generating a first week from anywhere in the app', () => {
 
     await generate();
 
+    expect(refresh).not.toHaveBeenCalled();
     expect(navigate).not.toHaveBeenCalled();
   });
 });
