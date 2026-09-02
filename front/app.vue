@@ -41,6 +41,8 @@ useHead({
       <BugReportDialog />
       <ImprovementRequestButton />
       <ImprovementRequestDialog />
+      <WeekShareButton />
+      <WeekShareDialog />
       <template #footer>
         <MenuBottomNav />
       </template>

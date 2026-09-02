@@ -1,0 +1,38 @@
+{
+  "library": {
+    "nav": "Recipes",
+    "pageTitle": "Every recipe",
+    "pageLead": "Every recipe on the menu, filterable by dominant macro, prep time, ingredient or season.",
+    "search": {
+      "placeholder": "A dish, an ingredient…",
+      "label": "Search a recipe or an ingredient"
+    },
+    "filter": {
+      "macro": {
+        "label": "Dominant macro",
+        "all": "Every macro"
+      },
+      "time": {
+        "label": "Prep time",
+        "all": "Any length",
+        "quick": "Quick (≤ 20 min)",
+        "medium": "Medium (20-40 min)",
+        "long": "Long (> 40 min)"
+      },
+      "season": "In season",
+      "reset": "Reset"
+    },
+    "result": "recipe",
+    "results": "recipes",
+    "empty": {
+      "title": "No recipe matches",
+      "hint": "Try widening the search or resetting the filters."
+    },
+    "season": {
+      "title": "In season this",
+      "hint": "These are at their best this month.",
+      "cta": "See seasonal recipes",
+      "badge": "In season"
+    }
+  }
+}

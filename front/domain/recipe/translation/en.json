@@ -58,6 +58,11 @@
         "omega3": "Lowers inflammation between sessions and speeds up recovery."
       }
     },
-    "perPerson": "per person"
+    "perPerson": "per person",
+    "note": {
+      "title": "My note",
+      "hint": "What you'd change next time — kept on this device.",
+      "placeholder": "E.g. half the chilli, more rice…"
+    }
   }
 }

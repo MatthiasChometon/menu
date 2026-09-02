@@ -1,0 +1,14 @@
+{
+  "weekShare": {
+    "open": "Partager la semaine",
+    "title": "Partager la semaine",
+    "lead": "Une image récap de la semaine, prête à envoyer ou à garder.",
+    "weekOf": "Semaine du",
+    "footer": "menu.mtxlab.xyz",
+    "download": "Télécharger",
+    "share": "Partager",
+    "close": "Fermer",
+    "cardAlt": "Carte récapitulative de la semaine, avec les apports moyens et le budget",
+    "empty": "Aucune semaine à partager pour l'instant."
+  }
+}
