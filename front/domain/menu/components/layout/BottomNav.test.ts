@@ -33,6 +33,6 @@ describe('the mobile bottom navigation', () => {
     const links = [...document.querySelectorAll('[role="dialog"] a')].map(
       (link): string | undefined => link.textContent?.trim(),
     );
-    expect(links).toEqual(['Recettes', 'Cuisine', 'Poids', 'Mon profil']);
+    expect(links).toEqual(['Recettes', 'Cuisine', 'Poids', 'Progression', 'Mon profil']);
   });
 });

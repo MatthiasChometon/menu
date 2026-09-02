@@ -9,7 +9,7 @@ describe('useNavigation', () => {
     const { primaryEntries, moreEntries } = useNavigation();
 
     expect(primaryEntries.value).toHaveLength(4);
-    expect(moreEntries.value).toHaveLength(4);
+    expect(moreEntries.value).toHaveLength(5);
   });
 
   it('never drops or duplicates a route across the two groups', () => {
