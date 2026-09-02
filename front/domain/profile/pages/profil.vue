@@ -3,6 +3,9 @@ import type { MeasurementsInput } from '#gql';
 const { t } = useNuxtApp().$i18n;
 const { user, isLoading: isLoadingUser } = useAuth();
 const { profile, isLoading: isLoadingProfile, hasAnswered } = useProfile();
+// Somebody who filled the questions during the walkthrough before signing in
+// gets them back here rather than starting over.
+const { draft: draftProfile, clear: clearDraftProfile } = useOnboardingDraftProfile();
 
 const isEditing = ref(false);
 const justSaved = ref(false);
@@ -14,6 +17,7 @@ const isFillingIn = computed((): boolean => isEditing.value || !hasAnswered.valu
 const onSaved = (): void => {
   isEditing.value = false;
   justSaved.value = true;
+  clearDraftProfile();
 };
 
 // The saved profile carries its computed targets; the form only takes answers.
@@ -53,7 +57,7 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
 
       <ProfileForm
         v-else-if="isFillingIn"
-        :initial="profile ? answersOf(profile) : undefined"
+        :initial="profile ? answersOf(profile) : draftProfile"
         @saved="onSaved"
       />
 

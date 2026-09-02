@@ -1,0 +1,35 @@
+{
+  "onboarding": {
+    "pageTitle": "Welcome",
+    "skip": "Skip",
+    "intro": {
+      "back": "Back",
+      "next": "Next",
+      "start": "Let's go",
+      "weighed": {
+        "title": "Meals weighed to the gram",
+        "lead": "Every dish shows its exact grams and its macros, tuned to fit your goals."
+      },
+      "generated": {
+        "title": "A week generated in one click",
+        "lead": "Answer a few questions, and the app composes a whole week for you — you can still swap any dish afterwards."
+      },
+      "ready": {
+        "title": "Shopping list and batch cooking included",
+        "lead": "The shopping list and Sunday's prep plan follow your week automatically."
+      }
+    },
+    "profile": {
+      "title": "A few questions to get started",
+      "lead": "Sex, age, goal… enough to work out your exact targets.",
+      "localNotice": "You are not signed in: your answers stay on this device, you can save them once you sign in."
+    },
+    "generate": {
+      "title": "Ready to see your first week?",
+      "lead": "We fill the meals for variety and your targets, then spread them across the days — in one click.",
+      "action": "Generate my first week",
+      "signedOutHint": "Sign in to save this week and find it again later.",
+      "error": "Saving did not go through. Try again."
+    }
+  }
+}

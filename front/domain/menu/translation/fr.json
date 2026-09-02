@@ -118,12 +118,15 @@
       "badge": "Exemple",
       "title": "Voici une semaine type",
       "lead": "Repas équilibrés, grammages exacts, liste de courses prête. Crée la tienne, calée sur tes objectifs — c'est gratuit et ça prend deux minutes.",
-      "cta": "Composer ma semaine"
+      "cta": "Composer ma semaine",
+      "discover": "Nouveau ici ? Découvre l'appli en 2 minutes"
     },
     "compose": {
       "title": "Cette semaine n'est pas encore composée",
       "hint": "Choisis tes plats et on calcule les grammages, les apports et la liste de courses.",
-      "action": "Composer cette semaine"
+      "action": "Composer cette semaine",
+      "generateAction": "Générer ma semaine en 1 clic",
+      "generateError": "La génération n'a pas abouti. Réessaie."
     },
     "needProfile": {
       "title": "Dis-nous pour qui on cuisine",

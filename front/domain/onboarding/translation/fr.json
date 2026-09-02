@@ -1,0 +1,35 @@
+{
+  "onboarding": {
+    "pageTitle": "Bienvenue",
+    "skip": "Passer",
+    "intro": {
+      "back": "Retour",
+      "next": "Suivant",
+      "start": "C'est parti",
+      "weighed": {
+        "title": "Des repas pesés au gramme",
+        "lead": "Chaque plat affiche ses grammages exacts et ses apports, pour coller pile à tes objectifs."
+      },
+      "generated": {
+        "title": "Une semaine générée en un clic",
+        "lead": "Réponds à quelques questions, et l'appli compose une semaine entière à ta place — modifiable ensuite plat par plat."
+      },
+      "ready": {
+        "title": "Courses et batch cooking inclus",
+        "lead": "La liste de courses et le plan de préparation du dimanche suivent automatiquement ta semaine."
+      }
+    },
+    "profile": {
+      "title": "Quelques questions pour commencer",
+      "lead": "Sexe, âge, objectif… de quoi calculer tes apports exacts.",
+      "localNotice": "Tu n'es pas connecté : tes réponses restent sur cet appareil, tu pourras les sauvegarder en te connectant."
+    },
+    "generate": {
+      "title": "Prête à voir ta première semaine ?",
+      "lead": "On remplit les repas pour la variété et tes apports, puis on répartit sur les jours — en un clic.",
+      "action": "Générer ma première semaine",
+      "signedOutHint": "Connecte-toi pour sauvegarder cette semaine et la retrouver plus tard.",
+      "error": "La sauvegarde n'a pas abouti. Réessaie."
+    }
+  }
+}
