@@ -63,6 +63,15 @@
       "title": "Ma note",
       "hint": "Ce que tu changerais la prochaine fois : ça reste sur cet appareil.",
       "placeholder": "Ex. moitié moins de piment, plus de riz…"
+    },
+    "timer": {
+      "arm": "Armer un minuteur",
+      "armed": "Minuteur armé"
+    },
+    "substitute": {
+      "action": "Remplacer",
+      "hint": "En cas de rupture, à peu près les mêmes apports pour ce poids.",
+      "none": "Aucune alternative dans le même rayon."
     }
   }
 }
