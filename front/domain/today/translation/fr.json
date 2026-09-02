@@ -1,0 +1,47 @@
+{
+  "today": {
+    "nav": "Aujourd'hui",
+    "pageTitle": "Aujourd'hui",
+    "pageLead": "Ton repas du moment, tes rappels et ton eau, en un coup d'œil.",
+    "now": {
+      "current": "En ce moment",
+      "next": "À suivre",
+      "upcoming": "Ensuite"
+    },
+    "empty": {
+      "signedOut": {
+        "title": "Pas d'exemple pour aujourd'hui",
+        "hint": "La semaine de démonstration ne couvre pas la date du jour. Regarde-la telle qu'elle est composée.",
+        "action": "Voir la semaine exemple"
+      },
+      "needProfile": {
+        "title": "Dis-nous pour qui on cuisine",
+        "hint": "Réponds à quelques questions et on pourra te dire quoi manger aujourd'hui.",
+        "action": "Remplir mon profil"
+      },
+      "noMenu": {
+        "title": "Rien de composé pour aujourd'hui",
+        "hint": "Compose la semaine en cours pour voir ton repas du moment.",
+        "action": "Composer cette semaine"
+      }
+    },
+    "reminders": {
+      "title": "Rappels du jour",
+      "streakOne": "jour d'affilée",
+      "streakMany": "jours d'affilée",
+      "markDone": "Marquer comme fait",
+      "markUndone": "Marquer comme pas fait",
+      "item": {
+        "creatine": "5 g de créatine",
+        "water": "3,5 à 4 L d'eau dans la journée",
+        "vitaminD": "2 000 UI de vitamine D3"
+      }
+    },
+    "hydration": {
+      "title": "Eau du jour",
+      "target": "objectif 3,5 à 4 L",
+      "reached": "Objectif atteint",
+      "glass": "Verre"
+    }
+  }
+}

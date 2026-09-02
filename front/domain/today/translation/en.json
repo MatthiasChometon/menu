@@ -1,0 +1,47 @@
+{
+  "today": {
+    "nav": "Today",
+    "pageTitle": "Today",
+    "pageLead": "Your meal for right now, your reminders and your water, at a glance.",
+    "now": {
+      "current": "Right now",
+      "next": "Up next",
+      "upcoming": "Then"
+    },
+    "empty": {
+      "signedOut": {
+        "title": "No example for today",
+        "hint": "The sample week does not cover today's date. See it as it was composed instead.",
+        "action": "See the sample week"
+      },
+      "needProfile": {
+        "title": "Tell us who we are cooking for",
+        "hint": "Answer a few questions and we can tell you what to eat today.",
+        "action": "Fill in my profile"
+      },
+      "noMenu": {
+        "title": "Nothing composed for today",
+        "hint": "Compose the current week to see your meal for right now.",
+        "action": "Compose this week"
+      }
+    },
+    "reminders": {
+      "title": "Today's reminders",
+      "streakOne": "day in a row",
+      "streakMany": "days in a row",
+      "markDone": "Mark as done",
+      "markUndone": "Mark as not done",
+      "item": {
+        "creatine": "5 g of creatine",
+        "water": "3.5 to 4 L of water through the day",
+        "vitaminD": "2,000 IU of vitamin D3"
+      }
+    },
+    "hydration": {
+      "title": "Today's water",
+      "target": "target 3.5 to 4 L",
+      "reached": "Target reached",
+      "glass": "Glass"
+    }
+  }
+}
