@@ -1,0 +1,67 @@
+{
+  "insights": {
+    "nav": "Progression",
+    "pageTitle": "Ma progression",
+    "pageLead": "Ce que tes données disent déjà, réunies au même endroit.",
+    "progression": {
+      "title": "Poids et adhérence",
+      "lead": "Le taux de repas suivis et la tendance du poids, semaine par semaine.",
+      "week": "Semaine",
+      "adherence": "Adhérence",
+      "weightChange": "Poids",
+      "empty": "Pas encore assez de semaines suivies pour comparer.",
+      "ctaWeight": "Ajouter une pesée",
+      "ctaWeek": "Voir ma semaine",
+      "hint": {
+        "insufficientData": "Pas encore de semaines aux deux profils (haute et basse adhérence) pour comparer.",
+        "moreRegularWithAdherence": "Les semaines où tu manges au moins 90 % de tes repas prévus, ton poids progresse plus régulièrement. Une tendance à surveiller, pas une preuve.",
+        "noClearLink": "Aucun lien clair pour l'instant entre ton adhérence et ta courbe de poids sur ces semaines."
+      }
+    },
+    "budget": {
+      "title": "Efficience du budget",
+      "lead": "Ce que coûtent tes protéines cette semaine, et le plat qui en donne le plus pour son prix.",
+      "costPerProtein": "Coût pour 100 g de protéines",
+      "bestValue": "Le plus rentable",
+      "proteinPerEuro": "g de protéines / €",
+      "evolution": "Évolution du budget",
+      "notEnoughHistory": "Pas encore assez de semaines publiées pour voir une évolution.",
+      "empty": "Pas de semaine à analyser pour l'instant.",
+      "cta": "Voir ma semaine"
+    },
+    "micro": {
+      "title": "Carence récurrente",
+      "lead": "Le micronutriment le plus souvent bas sur la semaine, et un aliment pour le combler.",
+      "empty": "Rien à signaler cette semaine — tes apports couvrent bien tes besoins.",
+      "ofTarget": "de l'objectif quotidien en moyenne sur la semaine",
+      "suggestion": "Un aliment qui en apporte beaucoup :",
+      "per100g": "pour 100 g",
+      "key": {
+        "iron": "Fer",
+        "zinc": "Zinc",
+        "magnesium": "Magnésium",
+        "calcium": "Calcium",
+        "potassium": "Potassium",
+        "vitaminC": "Vitamine C",
+        "vitaminD": "Vitamine D",
+        "omega3": "Oméga-3"
+      }
+    },
+    "recap": {
+      "title": "Bilan du mois",
+      "lead": "Un résumé à garder ou à partager.",
+      "cardTitle": "Bilan du mois",
+      "weight": "Poids pris",
+      "adherence": "Adhérence moyenne",
+      "budget": "Budget moyen",
+      "dishes": "Plats préférés",
+      "footer": "menu.mtxlab.xyz",
+      "download": "Télécharger",
+      "share": "Partager",
+      "cardAlt": "Carte récapitulative du mois, avec le poids pris, l'adhérence moyenne, le budget et les plats préférés",
+      "empty": "Pas encore assez de données ce mois-ci pour un bilan.",
+      "ctaWeight": "Ajouter une pesée",
+      "ctaWeek": "Voir ma semaine"
+    }
+  }
+}
