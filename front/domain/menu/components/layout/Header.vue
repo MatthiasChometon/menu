@@ -4,7 +4,7 @@ import type { DropdownMenuItem } from '@nuxt/ui';
 const { locale, locales, setLocale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
-const { entries, primaryEntries, moreEntries, isCurrent } = useNavigation();
+const { entries, isCurrent } = useNavigation();
 const { user, signOut } = useAuth();
 const { profile } = useProfile();
 const { goalLabelOf } = useProfileSummary();
@@ -46,10 +46,12 @@ const { open: openBugReport } = useBugReport();
 const { open: openImprovement } = useImprovement();
 const { isAdmin } = useAdmin();
 
-// Built here rather than in the template so the admin entry can simply not
-// exist for everybody else, instead of being rendered and hidden.
+// The profile is not a standing tab any more: reached from the avatar, where an
+// account's own settings belong. Built here rather than in the template so the
+// admin entries can simply not exist for everybody else.
 const accountItems = computed((): DropdownMenuItem[][] => [
   [{ label: user.value?.name ?? user.value?.email ?? '', type: 'label' as const }],
+  [{ label: t('profile.nav'), icon: 'i-lucide-user-round', to: localePath('/profil') }],
   [
     { label: t('improvement.open'), icon: 'i-lucide-lightbulb', onSelect: openImprovement },
     { label: t('bugReport.open'), icon: 'i-lucide-bug', onSelect: openBugReport },
@@ -79,22 +81,6 @@ const isDark = computed({
 });
 
 const isDisplayPreferencesOpen = ref(false);
-
-// The eight labelled buttons stop fitting a tablet-width header next to its
-// own controls well before they stop fitting a true desktop one — so a
-// tablet keeps the four reached-for most inline and tucks the rest behind a
-// "Plus" menu, the same split the mobile bar uses.
-const moreNavItems = computed((): DropdownMenuItem[] =>
-  moreEntries.value.map((entry): DropdownMenuItem => ({
-    label: entry.label,
-    icon: entry.icon,
-    to: entry.to,
-  })),
-);
-
-const isInMore = computed((): boolean =>
-  moreEntries.value.some((entry): boolean => isCurrent(entry.to)),
-);
 </script>
 
 <template>
@@ -106,8 +92,7 @@ const isInMore = computed((): boolean =>
       <NuxtLink :to="localePath('/')" class="group flex min-w-0 items-center gap-2.5">
         <!-- The favicon itself, not a lookalike: the header, the browser tab,
              the installed app and a shared link all showed a different mark,
-             and the one people recognise is the one on their home screen.
-             Pointing at the file is what keeps them from drifting apart again. -->
+             and the one people recognise is the one on their home screen. -->
         <img
           src="/favicon.svg"
           alt=""
@@ -124,43 +109,10 @@ const isInMore = computed((): boolean =>
         </span>
       </NuxtLink>
 
-      <!-- On phones the same links live in the bottom bar, within thumb reach.
-           A tablet-width header gets the same four-plus-"Plus" split as the
-           bottom bar (below); only a true desktop one has room to spell out
-           all eight. -->
+      <!-- Five destinations spell out in full on a desktop header. On phones and
+           tablets the same five live in the bottom bar, within thumb reach. -->
       <nav
-        class="ml-auto hidden items-center gap-1 sm:flex lg:hidden"
-        :aria-label="$t('accessibility.mainNavigation')"
-      >
-        <UButton
-          v-for="entry in primaryEntries"
-          :key="entry.to"
-          :to="entry.to"
-          :icon="entry.icon"
-          :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
-          :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
-          :aria-current="isCurrent(entry.to) ? 'page' : undefined"
-          :class="isCurrent(entry.to) && 'font-semibold'"
-        >
-          {{ entry.label }}
-        </UButton>
-        <UDropdownMenu :items="moreNavItems">
-          <UButton
-            icon="i-lucide-more-horizontal"
-            variant="ghost"
-            :color="isInMore ? 'primary' : 'neutral'"
-            :class="isInMore && 'font-semibold'"
-          >
-            {{ $t('menu.nav.more') }}
-          </UButton>
-        </UDropdownMenu>
-      </nav>
-
-      <!-- min-w-0 + overflow-x-auto is a fallback for the narrow end of this
-           range (around 1024px), not the normal case: at that width the eight
-           buttons are meant to fit outright. -->
-      <nav
-        class="ml-auto hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex"
+        class="ml-auto hidden items-center gap-1 lg:flex"
         :aria-label="$t('accessibility.mainNavigation')"
       >
         <UButton
@@ -171,14 +123,13 @@ const isInMore = computed((): boolean =>
           :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
           :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
           :aria-current="isCurrent(entry.to) ? 'page' : undefined"
-          class="shrink-0"
           :class="isCurrent(entry.to) && 'font-semibold'"
         >
           {{ entry.label }}
         </UButton>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
+      <div class="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
         <UButton
           icon="i-lucide-accessibility"
           :aria-label="$t('displayPreferences.open')"
@@ -206,9 +157,6 @@ const isInMore = computed((): boolean =>
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
-          <!-- The avatar became a menu when there was more than one thing to
-               do with an account. Reporting a problem lives here as the calm
-               path; the floating button is the one you reach for mid-problem. -->
           <UDropdownMenu v-if="user !== undefined" :items="accountItems">
             <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
               <UAvatar

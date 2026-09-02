@@ -6,8 +6,9 @@
   <div class="flex min-h-screen flex-col text-default">
     <a href="#content" class="skip-link">{{ $t('accessibility.skipToContent') }}</a>
     <slot name="header" />
-    <!-- Bottom padding clears the mobile navigation bar. -->
-    <main id="content" class="flex-1 pb-24 sm:pb-16">
+    <!-- Bottom padding clears the bottom navigation bar, which now runs up to
+         the desktop breakpoint (lg), where the header takes over. -->
+    <main id="content" class="flex-1 pb-24 lg:pb-8">
       <slot />
     </main>
     <slot name="footer" />

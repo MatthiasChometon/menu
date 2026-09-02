@@ -5,32 +5,23 @@ beforeEach(async (): Promise<void> => {
 });
 
 describe('useNavigation', () => {
-  it('keeps the mobile bar to four destinations and tucks the rest behind "Plus"', () => {
-    const { primaryEntries, moreEntries } = useNavigation();
+  it('lists the five destinations, in order', () => {
+    const { entries } = useNavigation();
 
-    expect(primaryEntries.value).toHaveLength(4);
-    expect(moreEntries.value).toHaveLength(5);
-  });
-
-  it('never drops or duplicates a route across the two groups', () => {
-    const { entries, primaryEntries, moreEntries } = useNavigation();
-
-    const grouped = [...primaryEntries.value, ...moreEntries.value]
-      .map((entry): string => entry.to)
-      .sort();
-    const all = entries.value.map((entry): string => entry.to).sort();
-
-    expect(grouped).toEqual(all);
-  });
-
-  it('reads today, the week, shopping and the composer as the ones reached for most', () => {
-    const { primaryEntries } = useNavigation();
-
-    expect(primaryEntries.value.map((entry): string => entry.label)).toEqual([
+    expect(entries.value.map((entry): string => entry.label)).toEqual([
       "Aujourd'hui",
       'Semaine',
       'Courses',
-      'Composer',
+      'Progrès',
+      'Recettes',
     ]);
+  });
+
+  it('reads a route as current whether or not it carries a trailing slash', () => {
+    const { entries, isCurrent } = useNavigation();
+    const week = entries.value[1]?.to ?? '/';
+
+    expect(isCurrent(week)).toBe(true);
+    expect(isCurrent(`${week}nope`)).toBe(false);
   });
 });

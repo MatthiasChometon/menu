@@ -1,0 +1,11 @@
+{
+  "progress": {
+    "nav": "Progrès",
+    "pageTitle": "Tes progrès",
+    "pageLead": "Ton poids, tes tendances et ton adhérence, réunis — pour voir si le plan avance.",
+    "tabs": {
+      "weight": "Poids",
+      "trends": "Tendances"
+    }
+  }
+}
