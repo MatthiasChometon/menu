@@ -4,6 +4,7 @@
     "loading": "Loading",
     "newWindow": "(opens in a new window)",
     "toggleTheme": "Toggle light or dark theme",
-    "selectLanguage": "Choose language"
+    "selectLanguage": "Choose language",
+    "mainNavigation": "Main navigation"
   }
 }
