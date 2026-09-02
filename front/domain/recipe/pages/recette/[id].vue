@@ -154,6 +154,8 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
         </div>
       </header>
 
+      <RecipeNoteEditor :recipe-id="recipeId" />
+
       <section v-if="variant !== undefined" class="rise space-y-3" style="animation-delay: 60ms">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-xl font-bold">{{ $t('recipe.ingredients') }}</h2>

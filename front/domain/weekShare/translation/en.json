@@ -1,0 +1,14 @@
+{
+  "weekShare": {
+    "open": "Share the week",
+    "title": "Share the week",
+    "lead": "A recap image of the week, ready to send or keep.",
+    "weekOf": "Week of",
+    "footer": "menu.mtxlab.xyz",
+    "download": "Download",
+    "share": "Share",
+    "close": "Close",
+    "cardAlt": "Recap card for the week, with the average intake and the budget",
+    "empty": "No week to share yet."
+  }
+}
