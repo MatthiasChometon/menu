@@ -6,9 +6,25 @@ const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
 const { statusOf, setStatus, progressOf, reset } = useCookingLog(selectedWeek);
+const { groupsOf } = useBatchContainers();
+const { itemsOf } = useEquipmentList();
 
 const plan = computed((): BatchPlan | undefined =>
   currentMenu.value === undefined ? undefined : planOf(currentMenu.value),
+);
+
+const containerGroups = computed((): ContainerGroup[] =>
+  currentMenu.value === undefined || plan.value === undefined
+    ? []
+    : groupsOf(currentMenu.value, plan.value.tasks),
+);
+
+const totalContainers = computed((): number =>
+  containerGroups.value.reduce((total, group): number => total + group.labels.length, 0),
+);
+
+const equipmentItems = computed((): EquipmentItem[] =>
+  itemsOf(plan.value?.tasks.length ?? 0, totalContainers.value),
 );
 
 const progressById = computed(
@@ -110,10 +126,31 @@ useSeoMeta({ title: (): string => t('batch.title') });
           >
             {{ $t('cooking.resetWeek') }}
           </UButton>
+          <UButton
+            :to="localePath('/mode-cuisine')"
+            icon="i-lucide-fullscreen"
+            variant="subtle"
+            color="primary"
+            size="sm"
+          >
+            {{ $t('batch.kitchenMode.open') }}
+          </UButton>
         </div>
       </header>
 
-      <section v-if="toCook.length > 0" class="mt-8">
+      <div class="mt-8">
+        <BatchEquipment :items="equipmentItems" />
+      </div>
+
+      <div class="mt-10">
+        <BatchTimeline :plan="plan" />
+      </div>
+
+      <div class="mt-10">
+        <BatchTimerBoard />
+      </div>
+
+      <section v-if="toCook.length > 0" class="mt-10">
         <h2 class="text-xl font-bold">{{ $t('batch.toCook') }}</h2>
         <p class="mt-1 text-sm text-muted">{{ $t('cooking.toCookHint') }}</p>
         <p class="mt-1 text-sm text-dimmed">{{ $t('batch.raw') }}</p>
@@ -190,6 +227,10 @@ useSeoMeta({ title: (): string => t('batch.title') });
           </li>
         </ul>
       </section>
+
+      <div class="mt-10">
+        <BatchContainers :groups="containerGroups" />
+      </div>
 
       <section class="rise mt-10 rounded-2xl border border-default bg-elevated/40 p-5">
         <h2 class="mb-3 flex items-center gap-2 font-bold">
