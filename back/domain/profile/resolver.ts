@@ -1,13 +1,13 @@
-import { UseGuards } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
 import { User } from '../user/model';
-import { MeasurementsInput } from './input';
+import { AdjustNutritionTargetsArgs, MeasurementsInput } from './input';
 import { NutritionTargets, Profile } from './model';
 import { ProfileRepository } from './repository';
 import { NutritionTargetsService } from './targets.service';
-import { Measurements } from './type';
+import { ProfileRecord } from './type';
 
 @Resolver(() => Profile)
 export class ProfileResolver {
@@ -30,9 +30,9 @@ export class ProfileResolver {
   })
   @UseGuards(AuthGuard)
   async myProfile(@CurrentUser() user: User): Promise<Profile | undefined> {
-    const measurements = await this.profiles.findByUserId(user.id);
+    const record = await this.profiles.findByUserId(user.id);
 
-    return measurements === undefined ? undefined : this.withTargets(measurements);
+    return record === undefined ? undefined : this.withTargets(record);
   }
 
   @Mutation(() => Profile, { description: 'Creates the profile, or replaces it wholesale.' })
@@ -44,9 +44,24 @@ export class ProfileResolver {
     return this.withTargets(await this.profiles.save(user.id, input));
   }
 
+  @Mutation(() => Profile, {
+    description:
+      'Nudges the daily kcal target by the given amount, on top of whatever nudge is already stored — the action behind the weight coach suggestion. Requires a profile to already exist.',
+  })
+  @UseGuards(AuthGuard)
+  async adjustNutritionTargets(
+    @CurrentUser() user: User,
+    @Args() { deltaKcal }: AdjustNutritionTargetsArgs,
+  ): Promise<Profile> {
+    const record = await this.profiles.adjustKcalTarget(user.id, deltaKcal);
+    if (record === undefined) throw new NotFoundException('No profile to adjust yet.');
+
+    return this.withTargets(record);
+  }
+
   // Targets are derived on read rather than stored: keeping a copy in the row
   // would let it drift the day a coefficient changes.
-  private withTargets(measurements: Measurements): Profile {
-    return { ...measurements, targets: this.targets.calculate(measurements) };
+  private withTargets(record: ProfileRecord): Profile {
+    return { ...record, targets: this.targets.calculate(record, record.kcalAdjustmentKcal) };
   }
 }

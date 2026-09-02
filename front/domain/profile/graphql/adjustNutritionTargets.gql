@@ -1,0 +1,21 @@
+mutation adjustNutritionTargets($deltaKcal: Int!) {
+  adjustNutritionTargets(deltaKcal: $deltaKcal) {
+    sex
+    age
+    heightCm
+    weightKg
+    dailyActivity
+    trainingDaysPerWeek
+    trainingType
+    starchQuality
+    appetite
+    goal
+    targets {
+      kcal
+      protein
+      fat
+      carbs
+      fiber
+    }
+  }
+}

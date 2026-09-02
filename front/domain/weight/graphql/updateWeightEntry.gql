@@ -1,0 +1,7 @@
+mutation updateWeightEntry($input: UpdateWeightEntryInput!) {
+  updateWeightEntry(input: $input) {
+    id
+    date
+    kg
+  }
+}

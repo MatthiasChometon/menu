@@ -137,6 +137,11 @@ type GroceryBasketLine {
 
 """A browser allowed to run the orders of an account."""
 type GroceryDevice {
+  """When the extension last checked the Carrefour session."""
+  carrefourCheckedAt: DateTime
+
+  """Whether the extension last saw this browser signed in to Carrefour."""
+  carrefourSignedIn: Boolean
   id: ID!
 
   """What the owner called it, to tell two browsers apart."""
@@ -145,12 +150,6 @@ type GroceryDevice {
   """Last time it asked for work."""
   lastSeenAt: DateTime
   pairedAt: DateTime!
-
-  """Whether the extension last saw this browser signed in to Carrefour."""
-  carrefourSignedIn: Boolean
-
-  """When the extension last checked the Carrefour session."""
-  carrefourCheckedAt: DateTime
 }
 
 """One request to fill the basket of a week."""
@@ -399,6 +398,17 @@ input MeasurementsInput {
 
 type Mutation {
   addHouseholdMember(input: HouseholdMemberInput!): HouseholdMember!
+  addWeightEntry(input: WeightEntryInput!): WeightEntry!
+
+  """
+  Nudges the daily kcal target by the given amount, on top of whatever nudge is already stored — the action behind the weight coach suggestion. Requires a profile to already exist.
+  """
+  adjustNutritionTargets(
+    """
+    How many kcal to add to (or, if negative, subtract from) the daily target.
+    """
+    deltaKcal: Int!
+  ): Profile!
 
   """Shuts the account behind a report out of the site, or lets it back in."""
   blockAccount(input: BlockReporterInput!): Boolean!
@@ -415,6 +425,9 @@ type Mutation {
 
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!
+
+  """Removes a weigh-in from the diary."""
+  deleteWeightEntry(id: ID!): Boolean!
 
   """Closes a run, whatever became of it."""
   finishGroceryJob(input: GroceryJobOutcomeInput!, jobId: ID!): GroceryJob!
@@ -468,6 +481,9 @@ type Mutation {
 
   """Replaces a member wholesale."""
   updateHouseholdMember(input: UpdateHouseholdMemberInput!): HouseholdMember!
+
+  """Replaces a logged weigh-in wholesale."""
+  updateWeightEntry(input: UpdateWeightEntryInput!): WeightEntry!
 }
 
 """Daily nutrition targets worked out from a profile."""
@@ -613,6 +629,9 @@ type Query {
   """Every week the signed-in user has composed."""
   myWeekPlans: [WeekPlan!]!
 
+  """Every weigh-in the signed-in user has logged."""
+  myWeightEntries: [WeightEntry!]!
+
   """
   Daily targets for the given answers, without needing an account: this is what the onboarding form previews as it is filled in.
   """
@@ -692,6 +711,13 @@ input UpdateHouseholdMemberInput {
   weightKg: Int!
 }
 
+input UpdateWeightEntryInput {
+  """Calendar date the weigh-in happened on, YYYY-MM-DD."""
+  date: String!
+  id: ID!
+  kg: Float!
+}
+
 type User {
   email: String!
   hasPassword: Boolean!
@@ -713,4 +739,19 @@ type WeekPlan {
 input WeekPlanInput {
   days: [PlannedDayInput!]!
   weekOf: String!
+}
+
+"""One weigh-in, logged by its owner."""
+type WeightEntry {
+  """Calendar date the weigh-in happened on, YYYY-MM-DD."""
+  date: String!
+  id: ID!
+  kg: Float!
+}
+
+"""One weigh-in to log."""
+input WeightEntryInput {
+  """Calendar date the weigh-in happened on, YYYY-MM-DD."""
+  date: String!
+  kg: Float!
 }

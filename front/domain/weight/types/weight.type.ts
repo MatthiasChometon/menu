@@ -1,9 +1,6 @@
-export type WeightEntry = {
-  id: string;
-  /** Calendar date the weigh-in happened on, `YYYY-MM-DD`. */
-  date: string;
-  kg: number;
-};
+import type { MyWeightEntriesQuery } from '#gql';
+
+export type WeightEntry = MyWeightEntriesQuery['myWeightEntries'][number];
 
 export type WeightDraft = {
   date: string;

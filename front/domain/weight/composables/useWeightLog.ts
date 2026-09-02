@@ -1,69 +1,60 @@
 import type { WeightDraft, WeightEntry } from '../types/weight.type';
 
-const STORAGE_KEY = 'weight-log';
-
-// Wide enough to never reject a real body weight, narrow enough to catch a
-// stray keystroke (65 typed as 605) before it wrecks the trend line.
-const MIN_KG = 30;
-const MAX_KG = 300;
-
-const roundToOneDecimal = (value: number): number => Math.round(value * 10) / 10;
-
-const byDateDescending = (a: WeightEntry, b: WeightEntry): number =>
-  a.date === b.date ? b.id.localeCompare(a.id) : b.date.localeCompare(a.date);
-
-// The diary of the number the whole feature turns around. Kept in
-// localStorage for the MVP — see the page for the phase-2 server note — one
-// shared store across every component that reads it, like the cooking diary.
+// The diary of the number the whole feature turns around, synced through the
+// account rather than kept on this device — one shared request across every
+// component that reads it, like the profile it sits beside.
 export const useWeightLog = (): {
-  entries: ComputedRef<WeightEntry[]>;
+  entries: Ref<WeightEntry[]>;
+  isLoading: ComputedRef<boolean>;
+  hasFailed: ComputedRef<boolean>;
   bounds: { minKg: number; maxKg: number };
   todayDate: string;
   errorOf: (draft: WeightDraft) => string | undefined;
-  add: (draft: WeightDraft) => void;
-  update: (id: string, draft: WeightDraft) => void;
-  remove: (id: string) => void;
-  reset: () => void;
+  add: (draft: WeightDraft) => Promise<void>;
+  update: (id: string, draft: WeightDraft) => Promise<void>;
+  remove: (id: string) => Promise<void>;
+  refresh: () => Promise<void>;
 } => {
-  const { t } = useNuxtApp().$i18n;
-  const { todayDate, isValidDate } = useWeightDates();
-  const store = useLocalStorage<WeightEntry[]>(STORAGE_KEY, []);
-  const today = todayDate();
+  const { bounds, todayDate, errorOf } = useWeightValidation();
 
-  const errorOf = (draft: WeightDraft): string | undefined => {
-    if (!isValidDate(draft.date)) return t('weight.log.error.date');
-    if (draft.date > today) return t('weight.log.error.future');
-    if (!Number.isFinite(draft.kg) || draft.kg < MIN_KG || draft.kg > MAX_KG)
-      return t('weight.log.error.range');
+  // server: false because the session cookie only exists in the browser, and
+  // the site is prerendered. dedupe: 'defer' so the form, the chart, the coach
+  // card and the list — all mounted together — share the one request. Left to
+  // throw rather than caught here, so the page can tell "failed to load" apart
+  // from "nothing logged yet" instead of the two looking identical.
+  const { data, status, error, refresh } = useAsyncData(
+    'weight-entries',
+    async (): Promise<WeightEntry[]> => (await GqlMyWeightEntries()).myWeightEntries,
+    { server: false, dedupe: 'defer', default: (): WeightEntry[] => [] },
+  );
 
-    return undefined;
+  const reload = async (): Promise<void> => {
+    await refresh();
   };
 
   return {
-    entries: computed((): WeightEntry[] => [...store.value].sort(byDateDescending)),
-    bounds: { minKg: MIN_KG, maxKg: MAX_KG },
-    todayDate: today,
+    entries: data as Ref<WeightEntry[]>,
+    isLoading: computed((): boolean => status.value === 'pending'),
+    hasFailed: computed((): boolean => error.value !== undefined),
+    bounds,
+    todayDate,
     errorOf,
-    add: (draft: WeightDraft): void => {
+    add: async (draft): Promise<void> => {
       if (errorOf(draft) !== undefined) return;
 
-      store.value = [
-        ...store.value,
-        { id: crypto.randomUUID(), date: draft.date, kg: roundToOneDecimal(draft.kg) },
-      ];
+      await GqlAddWeightEntry({ input: draft });
+      await reload();
     },
-    update: (id: string, draft: WeightDraft): void => {
+    update: async (id, draft): Promise<void> => {
       if (errorOf(draft) !== undefined) return;
 
-      store.value = store.value.map((entry): WeightEntry =>
-        entry.id === id ? { ...entry, date: draft.date, kg: roundToOneDecimal(draft.kg) } : entry,
-      );
+      await GqlUpdateWeightEntry({ input: { id, ...draft } });
+      await reload();
     },
-    remove: (id: string): void => {
-      store.value = store.value.filter((entry): boolean => entry.id !== id);
+    remove: async (id): Promise<void> => {
+      await GqlDeleteWeightEntry({ id });
+      await reload();
     },
-    reset: (): void => {
-      store.value = [];
-    },
+    refresh: reload,
   };
 };
