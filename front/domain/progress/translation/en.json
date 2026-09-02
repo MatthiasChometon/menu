@@ -1,0 +1,11 @@
+{
+  "progress": {
+    "nav": "Progress",
+    "pageTitle": "Your progress",
+    "pageLead": "Your weight, your trends and your adherence in one place — to see whether the plan is working.",
+    "tabs": {
+      "weight": "Weight",
+      "trends": "Trends"
+    }
+  }
+}
