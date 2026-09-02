@@ -129,6 +129,35 @@
       "title": "Dis-nous pour qui on cuisine",
       "hint": "Réponds à quelques questions et les quantités s'ajusteront à tes objectifs.",
       "action": "Remplir mon profil"
+    },
+    "flex": {
+      "dayActions": "Options du jour",
+      "mealActions": "Options du repas",
+      "dayOff": {
+        "mark": "Marquer jour off",
+        "undo": "Annuler le jour off",
+        "badge": "Jour off"
+      },
+      "swap": {
+        "action": "Échanger avec",
+        "badge": "Échangé"
+      },
+      "override": {
+        "eatingOut": "Je mange dehors",
+        "cheatMeal": "Écart assumé",
+        "eatingOutBadge": "Hors plan",
+        "cheatMealBadge": "Écart assumé",
+        "undo": "Revenir au plan prévu"
+      },
+      "leftover": {
+        "mark": "Il reste ce plat",
+        "cancel": "Annuler (plus de restes)",
+        "stop": "Revenir au plat prévu",
+        "badge": "Restes d'hier",
+        "suggestion": "Restes d'hier disponibles :",
+        "accept": "Manger les restes",
+        "decline": "Non merci"
+      }
     }
   },
   "error": {
