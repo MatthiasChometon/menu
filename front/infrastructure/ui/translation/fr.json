@@ -1,0 +1,17 @@
+{
+  "displayPreferences": {
+    "open": "Réglages d'affichage",
+    "title": "Confort de lecture",
+    "lead": "Ces réglages restent sur cet appareil.",
+    "fontScale": {
+      "label": "Taille du texte",
+      "normal": "Normale",
+      "large": "Grande"
+    },
+    "highContrast": {
+      "label": "Contraste renforcé",
+      "hint": "Textes et bordures plus marqués."
+    },
+    "done": "Terminé"
+  }
+}
