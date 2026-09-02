@@ -9,6 +9,9 @@ export const useProfile = (): {
   hasAnswered: ComputedRef<boolean>;
   refresh: () => Promise<void>;
   save: (input: MeasurementsInput) => Promise<Profile | undefined>;
+  /** Nudges the stored daily kcal target — what the weight coach's "adjust my
+   *  targets" action calls. Throws when there is no profile to adjust yet. */
+  adjustTargets: (deltaKcal: number) => Promise<Profile>;
 } => {
   // Same reasoning as the session: browser-only, so the prerender never calls
   // the API, and one shared request across the components that read it.
@@ -28,6 +31,13 @@ export const useProfile = (): {
     return result.saveProfile;
   };
 
+  const adjustTargets = async (deltaKcal: number): Promise<Profile> => {
+    const result = await GqlAdjustNutritionTargets({ deltaKcal });
+    data.value = result.adjustNutritionTargets;
+
+    return result.adjustNutritionTargets;
+  };
+
   return {
     profile: data,
     isLoading: computed((): boolean => status.value === 'pending'),
@@ -36,5 +46,6 @@ export const useProfile = (): {
       await refresh();
     },
     save,
+    adjustTargets,
   };
 };

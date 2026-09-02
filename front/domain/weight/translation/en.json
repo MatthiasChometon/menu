@@ -3,7 +3,13 @@
     "nav": "Weight",
     "pageTitle": "My weight",
     "pageLead": "Track your curve and adjust your calories as you go.",
-    "serverNote": "For now, this diary stays on this device. Syncing it with your account is coming later.",
+    "signedOut": {
+      "title": "Sign in to track your weight",
+      "hint": "Your weigh-in diary is tied to your account, so you can find it again on every device.",
+      "unavailable": "Accounts are not open yet. Come back later to track your weight."
+    },
+    "loadFailed": "Loading your diary failed.",
+    "retry": "Retry",
     "log": {
       "addTitle": "New weigh-in",
       "kgLabel": "Weight",
@@ -11,6 +17,7 @@
       "dateLabel": "Date",
       "save": "Save",
       "saved": "Saved",
+      "saveFailed": "Saving didn't go through. Try again.",
       "cancel": "Cancel",
       "edit": "Edit the weigh-in from",
       "delete": "Delete the weigh-in from",
@@ -37,7 +44,7 @@
     "coach": {
       "rate": "Current pace:",
       "perWeek": "kg / week",
-      "disclaimer": "For guidance only — it does not change your saved targets.",
+      "disclaimer": "For guidance only — your saved targets only change if you apply the advice below.",
       "notEnoughData": {
         "title": "Not enough data yet",
         "description": "Come back after your second weigh-in for a first piece of advice."
@@ -53,7 +60,11 @@
       "tooFast": {
         "title": "Rising too fast",
         "description": "Try −100 kcal a day?"
-      }
+      },
+      "adjustTargets": "Adjust my targets",
+      "adjustTargetsDone": "Targets adjusted",
+      "adjustTargetsFailed": "The adjustment didn't go through. Try again.",
+      "adjustTargetsNoProfile": "Fill in your profile first to adjust your targets."
     }
   }
 }

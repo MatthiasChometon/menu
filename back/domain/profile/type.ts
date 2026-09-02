@@ -12,3 +12,6 @@ export type Measurements = {
   appetite: Appetite;
   goal: Goal;
 };
+
+/** A stored profile: the answers, plus the manual kcal nudge on top of them. */
+export type ProfileRecord = Measurements & { kcalAdjustmentKcal: number };

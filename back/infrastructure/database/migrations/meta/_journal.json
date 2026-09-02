@@ -92,6 +92,13 @@
       "when": 1787915294090,
       "tag": "0012_carrefour_session",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788340198548,
+      "tag": "0013_clammy_amazoness",
+      "breakpoints": true
     }
   ]
 }

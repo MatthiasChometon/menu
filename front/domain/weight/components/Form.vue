@@ -15,6 +15,8 @@ const { add, errorOf, todayDate, bounds } = useWeightLog();
 const date = ref(todayDate);
 const kg = ref<number | undefined>(defaultKg);
 const error = ref<string>();
+const isSaving = ref(false);
+const saveFailed = ref(false);
 const justSaved = ref(false);
 const root = useTemplateRef<HTMLElement>('root');
 
@@ -34,13 +36,23 @@ watch(
   },
 );
 
-const submit = (): void => {
+const submit = async (): Promise<void> => {
   const draft = { date: date.value, kg: kg.value ?? Number.NaN };
   const validation = errorOf(draft);
   error.value = validation;
   if (validation !== undefined) return;
 
-  add(draft);
+  isSaving.value = true;
+  saveFailed.value = false;
+  try {
+    await add(draft);
+  } catch {
+    saveFailed.value = true;
+    return;
+  } finally {
+    isSaving.value = false;
+  }
+
   date.value = todayDate;
 
   justSaved.value = true;
@@ -83,6 +95,7 @@ const submit = (): void => {
         size="xl"
         class="font-semibold text-white"
         :icon="justSaved ? 'i-lucide-check' : 'i-lucide-plus'"
+        :loading="isSaving"
         @click="submit"
       >
         <span :key="String(justSaved)" class="pop">
@@ -98,6 +111,14 @@ const submit = (): void => {
       variant="subtle"
       icon="i-lucide-triangle-alert"
       :title="error"
+    />
+    <UAlert
+      v-if="saveFailed"
+      class="mt-4"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('weight.log.saveFailed')"
     />
   </div>
 </template>

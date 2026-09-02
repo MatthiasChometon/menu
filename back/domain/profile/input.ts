@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { ArgsType, Field, InputType, Int } from '@nestjs/graphql';
 import { IsEnum, IsInt, Max, Min } from 'class-validator';
 import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 import { profileConstraints } from './utils';
@@ -11,6 +11,8 @@ const {
   minWeightKg,
   maxWeightKg,
   maxTrainingDaysPerWeek,
+  minKcalDelta,
+  maxKcalDelta,
 } = profileConstraints();
 
 @InputType()
@@ -62,4 +64,15 @@ export class MeasurementsInput {
   @Field(() => Goal)
   @IsEnum(Goal)
   goal!: Goal;
+}
+
+@ArgsType()
+export class AdjustNutritionTargetsArgs {
+  @Field(() => Int, {
+    description: 'How many kcal to add to (or, if negative, subtract from) the daily target.',
+  })
+  @IsInt()
+  @Min(minKcalDelta)
+  @Max(maxKcalDelta)
+  deltaKcal!: number;
 }
