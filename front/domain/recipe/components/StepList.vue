@@ -1,17 +1,23 @@
 <script setup lang="ts">
-const { steps, quantities = [], showWakeLockToggle = true } = defineProps<{
+const { steps, quantities = [], showWakeLockToggle = true, recipeName } = defineProps<{
   steps: string[];
   quantities?: FoodQuantity[];
   /** Off inside kitchen mode: that screen already holds one lock for every
    *  dish, and a second toggle per card would only invite confusion. */
   showWakeLockToggle?: boolean;
+  /** Names the timer a step arms, so the timer board reads "Riz · cuire…"
+   *  rather than one anonymous countdown among several. */
+  recipeName?: string;
 }>();
 
-const { segmentsOf } = useRecipeSteps();
+const { segmentsOf, plainTextOf } = useRecipeSteps();
+const { minutesOf } = useStepDuration();
 const { quantityLabel } = useFoodFormat();
 const { seasoningOf } = useSeasonings();
+const { add: addTimer } = useTimers();
 
 const doneSteps = ref(new Set<number>());
+const armedSteps = ref(new Set<number>());
 const { isSupported, isActive, request, release } = useWakeLock();
 
 // Looked up per mention rather than passed down: the same ingredient can appear
@@ -32,6 +38,28 @@ const amountOf = (foodId: string): string | undefined => {
 // own quieter treatment: highlighted enough to be spotted while shopping the
 // cupboard, never loud enough to be mistaken for something to weigh out.
 const isSeasoning = (id: string): boolean => seasoningOf(id) !== undefined;
+
+// Short enough to still fit a timer card, long enough to tell two armed steps
+// apart on the board.
+const SHORT_LABEL_LENGTH = 42;
+
+const shortTextOf = (step: string): string => {
+  const text = plainTextOf(step).trim();
+  return text.length > SHORT_LABEL_LENGTH ? `${text.slice(0, SHORT_LABEL_LENGTH).trimEnd()}…` : text;
+};
+
+const timerLabelOf = (step: string): string =>
+  recipeName === undefined ? shortTextOf(step) : `${recipeName} · ${shortTextOf(step)}`;
+
+const isArmed = (index: number): boolean => armedSteps.value.has(index);
+
+const armTimer = (index: number, step: string): void => {
+  const minutes = minutesOf(step);
+  if (minutes === undefined || isArmed(index)) return;
+
+  addTimer(timerLabelOf(step), minutes);
+  armedSteps.value = new Set(armedSteps.value).add(index);
+};
 
 const isDone = (index: number): boolean => doneSteps.value.has(index);
 
@@ -118,7 +146,7 @@ onBeforeUnmount((): void => {
     </div>
 
     <ol class="space-y-2.5">
-      <li v-for="(step, index) in steps" :key="step">
+      <li v-for="(step, index) in steps" :key="step" class="space-y-1.5">
         <button
           type="button"
           role="checkbox"
@@ -184,6 +212,25 @@ onBeforeUnmount((): void => {
             <UIcon v-if="isDone(index)" name="i-lucide-check" class="size-3.5" />
           </span>
         </button>
+
+        <!-- Sits outside the step's own button: nested interactive elements are
+             invalid HTML, and arming a timer is a different action from ticking
+             the step off. -->
+        <div v-if="minutesOf(step) !== undefined" class="ps-10">
+          <UButton
+            size="xs"
+            variant="soft"
+            :color="isArmed(index) ? 'neutral' : 'primary'"
+            :icon="isArmed(index) ? 'i-lucide-circle-check' : 'i-lucide-timer'"
+            :disabled="isArmed(index)"
+            @click="armTimer(index, step)"
+          >
+            <template v-if="isArmed(index)">{{ $t('recipe.timer.armed') }}</template>
+            <template v-else>
+              {{ $t('recipe.timer.arm') }} · {{ minutesOf(step) }} {{ $t('recipe.minutes') }}
+            </template>
+          </UButton>
+        </div>
       </li>
     </ol>
   </div>
