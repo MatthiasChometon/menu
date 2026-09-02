@@ -97,6 +97,7 @@ useSeoMeta({ title: (): string => t('batch.kitchenMode.title') });
               :steps="stepsOf(task.recipe)"
               :quantities="task.quantities"
               :show-wake-lock-toggle="false"
+              :recipe-name="nameOf(task.recipe)"
             />
           </UCard>
         </div>

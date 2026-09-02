@@ -55,7 +55,7 @@ describe('reading an ingredient the household shares', () => {
     // they are wanted at serving time, not while cooking.
     expect(wrapper.text()).not.toContain('Maman');
 
-    await wrapper.find('button').trigger('click');
+    await wrapper.find('button[aria-controls^="shares-"]').trigger('click');
 
     expect(wrapper.text()).toContain('Matthias');
     expect(wrapper.text()).toContain('Maman');
@@ -68,14 +68,14 @@ describe('reading an ingredient the household shares', () => {
 
     // The total IS their portion. A fold repeating the number above it would be
     // noise dressed up as information — and this is what the page shows today.
-    expect(wrapper.findAll('button')).toHaveLength(0);
+    expect(wrapper.findAll('button[aria-controls^="shares-"]')).toHaveLength(0);
     expect(wrapper.text()).toContain('140');
   });
 
   it('offers no fold when nobody has answered a profile', async () => {
     const wrapper = await mount([{ food: rice, total: 140, perEater: [] }]);
 
-    expect(wrapper.findAll('button')).toHaveLength(0);
+    expect(wrapper.findAll('button[aria-controls^="shares-"]')).toHaveLength(0);
     expect(wrapper.text()).toContain('140');
   });
 
@@ -90,10 +90,42 @@ describe('reading an ingredient the household shares', () => {
       ),
     );
 
-    await wrapper.find('button').trigger('click');
+    await wrapper.find('button[aria-controls^="shares-"]').trigger('click');
 
     for (const name of names) expect(wrapper.text()).toContain(name);
     // 60 + 70 + 80 + 90 + 100
     expect(wrapper.text()).toContain('400');
+  });
+});
+
+describe('substituting an ingredient in a pinch', () => {
+  const chickenBreast = {
+    id: 'chickenBreast',
+    name: { fr: 'Blanc de poulet', en: 'Chicken breast' },
+    unit: 'g',
+    aisle: 'butcher',
+    icon: 'i-lucide-drumstick',
+    kcal: 110,
+    protein: 23,
+    fat: 1.5,
+    carbs: 0,
+    fiber: 0,
+    pricePerKg: 9.5,
+  } as unknown as SharedQuantity['food'];
+
+  it('keeps the alternatives folded until asked for', async () => {
+    const wrapper = await mount([{ food: chickenBreast, total: 150, perEater: [] }]);
+
+    expect(wrapper.text()).not.toContain('Filet de dinde');
+  });
+
+  it('suggests the closest match from the same aisle, with an equivalent weight', async () => {
+    const wrapper = await mount([{ food: chickenBreast, total: 150, perEater: [] }]);
+
+    await wrapper.find('button[aria-controls^="substitutes-"]').trigger('click');
+
+    // Turkey breast sits right next to chicken breast in the catalogue's
+    // macros, and both are shelved under "butcher".
+    expect(wrapper.text()).toContain('Filet de dinde');
   });
 });
