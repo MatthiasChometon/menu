@@ -4,8 +4,7 @@ import type { DropdownMenuItem } from '@nuxt/ui';
 const { locale, locales, setLocale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const colorMode = useColorMode();
-const { entries } = useNavigation();
-const route = useRoute();
+const { entries, primaryEntries, moreEntries, isCurrent } = useNavigation();
 const { user, signOut } = useAuth();
 const { profile } = useProfile();
 const { goalLabelOf } = useProfileSummary();
@@ -27,10 +26,6 @@ const initials = computed((): string => {
     .map((word): string => word.charAt(0).toUpperCase())
     .join('');
 });
-
-// Trailing slash included: the prerendered pages are served as /courses/, so a
-// bare comparison would never match and the bar would never say where you are.
-const isCurrent = (to: string): boolean => route.path === to || route.path === `${to}/`;
 
 const languageItems = computed((): SelectItem[] =>
   locales.value.map((entry): SelectItem => ({
@@ -82,6 +77,24 @@ const isDark = computed({
     colorMode.preference = value ? 'dark' : 'light';
   },
 });
+
+const isDisplayPreferencesOpen = ref(false);
+
+// The eight labelled buttons stop fitting a tablet-width header next to its
+// own controls well before they stop fitting a true desktop one — so a
+// tablet keeps the four reached-for most inline and tucks the rest behind a
+// "Plus" menu, the same split the mobile bar uses.
+const moreNavItems = computed((): DropdownMenuItem[] =>
+  moreEntries.value.map((entry): DropdownMenuItem => ({
+    label: entry.label,
+    icon: entry.icon,
+    to: entry.to,
+  })),
+);
+
+const isInMore = computed((): boolean =>
+  moreEntries.value.some((entry): boolean => isCurrent(entry.to)),
+);
 </script>
 
 <template>
@@ -111,10 +124,16 @@ const isDark = computed({
         </span>
       </NuxtLink>
 
-      <!-- On phones the same links live in the bottom bar, within thumb reach. -->
-      <nav class="ml-auto hidden items-center gap-1 sm:flex" :aria-label="$t('menu.nav.week')">
+      <!-- On phones the same links live in the bottom bar, within thumb reach.
+           A tablet-width header gets the same four-plus-"Plus" split as the
+           bottom bar (below); only a true desktop one has room to spell out
+           all eight. -->
+      <nav
+        class="ml-auto hidden items-center gap-1 sm:flex lg:hidden"
+        :aria-label="$t('accessibility.mainNavigation')"
+      >
         <UButton
-          v-for="entry in entries"
+          v-for="entry in primaryEntries"
           :key="entry.to"
           :to="entry.to"
           :icon="entry.icon"
@@ -125,9 +144,48 @@ const isDark = computed({
         >
           {{ entry.label }}
         </UButton>
+        <UDropdownMenu :items="moreNavItems">
+          <UButton
+            icon="i-lucide-more-horizontal"
+            variant="ghost"
+            :color="isInMore ? 'primary' : 'neutral'"
+            :class="isInMore && 'font-semibold'"
+          >
+            {{ $t('menu.nav.more') }}
+          </UButton>
+        </UDropdownMenu>
+      </nav>
+
+      <!-- min-w-0 + overflow-x-auto is a fallback for the narrow end of this
+           range (around 1024px), not the normal case: at that width the eight
+           buttons are meant to fit outright. -->
+      <nav
+        class="ml-auto hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex"
+        :aria-label="$t('accessibility.mainNavigation')"
+      >
+        <UButton
+          v-for="entry in entries"
+          :key="entry.to"
+          :to="entry.to"
+          :icon="entry.icon"
+          :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
+          :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
+          :aria-current="isCurrent(entry.to) ? 'page' : undefined"
+          class="shrink-0"
+          :class="isCurrent(entry.to) && 'font-semibold'"
+        >
+          {{ entry.label }}
+        </UButton>
       </nav>
 
       <div class="ml-auto flex shrink-0 items-center gap-1 sm:ml-0">
+        <UButton
+          icon="i-lucide-accessibility"
+          :aria-label="$t('displayPreferences.open')"
+          variant="ghost"
+          color="neutral"
+          @click="isDisplayPreferencesOpen = true"
+        />
         <UButton
           :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
           :aria-label="$t('accessibility.toggleTheme')"
@@ -168,4 +226,6 @@ const isDark = computed({
       </div>
     </div>
   </header>
+
+  <UiDisplayPreferencesDialog v-model="isDisplayPreferencesOpen" />
 </template>
