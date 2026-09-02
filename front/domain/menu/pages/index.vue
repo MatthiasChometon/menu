@@ -44,6 +44,12 @@ const averageMacros = computed((): Macros | undefined => {
 
 const { profile, hasAnswered } = useProfile();
 const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
+const { isDismissed: isOnboardingDismissed } = useOnboardingStatus();
+const {
+  isGenerating: isGeneratingFirstWeek,
+  hasFailed: generateFirstWeekFailed,
+  generate: generateFirstWeek,
+} = useGenerateFirstWeek();
 
 // Everything date-related waits for the client: a prerendered page would freeze
 // whatever day it was built on.
@@ -120,15 +126,29 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           {{ $t('menu.example.title') }}
         </h1>
         <p class="mt-2 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
-        <UButton
-          :to="localePath('/composer')"
-          color="primary"
-          size="xl"
-          icon="i-lucide-square-pen"
-          class="mt-4 font-semibold"
-        >
-          {{ $t('menu.example.cta') }}
-        </UButton>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <UButton
+            :to="localePath('/composer')"
+            color="primary"
+            size="xl"
+            icon="i-lucide-square-pen"
+            class="font-semibold text-white"
+          >
+            {{ $t('menu.example.cta') }}
+          </UButton>
+          <!-- Proposed, never imposed: a first-time visitor sees it once, and
+               it never reappears once the walkthrough has been offered — the
+               page itself still works with no account and no answers. -->
+          <UButton
+            v-if="isMounted && !isOnboardingDismissed"
+            :to="localePath('/bienvenue')"
+            variant="ghost"
+            color="neutral"
+            icon="i-lucide-compass"
+          >
+            {{ $t('menu.example.discover') }}
+          </UButton>
+        </div>
       </div>
 
       <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
@@ -218,7 +238,11 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           </div>
         </section>
 
-        <section class="rise mt-6" style="animation-delay: 100ms" :aria-label="$t('menu.adherence.title')">
+        <section
+          class="rise mt-6"
+          style="animation-delay: 100ms"
+          :aria-label="$t('menu.adherence.title')"
+        >
           <UCard>
             <h2 class="font-serif text-2xl">{{ $t('menu.adherence.title') }}</h2>
             <p class="mt-1 max-w-sm text-sm text-muted">{{ $t('menu.adherence.hint') }}</p>
@@ -235,7 +259,9 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
               />
 
               <div class="mt-6 border-t border-default pt-4">
-                <p class="mb-3 text-sm font-semibold text-muted">{{ $t('menu.adherence.trend') }}</p>
+                <p class="mb-3 text-sm font-semibold text-muted">
+                  {{ $t('menu.adherence.trend') }}
+                </p>
                 <MenuAdherenceHistory :history="history" />
               </div>
             </template>
@@ -248,7 +274,9 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
                 </div>
               </div>
               <div class="mt-6 border-t border-default pt-4">
-                <p class="mb-3 text-sm font-semibold text-muted">{{ $t('menu.adherence.trend') }}</p>
+                <p class="mb-3 text-sm font-semibold text-muted">
+                  {{ $t('menu.adherence.trend') }}
+                </p>
                 <div class="flex items-end gap-4" aria-hidden="true">
                   <USkeleton v-for="n in 4" :key="n" class="h-16 flex-1 rounded-md" />
                 </div>
@@ -330,14 +358,41 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UIcon name="i-lucide-calendar-plus" class="size-12 text-dimmed" />
         <h2 class="text-xl font-bold">{{ $t('menu.compose.title') }}</h2>
         <p class="max-w-sm text-muted">{{ $t('menu.compose.hint') }}</p>
-        <UButton
-          :to="localePath('/composer')"
-          color="primary"
-          icon="i-lucide-square-pen"
-          class="mt-2"
-        >
-          {{ $t('menu.compose.action') }}
-        </UButton>
+        <!-- The one-click path first, since it is the whole point of never
+             showing an empty week — composing by hand stays one tap away for
+             whoever would rather choose every dish. -->
+        <div class="mt-2 flex flex-wrap justify-center gap-3">
+          <UButton
+            color="primary"
+            icon="i-lucide-sparkles"
+            class="font-semibold text-white"
+            :loading="isGeneratingFirstWeek"
+            :disabled="isGeneratingFirstWeek"
+            @click="generateFirstWeek"
+          >
+            {{
+              isGeneratingFirstWeek
+                ? $t('planner.generate.working')
+                : $t('menu.compose.generateAction')
+            }}
+          </UButton>
+          <UButton
+            :to="localePath('/composer')"
+            color="primary"
+            variant="outline"
+            icon="i-lucide-square-pen"
+          >
+            {{ $t('menu.compose.action') }}
+          </UButton>
+        </div>
+        <UAlert
+          v-if="generateFirstWeekFailed"
+          class="mt-3"
+          color="error"
+          variant="subtle"
+          icon="i-lucide-triangle-alert"
+          :title="$t('menu.compose.generateError')"
+        />
       </div>
     </template>
   </div>
