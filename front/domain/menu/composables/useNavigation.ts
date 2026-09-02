@@ -62,6 +62,12 @@ export const useNavigation = (): {
       primary: false,
     },
     {
+      to: localePath('/progression'),
+      label: t('insights.nav'),
+      icon: 'i-lucide-line-chart',
+      primary: false,
+    },
+    {
       to: localePath('/profil'),
       label: t('profile.nav'),
       icon: 'i-lucide-user-round',
