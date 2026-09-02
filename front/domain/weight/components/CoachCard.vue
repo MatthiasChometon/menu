@@ -6,8 +6,46 @@ import type { CoachAdvice, CoachStatus } from '../composables/useWeightCoach';
 // annotation sitting on top of a line they still have to interpret.
 const { entries } = useWeightLog();
 const { adviceOf } = useWeightCoach();
+const { hasAnswered, adjustTargets } = useProfile();
 
 const advice = computed((): CoachAdvice => adviceOf(entries.value));
+
+// Only offered once there is a saved profile to adjust — the mutation itself
+// refuses otherwise — and only for a verdict that actually suggests a change.
+const canAdjust = computed(
+  (): boolean => advice.value.kcalAdjustment !== undefined && hasAnswered.value,
+);
+
+const isAdjusting = ref(false);
+const adjustFailed = ref(false);
+const justAdjusted = ref(false);
+
+// Never applied silently: this only ever runs from the explicit click below,
+// and resets the moment the verdict itself changes — a "done" left over from
+// yesterday's advice would look like it confirmed today's.
+watch(
+  (): CoachStatus => advice.value.status,
+  (): void => {
+    justAdjusted.value = false;
+    adjustFailed.value = false;
+  },
+);
+
+const applyAdjustment = async (): Promise<void> => {
+  const delta = advice.value.kcalAdjustment;
+  if (delta === undefined) return;
+
+  isAdjusting.value = true;
+  adjustFailed.value = false;
+  try {
+    await adjustTargets(delta);
+    justAdjusted.value = true;
+  } catch {
+    adjustFailed.value = true;
+  } finally {
+    isAdjusting.value = false;
+  }
+};
 
 const icons: Record<CoachStatus, string> = {
   notEnoughData: 'i-lucide-hourglass',
@@ -52,6 +90,33 @@ const rateLabel = computed((): string | undefined => {
           {{ $t('weight.coach.rate') }}
           <span class="tabular-nums">{{ rateLabel }}</span>
           {{ $t('weight.coach.perWeek') }}
+        </p>
+
+        <!-- Never applied on its own: the click below is the one explicit
+             consent this action ever gets. -->
+        <div v-if="canAdjust" class="mt-3">
+          <UButton
+            size="sm"
+            variant="soft"
+            :color="justAdjusted ? 'success' : 'primary'"
+            :icon="justAdjusted ? 'i-lucide-check' : 'i-lucide-sparkles'"
+            :loading="isAdjusting"
+            :disabled="justAdjusted"
+            @click="applyAdjustment"
+          >
+            {{ justAdjusted ? $t('weight.coach.adjustTargetsDone') : $t('weight.coach.adjustTargets') }}
+          </UButton>
+
+          <p v-if="adjustFailed" class="mt-2 text-xs text-error" role="alert">
+            {{ $t('weight.coach.adjustTargetsFailed') }}
+          </p>
+        </div>
+
+        <p
+          v-else-if="advice.kcalAdjustment !== undefined"
+          class="mt-3 text-xs text-dimmed"
+        >
+          {{ $t('weight.coach.adjustTargetsNoProfile') }}
         </p>
       </div>
     </div>

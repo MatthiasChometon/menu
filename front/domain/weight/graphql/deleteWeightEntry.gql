@@ -1,0 +1,3 @@
+mutation deleteWeightEntry($id: ID!) {
+  deleteWeightEntry(id: $id)
+}
