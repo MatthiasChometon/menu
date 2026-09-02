@@ -11,6 +11,7 @@ export const useNavigation = (): { entries: ComputedRef<NavigationEntry[]> } => 
   return {
     entries: computed((): NavigationEntry[] => [
       { to: localePath('/'), label: t('menu.nav.week'), icon: 'i-lucide-calendar-days' },
+      { to: localePath('/recettes'), label: t('library.nav'), icon: 'i-lucide-book-open' },
       { to: localePath('/batch'), label: t('menu.nav.batch'), icon: 'i-lucide-chef-hat' },
       {
         to: localePath('/courses'),

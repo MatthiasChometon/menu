@@ -1,0 +1,38 @@
+{
+  "library": {
+    "nav": "Recettes",
+    "pageTitle": "Toutes les recettes",
+    "pageLead": "Toutes les recettes de la carte, filtrables par apport dominant, temps de préparation, ingrédient ou saison.",
+    "search": {
+      "placeholder": "Un plat, un ingrédient…",
+      "label": "Rechercher une recette ou un ingrédient"
+    },
+    "filter": {
+      "macro": {
+        "label": "Apport dominant",
+        "all": "Tous les apports"
+      },
+      "time": {
+        "label": "Temps de préparation",
+        "all": "Toutes les durées",
+        "quick": "Rapide (≤ 20 min)",
+        "medium": "Moyen (20-40 min)",
+        "long": "Long (> 40 min)"
+      },
+      "season": "De saison",
+      "reset": "Réinitialiser"
+    },
+    "result": "recette",
+    "results": "recettes",
+    "empty": {
+      "title": "Aucune recette ne correspond",
+      "hint": "Essaie d'élargir la recherche ou de réinitialiser les filtres."
+    },
+    "season": {
+      "title": "De saison en",
+      "hint": "Ces produits sont à leur meilleur ce mois-ci.",
+      "cta": "Voir les recettes de saison",
+      "badge": "De saison"
+    }
+  }
+}
