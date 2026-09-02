@@ -66,6 +66,12 @@
     "averagePerDay": "Moyenne par jour",
     "budget": "Budget des courses",
     "recipeCount": "Recettes cette semaine",
+    "adherence": {
+      "title": "Adhérence de la semaine",
+      "hint": "Les repas réellement mangés, par rapport à ce que prévoyait la semaine.",
+      "meals": "repas mangés",
+      "trend": "Dernières semaines"
+    },
     "empty": {
       "title": "Aucun menu pour l'instant",
       "hint": "Compose ta première semaine pour voir tes repas, tes apports et ta liste de courses."

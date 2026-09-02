@@ -66,6 +66,12 @@
     "averagePerDay": "Daily average",
     "budget": "Shopping budget",
     "recipeCount": "Recipes this week",
+    "adherence": {
+      "title": "Weekly adherence",
+      "hint": "Meals actually eaten against what the week planned.",
+      "meals": "meals eaten",
+      "trend": "Last weeks"
+    },
     "empty": {
       "title": "No menu yet",
       "hint": "Put your first week together to see your meals, your intake and your shopping list."
