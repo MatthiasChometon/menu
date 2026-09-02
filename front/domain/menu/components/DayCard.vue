@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui';
+
 const {
   day,
   targets,
@@ -6,16 +8,50 @@ const {
   index = 0,
   defaultOpen = false,
   isToday = false,
+  otherDayKeys = [],
 } = defineProps<{
-  day: Day;
+  day: FlexedDay;
   targets: Macros;
   date?: Date;
   index?: number;
   defaultOpen?: boolean;
   isToday?: boolean;
+  otherDayKeys?: DayKey[];
 }>();
 
-const { locale } = useNuxtApp().$i18n;
+const { locale, t } = useNuxtApp().$i18n;
+const { selectedWeek } = useSelectedWeek();
+const { isDayOff, setDayOff, clearDayOff } = useMealOverrides(selectedWeek);
+const { swapDay } = useMealSwap(selectedWeek);
+
+// The slots this day actually has, so "day off" and "swap" only ever touch
+// meals the day is showing — never a slot the plan left empty.
+const slots = computed((): MealSlot[] => day.meals.map((meal): MealSlot => meal.slot));
+
+const isOff = computed((): boolean => isDayOff(day.key, slots.value));
+
+const flexItems = computed((): DropdownMenuItem[][] => [
+  [
+    isOff.value
+      ? {
+          label: t('menu.flex.dayOff.undo'),
+          icon: 'i-lucide-rotate-ccw',
+          onSelect: (): void => clearDayOff(day.key, slots.value),
+        }
+      : {
+          label: t('menu.flex.dayOff.mark'),
+          icon: 'i-lucide-coffee',
+          onSelect: (): void => setDayOff(day.key, slots.value),
+        },
+  ],
+  otherDayKeys.map(
+    (otherKey): DropdownMenuItem => ({
+      label: `${t('menu.flex.swap.action')} ${t(`menu.day.${otherKey}`)}`,
+      icon: 'i-lucide-shuffle',
+      onSelect: (): void => swapDay(day.key, otherKey, slots.value),
+    }),
+  ),
+]);
 
 // "Lundi" alone does not say which Monday. Reading a week meant counting rows
 // to work out where today was, and a shopping list bought on the wrong week is
@@ -63,31 +99,47 @@ watch(
     :ui="{ body: 'p-0 sm:p-0', header: 'p-0 sm:p-0' }"
   >
     <template #header>
-      <button
-        type="button"
-        class="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-elevated/50"
-        :aria-expanded="isOpen"
-        :aria-controls="`day-${day.key}`"
-        @click="isOpen = !isOpen"
-      >
-        <span class="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2.5">
-          <span class="font-serif text-2xl">{{ $t(`menu.day.${day.key}`) }}</span>
-          <span v-if="dateLabel !== undefined" class="text-sm text-muted tabular-nums">
-            {{ dateLabel }}
+      <div class="flex w-full items-center gap-1 px-2 py-2 sm:px-4 sm:py-3.5">
+        <button
+          type="button"
+          class="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-1.5 text-left transition-colors hover:bg-elevated/50 sm:px-2"
+          :aria-expanded="isOpen"
+          :aria-controls="`day-${day.key}`"
+          @click="isOpen = !isOpen"
+        >
+          <span class="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2.5">
+            <span class="font-serif text-2xl">{{ $t(`menu.day.${day.key}`) }}</span>
+            <span v-if="dateLabel !== undefined" class="text-sm text-muted tabular-nums">
+              {{ dateLabel }}
+            </span>
           </span>
-        </span>
-        <UBadge v-if="isToday" color="primary" variant="subtle" size="sm">
-          {{ $t('menu.today') }}
-        </UBadge>
-        <span class="ml-auto text-sm tabular-nums text-muted">
-          {{ Math.round(day.macros.kcal) }} {{ $t('menu.unit.kcal') }}
-        </span>
-        <UIcon
-          name="i-lucide-chevron-down"
-          class="size-5 text-dimmed transition-transform duration-300"
-          :class="isOpen && 'rotate-180'"
-        />
-      </button>
+          <UBadge v-if="isToday" color="primary" variant="subtle" size="sm">
+            {{ $t('menu.today') }}
+          </UBadge>
+          <UBadge v-if="isOff" color="warning" variant="subtle" size="sm">
+            {{ $t('menu.flex.dayOff.badge') }}
+          </UBadge>
+          <span class="ml-auto text-sm tabular-nums text-muted">
+            {{ Math.round(day.macros.kcal) }} {{ $t('menu.unit.kcal') }}
+          </span>
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="size-5 text-dimmed transition-transform duration-300"
+            :class="isOpen && 'rotate-180'"
+          />
+        </button>
+
+        <UDropdownMenu :items="flexItems">
+          <UButton
+            icon="i-lucide-ellipsis-vertical"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            class="shrink-0"
+            :aria-label="$t('menu.flex.dayActions')"
+          />
+        </UDropdownMenu>
+      </div>
     </template>
 
     <div v-show="isOpen" :id="`day-${day.key}`" class="space-y-1 p-2">
