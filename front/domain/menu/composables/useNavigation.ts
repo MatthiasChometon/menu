@@ -21,6 +21,7 @@ export const useNavigation = (): { entries: ComputedRef<NavigationEntry[]> } => 
       },
       { to: localePath('/composer'), label: t('planner.nav'), icon: 'i-lucide-square-pen' },
       { to: localePath('/poids'), label: t('weight.nav'), icon: 'i-lucide-scale' },
+      { to: localePath('/progression'), label: t('insights.nav'), icon: 'i-lucide-line-chart' },
       { to: localePath('/profil'), label: t('profile.nav'), icon: 'i-lucide-user-round' },
     ]),
   };

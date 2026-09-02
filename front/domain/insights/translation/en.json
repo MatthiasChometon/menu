@@ -1,0 +1,67 @@
+{
+  "insights": {
+    "nav": "Progress",
+    "pageTitle": "My progress",
+    "pageLead": "What your data already says, brought together in one place.",
+    "progression": {
+      "title": "Weight and adherence",
+      "lead": "The share of meals actually eaten and the weight trend, week by week.",
+      "week": "Week",
+      "adherence": "Adherence",
+      "weightChange": "Weight",
+      "empty": "Not enough tracked weeks yet to compare.",
+      "ctaWeight": "Add a weigh-in",
+      "ctaWeek": "See my week",
+      "hint": {
+        "insufficientData": "Not enough weeks on both sides yet (high and low adherence) to compare.",
+        "moreRegularWithAdherence": "In weeks where you eat at least 90% of your planned meals, your weight rises more steadily. A trend worth watching, not a proof.",
+        "noClearLink": "No clear link yet between your adherence and your weight curve over these weeks."
+      }
+    },
+    "budget": {
+      "title": "Budget efficiency",
+      "lead": "What your protein costs this week, and the dish that gives the most of it for its price.",
+      "costPerProtein": "Cost per 100 g of protein",
+      "bestValue": "Best value",
+      "proteinPerEuro": "g protein / €",
+      "evolution": "Budget evolution",
+      "notEnoughHistory": "Not enough published weeks yet to show an evolution.",
+      "empty": "No week to analyse yet.",
+      "cta": "See my week"
+    },
+    "micro": {
+      "title": "Recurring gap",
+      "lead": "The micronutrient that runs low most often across the week, and a food to close the gap.",
+      "empty": "Nothing to flag this week — your intake covers your needs well.",
+      "ofTarget": "of the daily target on average over the week",
+      "suggestion": "A food that provides plenty:",
+      "per100g": "per 100 g",
+      "key": {
+        "iron": "Iron",
+        "zinc": "Zinc",
+        "magnesium": "Magnesium",
+        "calcium": "Calcium",
+        "potassium": "Potassium",
+        "vitaminC": "Vitamin C",
+        "vitaminD": "Vitamin D",
+        "omega3": "Omega-3"
+      }
+    },
+    "recap": {
+      "title": "Monthly recap",
+      "lead": "A summary to keep or share.",
+      "cardTitle": "Monthly recap",
+      "weight": "Weight gained",
+      "adherence": "Average adherence",
+      "budget": "Average budget",
+      "dishes": "Favourite dishes",
+      "footer": "menu.mtxlab.xyz",
+      "download": "Download",
+      "share": "Share",
+      "cardAlt": "Recap card of the month, with weight gained, average adherence, budget and favourite dishes",
+      "empty": "Not enough data this month yet for a recap.",
+      "ctaWeight": "Add a weigh-in",
+      "ctaWeek": "See my week"
+    }
+  }
+}
