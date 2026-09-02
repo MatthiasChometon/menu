@@ -58,6 +58,11 @@
         "omega3": "Réduit l'inflammation entre deux séances et accélère la récupération."
       }
     },
-    "perPerson": "par personne"
+    "perPerson": "par personne",
+    "note": {
+      "title": "Ma note",
+      "hint": "Ce que tu changerais la prochaine fois : ça reste sur cet appareil.",
+      "placeholder": "Ex. moitié moins de piment, plus de riz…"
+    }
   }
 }
