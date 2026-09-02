@@ -5,7 +5,8 @@
     "nav": {
       "week": "Week",
       "shopping": "Shopping",
-      "batch": "Cooking"
+      "batch": "Cooking",
+      "more": "More"
     },
     "weekOf": "Week of",
     "pageTitle": "Your week",

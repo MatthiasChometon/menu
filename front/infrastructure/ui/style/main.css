@@ -120,6 +120,40 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* ---- reading comfort preferences (infrastructure/ui/composables/useDisplayPreferences.ts) ----
+   A bigger root size scales every rem-based measurement in the app at once —
+   text, spacing, tap targets — the way a browser zoom would, but kept as a
+   deliberate, persisted choice instead of a per-visit accident. */
+html.font-scale-large {
+  font-size: 118%;
+}
+
+/* Stronger contrast pushes the muted/dimmed text and border tokens toward the
+   ends of their scale. Nuxt UI's own utilities (text-muted, border-default…)
+   read these variables, so nothing elsewhere needs a second, contrast-aware
+   class — only the tokens move. */
+.high-contrast {
+  --ui-text-dimmed: var(--color-sage-700);
+  --ui-text-muted: var(--color-sage-800);
+  --ui-text-toned: var(--color-sage-900);
+  --ui-border: var(--color-sage-500);
+  --ui-border-muted: var(--color-sage-500);
+  --ui-border-accented: var(--color-sage-600);
+}
+
+.dark.high-contrast {
+  --ui-text-dimmed: var(--color-sage-300);
+  --ui-text-muted: var(--color-sage-200);
+  --ui-text-toned: var(--color-sage-100);
+  --ui-border: var(--color-sage-400);
+  --ui-border-muted: var(--color-sage-400);
+  --ui-border-accented: var(--color-sage-300);
+}
+
+.high-contrast :focus-visible {
+  outline-width: 3px;
+}
+
 /* Tailwind v4 removed the cursor: pointer that a <button> carried in v3, so
    every control on the site said "nothing to click here" under the mouse. The
    pointer is how a reader learns an element responds before they try it, and

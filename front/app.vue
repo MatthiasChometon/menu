@@ -14,8 +14,21 @@ const head = useLocaleHead({ seo: true });
 
 type LocaleHead = (typeof head)['value'];
 
+const { fontScale, isHighContrast } = useDisplayPreferences();
+
+// Space-separated so both can be on at once — someone who wants a bigger font
+// and stronger contrast should get both, not have to pick one.
+const displayPreferenceClass = computed((): string =>
+  [fontScale.value === 'large' ? 'font-scale-large' : '', isHighContrast.value ? 'high-contrast' : '']
+    .filter((entry): boolean => entry !== '')
+    .join(' '),
+);
+
 useHead({
-  htmlAttrs: { lang: (): string => head.value.htmlAttrs?.lang ?? 'fr' },
+  htmlAttrs: {
+    lang: (): string => head.value.htmlAttrs?.lang ?? 'fr',
+    class: (): string => displayPreferenceClass.value,
+  },
   link: (): NonNullable<LocaleHead['link']> => head.value.link ?? [],
   meta: (): NonNullable<LocaleHead['meta']> => head.value.meta ?? [],
 });

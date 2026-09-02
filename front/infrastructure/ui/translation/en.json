@@ -1,0 +1,17 @@
+{
+  "displayPreferences": {
+    "open": "Display settings",
+    "title": "Reading comfort",
+    "lead": "These settings stay on this device.",
+    "fontScale": {
+      "label": "Text size",
+      "normal": "Normal",
+      "large": "Large"
+    },
+    "highContrast": {
+      "label": "High contrast",
+      "hint": "Bolder text and borders."
+    },
+    "done": "Done"
+  }
+}
