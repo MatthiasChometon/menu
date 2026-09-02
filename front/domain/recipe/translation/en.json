@@ -63,6 +63,15 @@
       "title": "My note",
       "hint": "What you'd change next time — kept on this device.",
       "placeholder": "E.g. half the chilli, more rice…"
+    },
+    "timer": {
+      "arm": "Set a timer",
+      "armed": "Timer set"
+    },
+    "substitute": {
+      "action": "Swap it",
+      "hint": "Roughly the same intake for this weight, if you run out.",
+      "none": "No alternative in the same aisle."
     }
   }
 }
