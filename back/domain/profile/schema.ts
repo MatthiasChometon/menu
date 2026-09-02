@@ -17,5 +17,10 @@ export const profile = pgTable('profile', {
   starchQuality: text('starch_quality').notNull(),
   appetite: text('appetite').notNull(),
   goal: text('goal').notNull(),
+  // A manual nudge on top of the calculated kcal target — what the weight
+  // coach's "adjust my targets" action moves. Left untouched when the profile
+  // is re-saved through the onboarding form: editing an answer should not
+  // silently discard a nudge the person accepted.
+  kcalAdjustment: integer('kcal_adjustment').notNull().default(0),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });

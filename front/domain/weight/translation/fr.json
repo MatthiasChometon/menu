@@ -3,7 +3,13 @@
     "nav": "Poids",
     "pageTitle": "Mon poids",
     "pageLead": "Suis ta courbe et ajuste tes calories en fonction de ta progression.",
-    "serverNote": "Pour l'instant, ce journal reste sur cet appareil. La synchronisation avec ton compte arrivera plus tard.",
+    "signedOut": {
+      "title": "Connecte-toi pour suivre ton poids",
+      "hint": "Ton journal de pesées est lié à ton compte, pour le retrouver sur tous tes appareils.",
+      "unavailable": "Les comptes ne sont pas encore ouverts. Reviens plus tard pour suivre ton poids."
+    },
+    "loadFailed": "Le chargement de ton journal a échoué.",
+    "retry": "Réessayer",
     "log": {
       "addTitle": "Nouvelle pesée",
       "kgLabel": "Poids",
@@ -11,6 +17,7 @@
       "dateLabel": "Date",
       "save": "Enregistrer",
       "saved": "Enregistré",
+      "saveFailed": "L'enregistrement n'a pas fonctionné. Réessaie.",
       "cancel": "Annuler",
       "edit": "Modifier la pesée du",
       "delete": "Supprimer la pesée du",
@@ -37,7 +44,7 @@
     "coach": {
       "rate": "Rythme actuel :",
       "perWeek": "kg / semaine",
-      "disclaimer": "Indicatif seulement — ne modifie pas tes cibles enregistrées.",
+      "disclaimer": "Indicatif — tes cibles enregistrées ne changent que si tu appliques le conseil ci-dessous.",
       "notEnoughData": {
         "title": "Pas encore assez de données",
         "description": "Reviens après ta deuxième pesée pour un premier conseil."
@@ -53,7 +60,11 @@
       "tooFast": {
         "title": "Tu montes trop vite",
         "description": "Essaie −100 kcal par jour ?"
-      }
+      },
+      "adjustTargets": "Ajuster mes cibles",
+      "adjustTargetsDone": "Cibles ajustées",
+      "adjustTargetsFailed": "L'ajustement n'a pas fonctionné. Réessaie.",
+      "adjustTargetsNoProfile": "Remplis d'abord ton profil pour pouvoir ajuster tes cibles."
     }
   }
 }

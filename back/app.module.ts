@@ -11,6 +11,7 @@ import { ImprovementRequestModule } from './domain/improvementRequest/module';
 import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
+import { WeightModule } from './domain/weight/module';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
@@ -34,6 +35,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     HouseholdModule,
     GroceryModule,
     WeekPlanModule,
+    WeightModule,
     BugReportModule,
     ImprovementRequestModule,
     ImageLibraryModule,

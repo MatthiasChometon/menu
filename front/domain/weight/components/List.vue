@@ -10,7 +10,9 @@ type Draft = { date: string; kg: number };
 const editingId = ref<string>();
 const draft = ref<Draft>();
 const editError = ref<string>();
+const isSavingEdit = ref(false);
 const removingId = ref<string>();
+const isRemoving = ref(false);
 
 const startEdit = (entry: WeightEntry): void => {
   editingId.value = entry.id;
@@ -24,20 +26,34 @@ const cancelEdit = (): void => {
   editError.value = undefined;
 };
 
-const saveEdit = (): void => {
+const saveEdit = async (): Promise<void> => {
   if (editingId.value === undefined || draft.value === undefined) return;
 
   const validation = errorOf(draft.value);
   editError.value = validation;
   if (validation !== undefined) return;
 
-  update(editingId.value, draft.value);
+  isSavingEdit.value = true;
+  try {
+    await update(editingId.value, draft.value);
+  } catch {
+    editError.value = t('weight.log.saveFailed');
+    return;
+  } finally {
+    isSavingEdit.value = false;
+  }
+
   cancelEdit();
 };
 
-const confirmRemoval = (id: string): void => {
+const confirmRemoval = async (id: string): Promise<void> => {
   removingId.value = undefined;
-  remove(id);
+  isRemoving.value = true;
+  try {
+    await remove(id);
+  } finally {
+    isRemoving.value = false;
+  }
 };
 
 const dateLabelOf = (entry: WeightEntry): string =>
@@ -105,7 +121,7 @@ const rows = computed((): Row[] =>
         <UButton color="neutral" variant="ghost" size="lg" @click="cancelEdit">
           {{ $t('weight.log.cancel') }}
         </UButton>
-        <UButton size="lg" class="font-semibold text-white" @click="saveEdit">
+        <UButton size="lg" class="font-semibold text-white" :loading="isSavingEdit" @click="saveEdit">
           {{ $t('weight.log.save') }}
         </UButton>
 
@@ -161,7 +177,7 @@ const rows = computed((): Row[] =>
           <UButton color="neutral" variant="ghost" @click="removingId = undefined">
             {{ $t('weight.log.cancel') }}
           </UButton>
-          <UButton color="error" @click="confirmRemoval(row.entry.id)">
+          <UButton color="error" :loading="isRemoving" @click="confirmRemoval(row.entry.id)">
             {{ $t('weight.log.deleteYes') }}
           </UButton>
         </div>

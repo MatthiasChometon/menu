@@ -18,12 +18,16 @@ const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 };
 
 @Injectable()
 export class NutritionTargetsService {
-  calculate(measurements: Measurements): NutritionTargets {
+  // The manual nudge (the weight coach's "adjust my targets" action) is added
+  // on top of the calculated calories rather than stored as its own target: it
+  // rides along with every other change the formula makes when an answer
+  // changes, instead of drifting apart from it.
+  calculate(measurements: Measurements, kcalAdjustmentKcal = 0): NutritionTargets {
     const { sex, age, heightCm, weightKg, starchQuality, goal } = measurements;
 
     const resting = restingEnergy(sex, age, heightCm, weightKg);
     const maintenance = resting * this.activityFactorFor(measurements);
-    const kcal = maintenance * (1 + goalCalorieAdjustments()[goal]);
+    const kcal = maintenance * (1 + goalCalorieAdjustments()[goal]) + kcalAdjustmentKcal;
 
     const protein = this.proteinFor(kcal, weightKg, goal);
     const fat = this.fatFor(kcal, weightKg, protein);

@@ -8,6 +8,10 @@ export const profileConstraints = (): {
   minWeightKg: number;
   maxWeightKg: number;
   maxTrainingDaysPerWeek: number;
+  minKcalDelta: number;
+  maxKcalDelta: number;
+  minKcalAdjustment: number;
+  maxKcalAdjustment: number;
 } => ({
   minAge: 14,
   maxAge: 100,
@@ -16,6 +20,13 @@ export const profileConstraints = (): {
   minWeightKg: 35,
   maxWeightKg: 300,
   maxTrainingDaysPerWeek: 14,
+  // Bounds on a single nudge from the weight coach action (it only ever sends
+  // +150 or -100), and on the cumulative total stored on the profile — wide
+  // enough for repeated genuine nudges, narrow enough to catch abuse.
+  minKcalDelta: -500,
+  maxKcalDelta: 500,
+  minKcalAdjustment: -1000,
+  maxKcalAdjustment: 1000,
 });
 
 // The classic activity multipliers bundle work and training into one figure,

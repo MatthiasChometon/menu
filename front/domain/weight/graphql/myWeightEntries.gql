@@ -1,0 +1,7 @@
+query myWeightEntries {
+  myWeightEntries {
+    id
+    date
+    kg
+  }
+}

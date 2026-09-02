@@ -30,6 +30,12 @@ const SAVE_PROFILE = `
   }
 `;
 
+const ADJUST_TARGETS = `
+  mutation ($deltaKcal: Int!) {
+    adjustNutritionTargets(deltaKcal: $deltaKcal) { ${TARGET_FIELDS} }
+  }
+`;
+
 type Targets = { kcal: number; protein: number; fat: number; carbs: number; fiber: number };
 
 let api: TestApp;
@@ -163,6 +169,98 @@ describe('the stored profile', () => {
     expect(gaining.data?.myProfile.targets.kcal).toBeGreaterThan(
       losing.data?.myProfile.targets.kcal ?? 0,
     );
+  });
+
+  it('is nudged by the weight coach action, on top of the calculated kcal', async () => {
+    const cookie = await signIn();
+    await api.graphql(SAVE_PROFILE, { input: MEASUREMENTS }, cookie);
+    const before = await api.graphql<{ myProfile: { targets: Targets } }>(
+      MY_PROFILE,
+      undefined,
+      cookie,
+    );
+
+    const response = await api.graphql<{ adjustNutritionTargets: { targets: Targets } }>(
+      ADJUST_TARGETS,
+      { deltaKcal: 150 },
+      cookie,
+    );
+
+    expect(response.data?.adjustNutritionTargets.targets.kcal).toBeGreaterThan(
+      before.data?.myProfile.targets.kcal ?? 0,
+    );
+  });
+
+  it('accumulates repeated nudges rather than replacing them', async () => {
+    const cookie = await signIn();
+    await api.graphql(SAVE_PROFILE, { input: MEASUREMENTS }, cookie);
+
+    await api.graphql(ADJUST_TARGETS, { deltaKcal: 150 }, cookie);
+    const response = await api.graphql<{ adjustNutritionTargets: { targets: Targets } }>(
+      ADJUST_TARGETS,
+      { deltaKcal: 150 },
+      cookie,
+    );
+    const once = await api.graphql<{ myProfile: { targets: Targets } }>(
+      MY_PROFILE,
+      undefined,
+      cookie,
+    );
+
+    expect(response.data?.adjustNutritionTargets.targets.kcal).toBe(
+      once.data?.myProfile.targets.kcal,
+    );
+  });
+
+  it('survives a later profile edit rather than being discarded', async () => {
+    const cookie = await signIn();
+    await api.graphql(SAVE_PROFILE, { input: MEASUREMENTS }, cookie);
+    await api.graphql(ADJUST_TARGETS, { deltaKcal: 150 }, cookie);
+    const nudged = await api.graphql<{ myProfile: { targets: Targets } }>(
+      MY_PROFILE,
+      undefined,
+      cookie,
+    );
+
+    await api.graphql(SAVE_PROFILE, { input: { ...MEASUREMENTS, weightKg: 76 } }, cookie);
+    const afterEdit = await api.graphql<{ myProfile: { targets: Targets } }>(
+      MY_PROFILE,
+      undefined,
+      cookie,
+    );
+
+    // Same nudge, recomputed on top of the new answers — not reset to zero and
+    // not stuck at the old value either.
+    expect(afterEdit.data?.myProfile.targets.kcal).not.toBe(nudged.data?.myProfile.targets.kcal);
+    const withoutNudge = await api.graphql<{ nutritionTargets: Targets }>(NUTRITION_TARGETS, {
+      input: { ...MEASUREMENTS, weightKg: 76 },
+    });
+    expect(afterEdit.data?.myProfile.targets.kcal).toBeGreaterThan(
+      withoutNudge.data?.nutritionTargets.kcal ?? 0,
+    );
+  });
+
+  it('refuses to nudge a profile that was never saved', async () => {
+    const cookie = await signIn();
+
+    const response = await api.graphql(ADJUST_TARGETS, { deltaKcal: 150 }, cookie);
+
+    expect(response.errors?.[0]?.message).toBe('No profile to adjust yet.');
+  });
+
+  it('cannot be nudged without a session', async () => {
+    const response = await api.graphql(ADJUST_TARGETS, { deltaKcal: 150 });
+
+    expect(response.errors?.[0]?.message).toBe('Unauthorized');
+  });
+
+  it('refuses a nudge far outside the coach’s own suggestions', async () => {
+    const cookie = await signIn();
+    await api.graphql(SAVE_PROFILE, { input: MEASUREMENTS }, cookie);
+
+    const response = await api.graphql(ADJUST_TARGETS, { deltaKcal: 5000 }, cookie);
+
+    expect(response.errors?.[0]?.message).toBeDefined();
   });
 
   it('stays private to its owner', async () => {
