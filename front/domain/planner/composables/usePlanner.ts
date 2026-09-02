@@ -1,4 +1,6 @@
 import { daysFrom, MAX_LENGTH, MIN_LENGTH } from './usePlannerWeek';
+import { isEligible } from './usePlannerPreferences';
+import type { ComposedWeekEntry } from './usePlannerHistory';
 
 // Which recipes may fill which meal. Lunch and dinner share the savoury dishes,
 // which is exactly how the week is built today: full portion at noon, reduced
@@ -28,6 +30,7 @@ type WeekDraft = {
   chosen: Partial<Record<RecipeSlot, string[]>>;
   spreadFrom: string;
   isDirty: boolean;
+  locked: LockedSlots;
 };
 
 /** How far one macro sits from its target across the week, as a percentage. */
@@ -129,6 +132,25 @@ export const usePlanner = (): {
   improveWeek: () => Promise<void>;
   /** True while improveWeek is working, to spin its button and lock it. */
   isImproving: Ref<boolean>;
+  /** Whether this slot is pinned: a spread, an improve pass or a generation
+   *  leaves it exactly as it is. */
+  isLocked: (day: DayKey, slot: MealSlot) => boolean;
+  /** Pins or unpins the dish currently in this slot. Does nothing on an empty
+   *  one — there is nothing yet to hold in place. */
+  toggleLock: (day: DayKey, slot: MealSlot) => void;
+  /** Fills every group for variety and the targets, places the result on the
+   *  days, then mends whatever is still off — the whole composer in one tap.
+   *  Async and yielding, like improveWeek, so a full week never freezes the
+   *  tab. */
+  generateWeek: () => Promise<void>;
+  /** True while generateWeek is working. */
+  isGenerating: Ref<boolean>;
+  /** Weeks composed before this one, most recent first, offered as a base for
+   *  a new one. */
+  pastComposedWeeks: ComputedRef<ComposedWeekEntry[]>;
+  /** Starts this window from a week composed before: its picks replace the
+   *  current selection and are spread straight away. */
+  duplicateFrom: (sourceWeek: string) => void;
   step: Ref<number>;
   stepCount: number;
   /** The groups shown on the current screen — one per step. */
@@ -180,6 +202,12 @@ export const usePlanner = (): {
   const { week: plannerWeek, length } = usePlannerWeek();
   const { user } = useAuth();
   const { load, save: persist } = useWeekPlanStore();
+  const { preferences } = usePlannerPreferences();
+  const {
+    record: recordComposedWeek,
+    recentDishIds,
+    entriesExcept: pastComposedWeeksOf,
+  } = usePlannerHistory();
 
   // The days this window covers, in order from the day it starts — the axis the
   // dishes are spread over and the week is measured on. All windows start on the
@@ -210,6 +238,10 @@ export const usePlanner = (): {
 
   const isSaving = useState<boolean>('planner:saving', (): boolean => false);
   const isImproving = useState<boolean>('planner:improving', (): boolean => false);
+  const isGenerating = useState<boolean>('planner:generating', (): boolean => false);
+  // Which slots are pinned, day by day. Kept apart from the plan itself so a
+  // spread can tell "keep this" from "this is what was there before".
+  const locked = useState<LockedSlots>('planner:locked', (): LockedSlots => ({}));
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
   const isDirty = useState<boolean>('planner:dirty', (): boolean => false);
   const saveFailed = useState<boolean>('planner:saveFailed', (): boolean => false);
@@ -348,7 +380,12 @@ export const usePlanner = (): {
     let bestError = errorOf(day);
 
     for (const [slot, currentId] of Object.entries(slots) as [MealSlot, string][]) {
-      for (const candidate of dishesFor(SLOT_RECIPES[slot])) {
+      // A pinned slot keeps its dish through this pass — the reader locked it
+      // to stop it moving, and a suggestion is exactly the kind of move it
+      // was locked against.
+      if (isLocked(day.key, slot)) continue;
+
+      for (const candidate of eligibleDishesFor(SLOT_RECIPES[slot])) {
         if (candidate.id === currentId) continue;
 
         const trial = buildDay(day.key, { ...slots, [slot]: candidate.id });
@@ -382,7 +419,9 @@ export const usePlanner = (): {
     const found: (MacroSwap & { error: number })[] = [];
 
     for (const [slot, currentId] of Object.entries(slots) as [MealSlot, string][]) {
-      for (const candidate of dishesFor(SLOT_RECIPES[slot])) {
+      if (isLocked(day.key, slot)) continue;
+
+      for (const candidate of eligibleDishesFor(SLOT_RECIPES[slot])) {
         if (candidate.id === currentId) continue;
 
         const trial = buildDay(day.key, { ...slots, [slot]: candidate.id });
@@ -424,7 +463,26 @@ export const usePlanner = (): {
     isDirty.value = true;
   };
 
+  const isLocked = (day: DayKey, slot: MealSlot): boolean => locked.value[day]?.[slot] === true;
+
+  // Nothing to pin until a dish sits in the slot — locking an empty one would
+  // freeze nothing and only add a control with no effect to press.
+  const toggleLock = (day: DayKey, slot: MealSlot): void => {
+    if (plan.value.days[day]?.[slot] === undefined) return;
+
+    const current = locked.value[day] ?? {};
+    const daySlots = isLocked(day, slot)
+      ? (Object.fromEntries(
+          Object.entries(current).filter(([key]): boolean => key !== slot),
+        ) as Partial<Record<MealSlot, true>>)
+      : { ...current, [slot]: true as const };
+
+    locked.value = { ...locked.value, [day]: daySlots };
+  };
+
   const applySwap = (swap: DishSwap): void => {
+    if (isLocked(swap.day, swap.slot)) return;
+
     plan.value.days[swap.day] = { ...(plan.value.days[swap.day] ?? {}), [swap.slot]: swap.to.id };
     touch();
   };
@@ -505,6 +563,9 @@ export const usePlanner = (): {
     savedAt.value = undefined;
     saveFailed.value = false;
     isDirty.value = false;
+    // Locks are a local editing aid, never part of what the account stores —
+    // a week freshly read back starts with nothing pinned.
+    locked.value = {};
   };
 
   // Switching weeks is switching subjects: whatever is on screen belongs to the
@@ -520,6 +581,7 @@ export const usePlanner = (): {
         chosen: chosenDishes.value,
         spreadFrom: spreadFrom.value,
         isDirty: isDirty.value,
+        locked: locked.value,
       };
 
     step.value = 0;
@@ -532,6 +594,7 @@ export const usePlanner = (): {
       chosenDishes.value = draft.chosen;
       spreadFrom.value = draft.spreadFrom;
       isDirty.value = draft.isDirty;
+      locked.value = draft.locked;
 
       return;
     }
@@ -540,6 +603,7 @@ export const usePlanner = (): {
     chosenDishes.value = {};
     spreadFrom.value = '';
     isDirty.value = false;
+    locked.value = {};
     void loadFromAccount();
   };
 
@@ -553,6 +617,15 @@ export const usePlanner = (): {
   const dishesFor = (group: RecipeSlot): Recipe[] =>
     Object.values(recipes).filter((recipe): boolean =>
       GROUP_RECIPE_SLOTS[group].includes(recipe.slot),
+    );
+
+  // The pool an automatic pick or a suggestion may draw from: everything the
+  // reader has not ruled out. Manual choice never goes through here — the
+  // picker still shows every dish, preferences only steer what the composer
+  // reaches for on its own.
+  const eligibleDishesFor = (group: RecipeSlot): Recipe[] =>
+    dishesFor(group).filter((recipe): boolean =>
+      isEligible(preferences.value, kindOf(recipe), recipe.prepMinutes),
     );
 
   // Nothing can be spread until there is something to eat at midday: the savoury
@@ -594,16 +667,32 @@ export const usePlanner = (): {
     if (!canSpread.value) return;
 
     // Rebuilt from scratch over the window's days, so a day left over from a
-    // longer window before is gone rather than lingering in the plan.
+    // longer window before is gone rather than lingering in the plan — except
+    // a slot that was locked, which keeps the dish it was pinned with rather
+    // than falling back into the rotation.
     plan.value.days = Object.fromEntries(
-      windowDays.value.map((day, index): [DayKey, Partial<Record<MealSlot, string>>] => [
-        day,
-        slotsOnDay(chosenDishes.value, index),
-      ]),
+      windowDays.value.map((day, index): [DayKey, Partial<Record<MealSlot, string>>] => {
+        const rotated = slotsOnDay(chosenDishes.value, index);
+        const lockedSlots = locked.value[day];
+        if (lockedSlots === undefined) return [day, rotated];
+
+        const kept = plan.value.days[day] ?? {};
+        const merged = { ...rotated };
+        for (const slot of Object.keys(lockedSlots) as MealSlot[]) {
+          const pinned = kept[slot];
+          if (pinned !== undefined) merged[slot] = pinned;
+        }
+
+        return [day, merged];
+      }),
     );
 
     spreadFrom.value = spreadSignature();
     touch();
+    // A week only counts as composed once it actually lands on its days —
+    // this is what the generator and the anti-repetition steering look back
+    // on, kept locally so it works with no account at all.
+    recordComposedWeek(plannerWeek.value, chosenDishes.value);
   };
 
   // What the week would come to if this dish were added. A dish cannot be judged
@@ -619,6 +708,16 @@ export const usePlanner = (): {
       (total, day, index): number => total + errorOf(buildDay(day, slotsOnDay(selection, index))),
       0,
     );
+  };
+
+  // Not a hard ban — a dish eaten in one of the last two composed weeks is
+  // still allowed if nothing else closes the week's gaps, but it should lose
+  // to any dish that has not shown up recently.
+  const REPEAT_PENALTY = 20;
+
+  const scoreOf = (group: RecipeSlot, recipeId: string): number => {
+    const error = weekErrorWith(group, recipeId);
+    return recentDishIds(plannerWeek.value).has(recipeId) ? error + REPEAT_PENALTY : error;
   };
 
   // The three dishes that would leave the week closest to its targets. Marking
@@ -666,37 +765,97 @@ export const usePlanner = (): {
     };
   });
 
-  // Fills every group up to its minimum with whichever dish leaves the week
-  // closest to the targets, one at a time so each choice is made knowing the
-  // last. A correct starting point beats a blank page — and everything it puts
-  // in can be swapped afterwards, which is why it fills the minimum rather than
-  // the maximum: it opens the door, it does not decide the week.
-  const completeSelection = (): void => {
-    for (const group of GROUP_ORDER) {
-      while ((chosenDishes.value[group] ?? []).length < GROUP_LIMITS[group].min) {
-        const candidates = dishesFor(group).filter(
-          (recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id),
+  // Fills one group up to a target count, one dish at a time so each choice is
+  // made knowing the last, from the pool the preferences and the recent weeks
+  // leave standing.
+  const fillGroupTo = (group: RecipeSlot, target: number): void => {
+    while ((chosenDishes.value[group] ?? []).length < target) {
+      const chosenIds = chosenDishes.value[group] ?? [];
+      const unchosen = (recipe: Recipe): boolean => !chosenIds.includes(recipe.id);
+      const eligible = eligibleDishesFor(group).filter(unchosen);
+      // Preferences that rule out everything left would otherwise stall the
+      // week half-built; filling it in full beats obeying a preference nobody
+      // left standing can satisfy.
+      const candidates = eligible.length > 0 ? eligible : dishesFor(group).filter(unchosen);
+      if (candidates.length === 0) break;
+
+      // Scored once per dish, not once per comparison: weekErrorWith builds
+      // a whole week each time, and calling it twice per candidate froze the
+      // page outright.
+      const best = candidates
+        .map((recipe): { id: string; error: number } => ({
+          id: recipe.id,
+          error: scoreOf(group, recipe.id),
+        }))
+        .reduce((chosen, entry): { id: string; error: number } =>
+          entry.error < chosen.error ? entry : chosen,
         );
-        if (candidates.length === 0) break;
 
-        // Scored once per dish, not once per comparison: weekErrorWith builds
-        // a whole week each time, and calling it twice per candidate froze the
-        // page outright.
-        const best = candidates
-          .map((recipe): { id: string; error: number } => ({
-            id: recipe.id,
-            error: weekErrorWith(group, recipe.id),
-          }))
-          .reduce((chosen, entry): { id: string; error: number } =>
-            entry.error < chosen.error ? entry : chosen,
-          );
-
-        chosenDishes.value = {
-          ...chosenDishes.value,
-          [group]: [...(chosenDishes.value[group] ?? []), best.id],
-        };
-      }
+      chosenDishes.value = {
+        ...chosenDishes.value,
+        [group]: [...(chosenDishes.value[group] ?? []), best.id],
+      };
     }
+  };
+
+  // Fills every group up to its minimum with whichever dish leaves the week
+  // closest to the targets. A correct starting point beats a blank page — and
+  // everything it puts in can be swapped afterwards, which is why it fills the
+  // minimum rather than the maximum: it opens the door, it does not decide the
+  // week.
+  const completeSelection = (): void => {
+    for (const group of GROUP_ORDER) fillGroupTo(group, GROUP_LIMITS[group].min);
+  };
+
+  // How many distinct dishes a group needs so none of them repeats more than
+  // the preference allows, once spread evenly over the window.
+  const requiredCountFor = (group: RecipeSlot): number => {
+    const maxRepeats = preferences.value.maxRepeatsPerWeek;
+    if (maxRepeats === undefined || maxRepeats <= 0) return GROUP_LIMITS[group].min;
+
+    const totalServings = GROUP_SLOTS[group].length * windowDays.value.length;
+    const needed = Math.ceil(totalServings / maxRepeats);
+
+    return Math.min(GROUP_LIMITS[group].max, Math.max(GROUP_LIMITS[group].min, needed));
+  };
+
+  // The one-tap "compose a whole week": fills every group for variety and the
+  // targets, places the result on the days, then mends whatever is still off —
+  // the same three steps as doing it by hand, run back to back. Locked slots,
+  // the preferences and the last two composed weeks steer it exactly as they
+  // steer a manual pick. Async and yielding between passes, like improveWeek,
+  // so solving a whole week never freezes the tab.
+  const generateWeek = async (): Promise<void> => {
+    if (isGenerating.value || isImproving.value) return;
+
+    isGenerating.value = true;
+    try {
+      for (const group of GROUP_ORDER) {
+        fillGroupTo(group, requiredCountFor(group));
+        await yieldToBrowser();
+      }
+
+      spread();
+      await yieldToBrowser();
+      await improveWeek();
+    } finally {
+      isGenerating.value = false;
+    }
+  };
+
+  // Starts this window from a week composed before, so a good week can be
+  // reused rather than rebuilt from a blank page. The picks replace the
+  // current selection and are spread straight away — locked slots are left
+  // alone, spread only ever overwrites what is not pinned.
+  const duplicateFrom = (sourceWeek: string): void => {
+    const source = pastComposedWeeksOf(plannerWeek.value).find(
+      (entry): boolean => entry.weekOf === sourceWeek,
+    );
+    if (source === undefined) return;
+
+    chosenDishes.value = { ...source.chosen };
+    touch();
+    spread();
   };
 
   // Which macro a dish would help most with, among those currently short.
@@ -727,11 +886,11 @@ export const usePlanner = (): {
   };
 
   const recommendedIn = (group: RecipeSlot): Set<string> => {
-    const ranked = dishesFor(group)
+    const ranked = eligibleDishesFor(group)
       .filter((recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id))
       .map((recipe): { id: string; error: number } => ({
         id: recipe.id,
-        error: weekErrorWith(group, recipe.id),
+        error: scoreOf(group, recipe.id),
       }))
       .sort((left, right): number => left.error - right.error);
 
@@ -771,6 +930,12 @@ export const usePlanner = (): {
     applySwap,
     improveWeek,
     isImproving,
+    isLocked,
+    toggleLock,
+    generateWeek,
+    isGenerating,
+    pastComposedWeeks: computed((): ComposedWeekEntry[] => pastComposedWeeksOf(plannerWeek.value)),
+    duplicateFrom,
     goToStep: (index: number): void => {
       if (canReachStep(index)) step.value = Math.max(0, Math.min(STEPS.length, index));
     },
@@ -859,6 +1024,10 @@ export const usePlanner = (): {
     // re-rendered thirty-five pickers; touching only the day that changed keeps
     // the screen responsive.
     choose: (day: DayKey, slot: MealSlot, recipeId: string | undefined): void => {
+      // A locked slot only moves once it is unlocked — the whole point of
+      // pinning it is that no further edit, manual or automatic, touches it.
+      if (isLocked(day, slot)) return;
+
       const daySlots = (plan.value.days[day] ??= {});
       // A filtered rebuild rather than `delete`: clearing a slot must drop the
       // key without deleting a computed property.
@@ -876,8 +1045,14 @@ export const usePlanner = (): {
       plan.value.days[to] = { ...(plan.value.days[from] ?? {}) };
       touch();
     },
+    // Locked slots survive the clear: the reader pinned them precisely so a
+    // sweep like this one would leave them alone.
     clearDay: (day: DayKey): void => {
-      plan.value.days[day] = {};
+      const lockedSlots = locked.value[day] ?? {};
+      const existing = plan.value.days[day] ?? {};
+      plan.value.days[day] = Object.fromEntries(
+        Object.entries(existing).filter(([slot]): boolean => lockedSlots[slot as MealSlot] === true),
+      ) as Partial<Record<MealSlot, string>>;
       touch();
     },
     isComplete: computed((): boolean =>

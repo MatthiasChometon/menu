@@ -95,6 +95,32 @@
     },
     "complete": "Compléter pour moi",
     "completeHint": "Remplit le minimum avec les plats qui collent le mieux à tes apports. Tu peux tout changer ensuite.",
+    "lock": {
+      "pin": "Verrouiller ce plat",
+      "unpin": "Déverrouiller ce plat"
+    },
+    "generate": {
+      "action": "Générer ma semaine",
+      "hint": "Remplit les choix pour la variété et les cibles, répartit sur les jours puis ajuste — en un clic. Les plats verrouillés ne bougent pas.",
+      "working": "Génération en cours…"
+    },
+    "preferences": {
+      "open": "Préférences",
+      "title": "Préférences de composition",
+      "lead": "Elles guident les suggestions et la génération automatique. Tu peux toujours choisir autre chose à la main.",
+      "avoid": "Éviter en automatique",
+      "maxPrep": "Temps de prépa maximum",
+      "maxPrepNone": "Sans limite",
+      "maxRepeats": "Un même plat, au plus",
+      "maxRepeatsNone": "Pas de limite",
+      "timesPerWeek": "fois par semaine",
+      "done": "Terminé"
+    },
+    "duplicate": {
+      "label": "Repartir d'une semaine composée",
+      "action": "Utiliser comme base",
+      "none": "Aucune semaine composée pour l'instant."
+    },
     "household": {
       "title": "Pour qui tombe cette semaine",
       "lead": "Les portions s'adaptent à chacun. Une mention ici veut dire que les plats choisis ne peuvent pas convenir à tout le monde à la fois.",

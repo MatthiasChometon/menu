@@ -176,6 +176,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
     </UButton>
 
     <PlannerWeekChooser class="rise mb-5" />
+    <PlannerAutoCompose class="rise mb-5" />
 
     <!-- Where you are and how much is left, in one line: four choices feel long
          only when you cannot see the end of them. -->
