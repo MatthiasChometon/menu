@@ -9,7 +9,16 @@ const localePath = useLocalePath();
 // a week here has to move the whole app with it.
 const { selectedMenu: menu, isLoading, isDemo } = useSelectedWeek();
 
-const { rate, eatenCount, totalCount, history } = useAdherence(menu);
+// What actually happened this week, layered onto the plan: a meal eaten out or
+// a cheat day drops out of the macros and the adherence tally rather than
+// reading as a meal missed; a swap or a reused pot changes what a slot shows
+// without touching the plan underneath.
+const { days: flexedDays, adherenceMenu } = useFlexedWeek(menu);
+
+const { rate, eatenCount, totalCount, history } = useAdherence(adherenceMenu);
+
+const otherDayKeysOf = (key: DayKey): DayKey[] =>
+  flexedDays.value.map((day): DayKey => day.key).filter((other): boolean => other !== key);
 
 // The day a card stands for, counted from the Monday the week is stored under.
 // Built here rather than in the card: only the page knows which week is on
@@ -27,11 +36,11 @@ const hasLaterWeek = computed((): boolean =>
 );
 
 const averageMacros = computed((): Macros | undefined => {
-  if (menu.value === undefined || menu.value.days.length === 0) return undefined;
+  if (flexedDays.value.length === 0) return undefined;
 
   const { sumMacros } = useNutrition();
-  const total = sumMacros(menu.value.days.map((day): Macros => day.macros));
-  const count = menu.value.days.length;
+  const total = sumMacros(flexedDays.value.map((day): Macros => day.macros));
+  const count = flexedDays.value.length;
 
   return {
     kcal: total.kcal / count,
@@ -282,7 +291,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
         <section class="mt-8 space-y-4">
           <MenuDayCard
-            v-for="(day, index) in menu.days"
+            v-for="(day, index) in flexedDays"
             :key="day.key"
             :day="day"
             :targets="menu.targets"
@@ -290,6 +299,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
             :index="index"
             :is-today="day.key === todayKey"
             :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
+            :other-day-keys="otherDayKeysOf(day.key)"
           />
         </section>
 

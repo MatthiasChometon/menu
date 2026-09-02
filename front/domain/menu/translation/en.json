@@ -128,6 +128,35 @@
       "title": "Tell us who we are cooking for",
       "hint": "Answer a few questions and the amounts adjust to your goals.",
       "action": "Fill in my profile"
+    },
+    "flex": {
+      "dayActions": "Day options",
+      "mealActions": "Meal options",
+      "dayOff": {
+        "mark": "Mark as day off",
+        "undo": "Undo day off",
+        "badge": "Day off"
+      },
+      "swap": {
+        "action": "Swap with",
+        "badge": "Swapped"
+      },
+      "override": {
+        "eatingOut": "Eating out",
+        "cheatMeal": "Cheat meal",
+        "eatingOutBadge": "Off plan",
+        "cheatMealBadge": "Cheat meal",
+        "undo": "Back to the plan"
+      },
+      "leftover": {
+        "mark": "There's some left",
+        "cancel": "Undo (no leftovers)",
+        "stop": "Back to the planned dish",
+        "badge": "Yesterday's leftovers",
+        "suggestion": "Yesterday's leftovers are still around:",
+        "accept": "Eat the leftovers",
+        "decline": "No thanks"
+      }
     }
   },
   "error": {
