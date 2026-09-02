@@ -62,7 +62,7 @@ describe('ShoppingItem', () => {
   it('asks to be toggled when tapped', async () => {
     const { emitted } = await renderSuspended(Item, { props: { line } });
 
-    await fireEvent.click(screen.getByRole('button'));
+    await fireEvent.click(screen.getByRole('button', { pressed: false }));
 
     expect(emitted()).toHaveProperty('toggle');
   });
@@ -70,12 +70,20 @@ describe('ShoppingItem', () => {
   it('reports its picked state to assistive technology', async () => {
     await renderSuspended(Item, { props: { line, picked: true } });
 
-    expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('true');
+    expect(screen.getByRole('button', { pressed: true })).toBeTruthy();
   });
 
   it('is not pressed until it is picked', async () => {
     await renderSuspended(Item, { props: { line } });
 
-    expect(screen.getByRole('button').getAttribute('aria-pressed')).toBe('false');
+    expect(screen.getByRole('button', { pressed: false })).toBeTruthy();
+  });
+
+  it('offers to mark it as already in the pantry', async () => {
+    const { emitted } = await renderSuspended(Item, { props: { line } });
+
+    await fireEvent.click(screen.getByRole('button', { name: /déjà au placard/i }));
+
+    expect(emitted()).toHaveProperty('pantry');
   });
 });

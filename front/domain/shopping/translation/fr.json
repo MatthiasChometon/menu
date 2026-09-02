@@ -29,6 +29,20 @@
     "forHousehold": "Quantités pour",
     "people": "personnes",
     "onePerson": "toi seul",
-    "unscaled": "Quantités du menu : ton foyer n'a pas pu être chargé."
+    "unscaled": "Quantités du menu : ton foyer n'a pas pu être chargé.",
+    "pantry": {
+      "add": "Déjà au placard",
+      "remove": "Remettre dans la liste",
+      "sectionTitle": "Déjà au placard",
+      "sectionHint": "Ces articles ne comptent plus dans le total ni dans la liste à cocher."
+    },
+    "share": {
+      "button": "Partager",
+      "copied": "Liste copiée dans le presse-papier."
+    },
+    "online": {
+      "online": "En ligne",
+      "offline": "Hors ligne : tes coches restent enregistrées sur ce téléphone."
+    }
   }
 }

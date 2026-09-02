@@ -23,19 +23,47 @@ const groups = computed((): ShoppingGroup[] =>
 
 const freshSeasonings = computed((): Seasoning[] => currentMenu.value?.freshSeasonings ?? []);
 
+// What is already at home steps out of the active list, the total and the
+// count below — the shelf keeps it, out of the way but one tap from coming back.
+const {
+  toggle: togglePantry,
+  activeGroups,
+  activeSeasonings,
+  pantryEntries,
+} = useShoppingPantry(groups, freshSeasonings);
+
+const activeIds = computed((): string[] => [
+  ...activeGroups.value.flatMap((group): string[] =>
+    group.lines.map((line): string => line.food.id),
+  ),
+  ...activeSeasonings.value.map((seasoning): string => seasoning.id),
+]);
+
 // The aromatics count towards the progress too: the basket is not done while
-// the garlic is still on the shelf.
-const totalLines = computed(
-  (): number => (currentMenu.value?.shoppingList.length ?? 0) + freshSeasonings.value.length,
-);
+// the garlic is still on the shelf. What is already in the pantry does not.
+const totalLines = computed((): number => activeIds.value.length);
 
 // Ticks only apply once mounted: the prerendered HTML knows nothing about
 // localStorage, and rendering them server-side would break hydration.
 const visiblePickedIds = computed((): string[] => (isMounted.value ? pickedIds.value : []));
+const visiblePickedCount = computed(
+  (): number => visiblePickedIds.value.filter((id): boolean => activeIds.value.includes(id)).length,
+);
 
 const isComplete = computed(
-  (): boolean => totalLines.value > 0 && visiblePickedIds.value.length === totalLines.value,
+  (): boolean => totalLines.value > 0 && visiblePickedCount.value === totalLines.value,
 );
+
+// What is left to buy, priced: the pantry has already been subtracted from
+// every group above, so summing them back up is the whole story.
+const remainingTotal = computed((): number =>
+  activeGroups.value.reduce((total, group): number => total + group.price, 0),
+);
+
+const { isSharing, shareList } = useShoppingShare();
+const shareCurrentList = async (): Promise<void> => {
+  await shareList({ groups: activeGroups.value, seasonings: activeSeasonings.value });
+};
 
 const isResetOpen = ref(false);
 
@@ -79,8 +107,13 @@ useSeoMeta({ title: (): string => t('shopping.title') });
 
     <template v-else>
       <header class="rise">
-        <h1 class="font-serif text-4xl tracking-tight">{{ $t('shopping.title') }}</h1>
-        <p class="mt-1 text-muted">{{ $t('shopping.lead') }}</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="font-serif text-4xl tracking-tight">{{ $t('shopping.title') }}</h1>
+            <p class="mt-1 text-muted">{{ $t('shopping.lead') }}</p>
+          </div>
+          <ShoppingOnlineBadge v-if="isMounted" />
+        </div>
         <!-- The basket is per week: without saying which, a list built for next
              week reads as a mistake in this one. -->
         <MenuWeekPicker class="mt-3" />
@@ -93,29 +126,42 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         <div class="flex items-center justify-between gap-4">
           <div class="min-w-0">
             <p class="text-sm tabular-nums text-muted">
-              {{ visiblePickedIds.length }} / {{ totalLines }} {{ $t('shopping.progress') }}
+              {{ visiblePickedCount }} / {{ totalLines }} {{ $t('shopping.progress') }}
             </p>
             <p class="text-xl font-black tabular-nums">
-              {{ Math.round(currentMenu.totalPrice) }} €
+              {{ Math.round(remainingTotal) }} €
               <span class="text-xs font-medium text-dimmed">{{ $t('shopping.total') }}</span>
             </p>
           </div>
-          <UButton
-            v-if="visiblePickedIds.length > 0"
-            icon="i-lucide-rotate-ccw"
-            variant="ghost"
-            color="neutral"
-            size="sm"
-            @click="isResetOpen = true"
-          >
-            {{ $t('shopping.reset') }}
-          </UButton>
+          <div class="flex shrink-0 items-center gap-1">
+            <UButton
+              v-if="totalLines > 0"
+              icon="i-lucide-share-2"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              :loading="isSharing"
+              @click="shareCurrentList"
+            >
+              {{ $t('shopping.share.button') }}
+            </UButton>
+            <UButton
+              v-if="visiblePickedCount > 0"
+              icon="i-lucide-rotate-ccw"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              @click="isResetOpen = true"
+            >
+              {{ $t('shopping.reset') }}
+            </UButton>
+          </div>
         </div>
         <div class="mt-3 h-1.5 overflow-hidden rounded-full bg-elevated">
           <div
             class="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
             :style="{
-              width: `${totalLines === 0 ? 0 : (visiblePickedIds.length / totalLines) * 100}%`,
+              width: `${totalLines === 0 ? 0 : (visiblePickedCount / totalLines) * 100}%`,
             }"
           />
         </div>
@@ -166,20 +212,23 @@ useSeoMeta({ title: (): string => t('shopping.title') });
 
       <div v-else class="mt-6 space-y-7">
         <ShoppingAisle
-          v-for="(group, index) in groups"
+          v-for="(group, index) in activeGroups"
           :key="group.aisle"
           :group="group"
           :picked-ids="visiblePickedIds"
           :index="index"
           @toggle="toggle"
+          @pantry="togglePantry"
         />
         <ShoppingSeasoningAisle
-          v-if="freshSeasonings.length > 0"
-          :seasonings="freshSeasonings"
+          v-if="activeSeasonings.length > 0"
+          :seasonings="activeSeasonings"
           :picked-ids="visiblePickedIds"
-          :index="groups.length"
+          :index="activeGroups.length"
           @toggle="toggle"
+          @pantry="togglePantry"
         />
+        <ShoppingPantrySection :entries="pantryEntries" @remove="togglePantry" />
       </div>
 
       <UModal v-model:open="isResetOpen" :title="$t('shopping.resetTitle')">

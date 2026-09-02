@@ -4,17 +4,20 @@ const { line, picked = false } = defineProps<{
   picked?: boolean;
 }>();
 
-const emit = defineEmits<{ toggle: [] }>();
+const emit = defineEmits<{ toggle: []; pantry: [] }>();
 
 const { imageOf } = useFoods();
 const { nameOf, quantityLabel, pieceLabel } = useFoodFormat();
+const { t } = useNuxtApp().$i18n;
+
+const pantryLabel = computed((): string => `${t('shopping.pantry.add')} — ${nameOf(line.food)}`);
 </script>
 
 <template>
-  <li>
+  <li class="flex items-stretch gap-2">
     <button
       type="button"
-      class="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200"
+      class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border p-3 text-left transition-all duration-200"
       :class="
         picked
           ? 'border-transparent bg-elevated/40 opacity-55'
@@ -53,6 +56,16 @@ const { nameOf, quantityLabel, pieceLabel } = useFoodFormat();
         <p class="font-bold tabular-nums">{{ quantityLabel(line.food, line.grams) }}</p>
         <p class="text-xs tabular-nums text-dimmed">~{{ line.price.toFixed(2) }} €</p>
       </div>
+    </button>
+
+    <button
+      type="button"
+      class="flex size-11 shrink-0 items-center justify-center self-center rounded-2xl border border-default text-dimmed transition-colors hover:border-primary/40 hover:text-primary"
+      :aria-label="pantryLabel"
+      :title="pantryLabel"
+      @click="emit('pantry')"
+    >
+      <UIcon name="i-lucide-archive" class="size-4" aria-hidden="true" />
     </button>
   </li>
 </template>

@@ -9,7 +9,7 @@ const {
   index?: number;
 }>();
 
-const emit = defineEmits<{ toggle: [foodId: string] }>();
+const emit = defineEmits<{ toggle: [foodId: string]; pantry: [foodId: string] }>();
 
 const pickedCount = computed(
   (): number => group.lines.filter((line): boolean => pickedIds.includes(line.food.id)).length,
@@ -31,6 +31,7 @@ const pickedCount = computed(
         :line="line"
         :picked="pickedIds.includes(line.food.id)"
         @toggle="emit('toggle', line.food.id)"
+        @pantry="emit('pantry', line.food.id)"
       />
     </ul>
   </section>
