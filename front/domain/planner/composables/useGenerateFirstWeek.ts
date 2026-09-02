@@ -33,6 +33,14 @@ export const useGenerateFirstWeek = (): {
       // Points the rest of the app at the week just composed, the same jump
       // the composer's own save button makes.
       selectedWeek.value = plannerWeek.value;
+
+      // Generating from the empty state, the reader is already on this week, so
+      // neither the selectedWeek watch nor navigateTo below moves anything: both
+      // targets match what is on screen. save() clears the cached menu, but a
+      // cleared entry only refetches on a fresh mount that never comes here.
+      // Refetch it in place so the week just saved takes the empty state's spot
+      // instead of leaving the click looking like it did nothing.
+      await refreshNuxtData('menu:shown');
       await navigateTo(localePath('/'));
     },
   };
