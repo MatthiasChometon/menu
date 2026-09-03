@@ -11,12 +11,16 @@ export type PlannerPreferences = {
   /** No dish should repeat more than this many times across the window.
    *  Undefined leaves the usual floor per group as the only rule. */
   maxRepeatsPerWeek: number | undefined;
+  /** What the week should cost, in euros. Undefined leaves cost out of the
+   *  picture entirely — nothing is scored against it and nothing is shown. */
+  weeklyBudget: number | undefined;
 };
 
 const DEFAULT_PREFERENCES: PlannerPreferences = {
   excludedKinds: [],
   maxPrepMinutes: undefined,
   maxRepeatsPerWeek: undefined,
+  weeklyBudget: undefined,
 };
 
 // A dish kind can be turned off and back on without the exclusion list
@@ -61,6 +65,7 @@ export const usePlannerPreferences = (): {
   toggleExcluded: (kind: DishKind) => void;
   setMaxPrepMinutes: (minutes: number | undefined) => void;
   setMaxRepeatsPerWeek: (repeats: number | undefined) => void;
+  setWeeklyBudget: (euros: number | undefined) => void;
 } => {
   const preferences = preferencesRef();
 
@@ -77,6 +82,12 @@ export const usePlannerPreferences = (): {
     },
     setMaxRepeatsPerWeek: (repeats: number | undefined): void => {
       preferences.value = { ...preferences.value, maxRepeatsPerWeek: repeats };
+    },
+    setWeeklyBudget: (euros: number | undefined): void => {
+      preferences.value = {
+        ...preferences.value,
+        weeklyBudget: euros === undefined || euros <= 0 ? undefined : euros,
+      };
     },
   };
 };

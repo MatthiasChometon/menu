@@ -114,6 +114,9 @@
       "maxRepeats": "Un même plat, au plus",
       "maxRepeatsNone": "Pas de limite",
       "timesPerWeek": "fois par semaine",
+      "weeklyBudget": "Budget hebdomadaire",
+      "weeklyBudgetHint": "Le générateur préfère des plats moins chers pour rester dessous, sans casser l'équilibre.",
+      "weeklyBudgetNone": "Pas de budget",
       "done": "Terminé"
     },
     "duplicate": {
@@ -132,6 +135,10 @@
       "onTarget": "dans la cible",
       "under": "en dessous",
       "over": "au-dessus"
+    },
+    "budget": {
+      "target": "budget",
+      "over": "dépassé"
     },
     "weekChoice": {
       "lead": "Tu composes à partir de :",
