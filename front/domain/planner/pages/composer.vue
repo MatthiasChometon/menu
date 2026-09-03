@@ -15,6 +15,7 @@ const {
   limitsOf,
   chosenDishes,
   completeSelection,
+  budgetStatus,
   canSpread,
   needsSpread,
   spread,
@@ -282,6 +283,16 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
           <h2 class="font-serif text-3xl tracking-tight">{{ $t('planner.week') }}</h2>
           <UBadge :color="isValid ? 'primary' : 'neutral'" variant="subtle">
             {{ filledDays.length }} / {{ dayOrder.length }} {{ $t('planner.daysPlanned') }}
+          </UBadge>
+          <!-- The same figure as the pickers showed while choosing, now read
+               off the plan that actually got spread onto the days. -->
+          <UBadge
+            v-if="budgetStatus.budget !== undefined"
+            :color="budgetStatus.isOverBudget ? 'warning' : 'neutral'"
+            variant="subtle"
+          >
+            {{ round(budgetStatus.cost) }} € / {{ round(budgetStatus.budget) }} €
+            <span v-if="budgetStatus.isOverBudget">— {{ $t('planner.budget.over') }}</span>
           </UBadge>
           <div class="ml-auto flex flex-wrap items-center gap-2">
             <!-- One tap mends every day at once. Off-target days each take their

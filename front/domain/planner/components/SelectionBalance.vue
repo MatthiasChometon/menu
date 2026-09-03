@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { MacroGap } from '../composables/usePlanner';
 
-const { selectionBalance } = usePlanner();
+const { selectionBalance, budgetStatus } = usePlanner();
 const { wordingOf } = useBalanceWording();
+const { round } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
 
 const kcal = computed((): MacroGap | undefined =>
@@ -50,6 +51,30 @@ const others = computed((): { gap: MacroGap; isInside: boolean; label: string }[
           {{ entry.label }}
         </li>
       </ul>
+    </div>
+
+    <!-- Only appears once a budget is set: nothing to compare a cost against
+         otherwise, and the figure alone would read as a claim rather than a
+         status. -->
+    <div
+      v-if="budgetStatus.budget !== undefined"
+      class="flex items-center gap-2 rounded-xl border px-3 py-2 text-sm"
+      :class="budgetStatus.isOverBudget ? 'border-warning/40 bg-warning/5' : 'border-default'"
+    >
+      <UIcon
+        :name="budgetStatus.isOverBudget ? 'i-lucide-triangle-alert' : 'i-lucide-wallet'"
+        class="size-5 shrink-0"
+        :class="budgetStatus.isOverBudget ? 'text-warning' : 'text-muted'"
+      />
+      <span>
+        <span class="font-semibold tabular-nums">{{ round(budgetStatus.cost) }} €</span>
+        <span :class="budgetStatus.isOverBudget ? 'text-warning' : 'text-muted'">
+          / {{ $t('planner.budget.target') }} {{ round(budgetStatus.budget) }} €
+        </span>
+        <span v-if="budgetStatus.isOverBudget" class="ml-1 font-medium text-warning">
+          — {{ $t('planner.budget.over') }}
+        </span>
+      </span>
     </div>
 
     <!-- Said plainly while meals are still missing: a cursor sitting low then

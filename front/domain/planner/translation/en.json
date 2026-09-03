@@ -114,6 +114,9 @@
       "maxRepeats": "Same dish, at most",
       "maxRepeatsNone": "No limit",
       "timesPerWeek": "times a week",
+      "weeklyBudget": "Weekly budget",
+      "weeklyBudgetHint": "The generator prefers cheaper dishes to stay under it, without breaking the balance.",
+      "weeklyBudgetNone": "No budget",
       "done": "Done"
     },
     "duplicate": {
@@ -132,6 +135,10 @@
       "onTarget": "on target",
       "under": "under",
       "over": "over"
+    },
+    "budget": {
+      "target": "budget",
+      "over": "over budget"
     },
     "weekChoice": {
       "lead": "You're planning from:",
