@@ -85,7 +85,10 @@ const buildDay = (key: DayKey, rawMeals: Record<string, RawMeal>, catalog: MenuC
   return { key, meals, macros: sumMacros(meals.map((meal): Macros => meal.macros)) };
 };
 
-const buildShoppingList = (days: Day[]): ShoppingLine[] => {
+// Every food a set of days needs, once, priced. Shared with the composed
+// week (which has no published shopping list to read) and with the flexed
+// week (which zeroes out whatever a reused pot no longer needs bought).
+export const buildShoppingList = (days: Day[]): ShoppingLine[] => {
   const gramsByFood = new Map<string, FoodQuantity>();
   for (const day of days) {
     for (const meal of day.meals) {

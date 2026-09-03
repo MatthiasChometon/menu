@@ -1,5 +1,6 @@
 import { daysFrom } from '../../planner/composables/usePlannerWeek';
-import type { Day, FoodQuantity, Macros, Menu, ShoppingLine } from '../types/menu.type';
+import { buildShoppingList } from '../utils/menu';
+import type { Day, FoodQuantity, Macros, Menu } from '../types/menu.type';
 
 // Turns a week somebody composed into the same Menu shape the rest of the app
 // reads — but with the grammes worked out here rather than stored. A composition
@@ -90,27 +91,6 @@ export const useComposedMenu = (): {
     return { key, meals, macros: macrosOfQuantities(meals.flatMap((meal) => meal.quantities)) };
   };
 
-  // Every food the week needs, once, priced. The same aggregation the published
-  // menu used, kept here now that its owner is gone.
-  const shoppingListOf = (days: Day[]): ShoppingLine[] => {
-    const gramsByFood = new Map<string, FoodQuantity>();
-    for (const day of days) {
-      for (const meal of day.meals) {
-        for (const { food, grams } of meal.quantities) {
-          const existing = gramsByFood.get(food.id);
-          gramsByFood.set(food.id, { food, grams: (existing?.grams ?? 0) + grams });
-        }
-      }
-    }
-
-    return [...gramsByFood.values()]
-      .map(({ food, grams }): ShoppingLine => {
-        const rounded = Math.round(grams);
-        return { food, grams: rounded, price: (food.pricePerKg * rounded) / 1000 };
-      })
-      .sort((left, right): number => right.price - left.price);
-  };
-
   return {
     // Undefined has one meaning the caller acts on: there is nothing to show for
     // this week. No profile (nothing to scale to) and no composed week both land
@@ -132,7 +112,7 @@ export const useComposedMenu = (): {
         .filter((day): day is Day => day !== undefined);
       if (days.length === 0) return undefined;
 
-      const shoppingList = shoppingListOf(days);
+      const shoppingList = buildShoppingList(days);
       const usedIds = new Set(days.flatMap((day) => day.meals.map((meal) => meal.recipe.id)));
       const recipes = [...usedIds]
         .map((id) => recipeOf(id))
