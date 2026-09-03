@@ -1,0 +1,14 @@
+mutation updateCustomRecipe($input: UpdateCustomRecipeInput!) {
+  updateCustomRecipe(input: $input) {
+    id
+    name
+    slot
+    ingredients {
+      foodId
+      grams
+    }
+    steps
+    prepMinutes
+    batch
+  }
+}

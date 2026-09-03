@@ -4,6 +4,8 @@ import { APP_FILTER } from '@nestjs/core';
 import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { AuthModule } from './domain/auth/module';
 import { BugReportModule } from './domain/bugReport/module';
+import { CustomFoodModule } from './domain/customFood/module';
+import { CustomRecipeModule } from './domain/customRecipe/module';
 import { GroceryModule } from './domain/grocery/module';
 import { HouseholdModule } from './domain/household/module';
 import { ImageLibraryModule } from './domain/imageLibrary/module';
@@ -35,6 +37,8 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     HouseholdModule,
     GroceryModule,
     WeekPlanModule,
+    CustomFoodModule,
+    CustomRecipeModule,
     WeightModule,
     BugReportModule,
     ImprovementRequestModule,

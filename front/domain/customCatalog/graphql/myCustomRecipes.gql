@@ -1,0 +1,14 @@
+query myCustomRecipes {
+  myCustomRecipes {
+    id
+    name
+    slot
+    ingredients {
+      foodId
+      grams
+    }
+    steps
+    prepMinutes
+    batch
+  }
+}
