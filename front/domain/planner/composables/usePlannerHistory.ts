@@ -27,22 +27,33 @@ const byMostRecent = (left: ComposedWeekEntry, right: ComposedWeekEntry): number
  *  windows besides the one being worked on. Undefined for a dish that never
  *  appeared inside the window at all. Pure so it is testable without
  *  touching localStorage. */
+// Whole weeks from one week-start to another. Both are stored as Monday-anchored
+// 'YYYY-MM-DD' dates, so the gap is a clean multiple of seven days give or take
+// a daylight-saving hour, which the rounding absorbs.
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const weeksBetween = (from: string, to: string): number =>
+  Math.round(
+    (new Date(`${to}T00:00:00`).getTime() - new Date(`${from}T00:00:00`).getTime()) / WEEK_MS,
+  );
+
 export const weeksAgoOf = (
   entries: ComposedWeekEntry[],
   excludingWeek: string,
   recipeId: string,
   windowWeeks: number = DEFAULT_VARIETY_WINDOW_WEEKS,
 ): number | undefined => {
-  const others = entries
+  // Counted by the calendar, not by how many weeks happened to be composed in
+  // between: a dish three weeks back is three weeks back whether or not the two
+  // weeks since were ever planned. The window is a span of time, not a count.
+  const weeksAgo = entries
     .filter((entry): boolean => entry.weekOf !== excludingWeek)
-    .sort(byMostRecent)
-    .slice(0, windowWeeks);
+    .filter((entry): boolean =>
+      Object.values(entry.chosen).some((ids): boolean => (ids ?? []).includes(recipeId)),
+    )
+    .map((entry): number => weeksBetween(entry.weekOf, excludingWeek) - 1)
+    .filter((distance): boolean => distance >= 0 && distance < windowWeeks);
 
-  const weeksAgo = others.findIndex((entry): boolean =>
-    Object.values(entry.chosen).some((ids): boolean => (ids ?? []).includes(recipeId)),
-  );
-
-  return weeksAgo === -1 ? undefined : weeksAgo;
+  return weeksAgo.length === 0 ? undefined : Math.min(...weeksAgo);
 };
 
 /** How much a dish should lose against the others for having shown up in a
