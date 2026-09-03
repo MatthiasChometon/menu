@@ -1,0 +1,12 @@
+query myCustomFoods {
+  myCustomFoods {
+    id
+    name
+    kcal
+    protein
+    fat
+    carbs
+    fiber
+    pricePerKg
+  }
+}

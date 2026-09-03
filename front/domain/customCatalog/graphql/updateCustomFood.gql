@@ -1,0 +1,12 @@
+mutation updateCustomFood($input: UpdateCustomFoodInput!) {
+  updateCustomFood(input: $input) {
+    id
+    name
+    kcal
+    protein
+    fat
+    carbs
+    fiber
+    pricePerKg
+  }
+}

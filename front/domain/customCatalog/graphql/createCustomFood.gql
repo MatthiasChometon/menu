@@ -1,0 +1,12 @@
+mutation createCustomFood($input: CustomFoodInput!) {
+  createCustomFood(input: $input) {
+    id
+    name
+    kcal
+    protein
+    fat
+    carbs
+    fiber
+    pricePerKg
+  }
+}
