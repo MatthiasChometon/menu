@@ -328,6 +328,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
             :is-today="day.key === todayKey"
             :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
             :other-day-keys="otherDayKeysOf(day.key)"
+            :week-days="flexedDays"
           />
         </section>
 

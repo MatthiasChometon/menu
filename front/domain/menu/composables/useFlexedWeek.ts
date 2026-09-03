@@ -1,3 +1,4 @@
+import { buildShoppingList } from '../utils/menu';
 import { sumMacros } from '../utils/nutrition';
 
 const mealAt = (days: Day[], day: DayKey, slot: MealSlot): Meal | undefined =>
@@ -16,11 +17,45 @@ export const useFlexedWeek = (
    *  useAdherence should count against, so a meal eaten out or a cheat day
    *  never reads as a meal missed. */
   adherenceMenu: ComputedRef<Menu | undefined>;
+  /** The same days again, but a slot standing in for a reused pot buys
+   *  nothing new — what the shopping list should be built from, so a leftover
+   *  never turns into a second purchase. */
+  shoppingMenu: ComputedRef<Menu | undefined>;
 } => {
   const weekOf = computed((): string => toValue(menu)?.weekOf ?? '');
   const { kindOf } = useMealOverrides(weekOf);
   const { sourceOf } = useMealSwap(weekOf);
-  const { hasLeftover, decisionAt } = useLeftovers(weekOf);
+  const { hasLeftover, decisionAt, assignedOriginOf } = useLeftovers(weekOf);
+
+  // A slot chosen on purpose always wins over the plain next-day nudge: it was
+  // picked deliberately, however far out, while the nudge only ever guesses at
+  // the day right before.
+  const leftoverAt = (
+    days: Day[],
+    day: DayKey,
+    slot: MealSlot,
+    previous: Day | undefined,
+  ): Meal | undefined => {
+    const assignedOrigin = assignedOriginOf(day, slot);
+    if (assignedOrigin !== undefined) return mealAt(days, assignedOrigin.day, assignedOrigin.slot);
+
+    if (previous === undefined || decisionAt(day, slot) !== 'used') return undefined;
+    return mealAt(days, previous.key, slot);
+  };
+
+  // The nudge only makes sense while nothing has been decided about this slot
+  // yet, and never alongside a leftover already standing here on purpose.
+  const suggestedLeftoverAt = (
+    days: Day[],
+    day: DayKey,
+    slot: MealSlot,
+    previous: Day | undefined,
+    isAlreadyLeftover: boolean,
+  ): Meal | undefined => {
+    if (isAlreadyLeftover || previous === undefined) return undefined;
+    if (decisionAt(day, slot) !== undefined || !hasLeftover(previous.key, slot)) return undefined;
+    return mealAt(days, previous.key, slot);
+  };
 
   const flexedMealAt = (
     days: Day[],
@@ -32,14 +67,7 @@ export const useFlexedWeek = (
     const swapped = mealAt(days, source.day, source.slot);
     if (swapped === undefined) return undefined;
 
-    const decision = decisionAt(day, slot);
-    const leftover =
-      decision === 'used' && previous !== undefined ? mealAt(days, previous.key, slot) : undefined;
-
-    const suggestedLeftover =
-      decision === undefined && previous !== undefined && hasLeftover(previous.key, slot)
-        ? mealAt(days, previous.key, slot)
-        : undefined;
+    const leftover = leftoverAt(days, day, slot, previous);
 
     return {
       ...(leftover ?? swapped),
@@ -47,7 +75,7 @@ export const useFlexedWeek = (
         excludedAs: kindOf(day, slot),
         isSwapped: source.day !== day || source.slot !== slot,
         isLeftover: leftover !== undefined,
-        suggestedLeftover,
+        suggestedLeftover: suggestedLeftoverAt(days, day, slot, previous, leftover !== undefined),
       },
     };
   };
@@ -67,6 +95,24 @@ export const useFlexedWeek = (
     });
   });
 
+  // A reused pot keeps the macros it was cooked with, but nothing left to buy:
+  // whatever it stands in for was already bought the day it was actually
+  // cooked, so its grammes drop out here rather than being counted twice.
+  const shoppingDaysOf = (flexedDays: FlexedDay[]): Day[] =>
+    flexedDays.map((day): Day => ({
+      key: day.key,
+      macros: day.macros,
+      meals: day.meals.map(
+        (meal): Meal => ({
+          slot: meal.slot,
+          recipe: meal.recipe,
+          macros: meal.macros,
+          portionRatio: meal.portionRatio,
+          quantities: meal.flex.isLeftover ? [] : meal.quantities,
+        }),
+      ),
+    }));
+
   return {
     days,
     adherenceMenu: computed((): Menu | undefined => {
@@ -82,6 +128,20 @@ export const useFlexedWeek = (
             meals: day.meals.filter((meal): boolean => meal.flex.excludedAs === undefined),
           }),
         ),
+      };
+    }),
+    shoppingMenu: computed((): Menu | undefined => {
+      const base = toValue(menu);
+      if (base === undefined) return undefined;
+
+      const shoppingDays = shoppingDaysOf(days.value);
+      const shoppingList = buildShoppingList(shoppingDays);
+
+      return {
+        ...base,
+        days: shoppingDays,
+        shoppingList,
+        totalPrice: shoppingList.reduce((total, line): number => total + line.price, 0),
       };
     }),
   };
