@@ -9,6 +9,7 @@ const {
   defaultOpen = false,
   isToday = false,
   otherDayKeys = [],
+  weekDays = [],
 } = defineProps<{
   day: FlexedDay;
   targets: Macros;
@@ -17,16 +18,37 @@ const {
   defaultOpen?: boolean;
   isToday?: boolean;
   otherDayKeys?: DayKey[];
+  /** The whole week, in order, so a meal can offer every later slot its
+   *  leftovers could cover — not just the day right after it. */
+  weekDays?: FlexedDay[];
 }>();
 
 const { locale, t } = useNuxtApp().$i18n;
 const { selectedWeek } = useSelectedWeek();
 const { isDayOff, setDayOff, clearDayOff } = useMealOverrides(selectedWeek);
 const { swapDay } = useMealSwap(selectedWeek);
+const { assignedOriginOf } = useLeftovers(selectedWeek);
 
 // The slots this day actually has, so "day off" and "swap" only ever touch
 // meals the day is showing — never a slot the plan left empty.
 const slots = computed((): MealSlot[] => day.meals.map((meal): MealSlot => meal.slot));
+
+// Every day after this one, in week order: what a leftover from today could
+// still reach. A slot already spoken for by another origin is left out — one
+// pot covers one slot at a time.
+const laterDays = computed((): FlexedDay[] => {
+  const selfIndex = weekDays.findIndex((entry): boolean => entry.key === day.key);
+  return selfIndex === -1 ? [] : weekDays.slice(selfIndex + 1);
+});
+
+const leftoverTargetsFor = (slot: MealSlot): DayKey[] =>
+  laterDays.value
+    .filter(
+      (candidate): boolean =>
+        candidate.meals.some((meal): boolean => meal.slot === slot) &&
+        assignedOriginOf(candidate.key, slot) === undefined,
+    )
+    .map((candidate): DayKey => candidate.key);
 
 const isOff = computed((): boolean => isDayOff(day.key, slots.value));
 
@@ -143,7 +165,13 @@ watch(
     </template>
 
     <div v-show="isOpen" :id="`day-${day.key}`" class="space-y-1 p-2">
-      <MenuMealRow v-for="meal in day.meals" :key="meal.slot" :meal="meal" :day-key="day.key" />
+      <MenuMealRow
+        v-for="meal in day.meals"
+        :key="meal.slot"
+        :meal="meal"
+        :day-key="day.key"
+        :leftover-targets="leftoverTargetsFor(meal.slot)"
+      />
 
       <div class="mt-2 rounded-2xl bg-elevated/50 p-4">
         <p class="mb-3 text-sm font-semibold">{{ $t('menu.dayTotal') }}</p>

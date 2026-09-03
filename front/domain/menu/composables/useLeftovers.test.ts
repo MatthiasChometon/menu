@@ -68,4 +68,48 @@ describe('useLeftovers', () => {
 
     expect(decisionAt('tuesday', 'dinner')).toBeUndefined();
   });
+
+  it('has no assignment on a slot by default', () => {
+    const { assignedOriginOf, assignedTargetOf } = useLeftovers(weekOf());
+
+    expect(assignedOriginOf('thursday', 'dinner')).toBeUndefined();
+    expect(assignedTargetOf('monday', 'dinner')).toBeUndefined();
+  });
+
+  it('sends a dish leftovers to a chosen future slot', () => {
+    const { assignLeftover, assignedOriginOf, assignedTargetOf } = useLeftovers(weekOf());
+
+    assignLeftover('monday', 'dinner', 'thursday', 'dinner');
+
+    expect(assignedOriginOf('thursday', 'dinner')).toEqual({ day: 'monday', slot: 'dinner' });
+    expect(assignedTargetOf('monday', 'dinner')).toEqual({ day: 'thursday', slot: 'dinner' });
+  });
+
+  it('clears an assignment from either the origin or the target side', () => {
+    const { assignLeftover, assignedOriginOf, clearAssignment } = useLeftovers(weekOf());
+
+    assignLeftover('monday', 'dinner', 'thursday', 'dinner');
+    clearAssignment('monday', 'dinner');
+
+    expect(assignedOriginOf('thursday', 'dinner')).toBeUndefined();
+  });
+
+  it('assigning again replaces both the previous origin and the previous target', () => {
+    const { assignLeftover, assignedOriginOf, assignedTargetOf } = useLeftovers(weekOf());
+
+    assignLeftover('monday', 'dinner', 'thursday', 'dinner');
+    assignLeftover('monday', 'dinner', 'friday', 'dinner');
+
+    expect(assignedTargetOf('monday', 'dinner')).toEqual({ day: 'friday', slot: 'dinner' });
+    expect(assignedOriginOf('thursday', 'dinner')).toBeUndefined();
+  });
+
+  it('resets assignments along with origins and decisions', () => {
+    const { assignLeftover, assignedOriginOf, reset } = useLeftovers(weekOf());
+
+    assignLeftover('monday', 'dinner', 'thursday', 'dinner');
+    reset();
+
+    expect(assignedOriginOf('thursday', 'dinner')).toBeUndefined();
+  });
 });

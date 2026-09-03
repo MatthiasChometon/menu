@@ -99,4 +99,54 @@ describe('MealRow', () => {
 
     expect(useLeftovers(weekOf()).decisionAt('tuesday', meal.slot)).toBe('declined');
   });
+
+  it('sends this dish leftovers to a slot chosen on purpose', async () => {
+    const meal = mealOf();
+    const { t } = useNuxtApp().$i18n;
+
+    await renderSuspended(MealRow, {
+      props: { meal: flexedMeal(), dayKey: 'monday', leftoverTargets: ['thursday'] },
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Options du repas' }));
+    await fireEvent.click(
+      await screen.findByText(`Garder des restes pour ${t('menu.day.thursday')}`),
+    );
+
+    expect(useLeftovers(weekOf()).assignedTargetOf('monday', meal.slot)).toEqual({
+      day: 'thursday',
+      slot: meal.slot,
+    });
+  });
+
+  it('cancels a leftover already reserved for a chosen slot', async () => {
+    const meal = mealOf();
+    const { t } = useNuxtApp().$i18n;
+
+    useLeftovers(weekOf()).assignLeftover('monday', meal.slot, 'thursday', meal.slot);
+
+    await renderSuspended(MealRow, { props: { meal: flexedMeal(), dayKey: 'monday' } });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Options du repas' }));
+    await fireEvent.click(
+      await screen.findByText(`Restes réservés pour ${t('menu.day.thursday')}`),
+    );
+
+    expect(useLeftovers(weekOf()).assignedTargetOf('monday', meal.slot)).toBeUndefined();
+  });
+
+  it('stops a leftover assigned to this slot on purpose, without touching decisions', async () => {
+    const meal = mealOf();
+
+    useLeftovers(weekOf()).assignLeftover('sunday', meal.slot, 'monday', meal.slot);
+
+    await renderSuspended(MealRow, {
+      props: { meal: flexedMeal({ isLeftover: true }), dayKey: 'monday' },
+    });
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Options du repas' }));
+    await fireEvent.click(await screen.findByText('Revenir au plat prévu'));
+
+    expect(useLeftovers(weekOf()).assignedOriginOf('monday', meal.slot)).toBeUndefined();
+  });
 });

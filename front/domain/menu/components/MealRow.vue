@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui';
 
-const { meal, dayKey } = defineProps<{ meal: FlexedMeal; dayKey: DayKey }>();
+const { meal, dayKey, leftoverTargets = [] } = defineProps<{
+  meal: FlexedMeal;
+  dayKey: DayKey;
+  /** Later days sharing this slot, free to be sent this dish's leftovers. */
+  leftoverTargets?: DayKey[];
+}>();
 
 const { imageOf } = useRecipes();
 const { nameOf, round } = useFoodFormat();
@@ -11,8 +16,18 @@ const { t } = useNuxtApp().$i18n;
 
 const { statusOf, isEaten, toggleEaten } = useCookingLog(selectedWeek);
 const { setEatingOut, setCheatMeal, clearOverride } = useMealOverrides(selectedWeek);
-const { hasLeftover, markLeftover, clearLeftover, useLeftoverHere, declineLeftover, clearDecision } =
-  useLeftovers(selectedWeek);
+const {
+  hasLeftover,
+  markLeftover,
+  clearLeftover,
+  useLeftoverHere,
+  declineLeftover,
+  clearDecision,
+  assignedOriginOf,
+  assignedTargetOf,
+  assignLeftover,
+  clearAssignment,
+} = useLeftovers(selectedWeek);
 
 const isReduced = computed((): boolean => meal.portionRatio < 0.85);
 
@@ -23,6 +38,57 @@ const eaten = computed((): boolean => isEaten(dayKey, meal.slot));
 const isReady = computed((): boolean => statusOf(meal.recipe.id) === 'done');
 
 const isExcluded = computed((): boolean => meal.flex.excludedAs !== undefined);
+
+// A leftover standing here can come from the plain next-day nudge or from a
+// slot chosen on purpose; stopping it means undoing whichever one it was.
+const stopLeftover = (): void => {
+  if (assignedOriginOf(dayKey, meal.slot) !== undefined) clearAssignment(dayKey, meal.slot);
+  else clearDecision(dayKey, meal.slot);
+};
+
+const leftoverItem = computed((): DropdownMenuItem =>
+  meal.flex.isLeftover
+    ? {
+        label: t('menu.flex.leftover.stop'),
+        icon: 'i-lucide-rotate-ccw',
+        onSelect: stopLeftover,
+      }
+    : hasLeftover(dayKey, meal.slot)
+      ? {
+          label: t('menu.flex.leftover.cancel'),
+          icon: 'i-lucide-package-x',
+          onSelect: (): void => clearLeftover(dayKey, meal.slot),
+        }
+      : {
+          label: t('menu.flex.leftover.mark'),
+          icon: 'i-lucide-package',
+          onSelect: (): void => markLeftover(dayKey, meal.slot),
+        },
+);
+
+// This dish's own leftovers, sent to a slot picked on purpose: already
+// reserved somewhere, offered to cancel; otherwise offered to every
+// compatible slot still ahead of it.
+const leftoverAssignmentItems = computed((): DropdownMenuItem[] => {
+  const reservedFor = assignedTargetOf(dayKey, meal.slot);
+  if (reservedFor !== undefined) {
+    return [
+      {
+        label: `${t('menu.flex.leftover.reservedFor')} ${t(`menu.day.${reservedFor.day}`)}`,
+        icon: 'i-lucide-package-check',
+        onSelect: (): void => clearAssignment(reservedFor.day, reservedFor.slot),
+      },
+    ];
+  }
+
+  return leftoverTargets.map(
+    (targetDay): DropdownMenuItem => ({
+      label: `${t('menu.flex.leftover.keepFor')} ${t(`menu.day.${targetDay}`)}`,
+      icon: 'i-lucide-package-plus',
+      onSelect: (): void => assignLeftover(dayKey, meal.slot, targetDay, meal.slot),
+    }),
+  );
+});
 
 const menuItems = computed((): DropdownMenuItem[][] => {
   if (isExcluded.value) {
@@ -37,24 +103,6 @@ const menuItems = computed((): DropdownMenuItem[][] => {
     ];
   }
 
-  const leftoverItem: DropdownMenuItem = meal.flex.isLeftover
-    ? {
-        label: t('menu.flex.leftover.stop'),
-        icon: 'i-lucide-rotate-ccw',
-        onSelect: (): void => clearDecision(dayKey, meal.slot),
-      }
-    : hasLeftover(dayKey, meal.slot)
-      ? {
-          label: t('menu.flex.leftover.cancel'),
-          icon: 'i-lucide-package-x',
-          onSelect: (): void => clearLeftover(dayKey, meal.slot),
-        }
-      : {
-          label: t('menu.flex.leftover.mark'),
-          icon: 'i-lucide-package',
-          onSelect: (): void => markLeftover(dayKey, meal.slot),
-        };
-
   return [
     [
       {
@@ -68,7 +116,8 @@ const menuItems = computed((): DropdownMenuItem[][] => {
         onSelect: (): void => setCheatMeal(dayKey, meal.slot),
       },
     ],
-    [leftoverItem],
+    [leftoverItem.value],
+    ...(leftoverAssignmentItems.value.length > 0 ? [leftoverAssignmentItems.value] : []),
   ];
 });
 </script>
