@@ -114,6 +114,10 @@
       "maxRepeats": "Same dish, at most",
       "maxRepeatsNone": "No limit",
       "timesPerWeek": "times a week",
+      "varietyWindow": "Avoid dishes from the last",
+      "varietyWindowHint": "A recent dish stays possible if nothing else fits better, but variety is preferred.",
+      "varietyWindowAuto": "Recommended",
+      "weeks": "weeks",
       "done": "Done"
     },
     "duplicate": {
