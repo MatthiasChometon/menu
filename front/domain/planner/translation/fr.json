@@ -117,6 +117,10 @@
       "weeklyBudget": "Budget hebdomadaire",
       "weeklyBudgetHint": "Le générateur préfère des plats moins chers pour rester dessous, sans casser l'équilibre.",
       "weeklyBudgetNone": "Pas de budget",
+      "varietyWindow": "Éviter les plats des dernières",
+      "varietyWindowHint": "Un plat récent reste possible s'il n'y a pas mieux, mais la variété est préférée.",
+      "varietyWindowAuto": "Recommandée",
+      "weeks": "semaines",
       "done": "Terminé"
     },
     "duplicate": {

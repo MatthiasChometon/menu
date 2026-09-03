@@ -117,6 +117,10 @@
       "weeklyBudget": "Weekly budget",
       "weeklyBudgetHint": "The generator prefers cheaper dishes to stay under it, without breaking the balance.",
       "weeklyBudgetNone": "No budget",
+      "varietyWindow": "Avoid dishes from the last",
+      "varietyWindowHint": "A recent dish stays possible if nothing else fits better, but variety is preferred.",
+      "varietyWindowAuto": "Recommended",
+      "weeks": "weeks",
       "done": "Done"
     },
     "duplicate": {
