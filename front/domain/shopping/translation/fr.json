@@ -14,6 +14,14 @@
     "seasoningHint": "Les épices sèches restent au placard ; ceux-là s'achètent.",
     "progress": "articles pris",
     "total": "Total estimé",
+    "spend": {
+      "title": "Ce que tu as payé",
+      "placeholder": "Montant réel",
+      "estimated": "Estimé",
+      "delta": "Écart",
+      "under": "sous l'estimation",
+      "over": "au-dessus"
+    },
     "reset": "Tout décocher",
     "resetTitle": "Repartir de zéro",
     "resetHint": "Toutes les cases seront décochées pour cette semaine.",
