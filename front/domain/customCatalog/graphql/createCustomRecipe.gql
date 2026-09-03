@@ -1,0 +1,14 @@
+mutation createCustomRecipe($input: CustomRecipeInput!) {
+  createCustomRecipe(input: $input) {
+    id
+    name
+    slot
+    ingredients {
+      foodId
+      grams
+    }
+    steps
+    prepMinutes
+    batch
+  }
+}
