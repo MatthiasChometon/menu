@@ -32,19 +32,21 @@ describe('useLibraryFilters', () => {
     const entries = entriesOfWeek(9);
     const { query, filteredEntries } = useLibraryFilters(entries);
 
-    query.value = 'chili';
+    query.value = 'teriyaki';
 
-    expect(filteredEntries.value.map((entry): string => entry.recipe.id)).toContain('chiliChicken');
+    expect(filteredEntries.value.map((entry): string => entry.recipe.id)).toContain(
+      'teriyakiSalmonBowl',
+    );
   });
 
   it('finds a recipe by an ingredient that is not in its name', () => {
     const entries = entriesOfWeek(9);
     const { query, filteredEntries } = useLibraryFilters(entries);
 
-    query.value = 'poivron';
+    query.value = 'carotte';
 
     const found = filteredEntries.value.find(
-      (entry): boolean => entry.recipe.id === 'chiliChicken',
+      (entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl',
     );
     expect(found).toBeDefined();
   });

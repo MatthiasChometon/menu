@@ -4,14 +4,14 @@ import RecipeCard from './RecipeCard.vue';
 
 const entryOf = (overrides: Partial<LibraryEntry> = {}): LibraryEntry => {
   const { recipeOf } = useRecipes();
-  const recipe = recipeOf('chiliChicken');
+  const recipe = recipeOf('teriyakiSalmonBowl');
   if (recipe === undefined) throw new Error('missing fixture recipe');
 
   return {
     recipe,
     dominantMacro: 'protein',
     prepBucket: 'medium',
-    ingredientIds: ['chickenBreast', 'brownRice'],
+    ingredientIds: ['salmon', 'brownRice'],
     seasonalIngredientIds: [],
     ...overrides,
   };
@@ -21,8 +21,8 @@ describe('LibraryRecipeCard', () => {
   it('names the recipe and links to it', async () => {
     const wrapper = await mountSuspended(RecipeCard, { props: { entry: entryOf() } });
 
-    expect(wrapper.text()).toContain('poulet');
-    expect(wrapper.find('a').attributes('href')).toContain('chiliChicken');
+    expect(wrapper.text()).toContain('saumon');
+    expect(wrapper.find('a').attributes('href')).toContain('teriyakiSalmonBowl');
   });
 
   it('shows the prep time and the dominant macro', async () => {

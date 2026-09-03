@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-const chiliChicken = (): Recipe => {
+const codRatatouilleRice = (): Recipe => {
   const { recipeOf } = useRecipes();
-  const recipe = recipeOf('chiliChicken');
+  const recipe = recipeOf('codRatatouilleRice');
   if (recipe === undefined) throw new Error('missing fixture recipe');
   return recipe;
 };
@@ -11,7 +11,7 @@ describe('useRecipeCatalog', () => {
   it('describes a recipe by its dominant macro', () => {
     const { entriesOf } = useRecipeCatalog();
 
-    const [entry] = entriesOf([chiliChicken()], 9);
+    const [entry] = entriesOf([codRatatouilleRice()], 9);
 
     expect(['protein', 'carbs', 'fat']).toContain(entry?.dominantMacro);
   });
@@ -19,7 +19,7 @@ describe('useRecipeCatalog', () => {
   it('buckets prep time as quick, medium or long', () => {
     const { entriesOf } = useRecipeCatalog();
 
-    const [entry] = entriesOf([chiliChicken()], 9);
+    const [entry] = entriesOf([codRatatouilleRice()], 9);
 
     // 25 minutes: past the quick cutoff, within the medium one.
     expect(entry?.prepBucket).toBe('medium');
@@ -28,7 +28,7 @@ describe('useRecipeCatalog', () => {
   it('lists every ingredient the recipe calls for', () => {
     const { entriesOf } = useRecipeCatalog();
 
-    const [entry] = entriesOf([chiliChicken()], 9);
+    const [entry] = entriesOf([codRatatouilleRice()], 9);
 
     expect(entry?.ingredientIds).toEqual(expect.arrayContaining(['onion', 'bellPepper']));
   });
@@ -37,7 +37,7 @@ describe('useRecipeCatalog', () => {
     const { entriesOf } = useRecipeCatalog();
 
     // Bell peppers run June to October; onions carry no season on their own.
-    const [entry] = entriesOf([chiliChicken()], 9);
+    const [entry] = entriesOf([codRatatouilleRice()], 9);
 
     expect(entry?.seasonalIngredientIds).toContain('bellPepper');
     expect(entry?.seasonalIngredientIds).not.toContain('onion');
@@ -46,7 +46,7 @@ describe('useRecipeCatalog', () => {
   it('finds nothing seasonal in the dead of winter', () => {
     const { entriesOf } = useRecipeCatalog();
 
-    const [entry] = entriesOf([chiliChicken()], 1);
+    const [entry] = entriesOf([codRatatouilleRice()], 1);
 
     expect(entry?.seasonalIngredientIds).not.toContain('bellPepper');
   });

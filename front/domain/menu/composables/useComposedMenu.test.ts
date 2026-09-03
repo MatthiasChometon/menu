@@ -47,7 +47,7 @@ const TARGETS = { kcal: 3000, protein: 165, fat: 80, carbs: 445, fiber: 30 };
 describe('useComposedMenu', () => {
   it('shows nothing to weigh for when there is no profile to scale to', async () => {
     state.targets = undefined;
-    state.plan = { weekOf: '2026-01-05', days: { monday: { lunch: 'chiliChicken' } } };
+    state.plan = { weekOf: '2026-01-05', days: { monday: { lunch: 'teriyakiSalmonBowl' } } };
 
     expect(await useComposedMenu().menuFor('2026-01-05')).toBeUndefined();
   });
@@ -63,7 +63,7 @@ describe('useComposedMenu', () => {
     state.targets = TARGETS;
     state.plan = {
       weekOf: '2026-01-05',
-      days: { monday: { breakfast: 'fullShaker', lunch: 'chiliChicken' } },
+      days: { monday: { breakfast: 'ricePuddingBanana', lunch: 'teriyakiSalmonBowl' } },
     };
 
     const menu = await useComposedMenu().menuFor('2026-01-05');
