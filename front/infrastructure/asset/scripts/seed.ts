@@ -12,7 +12,7 @@ import { fingerprint } from '../utils/fingerprint';
 import { ASSETS } from './paths';
 
 const SOURCE = join(ASSETS, 'images');
-const KINDS = ['recipe', 'food'] as const;
+const KINDS = ['recipe', 'food', 'equipment'] as const;
 const SSH = process.platform === 'win32'
   ? join(process.env.WINDIR ?? 'C:/Windows', 'System32', 'OpenSSH', 'ssh.exe')
   : 'ssh';

@@ -2,7 +2,7 @@
 // collections, and an index signature saying "every key is a map of strings"
 // made that version a type error at build. Named for what the file actually
 // contains instead.
-type ImageKind = 'recipe' | 'food';
+type ImageKind = 'recipe' | 'food' | 'equipment';
 type Manifest = { version?: number } & Partial<Record<ImageKind, Record<string, string>>>;
 
 // Which photograph belongs to which dish, and under which filename. It used to
@@ -31,6 +31,7 @@ const host = (): string => String(useRuntimeConfig().public.imagesBase).replace(
 export const useImages = (): {
   recipeImage: (id: string) => string | undefined;
   foodImage: (id: string) => string | undefined;
+  equipmentImage: (id: string) => string | undefined;
   everyImage: () => string[];
   refresh: () => Promise<void>;
 } => {
@@ -46,13 +47,14 @@ export const useImages = (): {
   return {
     recipeImage: (id: string): string | undefined => urlOf('recipe', id),
     foodImage: (id: string): string | undefined => urlOf('food', id),
+    equipmentImage: (id: string): string | undefined => urlOf('equipment', id),
     // Every photograph the manifest knows about. Only the background warm-up
     // needs this: pages ask for one picture at a time, by identifier.
     everyImage: (): string[] => {
       const manifest = state().value;
       const base = host();
 
-      return (['recipe', 'food'] as const).flatMap((kind): string[] =>
+      return (['recipe', 'food', 'equipment'] as const).flatMap((kind): string[] =>
         Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
       );
     },

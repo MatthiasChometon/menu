@@ -19,14 +19,17 @@ const COMFY_URL = 'http://127.0.0.1:8188';
 const IMAGES = join(ASSETS, 'images');
 const RECIPE_SIZE: [number, number] = [1024, 640];
 const FOOD_SIZE: [number, number] = [768, 768];
+const EQUIPMENT_SIZE: [number, number] = [768, 768];
 const WEBP_QUALITY = 82;
 
 type Prompts = {
   recipeStyle: string;
   foodStyle: string;
+  equipmentStyle: string;
   negative: string;
   recipes: Record<string, string>;
   foods: Record<string, string>;
+  equipment: Record<string, string>;
 };
 
 const postPrompt = async (workflow: Workflow): Promise<string> => {
@@ -76,8 +79,13 @@ const saveWebp = async (raw: Buffer, destination: string): Promise<void> => {
   await sharp(raw).webp({ quality: WEBP_QUALITY, effort: 6 }).toFile(destination);
 };
 
+const styleFor = (kind: 'recipe' | 'food' | 'equipment', prompts: Prompts): string =>
+  kind === 'recipe' ? prompts.recipeStyle : kind === 'food' ? prompts.foodStyle : prompts.equipmentStyle;
+const sizeFor = (kind: 'recipe' | 'food' | 'equipment'): [number, number] =>
+  kind === 'recipe' ? RECIPE_SIZE : kind === 'food' ? FOOD_SIZE : EQUIPMENT_SIZE;
+
 const generateOne = async (
-  kind: 'recipe' | 'food',
+  kind: 'recipe' | 'food' | 'equipment',
   id: string,
   subject: string,
   prompts: Prompts,
@@ -90,8 +98,8 @@ const generateOne = async (
     return false;
   }
 
-  const style = kind === 'recipe' ? prompts.recipeStyle : prompts.foodStyle;
-  const size = kind === 'recipe' ? RECIPE_SIZE : FOOD_SIZE;
+  const style = styleFor(kind, prompts);
+  const size = sizeFor(kind);
   const workflow = buildWorkflow(template, style.replace('{subject}', subject), prompts.negative, size, seedFor(id, subject));
 
   const started = Date.now();
@@ -106,6 +114,7 @@ const main = async (): Promise<number> => {
     options: {
       recipes: { type: 'boolean', default: false },
       foods: { type: 'boolean', default: false },
+      equipment: { type: 'boolean', default: false },
       all: { type: 'boolean', default: false },
       only: { type: 'string' },
       force: { type: 'boolean', default: false },
@@ -116,12 +125,16 @@ const main = async (): Promise<number> => {
   const template = readJsonAt<Workflow>(join(COMFY, 'food-photo.api.json'));
   const wanted = values.only ? new Set(values.only.split(',')) : undefined;
 
-  const targets: [kind: 'recipe' | 'food', id: string, subject: string][] = [];
+  const targets: [kind: 'recipe' | 'food' | 'equipment', id: string, subject: string][] = [];
   for (const [kind, key] of [
     ['recipe', 'recipes'],
     ['food', 'foods'],
+    ['equipment', 'equipment'],
   ] as const) {
-    const include = values.all || values.only !== undefined || (kind === 'recipe' ? values.recipes : values.foods);
+    const include =
+      values.all ||
+      values.only !== undefined ||
+      (kind === 'recipe' ? values.recipes : kind === 'food' ? values.foods : values.equipment);
     if (!include) continue;
     for (const [id, subject] of Object.entries(prompts[key])) {
       if (wanted === undefined || wanted.has(id)) targets.push([kind, id, subject]);

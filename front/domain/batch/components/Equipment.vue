@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const { items } = defineProps<{ items: EquipmentItem[] }>();
 
+// A photo of the tool when the host has one, the lucide pictogram otherwise —
+// the same graceful fallback the dishes and ingredients use.
+const { equipmentImage } = useImages();
+
 // Gathering the kit is a one-off ritual before the session starts, not a state
 // worth remembering after: ticked here, forgotten once the plan itself
 // (the timeline, then the checklist below) takes over.
@@ -35,11 +39,23 @@ const isChecked = (id: string): boolean => checked.value.has(id);
           @click="toggle(item.id)"
         >
           <span
-            class="flex size-9 shrink-0 items-center justify-center rounded-lg"
-            :class="isChecked(item.id) ? 'bg-primary/15 text-primary' : 'bg-elevated text-muted'"
+            class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg"
+            :class="
+              equipmentImage(item.id)
+                ? 'bg-elevated'
+                : isChecked(item.id)
+                  ? 'bg-primary/15 text-primary'
+                  : 'bg-elevated text-muted'
+            "
             aria-hidden="true"
           >
-            <UIcon :name="item.icon" class="size-4.5" />
+            <img
+              v-if="equipmentImage(item.id)"
+              :src="equipmentImage(item.id)"
+              alt=""
+              class="size-full object-cover"
+            />
+            <UIcon v-else :name="item.icon" class="size-4.5" />
           </span>
           <span
             class="min-w-0 flex-1 text-sm font-medium"
