@@ -9,12 +9,16 @@ const isMounted = useMounted();
 const { pickedIds, toggle, clear } = useShoppingCart(selectedWeek);
 const { user } = useAuth();
 
+// A slot standing in for a reused pot buys nothing new: the list has to read
+// what actually needs shopping for, not the plan as first written.
+const { shoppingMenu } = useFlexedWeek(currentMenu);
+
 // Scaled for everyone who eats it before being grouped: the aisles and the
 // totals both have to speak of the same basket.
 const householdMenu = computed((): Menu | undefined =>
-  currentMenu.value === undefined
+  shoppingMenu.value === undefined
     ? undefined
-    : { ...currentMenu.value, shoppingList: linesFor(currentMenu.value) },
+    : { ...shoppingMenu.value, shoppingList: linesFor(shoppingMenu.value) },
 );
 
 const groups = computed((): ShoppingGroup[] =>

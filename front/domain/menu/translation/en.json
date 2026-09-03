@@ -159,7 +159,9 @@
         "badge": "Yesterday's leftovers",
         "suggestion": "Yesterday's leftovers are still around:",
         "accept": "Eat the leftovers",
-        "decline": "No thanks"
+        "decline": "No thanks",
+        "keepFor": "Keep leftovers for",
+        "reservedFor": "Leftovers reserved for"
       }
     }
   },

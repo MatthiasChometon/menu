@@ -159,7 +159,9 @@
         "badge": "Restes d'hier",
         "suggestion": "Restes d'hier disponibles :",
         "accept": "Manger les restes",
-        "decline": "Non merci"
+        "decline": "Non merci",
+        "keepFor": "Garder des restes pour",
+        "reservedFor": "Restes réservés pour"
       }
     }
   },
