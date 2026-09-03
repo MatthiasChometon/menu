@@ -5,15 +5,14 @@ describe('useSeasonings', () => {
     const { recipeOf } = useRecipes();
     const { seasoningsOf } = useSeasonings();
 
-    const chili = recipeOf('chiliChicken');
-    if (chili === undefined) throw new Error('no chili recipe to check');
+    const dish = recipeOf('teriyakiSalmonBowl');
+    if (dish === undefined) throw new Error('no recipe to check');
 
-    expect(seasoningsOf(chili).map((seasoning): string => seasoning.id)).toEqual([
-      'cumin',
-      'smokedPaprika',
-      'oregano',
-      'chilli',
-      'salt',
+    expect(seasoningsOf(dish).map((seasoning): string => seasoning.id)).toEqual([
+      'ginger',
+      'garlic',
+      'soySauce',
+      'pepper',
     ]);
   });
 
@@ -39,7 +38,7 @@ describe('useSeasonings', () => {
     const { recipeOf } = useRecipes();
     const { freshOf } = useSeasonings();
 
-    const recipes = ['beefLentilBolognese', 'tunaPasta', 'porkWok']
+    const recipes = ['beefLentilBolognese', 'codRatatouilleRice', 'turkeyMeatballsRice']
       .map((id): Recipe | undefined => recipeOf(id))
       .filter((recipe): recipe is Recipe => recipe !== undefined);
 

@@ -25,18 +25,18 @@ describe('useBatchPlan', () => {
     const plan = currentPlan();
     const { latestMenu } = useMenu();
 
-    const chili = plan.tasks.find((task): boolean => task.recipe.id === 'chiliChicken');
+    const chili = plan.tasks.find((task): boolean => task.recipe.id === 'teriyakiSalmonBowl');
     if (chili === undefined) throw new Error('chili not on the menu');
 
     const expected = latestMenu?.days
       .flatMap((day): Meal[] => day.meals)
-      .filter((meal): boolean => meal.recipe.id === 'chiliChicken')
+      .filter((meal): boolean => meal.recipe.id === 'teriyakiSalmonBowl')
       .flatMap((meal): FoodQuantity[] => meal.quantities)
-      .filter((quantity): boolean => quantity.food.id === 'chickenBreast')
+      .filter((quantity): boolean => quantity.food.id === 'salmon')
       .reduce((total, quantity): number => total + quantity.grams, 0);
 
     const chicken = chili.quantities.find(
-      (quantity): boolean => quantity.food.id === 'chickenBreast',
+      (quantity): boolean => quantity.food.id === 'salmon',
     );
 
     expect(chicken?.grams).toBe(Math.round(expected ?? 0));

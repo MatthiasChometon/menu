@@ -5,7 +5,7 @@ const chiliVariants = (): RecipeVariant[] => {
   const { variantsOf } = useRecipeVariants();
   if (latestMenu === undefined) throw new Error('no menu to check');
 
-  return variantsOf(latestMenu, 'chiliChicken');
+  return variantsOf(latestMenu, 'teriyakiSalmonBowl');
 };
 
 describe('useRecipeVariants', () => {
