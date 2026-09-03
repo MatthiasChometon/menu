@@ -12,9 +12,10 @@ import {
 import { PlannedDayKey, PlannedMealSlot } from './enum';
 
 // The API cannot check that a recipe exists: the catalogue is site content, not
-// a table. It can still refuse anything that is not shaped like an identifier,
-// which is what keeps junk out of the column.
-const RECIPE_ID = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
+// a table, and a chosen dish may equally be a signed-in reader's own recipe,
+// which is a UUID rather than a plain word. It can still refuse anything that
+// is not shaped like either, which is what keeps junk out of the column.
+const RECIPE_ID = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/;
 
 @InputType()
 export class PlannedMealInput {
