@@ -15,7 +15,12 @@ describe('whether a dish passes the preferences', () => {
   it('accepts everything when nothing is excluded and no cap is set', () => {
     expect(
       isEligible(
-        { excludedKinds: [], maxPrepMinutes: undefined, maxRepeatsPerWeek: undefined },
+        {
+          excludedKinds: [],
+          maxPrepMinutes: undefined,
+          maxRepeatsPerWeek: undefined,
+          weeklyBudget: undefined,
+        },
         'fish',
         45,
       ),
@@ -25,7 +30,12 @@ describe('whether a dish passes the preferences', () => {
   it('refuses a kind that was excluded', () => {
     expect(
       isEligible(
-        { excludedKinds: ['fish'], maxPrepMinutes: undefined, maxRepeatsPerWeek: undefined },
+        {
+          excludedKinds: ['fish'],
+          maxPrepMinutes: undefined,
+          maxRepeatsPerWeek: undefined,
+          weeklyBudget: undefined,
+        },
         'fish',
         10,
       ),
@@ -35,7 +45,12 @@ describe('whether a dish passes the preferences', () => {
   it('refuses a dish that takes longer than the cap', () => {
     expect(
       isEligible(
-        { excludedKinds: [], maxPrepMinutes: 20, maxRepeatsPerWeek: undefined },
+        {
+          excludedKinds: [],
+          maxPrepMinutes: 20,
+          maxRepeatsPerWeek: undefined,
+          weeklyBudget: undefined,
+        },
         'veggie',
         25,
       ),
@@ -45,7 +60,12 @@ describe('whether a dish passes the preferences', () => {
   it('accepts a dish right at the cap', () => {
     expect(
       isEligible(
-        { excludedKinds: [], maxPrepMinutes: 20, maxRepeatsPerWeek: undefined },
+        {
+          excludedKinds: [],
+          maxPrepMinutes: 20,
+          maxRepeatsPerWeek: undefined,
+          weeklyBudget: undefined,
+        },
         'veggie',
         20,
       ),
@@ -56,7 +76,12 @@ describe('whether a dish passes the preferences', () => {
 describe('usePlannerPreferences', () => {
   beforeEach((): void => {
     const { preferences } = usePlannerPreferences();
-    preferences.value = { excludedKinds: [], maxPrepMinutes: undefined, maxRepeatsPerWeek: undefined };
+    preferences.value = {
+      excludedKinds: [],
+      maxPrepMinutes: undefined,
+      maxRepeatsPerWeek: undefined,
+      weeklyBudget: undefined,
+    };
   });
 
   it('starts with nothing excluded and no caps', () => {
@@ -66,6 +91,7 @@ describe('usePlannerPreferences', () => {
       excludedKinds: [],
       maxPrepMinutes: undefined,
       maxRepeatsPerWeek: undefined,
+      weeklyBudget: undefined,
     });
   });
 
@@ -94,5 +120,25 @@ describe('usePlannerPreferences', () => {
     setMaxRepeatsPerWeek(3);
 
     expect(preferences.value.maxRepeatsPerWeek).toBe(3);
+  });
+
+  it('sets and clears the weekly budget', () => {
+    const { setWeeklyBudget, preferences } = usePlannerPreferences();
+
+    setWeeklyBudget(80);
+    expect(preferences.value.weeklyBudget).toBe(80);
+
+    setWeeklyBudget(undefined);
+    expect(preferences.value.weeklyBudget).toBeUndefined();
+  });
+
+  it('treats a budget of zero or less as no budget at all', () => {
+    const { setWeeklyBudget, preferences } = usePlannerPreferences();
+
+    setWeeklyBudget(0);
+    expect(preferences.value.weeklyBudget).toBeUndefined();
+
+    setWeeklyBudget(-10);
+    expect(preferences.value.weeklyBudget).toBeUndefined();
   });
 });

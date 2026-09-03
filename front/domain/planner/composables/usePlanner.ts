@@ -50,6 +50,17 @@ export type SelectionBalance = {
   toleranceOf: (macro: keyof Macros) => number;
 };
 
+/** What the current selection would cost, spread over the week, against the
+ *  reader's own target — when they set one. */
+export type BudgetStatus = {
+  /** Euros the selection would come to once spread over the window. */
+  cost: number;
+  /** The reader's weekly target. Undefined means no budget is set: nothing to
+   *  warn about, and nothing the generator steers away from either. */
+  budget: number | undefined;
+  isOverBudget: boolean;
+};
+
 // Which meals a chosen dish fills. The savoury dishes carry both lunch and
 // dinner, which is how the week has always been built: full portion at noon,
 // the rest in the evening. The snack group carries both afternoon en-cas — what
@@ -122,6 +133,9 @@ export const usePlanner = (): {
   /** The macro this dish would help most with, when one is short. */
   fillsIn: (group: RecipeSlot, recipeId: string) => keyof Macros | undefined;
   selectionBalance: ComputedRef<SelectionBalance>;
+  /** What the current picks would cost, spread over the week, against the
+   *  reader's own weekly budget when one is set. */
+  budgetStatus: ComputedRef<BudgetStatus>;
   /** Fills every group to its minimum with the dishes that fit the targets best. */
   completeSelection: () => void;
   swapsForMacro: (day: PlannedDay, macro: keyof Macros) => MacroSwap[];
@@ -196,7 +210,7 @@ export const usePlanner = (): {
   const { dayOrder, mealOrder, latestMenu } = useMenu();
   const { recipes, recipeOf } = useRecipes();
   const { foodOf } = useFoods();
-  const { macrosOfQuantities } = useNutrition();
+  const { macrosOfQuantities, priceOfQuantities } = useNutrition();
   const { solve } = useMacroSolver();
   const { profile } = useProfile();
   const { week: plannerWeek, length } = usePlannerWeek();
@@ -355,6 +369,25 @@ export const usePlanner = (): {
   // away to tidy up fat and carbohydrate, which on a bulk is the one trade not
   // worth making: the rest of the plan is built around the protein figure.
   const MACRO_WEIGHT: Partial<Record<keyof Macros, number>> = { protein: 2, kcal: 1.5 };
+
+  // What a day's meals actually cost, from the same food prices the shopping
+  // list is built from — never a separate estimate of it.
+  const costOf = (day: PlannedDay): number =>
+    priceOfQuantities(day.meals.flatMap((meal): FoodQuantity[] => meal.quantities));
+
+  // On the same percentage scale as a macro's gap, so it weighs into a
+  // candidate's score without needing its own units. A budget nobody set
+  // penalises nothing: the generator only leans on cost once the reader has
+  // said what it should be. A soft lean, not a wall — a dish that fixes a
+  // real macro shortfall can still outweigh a modest overspend.
+  const BUDGET_WEIGHT = 1;
+
+  const budgetOveragePercent = (cost: number): number => {
+    const budget = preferences.value.weeklyBudget;
+    if (budget === undefined) return 0;
+
+    return Math.max(0, ((cost - budget) / budget) * 100);
+  };
 
   // How far a day sits from its targets. Used only to rank candidates, so the
   // scale means nothing — only that smaller is better. Gaps already inside
@@ -695,19 +728,31 @@ export const usePlanner = (): {
     recordComposedWeek(plannerWeek.value, chosenDishes.value);
   };
 
+  // What a selection would look like spread over the window, without touching
+  // the plan itself — the same preview the balance and the budget are read
+  // from, and what a candidate dish is tried against before it is chosen.
+  const simulatedWeekFor = (selection: Partial<Record<RecipeSlot, string[]>>): PlannedDay[] =>
+    windowDays.value.map((day, index): PlannedDay => buildDay(day, slotsOnDay(selection, index)));
+
+  // The current picks, previewed the same way — what the balance panel and the
+  // budget read while the reader is still choosing, before anything is spread.
+  const simulatedWeek = computed((): PlannedDay[] => simulatedWeekFor(chosenDishes.value));
+
   // What the week would come to if this dish were added. A dish cannot be judged
   // on its own macros: it lands on several days beside whatever else was picked,
-  // and it is that whole week the targets are read against.
+  // and it is that whole week the targets — and the budget, when one is set —
+  // are read against.
   const weekErrorWith = (group: RecipeSlot, recipeId: string): number => {
     const selection = {
       ...chosenDishes.value,
       [group]: [...(chosenDishes.value[group] ?? []), recipeId],
     };
+    const simulated = simulatedWeekFor(selection);
 
-    return windowDays.value.reduce(
-      (total, day, index): number => total + errorOf(buildDay(day, slotsOnDay(selection, index))),
-      0,
-    );
+    const macroError = simulated.reduce((total, day): number => total + errorOf(day), 0);
+    const cost = simulated.reduce((total, day): number => total + costOf(day), 0);
+
+    return macroError + budgetOveragePercent(cost) * BUDGET_WEIGHT;
   };
 
   // Not a hard ban — a dish eaten in one of the last two composed weeks is
@@ -734,9 +779,7 @@ export const usePlanner = (): {
     // no longer under the finger.
     const isComplete = GROUP_ORDER.every((group): boolean => isGroupComplete(group));
 
-    const simulated = windowDays.value.map((day, index): PlannedDay =>
-      buildDay(day, slotsOnDay(chosenDishes.value, index)),
-    );
+    const simulated = simulatedWeek.value;
 
     const gaps = MACRO_ORDER.map((macro): MacroGap => {
       const percents = simulated.map((day): number => gapOf(day, macro));
@@ -763,6 +806,16 @@ export const usePlanner = (): {
       toleranceOf: (macro: keyof Macros): number =>
         tolerance.value[macro] ?? tolerance.value.default,
     };
+  });
+
+  // What the current picks would cost, spread over the week — read the same
+  // way as the balance above, so it moves with every dish tapped rather than
+  // only once the week is spread.
+  const budgetStatus = computed((): BudgetStatus => {
+    const cost = simulatedWeek.value.reduce((total, day): number => total + costOf(day), 0);
+    const budget = preferences.value.weeklyBudget;
+
+    return { cost, budget, isOverBudget: budget !== undefined && cost > budget };
   });
 
   // Fills one group up to a target count, one dish at a time so each choice is
@@ -925,6 +978,7 @@ export const usePlanner = (): {
     recommendedIn,
     fillsIn,
     selectionBalance,
+    budgetStatus,
     completeSelection,
     swapsForMacro,
     applySwap,
