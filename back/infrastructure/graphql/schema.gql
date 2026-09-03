@@ -76,6 +76,73 @@ input CreateGroceryJobInput {
   weekOf: String!
 }
 
+"""A food its owner defined for themselves, per 100 g."""
+type CustomFood {
+  carbs: Float!
+  fat: Float!
+  fiber: Float!
+  id: ID!
+  kcal: Float!
+  name: String!
+  pricePerKg: Float!
+  protein: Float!
+}
+
+"""A food to keep alongside the site catalogue, macros per 100 g."""
+input CustomFoodInput {
+  carbs: Float!
+  fat: Float!
+  fiber: Float!
+  kcal: Float!
+  name: String!
+  pricePerKg: Float!
+  protein: Float!
+}
+
+"""A recipe its owner wrote for themselves."""
+type CustomRecipe {
+  """Whether it is worth cooking a double batch of."""
+  batch: Boolean!
+  id: ID!
+  ingredients: [CustomRecipeIngredient!]!
+  name: String!
+  prepMinutes: Int!
+  slot: CustomRecipeSlot!
+  steps: [String!]!
+}
+
+"""How much of one food a custom recipe calls for."""
+type CustomRecipeIngredient {
+  """Either a site food id or another custom food’s id."""
+  foodId: String!
+  grams: Int!
+}
+
+input CustomRecipeIngredientInput {
+  foodId: String!
+  grams: Int!
+}
+
+"""A recipe to keep alongside the site catalogue."""
+input CustomRecipeInput {
+  batch: Boolean!
+  ingredients: [CustomRecipeIngredientInput!]!
+  name: String!
+  prepMinutes: Int!
+  slot: CustomRecipeSlot!
+  steps: [String!]!
+}
+
+"""
+Which group of meals a custom recipe may fill, same shape as the site catalogue.
+"""
+enum CustomRecipeSlot {
+  BREAKFAST
+  MAIN
+  POST_WORKOUT
+  SNACK
+}
+
 """
 How the day is spent away from training. Asked separately from training so that a desk job and daily sessions can both be true of the same person.
 """
@@ -417,11 +484,19 @@ type Mutation {
   Takes the oldest waiting run of the account this browser is paired with.
   """
   claimGroceryJob: GroceryJob
+  createCustomFood(input: CustomFoodInput!): CustomFood!
+  createCustomRecipe(input: CustomRecipeInput!): CustomRecipe!
 
   """
   Queues a basket to be filled. It waits until a paired browser comes online, so asking from a phone works.
   """
   createGroceryJob(input: CreateGroceryJobInput!): GroceryJob!
+
+  """Removes a custom food."""
+  deleteCustomFood(id: ID!): Boolean!
+
+  """Removes a custom recipe."""
+  deleteCustomRecipe(id: ID!): Boolean!
 
   """Forgets a week. False when there was none."""
   deleteWeekPlan(weekOf: String!): Boolean!
@@ -478,6 +553,12 @@ type Mutation {
   """Revokes a browser. It stops being able to run orders immediately."""
   unpairGroceryDevice(deviceId: ID!): Boolean!
   unsubscribeFromGroceryPush(endpoint: String!): Boolean!
+
+  """Replaces a custom food wholesale."""
+  updateCustomFood(input: UpdateCustomFoodInput!): CustomFood!
+
+  """Replaces a custom recipe wholesale."""
+  updateCustomRecipe(input: UpdateCustomRecipeInput!): CustomRecipe!
 
   """Replaces a member wholesale."""
   updateHouseholdMember(input: UpdateHouseholdMemberInput!): HouseholdMember!
@@ -604,6 +685,12 @@ type Query {
   """The signed-in user."""
   me: User!
 
+  """Every food the signed-in user defined for themselves."""
+  myCustomFoods: [CustomFood!]!
+
+  """Every recipe the signed-in user wrote for themselves."""
+  myCustomRecipes: [CustomRecipe!]!
+
   """The browsers this account has paired."""
   myGroceryDevices: [GroceryDevice!]!
 
@@ -692,6 +779,27 @@ enum TrainingType {
   MIXED
   NONE
   STRENGTH
+}
+
+input UpdateCustomFoodInput {
+  carbs: Float!
+  fat: Float!
+  fiber: Float!
+  id: ID!
+  kcal: Float!
+  name: String!
+  pricePerKg: Float!
+  protein: Float!
+}
+
+input UpdateCustomRecipeInput {
+  batch: Boolean!
+  id: ID!
+  ingredients: [CustomRecipeIngredientInput!]!
+  name: String!
+  prepMinutes: Int!
+  slot: CustomRecipeSlot!
+  steps: [String!]!
 }
 
 input UpdateHouseholdMemberInput {
