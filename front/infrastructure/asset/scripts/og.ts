@@ -15,14 +15,20 @@ const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
 const WIDTH = 1200;
 const HEIGHT = 630;
 const SUPERSAMPLE = 2;
-const TITLE_COLOUR = '#ffffff';
-const TAGLINE_COLOUR = '#d9f99d';
-const LEAD_COLOUR = '#ecfccb';
+// The Balance palette, so a shared link reads like the app: a warm off-white
+// title, a turmeric accent for the tagline, a soft forest tint for the lead —
+// no more of the lime the first draft carried.
+const TITLE_COLOUR = '#f7f8f4';
+const TAGLINE_COLOUR = '#e0a94e';
+const LEAD_COLOUR = '#d6ebd9';
 
+// The app's own faces, bundled so the card renders the same on a Linux CI as it
+// does here: Instrument Serif for the title (the display face every page heads
+// with), Instrument Sans for the rest. System fonts stay as the last resort.
+const FONT_DIR = join(FRONT, 'infrastructure', 'asset', 'fonts');
 const FONT_CANDIDATES: Record<string, string[]> = {
-  bold: ['C:/Windows/Fonts/segoeuib.ttf', 'C:/Windows/Fonts/arialbd.ttf'],
-  semibold: ['C:/Windows/Fonts/seguisb.ttf', 'C:/Windows/Fonts/arialbd.ttf'],
-  regular: ['C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/arial.ttf'],
+  serif: [join(FONT_DIR, 'InstrumentSerif-Regular.ttf'), 'C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/arial.ttf'],
+  sans: [join(FONT_DIR, 'InstrumentSans-Regular.ttf'), 'C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/arial.ttf'],
 };
 
 // Register the first candidate that exists under a stable family; fall back to
@@ -84,7 +90,7 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
 
   let y = margin + 40 * SUPERSAMPLE;
   ctx.fillStyle = TITLE_COLOUR;
-  const titleFont = `${titleSize}px "${family('bold')}"`;
+  const titleFont = `${titleSize}px "${family('serif')}"`;
   for (const line of wrap(brand, textWidth, measureWith(titleFont))) {
     ctx.font = titleFont;
     ctx.fillText(line, margin, y);
@@ -92,12 +98,12 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
   }
 
   y += 12 * SUPERSAMPLE;
-  ctx.font = `${taglineSize}px "${family('semibold')}"`;
+  ctx.font = `${taglineSize}px "${family('sans')}"`;
   ctx.fillStyle = TAGLINE_COLOUR;
   ctx.fillText(tagline, margin, y);
   y += taglineSize * 1.9;
 
-  const leadFont = `${leadSize}px "${family('regular')}"`;
+  const leadFont = `${leadSize}px "${family('sans')}"`;
   ctx.fillStyle = LEAD_COLOUR;
   for (const line of wrap(lead, textWidth, measureWith(leadFont))) {
     ctx.font = leadFont;
