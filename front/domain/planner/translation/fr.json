@@ -114,6 +114,10 @@
       "maxRepeats": "Un même plat, au plus",
       "maxRepeatsNone": "Pas de limite",
       "timesPerWeek": "fois par semaine",
+      "varietyWindow": "Éviter les plats des dernières",
+      "varietyWindowHint": "Un plat récent reste possible s'il n'y a pas mieux, mais la variété est préférée.",
+      "varietyWindowAuto": "Recommandée",
+      "weeks": "semaines",
       "done": "Terminé"
     },
     "duplicate": {

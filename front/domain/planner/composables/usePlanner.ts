@@ -205,7 +205,7 @@ export const usePlanner = (): {
   const { preferences } = usePlannerPreferences();
   const {
     record: recordComposedWeek,
-    recentDishIds,
+    repeatPenalty,
     entriesExcept: pastComposedWeeksOf,
   } = usePlannerHistory();
 
@@ -710,15 +710,13 @@ export const usePlanner = (): {
     );
   };
 
-  // Not a hard ban — a dish eaten in one of the last two composed weeks is
-  // still allowed if nothing else closes the week's gaps, but it should lose
-  // to any dish that has not shown up recently.
-  const REPEAT_PENALTY = 20;
-
-  const scoreOf = (group: RecipeSlot, recipeId: string): number => {
-    const error = weekErrorWith(group, recipeId);
-    return recentDishIds(plannerWeek.value).has(recipeId) ? error + REPEAT_PENALTY : error;
-  };
+  // Not a hard ban — a dish eaten in a recent composed week is still allowed
+  // if nothing else closes the week's gaps, but it should lose to any dish
+  // that has not shown up lately. usePlannerHistory works out how much,
+  // tapering off the further back the window reaches — a multi-week rotation
+  // rather than a flat "used or not" cutoff.
+  const scoreOf = (group: RecipeSlot, recipeId: string): number =>
+    weekErrorWith(group, recipeId) + repeatPenalty(plannerWeek.value, recipeId);
 
   // The three dishes that would leave the week closest to its targets. Marking
   // them steers the choice without taking it away — and unlike most such nudges,
