@@ -167,6 +167,22 @@ const isDisplayPreferencesOpen = ref(false);
               />
             </UButton>
           </UDropdownMenu>
+          <!-- Signed out, the way back in: the profile moved into the avatar
+               menu, which does not exist until you are signed in, so without
+               this a signed-out reader had no visible door to sign-in at all.
+               It leads to the profile page, which is where the sign-in form
+               lives. -->
+          <UButton
+            v-else
+            :to="localePath('/profil')"
+            icon="i-lucide-log-in"
+            color="primary"
+            variant="soft"
+            size="sm"
+            class="font-semibold"
+          >
+            {{ $t('auth.signIn') }}
+          </UButton>
           <template #fallback>
             <USkeleton class="size-8 rounded-full" />
           </template>
