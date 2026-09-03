@@ -45,30 +45,45 @@ NEW=$(git rev-parse "origin/$BRANCH")
 
 echo "$(date -u +%FT%TZ) new commits $OLD..$NEW"
 
-# CI gate: only deploy a commit whose back CI is green. A commit that does not
-# touch back/ has no ci-back run to gate on, so deploy it straight away (the rsync
-# below is a no-op for the back anyway). For one that does, require the 'back'
-# check to be completed+success; otherwise leave HEAD untouched and let the next
-# tick re-evaluate, so it deploys as soon as the CI turns green (or a fix lands).
+# CI gate: only deploy when the back CI is green. A range with no back change at
+# all deploys straight away (the rsync below is a no-op for the back anyway).
+#
+# The gate is read from the newest commit that actually HAS a 'back' check-run,
+# walking back from the tip past any front-only commits — ci-back is pathed to
+# back/**, so a front-only commit never triggers it and carries no 'back' check.
+# Gating on the tip itself (as this once did) wedged the deploy forever whenever
+# the tip was a front-only commit sitting on top of an undeployed back change:
+# the tip's absent check read as "pending" every tick, and a check that will
+# never exist never turns green. Walking back finds the real gate — the last
+# back-touching push — and requires IT green.
 # The repo is public, so the check-runs API needs no token.
-if git diff --quiet "$OLD" "$NEW" -- back/; then
-  echo "$(date -u +%FT%TZ) no back changes, skipping CI gate"
-else
-  API="https://api.github.com/repos/$REPO/commits/$NEW/check-runs"
-  verdict=$(curl -sf -H 'Accept: application/vnd.github+json' "$API" 2>/dev/null | python3 -c '
+back_verdict() {
+  curl -sf -H 'Accept: application/vnd.github+json' \
+    "https://api.github.com/repos/$REPO/commits/$1/check-runs" 2>/dev/null | python3 -c '
 import sys, json
 runs = json.load(sys.stdin).get("check_runs", [])
 r = [c for c in runs if c["name"] == "back"]
 print(r[0]["status"] + "/" + str(r[0]["conclusion"]) if r else "absent")
-' 2>/dev/null) || verdict="error"
+' 2>/dev/null || echo error
+}
+
+if git diff --quiet "$OLD" "$NEW" -- back/; then
+  echo "$(date -u +%FT%TZ) no back changes, skipping CI gate"
+else
+  verdict=absent
+  GATE=$NEW
+  for sha in $(git rev-list --max-count=50 "$NEW"); do
+    v=$(back_verdict "$sha")
+    if [ "$v" != absent ]; then verdict=$v; GATE=$sha; break; fi
+  done
   case "$verdict" in
     completed/success)
-      echo "$(date -u +%FT%TZ) ci-back green for $NEW, deploying" ;;
+      echo "$(date -u +%FT%TZ) ci-back green at $GATE, deploying $NEW" ;;
     completed/*)
-      echo "$(date -u +%FT%TZ) ci-back not green for $NEW ($verdict), NOT deploying"
+      echo "$(date -u +%FT%TZ) ci-back not green at $GATE ($verdict), NOT deploying"
       exit 0 ;;
     *)
-      echo "$(date -u +%FT%TZ) ci-back pending/unreadable for $NEW ($verdict), waiting"
+      echo "$(date -u +%FT%TZ) ci-back pending/unreadable ($verdict), waiting"
       exit 0 ;;
   esac
 fi
