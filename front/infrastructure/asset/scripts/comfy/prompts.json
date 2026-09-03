@@ -175,5 +175,17 @@
     "greenBeans": "green beans",
     "mushrooms": "mushrooms",
     "avocado": "avocados"
+  },
+  "equipmentStyle": "a single clean kitchen {subject}, product photography, centered on a plain warm off-white background, soft even studio light, minimal, no hands, no text",
+  "equipment": {
+    "knife": "a chef's knife",
+    "cuttingBoard": "a wooden cutting board",
+    "scale": "a digital kitchen scale",
+    "mixingBowl": "a stainless steel mixing bowl",
+    "ladle": "a stainless steel kitchen ladle",
+    "colander": "a metal colander",
+    "ovenTray": "a metal oven baking tray",
+    "cookingVessel": "a large stainless steel cooking pot",
+    "container": "a glass food storage container with a lid"
   }
 }
