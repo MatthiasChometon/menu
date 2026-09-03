@@ -14,6 +14,14 @@
     "seasoningHint": "Dried spices stay in the cupboard; these you buy.",
     "progress": "items picked",
     "total": "Estimated total",
+    "spend": {
+      "title": "What you paid",
+      "placeholder": "Actual amount",
+      "estimated": "Estimated",
+      "delta": "Difference",
+      "under": "under estimate",
+      "over": "over"
+    },
     "reset": "Clear all",
     "resetTitle": "Start over",
     "resetHint": "Every box will be unticked for this week.",
