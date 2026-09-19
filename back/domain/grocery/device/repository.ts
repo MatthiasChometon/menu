@@ -33,7 +33,7 @@ export class GroceryDeviceRepository {
       .where(eq(groceryDevice.userId, userId))
       .orderBy(groceryDevice.pairedAt, groceryDevice.id);
 
-    return records.map((record) => this.toDevice(record));
+    return records.map((record): GroceryDevice => this.toDevice(record));
   }
 
   async unpair(userId: string, deviceId: string): Promise<boolean> {

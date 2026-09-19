@@ -4,7 +4,7 @@ import { GroceryBasketRepository } from './basket/repository';
 import { BasketTargetService } from './basket/target.service';
 import { BasketLine, FoodNeed } from './basket/type';
 import { GroceryCatalogRepository } from './catalog/repository';
-import { PriceSighting } from './catalog/type';
+import { ObservedProduct, PriceSighting } from './catalog/type';
 import { GroceryJobEventKind, GroceryJobStatus } from './enum';
 import { GroceryJob } from './job/model';
 import { GroceryJobRepository } from './job/repository';
@@ -155,7 +155,7 @@ export class GroceryService {
 
     await Promise.all([
       this.catalog.record(
-        withSize.map((seen) => ({
+        withSize.map((seen): ObservedProduct => ({
           foodId: seen.foodId,
           ean: seen.ean,
           name: seen.name,

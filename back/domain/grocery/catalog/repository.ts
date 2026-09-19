@@ -53,7 +53,7 @@ export class GroceryCatalogRepository {
     await this.database
       .insert(groceryProduct)
       .values(
-        products.map((product) => ({
+        products.map((product): typeof groceryProduct.$inferInsert => ({
           foodId: product.foodId,
           ean: product.ean,
           name: product.name,

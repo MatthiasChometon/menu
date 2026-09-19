@@ -48,7 +48,7 @@ export class GroceryJobRepository {
       .where(eq(groceryJob.userId, userId))
       .orderBy(sql`${groceryJob.createdAt} desc`, groceryJob.id);
 
-    return records.map((record) => this.toJob(record, []));
+    return records.map((record): GroceryJob => this.toJob(record, []));
   }
 
   // Two browsers of the same account may ask at the same moment, so the row is
@@ -130,7 +130,7 @@ export class GroceryJobRepository {
       .where(eq(groceryJobEvent.jobId, jobId))
       .orderBy(groceryJobEvent.at, groceryJobEvent.id);
 
-    return records.map((record) => this.toEvent(record));
+    return records.map((record): GroceryJobEvent => this.toEvent(record));
   }
 
   private toJob(record: typeof groceryJob.$inferSelect, events: GroceryJobEvent[]): GroceryJob {

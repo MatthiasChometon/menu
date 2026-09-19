@@ -30,7 +30,9 @@ export class GrocerySlotRepository {
       if (windows.length > 0) {
         await transaction
           .insert(grocerySlotWindow)
-          .values(windows.map((window) => ({ userId, ...window })));
+          .values(
+            windows.map((window): typeof grocerySlotWindow.$inferInsert => ({ userId, ...window })),
+          );
       }
     });
 
