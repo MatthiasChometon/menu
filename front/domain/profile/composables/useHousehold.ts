@@ -40,7 +40,7 @@ export const useHousehold = (): {
   });
 
   return {
-    members: data as Ref<Member[]>,
+    members: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     // Reloaded rather than patched in place: the list is ordered by the server,
     // and guessing where a new person belongs is how a list starts to disagree

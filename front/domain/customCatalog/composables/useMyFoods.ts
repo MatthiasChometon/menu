@@ -21,7 +21,7 @@ export const useMyFoods = (): {
   );
 
   return {
-    foods: data as Ref<CustomFood[]>,
+    foods: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     // Reloaded rather than patched in place: the list is ordered by the
     // server, and guessing where a new food belongs is how a list starts to
