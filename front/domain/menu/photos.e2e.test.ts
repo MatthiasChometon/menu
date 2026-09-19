@@ -38,6 +38,28 @@ test.describe('what a page costs in photographs', () => {
   });
 
   test('fills the cache afterwards, so a shop with no signal still has them', async ({ page }) => {
+    // Answered locally rather than pointed at the image host. What this proves is
+    // the warm-up's own behaviour — that it asks for every photograph the
+    // manifest lists — and that must hold whether or not the host is reachable
+    // from the machine running the suite. A manifest of well over a hundred
+    // entries, each served a single pixel, lets the loop be watched fetching them
+    // all without a byte leaving the process.
+    const catalogue: Record<string, string> = {};
+    for (let index = 0; index < 130; index += 1) catalogue[`dish${index}`] = `dish${index}.webp`;
+
+    await page.route('**/manifest.json', (route): Promise<void> =>
+      route.fulfill({ json: { version: 1, recipe: catalogue } }),
+    );
+    // A real one-pixel WebP: the warm-up loads these through new Image(), and only
+    // a response the browser accepts as an image is counted the way a live one is.
+    const pixel = Buffer.from(
+      'UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=',
+      'base64',
+    );
+    await page.route('**/*.webp', (route): Promise<void> =>
+      route.fulfill({ contentType: 'image/webp', body: pixel }),
+    );
+
     const fetched = new Set<string>();
     page.on('response', (response): void => {
       if (response.url().endsWith('.webp')) fetched.add(response.url());
