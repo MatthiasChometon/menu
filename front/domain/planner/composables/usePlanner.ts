@@ -1,5 +1,4 @@
 import { daysFrom, MAX_LENGTH, MIN_LENGTH } from './usePlannerWeek';
-import { isEligible } from './usePlannerPreferences';
 import type { ComposedWeekEntry } from './usePlannerHistory';
 
 // Which recipes may fill which meal. Lunch and dinner share the savoury dishes,
@@ -72,16 +71,6 @@ const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
   snack: ['postWorkout', 'snack'],
 };
 
-// Which recipes a group offers. Recipes keep their content tag (a dish is still
-// a 'postWorkout' or a 'snack' in the file), but the snack group pools both:
-// the reader picks afternoon en-cas from one list, no post-training framing.
-const GROUP_RECIPE_SLOTS: Record<RecipeSlot, readonly RecipeSlot[]> = {
-  main: ['main'],
-  breakfast: ['breakfast'],
-  postWorkout: ['postWorkout'],
-  snack: ['snack', 'postWorkout'],
-};
-
 // postWorkout is a slot a day still has, but never a group the composer walks
 // through on its own: its dishes are chosen inside the snack group.
 const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'snack'];
@@ -111,12 +100,6 @@ const GROUP_LIMITS: Record<RecipeSlot, { min: number; max: number }> = {
   // afternoon goûter — and each must have a dish for the day to hold together.
   snack: { min: 2, max: 4 },
 };
-
-// What a dish is built around, worked out from its ingredients rather than
-// declared in the content: nobody should have to tag ninety-six recipes by hand
-// for a filter, and the answer is already in the shopping list.
-const FISH = ['salmon', 'cod', 'shrimp', 'tunaTin', 'mackerelTin', 'sardinesTin'];
-const MEAT = ['chickenBreast', 'turkeyBreast', 'leanBeef', 'porkTenderloin', 'ham'];
 
 export const usePlanner = (): {
   plan: Ref<PlannedWeek>;
@@ -208,7 +191,7 @@ export const usePlanner = (): {
   isValid: ComputedRef<boolean>;
 } => {
   const { dayOrder, mealOrder, latestMenu } = useMenu();
-  const { recipes, recipeOf } = useRecipes();
+  const { recipeOf } = useRecipes();
   const { foodOf } = useFoods();
   const { macrosOfQuantities, priceOfQuantities } = useNutrition();
   const { solve } = useMacroSolver();
@@ -217,6 +200,7 @@ export const usePlanner = (): {
   const { user } = useAuth();
   const { load, save: persist } = useWeekPlanStore();
   const { preferences } = usePlannerPreferences();
+  const { kindOf, isQuick, dishesFor, eligibleDishesFor } = usePlannerDishes();
   const {
     record: recordComposedWeek,
     repeatPenalty,
@@ -640,27 +624,6 @@ export const usePlanner = (): {
     void loadFromAccount();
   };
 
-  const kindOf = (recipe: Recipe): DishKind => {
-    const ids = Object.keys(recipe.ingredients);
-    if (ids.some((id): boolean => FISH.includes(id))) return 'fish';
-    if (ids.some((id): boolean => MEAT.includes(id))) return 'meat';
-    return 'veggie';
-  };
-
-  const dishesFor = (group: RecipeSlot): Recipe[] =>
-    Object.values(recipes).filter((recipe): boolean =>
-      GROUP_RECIPE_SLOTS[group].includes(recipe.slot),
-    );
-
-  // The pool an automatic pick or a suggestion may draw from: everything the
-  // reader has not ruled out. Manual choice never goes through here — the
-  // picker still shows every dish, preferences only steer what the composer
-  // reaches for on its own.
-  const eligibleDishesFor = (group: RecipeSlot): Recipe[] =>
-    dishesFor(group).filter((recipe): boolean =>
-      isEligible(preferences.value, kindOf(recipe), recipe.prepMinutes),
-    );
-
   // Nothing can be spread until there is something to eat at midday: the savoury
   // dishes are what the week is built around.
   const canSpread = computed((): boolean => (chosenDishes.value.main ?? []).length > 0);
@@ -991,9 +954,7 @@ export const usePlanner = (): {
     goToStep: (index: number): void => {
       if (canReachStep(index)) step.value = Math.max(0, Math.min(STEPS.length, index));
     },
-    // Twenty minutes is the line between "I can cook this tonight" and "this is
-    // a Sunday job".
-    isQuick: (recipe: Recipe): boolean => recipe.prepMinutes <= 20,
+    isQuick,
     step,
     stepCount: STEPS.length + 1,
     currentGroups,
