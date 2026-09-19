@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../../infrastructure/testing/e2e-app';
+import { Goal, StarchQuality, TrainingType } from '../../profile/enum';
+import { buildMeasurements } from '../../profile/testing/measurements.builder';
 
 // The suite only has two invited addresses, so the tests take turns rather
 // than share: a leftover account turns the next sign-up into a conflict, and
@@ -43,18 +45,15 @@ describe('deleting an account', () => {
     await api.graphql(
       'mutation($i:MeasurementsInput!){ saveProfile(input:$i){ targets { kcal } } }',
       {
-        i: {
-          sex: 'MALE',
+        i: buildMeasurements({
           age: 25,
           heightCm: 180,
           weightKg: 74,
-          dailyActivity: 'SEATED',
           trainingDaysPerWeek: 4,
-          trainingType: 'STRENGTH',
-          starchQuality: 'WHOLE',
-          appetite: 'NORMAL',
-          goal: 'GAIN_MUSCLE',
-        },
+          trainingType: TrainingType.STRENGTH,
+          starchQuality: StarchQuality.WHOLEGRAIN,
+          goal: Goal.GAIN_MUSCLE,
+        }),
       },
       session,
     );
