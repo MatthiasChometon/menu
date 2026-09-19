@@ -1,3 +1,5 @@
+import type { ImprovementImportance, ImprovementStatus } from './enum';
+
 /** What the browser can say about itself when an idea is sent, so nobody has to
  *  describe where they were. Identical in shape to a bug's context — the same
  *  four things are worth knowing wherever the feedback comes from — but kept
@@ -14,9 +16,9 @@ export type SuggestionContext = {
 export type ImprovementRequestRecord = {
   id: string;
   userId: string | null;
-  importance: string;
+  importance: ImprovementImportance;
   message: string;
   context: SuggestionContext;
-  status: string;
+  status: ImprovementStatus;
   createdAt: Date;
 };
