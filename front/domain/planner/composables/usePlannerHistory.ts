@@ -149,7 +149,9 @@ export const usePlannerHistory = (): {
       });
     },
     varietyWindowWeeks,
-    varietyWindowWeeksSetting: computed((): number | undefined => settings.value.varietyWindowWeeks),
+    varietyWindowWeeksSetting: computed(
+      (): number | undefined => settings.value.varietyWindowWeeks,
+    ),
     setVarietyWindowWeeks: (weeks: number | undefined): void => {
       settings.value = { ...settings.value, varietyWindowWeeks: weeks };
     },

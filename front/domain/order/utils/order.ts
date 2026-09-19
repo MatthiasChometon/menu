@@ -28,7 +28,8 @@ export const orderLine = (
 
   const base = { food, needed, inStock, price: priceOf(food, needed) };
   const pack = packs[food.id];
-  if (pack !== undefined) return { ...base, quantity: Math.ceil(needed / pack), kind: 'pack', pack };
+  if (pack !== undefined)
+    return { ...base, quantity: Math.ceil(needed / pack), kind: 'pack', pack };
   if (food.pieceWeight !== undefined) {
     return { ...base, quantity: Math.ceil(needed / food.pieceWeight), kind: 'piece' };
   }
@@ -39,7 +40,8 @@ export const describeOrderLine = (line: OrderLine): string => {
   const need = line.inStock
     ? `${line.needed} ${line.food.unit}, ${line.inStock} deja en stock`
     : `${line.needed} ${line.food.unit}`;
-  if (line.kind === 'pack') return `${line.quantity} x ${line.pack} ${line.food.unit} (besoin ${need})`;
+  if (line.kind === 'pack')
+    return `${line.quantity} x ${line.pack} ${line.food.unit} (besoin ${need})`;
   if (line.kind === 'piece') return `${line.quantity} piece(s) (besoin ${need})`;
   return `${need} au poids`;
 };

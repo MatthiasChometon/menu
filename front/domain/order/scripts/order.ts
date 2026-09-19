@@ -59,7 +59,8 @@ const orderLines = (menu: Menu): OrderLine[] => {
     );
 };
 
-const loadOrders = (): OrdersFile => (existsSync(ORDERS) ? readContent<OrdersFile>('orders.json') : { orders: [] });
+const loadOrders = (): OrdersFile =>
+  existsSync(ORDERS) ? readContent<OrdersFile>('orders.json') : { orders: [] };
 
 const printList = (menu: Menu, lines: OrderLine[], already: OrderRecord | undefined): void => {
   const total = lines.reduce((sum, line): number => sum + line.price, 0);
@@ -104,7 +105,9 @@ const main = (): number => {
   if (values.history) {
     if (orders.orders.length === 0) console.log('aucune commande enregistree');
     for (const order of orders.orders) {
-      console.log(`${order.weekOf} — ${order.orderedAt} — ${order.store} — ${order.items} articles`);
+      console.log(
+        `${order.weekOf} — ${order.orderedAt} — ${order.store} — ${order.items} articles`,
+      );
     }
     return 0;
   }
@@ -114,7 +117,12 @@ const main = (): number => {
       console.log(`deja enregistre: ${menu.weekOf}`);
       return 0;
     }
-    orders.orders.push({ weekOf: menu.weekOf, orderedAt: menu.weekOf, store: values.store, items: lines.length });
+    orders.orders.push({
+      weekOf: menu.weekOf,
+      orderedAt: menu.weekOf,
+      store: values.store,
+      items: lines.length,
+    });
     orders.orders.sort((left, right): number => right.weekOf.localeCompare(left.weekOf));
     writeFileSync(ORDERS, JSON.stringify(orders, null, 2) + '\n', 'utf8');
     console.log(`enregistre: ${menu.weekOf} (${lines.length} articles)`);

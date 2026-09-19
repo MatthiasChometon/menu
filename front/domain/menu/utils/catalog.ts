@@ -57,7 +57,8 @@ const toMicros = (raw: Partial<Micros> | undefined): Micros => ({
   omega3: raw?.omega3 ?? 0,
 });
 
-const toAisle = (value: string): Aisle => aisleOrder.find((aisle): boolean => aisle === value) ?? 'grocery';
+const toAisle = (value: string): Aisle =>
+  aisleOrder.find((aisle): boolean => aisle === value) ?? 'grocery';
 
 const toUnit = (value: string | undefined): Unit => (value === 'ml' ? 'ml' : 'g');
 
@@ -68,7 +69,9 @@ const index = <Raw, Value>(
   raw: Record<string, Raw>,
   build: (id: string, value: Raw) => Value,
 ): Record<string, Value> =>
-  Object.fromEntries(Object.entries(raw).map(([id, value]): [string, Value] => [id, build(id, value)]));
+  Object.fromEntries(
+    Object.entries(raw).map(([id, value]): [string, Value] => [id, build(id, value)]),
+  );
 
 export const buildFoodCatalog = (raw: Record<string, RawFood>): Record<string, Food> =>
   index(raw, (id, food): Food => ({
@@ -101,7 +104,9 @@ export const buildRecipeCatalog = (raw: Record<string, RawRecipe>): Record<strin
     steps: recipe.steps,
   }));
 
-export const buildSeasoningCatalog = (raw: Record<string, RawSeasoning>): Record<string, Seasoning> =>
+export const buildSeasoningCatalog = (
+  raw: Record<string, RawSeasoning>,
+): Record<string, Seasoning> =>
   index(raw, (id, seasoning): Seasoning => ({
     id,
     name: seasoning.name,

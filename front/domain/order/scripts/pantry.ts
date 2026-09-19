@@ -45,7 +45,9 @@ const pantryRows = (): PantryRow[] => {
         keeps: keeps(food),
       };
     })
-    .sort((left, right): number => Number(right.keeps) - Number(left.keeps) || right.left - left.left);
+    .sort(
+      (left, right): number => Number(right.keeps) - Number(left.keeps) || right.left - left.left,
+    );
 };
 
 const printRows = (rows: PantryRow[], week: string): void => {
@@ -62,13 +64,17 @@ const printRows = (rows: PantryRow[], week: string): void => {
   const perishable = rows.filter((row): boolean => !row.keeps && row.left > 0);
   if (perishable.length > 0) {
     console.log('\nA consommer, pas compte en stock (frais) :');
-    for (const row of perishable) console.log(`  ${row.food.name.fr.padEnd(28)} ${String(row.left).padStart(5)} ${row.food.unit}`);
+    for (const row of perishable)
+      console.log(
+        `  ${row.food.name.fr.padEnd(28)} ${String(row.left).padStart(5)} ${row.food.unit}`,
+      );
   }
 
   const short = rows.filter((row): boolean => row.left === 0 && row.used > row.purchased);
   if (short.length > 0) {
     console.log('\nJuste ou insuffisant :');
-    for (const row of short) console.log(`  ${row.food.name.fr.padEnd(28)} besoin ${row.used}, achete ${row.purchased}`);
+    for (const row of short)
+      console.log(`  ${row.food.name.fr.padEnd(28)} besoin ${row.used}, achete ${row.purchased}`);
   }
 };
 
@@ -79,7 +85,9 @@ const showStock = (): number => {
   }
   const pantry = readContent<PantryFile>('pantry.json');
   console.log(`STOCK apres la semaine ${pantry.afterWeek}`);
-  for (const [id, amount] of Object.entries(pantry.items).sort((left, right): number => right[1] - left[1])) {
+  for (const [id, amount] of Object.entries(pantry.items).sort(
+    (left, right): number => right[1] - left[1],
+  )) {
     console.log(`  ${id.padEnd(20)} ${amount}`);
   }
   return 0;
@@ -103,7 +111,11 @@ const main = (): number => {
   if (values.update) {
     const kept = rows.filter((row): boolean => row.keeps && row.left > 0);
     const items = Object.fromEntries(kept.map((row): [string, number] => [row.food.id, row.left]));
-    writeFileSync(PANTRY, JSON.stringify({ afterWeek: menu.weekOf, items }, null, 2) + '\n', 'utf8');
+    writeFileSync(
+      PANTRY,
+      JSON.stringify({ afterWeek: menu.weekOf, items }, null, 2) + '\n',
+      'utf8',
+    );
     console.log(`\n${kept.length} produits enregistres dans domain/menu/content/pantry.json`);
   }
 

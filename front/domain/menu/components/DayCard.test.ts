@@ -23,7 +23,10 @@ const flexedDayOf = (index: number): FlexedDay => {
   return {
     key: day.key,
     macros: day.macros,
-    meals: day.meals.map((meal): FlexedMeal => ({ ...meal, flex: { isSwapped: false, isLeftover: false } })),
+    meals: day.meals.map((meal): FlexedMeal => ({
+      ...meal,
+      flex: { isSwapped: false, isLeftover: false },
+    })),
   };
 };
 
@@ -76,9 +79,7 @@ describe('DayCard', () => {
     });
 
     await fireEvent.click(screen.getByRole('button', { name: 'Options du jour' }));
-    await fireEvent.click(
-      await screen.findByText(`Échanger avec ${t(`menu.day.${dayB.key}`)}`),
-    );
+    await fireEvent.click(await screen.findByText(`Échanger avec ${t(`menu.day.${dayB.key}`)}`));
 
     const slot = dayA.meals[0]?.slot;
     if (slot === undefined) throw new Error('the day has no meal');

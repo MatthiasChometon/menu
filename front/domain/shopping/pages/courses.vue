@@ -241,7 +241,10 @@ useSeoMeta({ title: (): string => t('shopping.title') });
             </div>
             <div v-if="spendDelta !== undefined">
               <dt class="text-xs text-dimmed">{{ $t('shopping.spend.delta') }}</dt>
-              <dd class="text-lg font-bold" :class="spendDelta <= 0 ? 'text-primary' : 'text-error'">
+              <dd
+                class="text-lg font-bold"
+                :class="spendDelta <= 0 ? 'text-primary' : 'text-error'"
+              >
                 {{ spendDeltaLabel }} €
                 <span class="text-xs font-medium">
                   {{ spendDelta <= 0 ? $t('shopping.spend.under') : $t('shopping.spend.over') }}

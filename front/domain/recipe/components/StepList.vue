@@ -1,5 +1,10 @@
 <script setup lang="ts">
-const { steps, quantities = [], showWakeLockToggle = true, recipeName } = defineProps<{
+const {
+  steps,
+  quantities = [],
+  showWakeLockToggle = true,
+  recipeName,
+} = defineProps<{
   steps: string[];
   quantities?: FoodQuantity[];
   /** Off inside kitchen mode: that screen already holds one lock for every
@@ -45,7 +50,9 @@ const SHORT_LABEL_LENGTH = 42;
 
 const shortTextOf = (step: string): string => {
   const text = plainTextOf(step).trim();
-  return text.length > SHORT_LABEL_LENGTH ? `${text.slice(0, SHORT_LABEL_LENGTH).trimEnd()}…` : text;
+  return text.length > SHORT_LABEL_LENGTH
+    ? `${text.slice(0, SHORT_LABEL_LENGTH).trimEnd()}…`
+    : text;
 };
 
 const timerLabelOf = (step: string): string =>

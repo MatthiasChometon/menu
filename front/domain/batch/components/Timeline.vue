@@ -35,7 +35,9 @@ const widthOf = (minutes: number): string =>
         {{ plan.makespanMinutes }} {{ $t('batch.minutes') }}
       </span>
       {{ $t('batch.timeline.insteadOf') }}
-      <span class="font-semibold tabular-nums">{{ plan.totalMinutes }} {{ $t('batch.minutes') }}</span>
+      <span class="font-semibold tabular-nums"
+        >{{ plan.totalMinutes }} {{ $t('batch.minutes') }}</span
+      >
     </p>
 
     <ol class="mt-4 space-y-4 border-l-2 border-default pl-4">

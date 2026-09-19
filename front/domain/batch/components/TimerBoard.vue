@@ -29,11 +29,7 @@ const addTimer = (): void => {
 
     <form class="mt-4 flex flex-wrap items-end gap-2" @submit.prevent="addTimer">
       <UFormField :label="$t('batch.timers.labelField')" class="min-w-0 flex-1 basis-40">
-        <UInput
-          v-model="label"
-          :placeholder="$t('batch.timers.labelPlaceholder')"
-          class="w-full"
-        />
+        <UInput v-model="label" :placeholder="$t('batch.timers.labelPlaceholder')" class="w-full" />
       </UFormField>
       <UFormField :label="$t('batch.timers.minutesField')" class="w-24">
         <UInput v-model.number="minutes" type="number" min="1" max="240" class="w-full" />

@@ -25,10 +25,7 @@ const DEFAULT_PREFERENCES: PlannerPreferences = {
 
 // A dish kind can be turned off and back on without the exclusion list
 // growing duplicates or losing order — order only matters for the chips.
-export const withExclusionToggled = (
-  excludedKinds: DishKind[],
-  kind: DishKind,
-): DishKind[] =>
+export const withExclusionToggled = (excludedKinds: DishKind[], kind: DishKind): DishKind[] =>
   excludedKinds.includes(kind)
     ? excludedKinds.filter((entry): boolean => entry !== kind)
     : [...excludedKinds, kind];

@@ -80,7 +80,11 @@ const saveWebp = async (raw: Buffer, destination: string): Promise<void> => {
 };
 
 const styleFor = (kind: 'recipe' | 'food' | 'equipment', prompts: Prompts): string =>
-  kind === 'recipe' ? prompts.recipeStyle : kind === 'food' ? prompts.foodStyle : prompts.equipmentStyle;
+  kind === 'recipe'
+    ? prompts.recipeStyle
+    : kind === 'food'
+      ? prompts.foodStyle
+      : prompts.equipmentStyle;
 const sizeFor = (kind: 'recipe' | 'food' | 'equipment'): [number, number] =>
   kind === 'recipe' ? RECIPE_SIZE : kind === 'food' ? FOOD_SIZE : EQUIPMENT_SIZE;
 
@@ -100,7 +104,13 @@ const generateOne = async (
 
   const style = styleFor(kind, prompts);
   const size = sizeFor(kind);
-  const workflow = buildWorkflow(template, style.replace('{subject}', subject), prompts.negative, size, seedFor(id, subject));
+  const workflow = buildWorkflow(
+    template,
+    style.replace('{subject}', subject),
+    prompts.negative,
+    size,
+    seedFor(id, subject),
+  );
 
   const started = Date.now();
   await saveWebp(await waitForImage(await postPrompt(workflow)), destination);

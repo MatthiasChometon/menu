@@ -9,42 +9,33 @@ const { deviceState } = vi.hoisted(() => ({ deviceState: { list: [] as { id: str
 
 type DevicesApi = ReturnType<typeof import('../composables/useGroceryDevices').useGroceryDevices>;
 
-mockNuxtImport(
-  'useGroceryDevices',
-  () =>
-    (): DevicesApi => ({
-      devices: ref(deviceState.list) as DevicesApi['devices'],
-      refresh: vi.fn(),
-      isPairing: ref(false),
-      freshToken: ref(undefined),
-      pair: vi.fn(),
-      unpair: vi.fn(),
-      forgetToken: vi.fn(),
-    }),
-);
+mockNuxtImport('useGroceryDevices', () => (): DevicesApi => ({
+  devices: ref(deviceState.list) as DevicesApi['devices'],
+  refresh: vi.fn(),
+  isPairing: ref(false),
+  freshToken: ref(undefined),
+  pair: vi.fn(),
+  unpair: vi.fn(),
+  forgetToken: vi.fn(),
+}));
 
 type OrderApi = ReturnType<typeof import('../composables/useGroceryOrder').useGroceryOrder>;
 
-mockNuxtImport(
-  'useGroceryOrder',
-  () =>
-    (): OrderApi => ({
-      job: ref(undefined),
-      isQueueing: ref(false),
-      isRunning: computed((): boolean => false),
-      error: ref(undefined),
-      order: vi.fn(),
-      follow: vi.fn(),
-      stopFollowing: vi.fn(),
-    }),
-);
+mockNuxtImport('useGroceryOrder', () => (): OrderApi => ({
+  job: ref(undefined),
+  isQueueing: ref(false),
+  isRunning: computed((): boolean => false),
+  error: ref(undefined),
+  order: vi.fn(),
+  follow: vi.fn(),
+  stopFollowing: vi.fn(),
+}));
 
 mockNuxtImport(
   'useBasketNeeds',
-  () =>
-    (): { needsOf: () => { foodId: string; grams: number }[] } => ({
-      needsOf: (): { foodId: string; grams: number }[] => [],
-    }),
+  () => (): { needsOf: () => { foodId: string; grams: number }[] } => ({
+    needsOf: (): { foodId: string; grams: number }[] => [],
+  }),
 );
 
 const menu = { weekOf: '2026-08-24' } as unknown as Menu;

@@ -20,7 +20,9 @@ const candidatesFor = (food: Food, catalog: Food[]): Food[] => {
     (candidate): boolean => candidate.id !== food.id && candidate.aisle === food.aisle,
   );
 
-  return sameAisle.length > 0 ? sameAisle : catalog.filter((candidate): boolean => candidate.id !== food.id);
+  return sameAisle.length > 0
+    ? sameAisle
+    : catalog.filter((candidate): boolean => candidate.id !== food.id);
 };
 
 export const substitutesFor = (food: Food, catalog: Food[]): Food[] =>

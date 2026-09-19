@@ -34,4 +34,7 @@ export const sumMacros = (list: Macros[]): Macros =>
   );
 
 export const priceOfQuantities = (quantities: FoodQuantity[]): number =>
-  quantities.reduce((total, { food, grams }): number => total + (food.pricePerKg * grams) / 1000, 0);
+  quantities.reduce(
+    (total, { food, grams }): number => total + (food.pricePerKg * grams) / 1000,
+    0,
+  );

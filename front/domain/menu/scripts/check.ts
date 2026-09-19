@@ -64,7 +64,10 @@ const averageOf = (days: Day[]): Macros => {
 const alertsOf = (menu: Menu): string[] =>
   menu.days.flatMap((day): string[] =>
     macroKeys
-      .filter((macro): boolean => verdict(day.macros[macro], menu.targets[macro], macro, menu.tolerancePct) !== 'ok')
+      .filter(
+        (macro): boolean =>
+          verdict(day.macros[macro], menu.targets[macro], macro, menu.tolerancePct) !== 'ok',
+      )
       .map((macro): string => {
         const gap = day.macros[macro] - menu.targets[macro];
         return `${day.key} — ${LABELS[macro]}: ${gap >= 0 ? '+' : ''}${Math.round(gap)} vs cible`;
@@ -73,7 +76,10 @@ const alertsOf = (menu: Menu): string[] =>
 
 const printReport = (menu: Menu, detail: boolean): void => {
   const targetList = macroKeys
-    .map((macro): string => `${LABELS[macro]} ${menu.targets[macro]} (+/-${Math.round(toleranceFor(macro, menu.tolerancePct))}%)`)
+    .map(
+      (macro): string =>
+        `${LABELS[macro]} ${menu.targets[macro]} (+/-${Math.round(toleranceFor(macro, menu.tolerancePct))}%)`,
+    )
     .join(', ');
 
   console.log(RULE);
@@ -107,8 +113,12 @@ const printShopping = (menu: Menu): void => {
     for (const line of lines) {
       const unit = line.food.unit === 'ml' ? 'L' : 'kg';
       const quantity =
-        line.grams >= 1000 ? `${(line.grams / 1000).toFixed(2)} ${unit}` : `${line.grams} ${line.food.unit}`;
-      console.log(`  ${line.food.name.fr.padEnd(32)} ${quantity.padStart(9)}   ~${line.price.toFixed(2)} EUR`);
+        line.grams >= 1000
+          ? `${(line.grams / 1000).toFixed(2)} ${unit}`
+          : `${line.grams} ${line.food.unit}`;
+      console.log(
+        `  ${line.food.name.fr.padEnd(32)} ${quantity.padStart(9)}   ~${line.price.toFixed(2)} EUR`,
+      );
     }
   }
 };
@@ -116,7 +126,10 @@ const printShopping = (menu: Menu): void => {
 const main = (): number => {
   const { values, positionals } = parseArgs({
     allowPositionals: true,
-    options: { courses: { type: 'boolean', default: false }, detail: { type: 'boolean', default: false } },
+    options: {
+      courses: { type: 'boolean', default: false },
+      detail: { type: 'boolean', default: false },
+    },
   });
 
   const menuPath = positionals[0];

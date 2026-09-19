@@ -34,7 +34,10 @@ const decisionsFor = (weekOf: string): Ref<Record<string, LeftoverDecision>> => 
   const existing = decisionStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<Record<string, LeftoverDecision>>(`leftoverDecisions:${weekOf}`, {});
+  const created = useLocalStorage<Record<string, LeftoverDecision>>(
+    `leftoverDecisions:${weekOf}`,
+    {},
+  );
   decisionStores.set(weekOf, created);
   return created;
 };
@@ -70,13 +73,20 @@ export const useLeftovers = (
   /** Sends the origin's leftovers to the target slot, replacing whatever that
    *  origin was already sending elsewhere and whatever the target was already
    *  showing. */
-  assignLeftover: (originDay: DayKey, originSlot: MealSlot, targetDay: DayKey, targetSlot: MealSlot) => void;
+  assignLeftover: (
+    originDay: DayKey,
+    originSlot: MealSlot,
+    targetDay: DayKey,
+    targetSlot: MealSlot,
+  ) => void;
   /** Drops the assignment this slot is part of, on either side of it. */
   clearAssignment: (day: DayKey, slot: MealSlot) => void;
   reset: () => void;
 } => {
   const origins = computed((): string[] => originsFor(toValue(week)).value);
-  const decisions = computed((): Record<string, LeftoverDecision> => decisionsFor(toValue(week)).value);
+  const decisions = computed(
+    (): Record<string, LeftoverDecision> => decisionsFor(toValue(week)).value,
+  );
   const assignments = computed((): LeftoverAssignment[] => assignmentsFor(toValue(week)).value);
 
   const setDecision = (day: DayKey, slot: MealSlot, decision: LeftoverDecision): void => {
@@ -85,7 +95,8 @@ export const useLeftovers = (
   };
 
   return {
-    hasLeftover: (day: DayKey, slot: MealSlot): boolean => origins.value.includes(mealKey(day, slot)),
+    hasLeftover: (day: DayKey, slot: MealSlot): boolean =>
+      origins.value.includes(mealKey(day, slot)),
     markLeftover: (day: DayKey, slot: MealSlot): void => {
       const store = originsFor(toValue(week));
       const key = mealKey(day, slot);
@@ -121,7 +132,8 @@ export const useLeftovers = (
       const target = { day: targetDay, slot: targetSlot };
       const store = assignmentsFor(toValue(week));
       const withoutClashing = store.value.filter(
-        (entry): boolean => !samePointer(entry.origin, origin) && !samePointer(entry.target, target),
+        (entry): boolean =>
+          !samePointer(entry.origin, origin) && !samePointer(entry.target, target),
       );
       store.value = [...withoutClashing, { origin, target }];
     },
@@ -129,7 +141,8 @@ export const useLeftovers = (
       const store = assignmentsFor(toValue(week));
       const pointer = { day, slot };
       store.value = store.value.filter(
-        (entry): boolean => !samePointer(entry.origin, pointer) && !samePointer(entry.target, pointer),
+        (entry): boolean =>
+          !samePointer(entry.origin, pointer) && !samePointer(entry.target, pointer),
       );
     },
     reset: (): void => {

@@ -8,7 +8,9 @@ const isEmpty = computed((): boolean => entries.value.length === 0);
 // The most recent weigh-in already logged, or the profile's own weight before a
 // single one exists — so opening the form for the first time never faces a
 // blank field guessing at your own weight.
-const defaultKg = computed((): number | undefined => entries.value[0]?.kg ?? profile.value?.weightKg);
+const defaultKg = computed(
+  (): number | undefined => entries.value[0]?.kg ?? profile.value?.weightKg,
+);
 
 const focusToken = ref(0);
 const requestFirstEntry = (): void => {

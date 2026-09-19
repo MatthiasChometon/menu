@@ -14,15 +14,13 @@ const labelsOf = (menu: Menu, task: BatchTask): ContainerLabel[] =>
   menu.days.flatMap((day, dayIndex): ContainerLabel[] =>
     day.meals
       .filter((meal): boolean => meal.recipe.id === task.recipe.id)
-      .map(
-        (meal): ContainerLabel => ({
-          id: `${task.recipe.id}:${day.key}:${meal.slot}`,
-          recipe: task.recipe,
-          day: day.key,
-          slot: meal.slot,
-          bestBefore: isoDateOfDay(menu.weekOf, dayIndex),
-        }),
-      ),
+      .map((meal): ContainerLabel => ({
+        id: `${task.recipe.id}:${day.key}:${meal.slot}`,
+        recipe: task.recipe,
+        day: day.key,
+        slot: meal.slot,
+        bestBefore: isoDateOfDay(menu.weekOf, dayIndex),
+      })),
   );
 
 export const useBatchContainers = (): {

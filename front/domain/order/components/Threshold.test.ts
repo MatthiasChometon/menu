@@ -9,17 +9,13 @@ type PreferenceApi = ReturnType<
   typeof import('../composables/useGroceryPreference').useGroceryPreference
 >;
 
-mockNuxtImport(
-  'useGroceryPreference',
-  () =>
-    (): PreferenceApi => ({
-      thresholdCents: ref(undefined),
-      isSaving: ref(false),
-      isSaved: ref(false),
-      refresh: vi.fn(),
-      save,
-    }),
-);
+mockNuxtImport('useGroceryPreference', () => (): PreferenceApi => ({
+  thresholdCents: ref(undefined),
+  isSaving: ref(false),
+  isSaved: ref(false),
+  refresh: vi.fn(),
+  save,
+}));
 
 beforeEach(async (): Promise<void> => {
   save.mockClear();

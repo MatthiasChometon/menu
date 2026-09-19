@@ -1103,7 +1103,9 @@ export const usePlanner = (): {
       const lockedSlots = locked.value[day] ?? {};
       const existing = plan.value.days[day] ?? {};
       plan.value.days[day] = Object.fromEntries(
-        Object.entries(existing).filter(([slot]): boolean => lockedSlots[slot as MealSlot] === true),
+        Object.entries(existing).filter(
+          ([slot]): boolean => lockedSlots[slot as MealSlot] === true,
+        ),
       ) as Partial<Record<MealSlot, string>>;
       touch();
     },

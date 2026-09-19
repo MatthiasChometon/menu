@@ -121,7 +121,12 @@ const rows = computed((): Row[] =>
         <UButton color="neutral" variant="ghost" size="lg" @click="cancelEdit">
           {{ $t('weight.log.cancel') }}
         </UButton>
-        <UButton size="lg" class="font-semibold text-white" :loading="isSavingEdit" @click="saveEdit">
+        <UButton
+          size="lg"
+          class="font-semibold text-white"
+          :loading="isSavingEdit"
+          @click="saveEdit"
+        >
           {{ $t('weight.log.save') }}
         </UButton>
 

@@ -125,7 +125,9 @@ const macroValueLabel = (value: number): string => `${round(value)} g`;
                 ≈ {{ quantityLabel(alt, gramsEquivalentTo(quantity.food, quantity.total, alt)) }}
               </span>
             </div>
-            <div class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-dimmed">
+            <div
+              class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11px] text-dimmed"
+            >
               <span v-for="key in MACRO_COMPARE_KEYS" :key="key" class="flex items-center gap-1">
                 <span
                   class="size-1.5 shrink-0 rounded-full"

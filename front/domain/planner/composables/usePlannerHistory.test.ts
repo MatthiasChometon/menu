@@ -15,7 +15,10 @@ const entry = (
 
 describe('recording a composed week', () => {
   it('adds a week that was never recorded before', () => {
-    const entries = withEntryUpserted([], entry('2026-09-01', '2026-09-01T10:00:00.000Z', { main: ['a'] }));
+    const entries = withEntryUpserted(
+      [],
+      entry('2026-09-01', '2026-09-01T10:00:00.000Z', { main: ['a'] }),
+    );
 
     expect(entries).toHaveLength(1);
     expect(entries[0]?.weekOf).toBe('2026-09-01');

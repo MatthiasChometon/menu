@@ -9,7 +9,9 @@ const timersRef = (): Ref<Timer[]> => {
 };
 
 const remainingOf = (timer: Timer, at: number): number =>
-  timer.endAt === undefined ? timer.remainingSeconds : Math.max(0, Math.round((timer.endAt - at) / 1000));
+  timer.endAt === undefined
+    ? timer.remainingSeconds
+    : Math.max(0, Math.round((timer.endAt - at) / 1000));
 
 const statusOf = (timer: Timer, remaining: number): TimerStatus => {
   if (remaining <= 0) return 'done';
@@ -47,13 +49,20 @@ export const useTimers = (): {
   const timers = timersRef();
 
   return {
-    timersAt: (at: number): TimerView[] => timers.value.map((timer): TimerView => viewOf(timer, at)),
+    timersAt: (at: number): TimerView[] =>
+      timers.value.map((timer): TimerView => viewOf(timer, at)),
     add: (label: string, minutes: number): void => {
       const durationSeconds = Math.max(1, Math.round(minutes * 60));
 
       timers.value = [
         ...timers.value,
-        { id: crypto.randomUUID(), label, durationSeconds, remainingSeconds: durationSeconds, endAt: undefined },
+        {
+          id: crypto.randomUUID(),
+          label,
+          durationSeconds,
+          remainingSeconds: durationSeconds,
+          endAt: undefined,
+        },
       ];
     },
     start: (id: string, at = Date.now()): void =>

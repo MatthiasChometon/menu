@@ -53,8 +53,9 @@ export const useComposedMenu = (): {
         const recipeId = slots[slot];
         return recipeId === undefined ? undefined : { slot, recipeId };
       })
-      .filter((entry): entry is { slot: Day['meals'][number]['slot']; recipeId: string } =>
-        entry !== undefined,
+      .filter(
+        (entry): entry is { slot: Day['meals'][number]['slot']; recipeId: string } =>
+          entry !== undefined,
       );
     if (picked.length === 0) return undefined;
 
@@ -116,7 +117,9 @@ export const useComposedMenu = (): {
       const usedIds = new Set(days.flatMap((day) => day.meals.map((meal) => meal.recipe.id)));
       const recipes = [...usedIds]
         .map((id) => recipeOf(id))
-        .filter((recipe): recipe is NonNullable<ReturnType<typeof recipeOf>> => recipe !== undefined);
+        .filter(
+          (recipe): recipe is NonNullable<ReturnType<typeof recipeOf>> => recipe !== undefined,
+        );
 
       return {
         weekOf,

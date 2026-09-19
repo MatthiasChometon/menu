@@ -29,16 +29,17 @@ const devicesLoaded = ref(false);
 const extensionReady = computed((): boolean => devices.value.length > 0);
 
 // Step three's signal, read from the newest report a paired browser sent.
-const latestReport = computed((): (typeof devices.value)[number] | undefined =>
-  [...devices.value]
-    .filter(
-      (device): boolean => device.carrefourSignedIn != null && device.carrefourCheckedAt != null,
-    )
-    .sort(
-      (left, right): number =>
-        new Date(right.carrefourCheckedAt as string).getTime() -
-        new Date(left.carrefourCheckedAt as string).getTime(),
-    )[0],
+const latestReport = computed(
+  (): (typeof devices.value)[number] | undefined =>
+    [...devices.value]
+      .filter(
+        (device): boolean => device.carrefourSignedIn != null && device.carrefourCheckedAt != null,
+      )
+      .sort(
+        (left, right): number =>
+          new Date(right.carrefourCheckedAt as string).getTime() -
+          new Date(left.carrefourCheckedAt as string).getTime(),
+      )[0],
 );
 // Detecting a Carrefour session by reading its page is best-effort — a
 // Cloudflare wall or an icon-only account menu can hide it. So the reader can
@@ -177,7 +178,11 @@ onMounted(async (): Promise<void> => {
   // Carried back from Carrefour after signing in: confirm it, and drop the flag
   // from the URL so a reload does not repeat the message.
   if (route.query.connected === '1') {
-    toast.add({ title: t('order.setup.connected'), icon: 'i-lucide-party-popper', color: 'success' });
+    toast.add({
+      title: t('order.setup.connected'),
+      icon: 'i-lucide-party-popper',
+      color: 'success',
+    });
     void router.replace({ query: {} });
   }
 });
@@ -196,7 +201,11 @@ onScopeDispose((): void => {
       <!-- ① Install (and pair, silently) -->
       <li
         class="rounded-xl border p-3 transition-colors"
-        :class="stateOf(1, extensionReady) === 'active' ? 'border-primary/40 bg-primary/5' : 'border-default'"
+        :class="
+          stateOf(1, extensionReady) === 'active'
+            ? 'border-primary/40 bg-primary/5'
+            : 'border-default'
+        "
       >
         <div class="flex items-start gap-3">
           <OrderStepBadge :step="1" :state="stateOf(1, extensionReady)" />
@@ -205,7 +214,10 @@ onScopeDispose((): void => {
             <p class="text-sm text-muted">{{ $t('order.setup.install.desc') }}</p>
 
             <!-- Not installed yet: the store links. -->
-            <div v-if="!extensionHere && !extensionReady" class="mt-3 flex flex-col gap-2 sm:flex-row">
+            <div
+              v-if="!extensionHere && !extensionReady"
+              class="mt-3 flex flex-col gap-2 sm:flex-row"
+            >
               <UButton
                 :to="CHROME_STORE_URL"
                 target="_blank"
@@ -257,7 +269,11 @@ onScopeDispose((): void => {
                 class="flex items-baseline justify-between gap-3 text-sm"
               >
                 <span class="font-medium">{{ device.label }}</span>
-                <button type="button" class="text-xs text-muted underline" @click="unpair(device.id)">
+                <button
+                  type="button"
+                  class="text-xs text-muted underline"
+                  @click="unpair(device.id)"
+                >
                   {{ $t('order.device.unpair') }}
                 </button>
               </li>
@@ -269,12 +285,19 @@ onScopeDispose((): void => {
       <!-- ② Carrefour -->
       <li
         class="rounded-xl border p-3 transition-colors"
-        :class="stateOf(2, carrefourReady) === 'active' ? 'border-primary/40 bg-primary/5' : 'border-default'"
+        :class="
+          stateOf(2, carrefourReady) === 'active'
+            ? 'border-primary/40 bg-primary/5'
+            : 'border-default'
+        "
       >
         <div class="flex items-start gap-3">
           <OrderStepBadge :step="2" :state="stateOf(2, carrefourReady)" />
           <div class="min-w-0 flex-1">
-            <p class="font-semibold" :class="stateOf(2, carrefourReady) === 'locked' && 'text-muted'">
+            <p
+              class="font-semibold"
+              :class="stateOf(2, carrefourReady) === 'locked' && 'text-muted'"
+            >
               {{ $t('order.setup.carrefour.title') }}
             </p>
             <p class="text-sm text-muted">{{ $t('order.setup.carrefour.desc') }}</p>
@@ -298,7 +321,10 @@ onScopeDispose((): void => {
                 {{ $t('order.carrefour.confirm') }}
               </button>
             </p>
-            <p v-if="carrefourReady && carrefourCheckedAt !== undefined" class="mt-1 text-xs text-muted">
+            <p
+              v-if="carrefourReady && carrefourCheckedAt !== undefined"
+              class="mt-1 text-xs text-muted"
+            >
               {{ $t('order.carrefour.checkedAt') }} {{ carrefourCheckedAt }}
             </p>
           </div>

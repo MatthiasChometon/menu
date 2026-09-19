@@ -27,8 +27,16 @@ const LEAD_COLOUR = '#d6ebd9';
 // with), Instrument Sans for the rest. System fonts stay as the last resort.
 const FONT_DIR = join(FRONT, 'infrastructure', 'asset', 'fonts');
 const FONT_CANDIDATES: Record<string, string[]> = {
-  serif: [join(FONT_DIR, 'InstrumentSerif-Regular.ttf'), 'C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/arial.ttf'],
-  sans: [join(FONT_DIR, 'InstrumentSans-Regular.ttf'), 'C:/Windows/Fonts/segoeui.ttf', 'C:/Windows/Fonts/arial.ttf'],
+  serif: [
+    join(FONT_DIR, 'InstrumentSerif-Regular.ttf'),
+    'C:/Windows/Fonts/segoeui.ttf',
+    'C:/Windows/Fonts/arial.ttf',
+  ],
+  sans: [
+    join(FONT_DIR, 'InstrumentSans-Regular.ttf'),
+    'C:/Windows/Fonts/segoeui.ttf',
+    'C:/Windows/Fonts/arial.ttf',
+  ],
 };
 
 // Register the first candidate that exists under a stable family; fall back to
@@ -83,10 +91,12 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
   const leadSize = 32 * SUPERSAMPLE;
   const margin = 72 * SUPERSAMPLE;
   const textWidth = left - margin * 1.6;
-  const measureWith = (font: string): ((line: string) => number) => (line): number => {
-    ctx.font = font;
-    return ctx.measureText(line).width;
-  };
+  const measureWith =
+    (font: string): ((line: string) => number) =>
+    (line): number => {
+      ctx.font = font;
+      return ctx.measureText(line).width;
+    };
 
   let y = margin + 40 * SUPERSAMPLE;
   ctx.fillStyle = TITLE_COLOUR;
@@ -111,7 +121,10 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
     y += leadSize * 1.35;
   }
 
-  return sharp(canvas.toBuffer('image/png')).resize(WIDTH, HEIGHT, { kernel: 'lanczos3' }).png().toBuffer();
+  return sharp(canvas.toBuffer('image/png'))
+    .resize(WIDTH, HEIGHT, { kernel: 'lanczos3' })
+    .png()
+    .toBuffer();
 };
 
 const main = async (): Promise<void> => {

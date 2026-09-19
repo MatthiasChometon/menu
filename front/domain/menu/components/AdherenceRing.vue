@@ -2,7 +2,12 @@
 // The week's commitment mark, drawn the same way as the macro plate: one arc
 // instead of three, since there is only one thing being weighed here — meals
 // actually eaten against what the week planned.
-const { rate, eatenCount, totalCount, size = 148 } = defineProps<{
+const {
+  rate,
+  eatenCount,
+  totalCount,
+  size = 148,
+} = defineProps<{
   rate: number;
   eatenCount: number;
   totalCount: number;
