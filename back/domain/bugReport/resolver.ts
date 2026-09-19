@@ -3,7 +3,6 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
 import { User } from '../user/model';
-import { BugSeverity, BugStatus } from './enum';
 import { Admins } from '../auth/admin/admins.service';
 import { AdminGuard } from '../auth/admin/guard';
 import { BlockReporterInput, BugStatusInput, ReportBugInput } from './input';
@@ -19,10 +18,10 @@ const present = (
   reporterBlocked = false,
 ): BugReport => ({
   id: record.id,
-  severity: record.severity as BugSeverity,
+  severity: record.severity,
   message: record.message,
   context: record.context,
-  status: record.status as BugStatus,
+  status: record.status,
   reportedBy: reporterEmail,
   reporterBlocked,
   createdAt: record.createdAt.toISOString(),
