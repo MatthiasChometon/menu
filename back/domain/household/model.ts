@@ -1,12 +1,5 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import {
-  Appetite,
-  DailyActivity,
-  Goal,
-  Sex,
-  StarchQuality,
-  TrainingType,
-} from '../profile/enum';
+import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from '../profile/enum';
 import { NutritionTargets } from '../profile/model';
 
 @ObjectType({ description: 'Somebody else the account holder cooks for.' })

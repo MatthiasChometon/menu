@@ -16,7 +16,9 @@ export class SuggestionContext {
   locale!: string;
 }
 
-@ObjectType({ description: 'Something a reader wished the site did, and took the time to ask for.' })
+@ObjectType({
+  description: 'Something a reader wished the site did, and took the time to ask for.',
+})
 export class ImprovementRequest {
   @Field(() => ID)
   id!: string;
