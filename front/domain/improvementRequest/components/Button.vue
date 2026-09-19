@@ -19,7 +19,7 @@ const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').ends
       color="primary"
       variant="solid"
       size="sm"
-      class="fixed bottom-36 right-4 z-30 rounded-full shadow-lg sm:bottom-20"
+      class="fixed bottom-36 right-4 z-30 rounded-full shadow-lg lg:bottom-20"
       :aria-label="$t('improvement.open')"
       :title="$t('improvement.open')"
       @click="open"
