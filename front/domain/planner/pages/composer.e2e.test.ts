@@ -231,7 +231,9 @@ test('keeps the way forward clear of the tab bar on a phone', async ({ page }) =
   await open(page);
 
   const forward = await next(page).boundingBox();
-  const tabs = await page.getByRole('navigation', { name: 'Semaine', exact: true }).boundingBox();
+  const tabs = await page
+    .getByRole('navigation', { name: 'Navigation principale', exact: true })
+    .boundingBox();
 
   // The button ends before the tab bar begins. At bottom-0 they overlapped by
   // twenty-six of the button's thirty-six pixels, and the tap went to the nav.
