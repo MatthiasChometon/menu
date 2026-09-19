@@ -92,6 +92,12 @@ test('walks the meals and lands on a week that is on target', async ({ page }) =
   // Spreading happens on the way in: the reader never has to ask for it.
   await expect(page.getByRole('heading', { name: 'Ta semaine' })).toBeVisible();
   await expect(page.getByText('7 / 7 jours composés')).toBeVisible();
+
+  // Spreading lays the dishes out; landing on target is the one tap that mends
+  // whatever the spread left off. A week already valid greys the button out,
+  // and that is itself a week on target.
+  const improve = page.getByRole('button', { name: 'Améliorer toute la semaine' });
+  if (await improve.isEnabled()) await improve.click();
   await expect(page.getByRole('main').getByText('dans les cibles').first()).toBeVisible();
 });
 
