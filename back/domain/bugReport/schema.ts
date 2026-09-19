@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { user } from '../user/schema';
+import { BugSeverity, BugStatus } from './enum';
 import type { ReportContext } from './type';
 
 // What somebody ran into, kept whole. The account is remembered so a report can
@@ -15,9 +16,9 @@ export const bugReport = pgTable('bug_report', {
     .primaryKey()
     .$defaultFn((): string => randomUUID()),
   userId: uuid('user_id').references(() => user.id, { onDelete: 'set null' }),
-  severity: text('severity').notNull(),
+  severity: text('severity').$type<BugSeverity>().notNull(),
   message: text('message').notNull(),
   context: jsonb('context').$type<ReportContext>().notNull(),
-  status: text('status').notNull().default('NEW'),
+  status: text('status').$type<BugStatus>().notNull().default(BugStatus.NEW),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

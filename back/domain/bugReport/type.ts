@@ -1,3 +1,5 @@
+import type { BugSeverity, BugStatus } from './enum';
+
 /** Everything the browser can say about itself, so nobody has to describe it.
  *  Gathered rather than asked: a person who has just hit a bug should not also
  *  have to work out their screen size. */
@@ -13,9 +15,9 @@ export type ReportContext = {
 export type BugReportRecord = {
   id: string;
   userId: string | null;
-  severity: string;
+  severity: BugSeverity;
   message: string;
   context: ReportContext;
-  status: string;
+  status: BugStatus;
   createdAt: Date;
 };

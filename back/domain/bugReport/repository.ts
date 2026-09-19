@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { user } from '../user/schema';
+import type { BugSeverity, BugStatus } from './enum';
 import { bugReport } from './schema';
 import type { BugReportRecord, ReportContext } from './type';
 
@@ -17,7 +18,7 @@ export class BugReportRepository {
 
   async create(
     userId: string,
-    severity: string,
+    severity: BugSeverity,
     message: string,
     context: ReportContext,
   ): Promise<BugReportRecord> {
@@ -81,7 +82,7 @@ export class BugReportRepository {
     return row?.total ?? 0;
   }
 
-  async setStatus(id: string, status: string): Promise<BugReportRecord | undefined> {
+  async setStatus(id: string, status: BugStatus): Promise<BugReportRecord | undefined> {
     const [record] = await this.database
       .update(bugReport)
       .set({ status })
