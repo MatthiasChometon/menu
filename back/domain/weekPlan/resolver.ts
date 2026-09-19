@@ -31,7 +31,7 @@ export class WeekPlanResolver {
   async myWeekPlans(@CurrentUser() user: User): Promise<WeekPlan[]> {
     const records = await this.plans.findAll(user.id);
 
-    return records.map((record): WeekPlan => this.present(record) as WeekPlan);
+    return records.map((record): WeekPlan => this.toWeekPlan(record));
   }
 
   @Mutation(() => WeekPlan, { description: 'Creates the plan for a week, or replaces it.' })
@@ -41,7 +41,7 @@ export class WeekPlanResolver {
   ): Promise<WeekPlan> {
     const saved = await this.plans.save(user.id, input.weekOf, input.days);
 
-    return this.present(saved) as WeekPlan;
+    return this.toWeekPlan(saved);
   }
 
   @Mutation(() => Boolean, { description: 'Forgets a week. False when there was none.' })
@@ -52,11 +52,13 @@ export class WeekPlanResolver {
     return this.plans.remove(user.id, weekOf);
   }
 
+  private present(record: WeekPlanRecord | undefined): WeekPlan | undefined {
+    return record === undefined ? undefined : this.toWeekPlan(record);
+  }
+
   // Dates cross GraphQL as ISO strings: a Date would need a custom scalar for no
   // gain, and the front only ever displays it.
-  private present(record: WeekPlanRecord | undefined): WeekPlan | undefined {
-    return record === undefined
-      ? undefined
-      : { weekOf: record.weekOf, days: record.days, updatedAt: record.updatedAt.toISOString() };
+  private toWeekPlan(record: WeekPlanRecord): WeekPlan {
+    return { weekOf: record.weekOf, days: record.days, updatedAt: record.updatedAt.toISOString() };
   }
 }
