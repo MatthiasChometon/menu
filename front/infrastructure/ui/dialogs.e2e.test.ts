@@ -28,14 +28,54 @@ const SESSION = {
   },
 };
 
+// A composed week, so the shopping list has something to tick — signed in, the
+// list reads the account's own week, not the example. One breakfast, a
+// post-workout, lunch and dinner that differ, and a snack: a full day, repeated
+// across the week the reader is on.
+const WEEK_MEALS = [
+  { slot: 'BREAKFAST', recipeId: 'whiteBeanToast' },
+  { slot: 'POST_WORKOUT', recipeId: 'wheyBerrySmoothie' },
+  { slot: 'LUNCH', recipeId: 'beefLentilBolognese' },
+  { slot: 'SNACK', recipeId: 'quarkKiwiChiaBowl' },
+  { slot: 'DINNER', recipeId: 'teriyakiSalmonBowl' },
+] as const;
+
+const WEEK_DAYS = [
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+  'SUNDAY',
+] as const;
+
 const simuleSession = async (page: import('@playwright/test').Page): Promise<void> => {
   await page.route('**/graphql', async (route): Promise<void> => {
-    const corps = route.request().postDataJSON() as { query?: string } | null;
+    const corps = route.request().postDataJSON() as {
+      query?: string;
+      variables?: { weekOf?: string };
+    } | null;
     const requete = corps?.query ?? '';
 
     if (requete.includes('query me')) return route.fulfill({ json: { data: { me: SESSION.me } } });
     if (requete.includes('query myProfile'))
       return route.fulfill({ json: { data: { myProfile: SESSION.myProfile } } });
+    if (requete.includes('query myWeekPlan'))
+      return route.fulfill({
+        json: {
+          data: {
+            myWeekPlan: {
+              weekOf: corps?.variables?.weekOf ?? '',
+              updatedAt: new Date().toISOString(),
+              days: WEEK_DAYS.map((day): { day: string; meals: typeof WEEK_MEALS } => ({
+                day,
+                meals: WEEK_MEALS,
+              })),
+            },
+          },
+        },
+      });
 
     return route.fulfill({ json: { data: {} } });
   });
@@ -176,10 +216,13 @@ test('chaque pop-up dans chaque format', async ({ page }) => {
   for (const format of FORMATS) {
     await page.setViewportSize({ width: format.width, height: format.height });
 
+    // The recipe's portion select only shows for a dish served more than once
+    // in the week: beefLentilBolognese fills a lunch every day of the composed
+    // week above, so its page has the dropdown to test.
     for (const [nom, chemin, accessible] of [
       ['langue', '/', 'Choisir la langue'],
-      ['semaine-composer', '/composer', 'Choisir la semaine à composer'],
-      ['portions', '/recette/chiliChicken', 'Quantités à préparer'],
+      ['semaine-composer', '/composer', 'Choisir le jour de départ'],
+      ['portions', '/recette/beefLentilBolognese', 'Quantités à préparer'],
     ] as const) {
       await page.goto(chemin);
       await page.getByRole('banner').waitFor();
