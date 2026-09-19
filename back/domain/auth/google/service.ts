@@ -1,6 +1,9 @@
 import { randomBytes } from 'node:crypto';
+import { HttpService } from '@nestjs/axios';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isAxiosError } from 'axios';
+import { firstValueFrom } from 'rxjs';
 import { GoogleProfile, GoogleTokens } from './type';
 
 const AUTHORISE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -12,7 +15,10 @@ const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 // to two HTTP calls.
 @Injectable()
 export class GoogleOAuth {
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly http: HttpService,
+    private readonly config: ConfigService,
+  ) {}
 
   newState(): string {
     return randomBytes(16).toString('hex');
@@ -32,14 +38,7 @@ export class GoogleOAuth {
 
   async profileFromCode(code: string): Promise<GoogleProfile> {
     const tokens = await this.exchange(code);
-    const response = await fetch(USERINFO_URL, {
-      headers: { Authorization: `Bearer ${tokens.access_token}` },
-    });
-    if (!response.ok) {
-      throw new UnauthorizedException('Google refused the profile request.');
-    }
-
-    const profile = (await response.json()) as GoogleProfile;
+    const profile = await this.userinfo(tokens.access_token);
 
     // The address is what decides which account this is — and, further along,
     // whether that account administers the site. Google only vouches for it
@@ -54,22 +53,46 @@ export class GoogleOAuth {
   }
 
   private async exchange(code: string): Promise<GoogleTokens> {
-    const response = await fetch(TOKEN_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        code,
-        client_id: this.config.getOrThrow<string>('GOOGLE_CLIENT_ID'),
-        client_secret: this.config.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
-        redirect_uri: this.redirectUri(),
-        grant_type: 'authorization_code',
-      }),
+    const body = new URLSearchParams({
+      code,
+      client_id: this.config.getOrThrow<string>('GOOGLE_CLIENT_ID'),
+      client_secret: this.config.getOrThrow<string>('GOOGLE_CLIENT_SECRET'),
+      redirect_uri: this.redirectUri(),
+      grant_type: 'authorization_code',
     });
-    if (!response.ok) {
-      throw new UnauthorizedException('Google refused the authorisation code.');
+    try {
+      const { data } = await firstValueFrom(
+        this.http.post<GoogleTokens>(TOKEN_URL, body, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        }),
+      );
+      return data;
+    } catch (error) {
+      throw this.refused(error, 'Google refused the authorisation code.');
     }
+  }
 
-    return (await response.json()) as GoogleTokens;
+  private async userinfo(accessToken: string): Promise<GoogleProfile> {
+    try {
+      const { data } = await firstValueFrom(
+        this.http.get<GoogleProfile>(USERINFO_URL, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
+      );
+      return data;
+    } catch (error) {
+      throw this.refused(error, 'Google refused the profile request.');
+    }
+  }
+
+  // A reply from Google that is not a success maps to "unauthorised", the same
+  // verdict the old !response.ok branch reached. A network-level failure — no
+  // reply at all — is not Google refusing anything, so it bubbles up unchanged.
+  private refused(error: unknown, message: string): Error {
+    if (isAxiosError(error) && error.response !== undefined) {
+      return new UnauthorizedException(message);
+    }
+    return error instanceof Error ? error : new Error(String(error));
   }
 
   private redirectUri(): string {

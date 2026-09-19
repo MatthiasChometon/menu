@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -23,6 +24,7 @@ import { AuthService } from './service';
 
 @Module({
   imports: [
+    HttpModule,
     UserModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
