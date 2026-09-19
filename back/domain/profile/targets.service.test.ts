@@ -2,27 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 import { NutritionTargetsService } from './targets.service';
 import { Measurements } from './type';
+import { buildMeasurements } from './testing/measurements.builder';
 
 const service = new NutritionTargetsService();
-
-const measurements = (overrides: Partial<Measurements> = {}): Measurements => ({
-  sex: Sex.MALE,
-  age: 30,
-  heightCm: 175,
-  weightKg: 75,
-  dailyActivity: DailyActivity.SEATED,
-  trainingDaysPerWeek: 3,
-  trainingType: TrainingType.MIXED,
-  starchQuality: StarchQuality.MIXED,
-  appetite: Appetite.AVERAGE,
-  goal: Goal.MAINTAIN,
-  ...overrides,
-});
 
 // Nothing below is special-cased: these figures come out of the same formula as
 // everyone else's, from the answers the form would collect.
 const dailyLifter = (): Measurements =>
-  measurements({
+  buildMeasurements({
     age: 22,
     heightCm: 168,
     weightKg: 72,
@@ -53,14 +40,14 @@ describe('NutritionTargetsService', () => {
     // The whole point of asking two questions: a desk job with daily sessions
     // must outrank a standing job with none.
     const deskAndTraining = service.calculate(
-      measurements({
+      buildMeasurements({
         dailyActivity: DailyActivity.SEATED,
         trainingDaysPerWeek: 6,
         trainingType: TrainingType.STRENGTH,
       }),
     );
     const onFeetNoTraining = service.calculate(
-      measurements({
+      buildMeasurements({
         dailyActivity: DailyActivity.ON_FEET,
         trainingDaysPerWeek: 0,
         trainingType: TrainingType.NONE,
@@ -71,22 +58,22 @@ describe('NutritionTargetsService', () => {
   });
 
   it('raises the allowance with each weekly session', () => {
-    const twice = service.calculate(measurements({ trainingDaysPerWeek: 2 }));
-    const sixTimes = service.calculate(measurements({ trainingDaysPerWeek: 6 }));
+    const twice = service.calculate(buildMeasurements({ trainingDaysPerWeek: 2 }));
+    const sixTimes = service.calculate(buildMeasurements({ trainingDaysPerWeek: 6 }));
 
     expect(sixTimes.kcal).toBeGreaterThan(twice.kcal);
   });
 
   it('caps the activity factor so extreme answers stay believable', () => {
     const plausible = service.calculate(
-      measurements({
+      buildMeasurements({
         dailyActivity: DailyActivity.PHYSICAL,
         trainingDaysPerWeek: 7,
         trainingType: TrainingType.CARDIO,
       }),
     );
     const absurd = service.calculate(
-      measurements({
+      buildMeasurements({
         dailyActivity: DailyActivity.PHYSICAL,
         trainingDaysPerWeek: 14,
         trainingType: TrainingType.CARDIO,
@@ -97,8 +84,10 @@ describe('NutritionTargetsService', () => {
   });
 
   it('sets fibre from the starches actually eaten', () => {
-    const wholegrain = service.calculate(measurements({ starchQuality: StarchQuality.WHOLEGRAIN }));
-    const refined = service.calculate(measurements({ starchQuality: StarchQuality.REFINED }));
+    const wholegrain = service.calculate(
+      buildMeasurements({ starchQuality: StarchQuality.WHOLEGRAIN }),
+    );
+    const refined = service.calculate(buildMeasurements({ starchQuality: StarchQuality.REFINED }));
 
     expect(wholegrain.fiber).toBeGreaterThan(refined.fiber);
   });
@@ -106,24 +95,24 @@ describe('NutritionTargetsService', () => {
   it('gives a woman a lower allowance than a man of the same build', () => {
     const shared = { age: 55, heightCm: 165, weightKg: 65 };
 
-    const woman = service.calculate(measurements({ ...shared, sex: Sex.FEMALE }));
-    const man = service.calculate(measurements({ ...shared, sex: Sex.MALE }));
+    const woman = service.calculate(buildMeasurements({ ...shared, sex: Sex.FEMALE }));
+    const man = service.calculate(buildMeasurements({ ...shared, sex: Sex.MALE }));
 
     expect(woman.kcal).toBeLessThan(man.kcal);
   });
 
   it('orders the goals from losing to gaining', () => {
-    const lose = service.calculate(measurements({ goal: Goal.LOSE_FAT }));
-    const maintain = service.calculate(measurements({ goal: Goal.MAINTAIN }));
-    const gain = service.calculate(measurements({ goal: Goal.GAIN_MUSCLE }));
+    const lose = service.calculate(buildMeasurements({ goal: Goal.LOSE_FAT }));
+    const maintain = service.calculate(buildMeasurements({ goal: Goal.MAINTAIN }));
+    const gain = service.calculate(buildMeasurements({ goal: Goal.GAIN_MUSCLE }));
 
     expect(lose.kcal).toBeLessThan(maintain.kcal);
     expect(maintain.kcal).toBeLessThan(gain.kcal);
   });
 
   it('raises protein when losing fat, to protect muscle in a deficit', () => {
-    const lose = service.calculate(measurements({ goal: Goal.LOSE_FAT }));
-    const maintain = service.calculate(measurements({ goal: Goal.MAINTAIN }));
+    const lose = service.calculate(buildMeasurements({ goal: Goal.LOSE_FAT }));
+    const maintain = service.calculate(buildMeasurements({ goal: Goal.MAINTAIN }));
 
     expect(lose.protein).toBeGreaterThan(maintain.protein);
   });
@@ -133,7 +122,7 @@ describe('NutritionTargetsService', () => {
     // would be 46% of the day's calories and leave barely any carbohydrate,
     // which no one can actually eat week after week.
     const targets = service.calculate(
-      measurements({
+      buildMeasurements({
         sex: Sex.FEMALE,
         age: 55,
         heightCm: 165,
@@ -150,7 +139,7 @@ describe('NutritionTargetsService', () => {
   });
 
   it('splits the whole allowance across the three macros', () => {
-    const targets = service.calculate(measurements());
+    const targets = service.calculate(buildMeasurements());
 
     const fromMacros = targets.protein * 4 + targets.fat * 9 + targets.carbs * 4;
 
@@ -163,7 +152,7 @@ describe('NutritionTargetsService', () => {
     // A small, older, dieting woman: the case where the standard fat share
     // would swallow the carbohydrates.
     const targets = service.calculate(
-      measurements({
+      buildMeasurements({
         sex: Sex.FEMALE,
         age: 70,
         heightCm: 150,

@@ -1,18 +1,16 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { Goal, StarchQuality, TrainingType } from './enum';
+import { buildMeasurements } from './testing/measurements.builder';
 
-const MEASUREMENTS = {
-  sex: 'MALE',
+const MEASUREMENTS = buildMeasurements({
   age: 27,
   heightCm: 180,
-  weightKg: 75,
-  dailyActivity: 'SEATED',
   trainingDaysPerWeek: 5,
-  trainingType: 'STRENGTH',
-  starchQuality: 'WHOLEGRAIN',
-  appetite: 'AVERAGE',
-  goal: 'GAIN_MUSCLE',
-};
+  trainingType: TrainingType.STRENGTH,
+  starchQuality: StarchQuality.WHOLEGRAIN,
+  goal: Goal.GAIN_MUSCLE,
+});
 
 const TARGET_FIELDS = `targets { kcal protein fat carbs fiber }`;
 
