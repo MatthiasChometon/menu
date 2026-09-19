@@ -10,9 +10,10 @@ const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').ends
 
 <template>
   <!-- Offered only to somebody signed in, because the report is filed under an
-       account and answered at an address. Sat above the bottom bar on a phone,
-       where the thumb already is — the point is to be there at the moment the
-       problem happens, not to be findable later. -->
+       account and answered at an address. Sat above the tab bar wherever it
+       shows — a phone and a tablet both, up to lg — where the thumb already is,
+       and back to the corner only once the nav is gone. The point is to be there
+       at the moment the problem happens, not to be findable later. -->
   <ClientOnly>
     <UButton
       v-if="user !== undefined && !onFocusedPage"
@@ -20,7 +21,7 @@ const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').ends
       color="neutral"
       variant="solid"
       size="sm"
-      class="fixed bottom-20 right-4 z-30 rounded-full shadow-lg sm:bottom-6"
+      class="fixed bottom-20 right-4 z-30 rounded-full shadow-lg lg:bottom-6"
       :aria-label="$t('bugReport.open')"
       :title="$t('bugReport.open')"
       @click="open"
