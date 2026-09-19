@@ -301,10 +301,11 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
          nav covered all but ten pixels of the button, so a thumb aiming at
          "Suivant" opened "Mon profil" instead. The offset is the nav's own
          height plus whatever the phone reserves at the bottom of the screen;
-         above sm there is no nav and the bar goes back to the floor. A test
+         the tab bar shows below lg — on a tablet too — so the bar clears it up
+         to there and only goes back to the floor once the nav is gone. A test
          holds the two apart, so neither can drift into the other. -->
     <div
-      class="fixed inset-x-0 bottom-[calc(4.125rem+env(safe-area-inset-bottom))] z-30 border-t border-default bg-default/95 px-4 pb-4 pt-3 backdrop-blur-lg sm:bottom-0 sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
+      class="fixed inset-x-0 bottom-[calc(4.125rem+env(safe-area-inset-bottom))] z-30 border-t border-default bg-default/95 px-4 pb-4 pt-3 backdrop-blur-lg lg:bottom-0 lg:pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <div class="mx-auto flex max-w-3xl items-center gap-3">
         <UButton
