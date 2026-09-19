@@ -64,3 +64,40 @@ export type MacroSwap = {
  *  is telling the composer "not this one" rather than picking it again every
  *  time the week is rebuilt. */
 export type LockedSlots = Partial<Record<DayKey, Partial<Record<MealSlot, true>>>>;
+
+/** A week being worked on but not saved, held while another one is looked at. */
+export type WeekDraft = {
+  plan: PlannedWeek;
+  chosen: Partial<Record<RecipeSlot, string[]>>;
+  spreadFrom: string;
+  isDirty: boolean;
+  locked: LockedSlots;
+};
+
+/** How far one macro sits from its target across the week, as a percentage. */
+export type MacroGap = { macro: keyof Macros; gapPercent: number };
+
+export type SelectionBalance = {
+  /** At least one group is served, so there is something to measure. */
+  isReady: boolean;
+  /** Every group is served: the figures now describe a whole week. */
+  isComplete: boolean;
+  isBalanced: boolean;
+  /** Only the macros worth mentioning. Empty means nothing needs fixing. */
+  gaps: MacroGap[];
+  /** Every macro, for the gauge. */
+  all: MacroGap[];
+  /** How far this macro may stray before it counts as off, as a percentage. */
+  toleranceOf: (macro: keyof Macros) => number;
+};
+
+/** What the current selection would cost, spread over the week, against the
+ *  reader's own target — when they set one. */
+export type BudgetStatus = {
+  /** Euros the selection would come to once spread over the window. */
+  cost: number;
+  /** The reader's weekly target. Undefined means no budget is set: nothing to
+   *  warn about, and nothing the generator steers away from either. */
+  budget: number | undefined;
+  isOverBudget: boolean;
+};

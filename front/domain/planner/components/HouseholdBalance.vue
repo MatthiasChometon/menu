@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { MacroGap } from '../composables/usePlanner';
 import type { EaterVerdict } from '../composables/useHouseholdBalance';
 
 const { days, targets } = usePlanner();

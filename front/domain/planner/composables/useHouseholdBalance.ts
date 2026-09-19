@@ -1,5 +1,4 @@
 import { MACRO_ORDER } from './usePlanner';
-import type { MacroGap } from './usePlanner';
 import type { Eater } from '../../profile/composables/useHouseholdQuantities';
 
 // Wider than the composer's own five percent: portions are rounded to the

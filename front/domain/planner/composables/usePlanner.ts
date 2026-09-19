@@ -23,43 +23,6 @@ export const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const
 // somebody hunting for a dish to fix a gap they do not have.
 const BALANCE_TOLERANCE = 5;
 
-/** A week being worked on but not saved, held while another one is looked at. */
-type WeekDraft = {
-  plan: PlannedWeek;
-  chosen: Partial<Record<RecipeSlot, string[]>>;
-  spreadFrom: string;
-  isDirty: boolean;
-  locked: LockedSlots;
-};
-
-/** How far one macro sits from its target across the week, as a percentage. */
-export type MacroGap = { macro: keyof Macros; gapPercent: number };
-
-export type SelectionBalance = {
-  /** At least one group is served, so there is something to measure. */
-  isReady: boolean;
-  /** Every group is served: the figures now describe a whole week. */
-  isComplete: boolean;
-  isBalanced: boolean;
-  /** Only the macros worth mentioning. Empty means nothing needs fixing. */
-  gaps: MacroGap[];
-  /** Every macro, for the gauge. */
-  all: MacroGap[];
-  /** How far this macro may stray before it counts as off, as a percentage. */
-  toleranceOf: (macro: keyof Macros) => number;
-};
-
-/** What the current selection would cost, spread over the week, against the
- *  reader's own target — when they set one. */
-export type BudgetStatus = {
-  /** Euros the selection would come to once spread over the window. */
-  cost: number;
-  /** The reader's weekly target. Undefined means no budget is set: nothing to
-   *  warn about, and nothing the generator steers away from either. */
-  budget: number | undefined;
-  isOverBudget: boolean;
-};
-
 // Which meals a chosen dish fills. The savoury dishes carry both lunch and
 // dinner, which is how the week has always been built: full portion at noon,
 // the rest in the evening. The snack group carries both afternoon en-cas — what
