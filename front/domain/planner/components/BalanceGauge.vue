@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { MacroGap } from '../composables/usePlanner';
-
 const { gap, tolerance, label } = defineProps<{
   gap: MacroGap;
   tolerance: number;

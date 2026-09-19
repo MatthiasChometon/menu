@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { MacroGap } from '../composables/usePlanner';
-
 const { selectionBalance, budgetStatus } = usePlanner();
 const { wordingOf } = useBalanceWording();
 const { round } = useFoodFormat();
