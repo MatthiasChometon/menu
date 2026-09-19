@@ -1,23 +1,21 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { Sex, StarchQuality, TrainingType } from '../profile/enum';
+import { buildMeasurements } from '../profile/testing/measurements.builder';
 import { householdConstraints } from './utils';
 
 const OWNER = 'matthias@example.com';
 const SOMEBODY_ELSE = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 
-const ANSWERS = {
-  sex: 'FEMALE',
-  age: 30,
+const ANSWERS = buildMeasurements({
+  sex: Sex.FEMALE,
   heightCm: 165,
   weightKg: 60,
-  dailyActivity: 'SEATED',
   trainingDaysPerWeek: 2,
-  trainingType: 'CARDIO',
-  starchQuality: 'WHOLEGRAIN',
-  appetite: 'AVERAGE',
-  goal: 'MAINTAIN',
-};
+  trainingType: TrainingType.CARDIO,
+  starchQuality: StarchQuality.WHOLEGRAIN,
+});
 
 const MEMBER_FIELDS = `id name weightKg goal targets { kcal protein fat carbs fiber }`;
 
