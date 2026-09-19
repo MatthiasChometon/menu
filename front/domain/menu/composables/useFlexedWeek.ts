@@ -2,7 +2,9 @@ import { buildShoppingList } from '../utils/menu';
 import { sumMacros } from '../utils/nutrition';
 
 const mealAt = (days: Day[], day: DayKey, slot: MealSlot): Meal | undefined =>
-  days.find((entry): boolean => entry.key === day)?.meals.find((meal): boolean => meal.slot === slot);
+  days
+    .find((entry): boolean => entry.key === day)
+    ?.meals.find((meal): boolean => meal.slot === slot);
 
 // Built on top of the plan, never inside it: the composed week and the demo
 // week stay exactly what was planned. What actually happens — a meal skipped,
@@ -102,15 +104,13 @@ export const useFlexedWeek = (
     flexedDays.map((day): Day => ({
       key: day.key,
       macros: day.macros,
-      meals: day.meals.map(
-        (meal): Meal => ({
-          slot: meal.slot,
-          recipe: meal.recipe,
-          macros: meal.macros,
-          portionRatio: meal.portionRatio,
-          quantities: meal.flex.isLeftover ? [] : meal.quantities,
-        }),
-      ),
+      meals: day.meals.map((meal): Meal => ({
+        slot: meal.slot,
+        recipe: meal.recipe,
+        macros: meal.macros,
+        portionRatio: meal.portionRatio,
+        quantities: meal.flex.isLeftover ? [] : meal.quantities,
+      })),
     }));
 
   return {
@@ -121,13 +121,11 @@ export const useFlexedWeek = (
 
       return {
         ...base,
-        days: days.value.map(
-          (day): Day => ({
-            key: day.key,
-            macros: day.macros,
-            meals: day.meals.filter((meal): boolean => meal.flex.excludedAs === undefined),
-          }),
-        ),
+        days: days.value.map((day): Day => ({
+          key: day.key,
+          macros: day.macros,
+          meals: day.meals.filter((meal): boolean => meal.flex.excludedAs === undefined),
+        })),
       };
     }),
     shoppingMenu: computed((): Menu | undefined => {

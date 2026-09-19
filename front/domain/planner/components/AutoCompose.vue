@@ -1,6 +1,13 @@
 <script setup lang="ts">
-const { generateWeek, isGenerating, isImproving, pastComposedWeeks, duplicateFrom, goToStep, steps } =
-  usePlanner();
+const {
+  generateWeek,
+  isGenerating,
+  isImproving,
+  pastComposedWeeks,
+  duplicateFrom,
+  goToStep,
+  steps,
+} = usePlanner();
 const { labelOf } = usePlannerWeek();
 
 const isPreferencesOpen = ref(false);

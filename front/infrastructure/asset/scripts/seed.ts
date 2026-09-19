@@ -5,7 +5,17 @@
 //
 // Usage: pnpm --dir front seed-images [--dry-run]
 import { spawn } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fingerprint } from '../utils/fingerprint';
@@ -13,9 +23,10 @@ import { ASSETS } from './paths';
 
 const SOURCE = join(ASSETS, 'images');
 const KINDS = ['recipe', 'food', 'equipment'] as const;
-const SSH = process.platform === 'win32'
-  ? join(process.env.WINDIR ?? 'C:/Windows', 'System32', 'OpenSSH', 'ssh.exe')
-  : 'ssh';
+const SSH =
+  process.platform === 'win32'
+    ? join(process.env.WINDIR ?? 'C:/Windows', 'System32', 'OpenSSH', 'ssh.exe')
+    : 'ssh';
 const SSH_KEY = join(homedir(), '.ssh', 'o2switch_menu');
 const SSH_HOST = 'luzi6802@bouclier.o2switch.net';
 const REMOTE_ROOT = '~/images.menuuu.duckdns.org';
@@ -24,7 +35,11 @@ const push = (staging: string): Promise<string> =>
   new Promise((resolve, reject) => {
     const tar = spawn('tar', ['-C', staging, '-cf', '-', '.']);
     const remote = spawn(SSH, [
-      '-i', SSH_KEY, '-o', 'BatchMode=yes', SSH_HOST,
+      '-i',
+      SSH_KEY,
+      '-o',
+      'BatchMode=yes',
+      SSH_HOST,
       `tar -x -C ${REMOTE_ROOT} && ls ${REMOTE_ROOT}/recipe | wc -l`,
     ]);
     tar.stdout.pipe(remote.stdin);
@@ -32,7 +47,9 @@ const push = (staging: string): Promise<string> =>
     let err = '';
     remote.stdout.on('data', (chunk): string => (out += chunk));
     remote.stderr.on('data', (chunk): string => (err += chunk));
-    remote.on('close', (code): void => (code === 0 ? resolve(out.trim()) : reject(new Error(err.trim()))));
+    remote.on('close', (code): void =>
+      code === 0 ? resolve(out.trim()) : reject(new Error(err.trim())),
+    );
     tar.on('error', reject);
     remote.on('error', reject);
   });
@@ -51,7 +68,11 @@ const main = async (): Promise<void> => {
       mkdirSync(join(staging, kind), { recursive: true });
 
       const dir = join(SOURCE, kind);
-      const photos = existsSync(dir) ? readdirSync(dir).filter((f): boolean => f.endsWith('.webp')).sort() : [];
+      const photos = existsSync(dir)
+        ? readdirSync(dir)
+            .filter((f): boolean => f.endsWith('.webp'))
+            .sort()
+        : [];
       for (const photo of photos) {
         const stem = photo.slice(0, -'.webp'.length);
         const source = join(dir, photo);

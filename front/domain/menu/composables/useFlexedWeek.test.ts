@@ -23,9 +23,9 @@ describe('useFlexedWeek', () => {
       menu.days.map((day): number => day.meals.length),
     );
     expect(days.value[0]?.macros).toEqual(menu.days[0]?.macros);
-    expect(days.value.every((day): boolean => day.meals.every((meal): boolean => !meal.flex.isSwapped))).toBe(
-      true,
-    );
+    expect(
+      days.value.every((day): boolean => day.meals.every((meal): boolean => !meal.flex.isSwapped)),
+    ).toBe(true);
   });
 
   it('drops an eaten-out meal from the day macros but still shows it', () => {
@@ -105,7 +105,12 @@ describe('useFlexedWeek', () => {
     const today = menu.days[1];
     const meal = yesterday?.meals[0];
     const plannedToday = today?.meals.find((entry): boolean => entry.slot === meal?.slot);
-    if (yesterday === undefined || today === undefined || meal === undefined || plannedToday === undefined) {
+    if (
+      yesterday === undefined ||
+      today === undefined ||
+      meal === undefined ||
+      plannedToday === undefined
+    ) {
       throw new Error('the week needs two days sharing a slot');
     }
 
@@ -129,7 +134,12 @@ describe('useFlexedWeek', () => {
     const target = menu.days[2];
     const meal = origin?.meals[0];
     const plannedTarget = target?.meals.find((entry): boolean => entry.slot === meal?.slot);
-    if (origin === undefined || target === undefined || meal === undefined || plannedTarget === undefined) {
+    if (
+      origin === undefined ||
+      target === undefined ||
+      meal === undefined ||
+      plannedTarget === undefined
+    ) {
       throw new Error('the week needs three days sharing a slot');
     }
 
@@ -152,7 +162,12 @@ describe('useFlexedWeek', () => {
     const chosenOrigin = menu.days[1];
     const today = menu.days[2];
     const slot = yesterday?.meals[0]?.slot;
-    if (yesterday === undefined || chosenOrigin === undefined || today === undefined || slot === undefined) {
+    if (
+      yesterday === undefined ||
+      chosenOrigin === undefined ||
+      today === undefined ||
+      slot === undefined
+    ) {
       throw new Error('the week needs three days sharing a slot');
     }
 

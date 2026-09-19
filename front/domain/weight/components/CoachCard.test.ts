@@ -22,11 +22,10 @@ mockNuxtImport(
 
 mockNuxtImport(
   'useProfile',
-  () =>
-    (): { hasAnswered: Ref<boolean>; adjustTargets: typeof adjustTargets } => ({
-      hasAnswered: ref(state.hasAnswered),
-      adjustTargets,
-    }),
+  () => (): { hasAnswered: Ref<boolean>; adjustTargets: typeof adjustTargets } => ({
+    hasAnswered: ref(state.hasAnswered),
+    adjustTargets,
+  }),
 );
 
 beforeEach(async () => {

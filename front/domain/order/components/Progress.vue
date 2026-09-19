@@ -30,7 +30,7 @@ const lastAdded = computed((): string | undefined => {
   const placed = job.events.filter((event): boolean => event.kind === 'LINE_ADDED');
   const last = placed.at(-1);
 
-  return (last?.label ?? last?.foodId) ?? undefined;
+  return last?.label ?? last?.foodId ?? undefined;
 });
 
 const icon = computed((): string => {
@@ -90,7 +90,10 @@ const showBar = computed((): boolean => isRunning.value || isDone.value || added
           :style="{ width: `${percent}%` }"
         />
       </div>
-      <p v-if="isRunning && lastAdded !== undefined" class="mt-1.5 flex items-center gap-1.5 text-xs text-muted">
+      <p
+        v-if="isRunning && lastAdded !== undefined"
+        class="mt-1.5 flex items-center gap-1.5 text-xs text-muted"
+      >
         <UIcon name="i-lucide-plus" class="size-3 shrink-0 text-primary" />
         <span class="truncate">{{ lastAdded }}</span>
       </p>

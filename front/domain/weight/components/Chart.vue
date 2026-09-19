@@ -79,7 +79,9 @@ const xTicks = computed((): XTick[] => {
   const last = ordered.value.at(-1);
   if (first === undefined || last === undefined) return [];
   if (first.date === last.date)
-    return [{ x: scaleXOf(first.date, domain.value), label: shortDateOf(first.date), anchor: 'middle' }];
+    return [
+      { x: scaleXOf(first.date, domain.value), label: shortDateOf(first.date), anchor: 'middle' },
+    ];
 
   return [
     { x: scaleXOf(first.date, domain.value), label: shortDateOf(first.date), anchor: 'start' },

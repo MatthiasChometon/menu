@@ -12,10 +12,13 @@ const { t } = useNuxtApp().$i18n;
 // Three to seven days. Never more: past a week a weekday would repeat, and the
 // days are stored by weekday.
 const lengthOptions = computed((): { label: string; value: number }[] =>
-  Array.from({ length: MAX_LENGTH - MIN_LENGTH + 1 }, (_, offset): { label: string; value: number } => {
-    const days = MIN_LENGTH + offset;
-    return { label: `${days} ${t('planner.weekChoice.days')}`, value: days };
-  }),
+  Array.from(
+    { length: MAX_LENGTH - MIN_LENGTH + 1 },
+    (_, offset): { label: string; value: number } => {
+      const days = MIN_LENGTH + offset;
+      return { label: `${days} ${t('planner.weekChoice.days')}`, value: days };
+    },
+  ),
 );
 </script>
 

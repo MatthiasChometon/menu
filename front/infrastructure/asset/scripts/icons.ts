@@ -48,7 +48,10 @@ export const drawIcon = async (size: number): Promise<Buffer> => {
   });
   disc(big * 0.06, PLATE_PALETTE.plate);
 
-  return sharp(canvas.toBuffer('image/png')).resize(size, size, { kernel: 'lanczos3' }).png().toBuffer();
+  return sharp(canvas.toBuffer('image/png'))
+    .resize(size, size, { kernel: 'lanczos3' })
+    .png()
+    .toBuffer();
 };
 
 const main = async (): Promise<void> => {

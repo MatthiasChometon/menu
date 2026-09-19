@@ -11,10 +11,14 @@ const canSignIn = computed((): boolean => apiBase.value.length > 0);
 // hidden when it is not (a fresh dev checkout has no OAuth app), so nobody
 // clicks one that can only fail — email/password still works. server: false
 // because the site is prerendered; default false so a broken button never flashes.
-const { data: google } = useAsyncData('google-enabled', (): Promise<{ googleEnabled: boolean }> => GqlGoogleEnabled(), {
-  server: false,
-  default: (): { googleEnabled: boolean } => ({ googleEnabled: false }),
-});
+const { data: google } = useAsyncData(
+  'google-enabled',
+  (): Promise<{ googleEnabled: boolean }> => GqlGoogleEnabled(),
+  {
+    server: false,
+    default: (): { googleEnabled: boolean } => ({ googleEnabled: false }),
+  },
+);
 const googleEnabled = computed((): boolean => google.value?.googleEnabled ?? false);
 
 // A full page load, not a router navigation: the OAuth dance leaves the app.

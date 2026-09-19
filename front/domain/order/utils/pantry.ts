@@ -3,7 +3,14 @@ import type { Food } from '../../menu/types/menu.type';
 // What does not keep from one week to the next: no point counting leftover
 // salmon or salad as stock.
 const PERISHABLE_AISLES = new Set<Food['aisle']>(['butcher', 'produce']);
-const PERISHABLE_IDS = new Set(['skyr', 'quark', 'egg', 'wholeMilk', 'semiSkimmedMilk', 'hardCheese']);
+const PERISHABLE_IDS = new Set([
+  'skyr',
+  'quark',
+  'egg',
+  'wholeMilk',
+  'semiSkimmedMilk',
+  'hardCheese',
+]);
 
 export const keeps = (food: Food): boolean =>
   !PERISHABLE_IDS.has(food.id) && !PERISHABLE_AISLES.has(food.aisle);

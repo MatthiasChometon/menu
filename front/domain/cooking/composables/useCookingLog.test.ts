@@ -46,7 +46,9 @@ describe('useCookingLog', () => {
     const menu = menuOf();
     const { progressOf } = logOf();
 
-    const chili = progressOf(menu).find((entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl');
+    const chili = progressOf(menu).find(
+      (entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl',
+    );
 
     expect(chili?.servings).toBeGreaterThan(0);
     expect(chili?.left).toBe(0);
@@ -57,7 +59,9 @@ describe('useCookingLog', () => {
     const { setStatus, progressOf, servingsOf } = logOf();
 
     setStatus('teriyakiSalmonBowl', 'done');
-    const chili = progressOf(menu).find((entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl');
+    const chili = progressOf(menu).find(
+      (entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl',
+    );
 
     expect(chili?.left).toBe(servingsOf(menu, 'teriyakiSalmonBowl'));
   });
@@ -77,7 +81,9 @@ describe('useCookingLog', () => {
     setStatus('teriyakiSalmonBowl', 'done');
     toggleEaten(first.day, first.slot);
 
-    const chili = progressOf(menu).find((entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl');
+    const chili = progressOf(menu).find(
+      (entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl',
+    );
 
     expect(chili?.left).toBe(servingsOf(menu, 'teriyakiSalmonBowl') - 1);
   });
@@ -109,7 +115,9 @@ describe('useCookingLog', () => {
       }
     }
 
-    const chili = progressOf(menu).find((entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl');
+    const chili = progressOf(menu).find(
+      (entry): boolean => entry.recipe.id === 'teriyakiSalmonBowl',
+    );
 
     expect(chili?.left).toBe(0);
   });

@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui';
 
-const { meal, dayKey, leftoverTargets = [] } = defineProps<{
+const {
+  meal,
+  dayKey,
+  leftoverTargets = [],
+} = defineProps<{
   meal: FlexedMeal;
   dayKey: DayKey;
   /** Later days sharing this slot, free to be sent this dish's leftovers. */
@@ -81,13 +85,11 @@ const leftoverAssignmentItems = computed((): DropdownMenuItem[] => {
     ];
   }
 
-  return leftoverTargets.map(
-    (targetDay): DropdownMenuItem => ({
-      label: `${t('menu.flex.leftover.keepFor')} ${t(`menu.day.${targetDay}`)}`,
-      icon: 'i-lucide-package-plus',
-      onSelect: (): void => assignLeftover(dayKey, meal.slot, targetDay, meal.slot),
-    }),
-  );
+  return leftoverTargets.map((targetDay): DropdownMenuItem => ({
+    label: `${t('menu.flex.leftover.keepFor')} ${t(`menu.day.${targetDay}`)}`,
+    icon: 'i-lucide-package-plus',
+    onSelect: (): void => assignLeftover(dayKey, meal.slot, targetDay, meal.slot),
+  }));
 });
 
 const menuItems = computed((): DropdownMenuItem[][] => {
@@ -166,10 +168,20 @@ const menuItems = computed((): DropdownMenuItem[][] => {
             <UBadge v-if="isReady && !eaten" color="primary" variant="subtle" size="sm">
               {{ $t('cooking.inTheFridge') }}
             </UBadge>
-            <UBadge v-if="meal.flex.excludedAs === 'eatingOut'" color="neutral" variant="subtle" size="sm">
+            <UBadge
+              v-if="meal.flex.excludedAs === 'eatingOut'"
+              color="neutral"
+              variant="subtle"
+              size="sm"
+            >
               {{ $t('menu.flex.override.eatingOutBadge') }}
             </UBadge>
-            <UBadge v-if="meal.flex.excludedAs === 'cheatMeal'" color="warning" variant="subtle" size="sm">
+            <UBadge
+              v-if="meal.flex.excludedAs === 'cheatMeal'"
+              color="warning"
+              variant="subtle"
+              size="sm"
+            >
               {{ $t('menu.flex.override.cheatMealBadge') }}
             </UBadge>
             <UBadge v-if="meal.flex.isLeftover" color="primary" variant="subtle" size="sm">
@@ -217,14 +229,11 @@ const menuItems = computed((): DropdownMenuItem[][] => {
       <UIcon name="i-lucide-utensils" class="size-4 shrink-0 text-primary" />
       <span class="flex-1 text-muted">
         {{ $t('menu.flex.leftover.suggestion') }}
-        <span class="font-medium text-default">{{ nameOf(meal.flex.suggestedLeftover.recipe) }}</span>
+        <span class="font-medium text-default">{{
+          nameOf(meal.flex.suggestedLeftover.recipe)
+        }}</span>
       </span>
-      <UButton
-        size="xs"
-        color="primary"
-        variant="soft"
-        @click="useLeftoverHere(dayKey, meal.slot)"
-      >
+      <UButton size="xs" color="primary" variant="soft" @click="useLeftoverHere(dayKey, meal.slot)">
         {{ $t('menu.flex.leftover.accept') }}
       </UButton>
       <UButton

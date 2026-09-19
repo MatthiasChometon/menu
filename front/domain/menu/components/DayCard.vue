@@ -66,13 +66,11 @@ const flexItems = computed((): DropdownMenuItem[][] => [
           onSelect: (): void => setDayOff(day.key, slots.value),
         },
   ],
-  otherDayKeys.map(
-    (otherKey): DropdownMenuItem => ({
-      label: `${t('menu.flex.swap.action')} ${t(`menu.day.${otherKey}`)}`,
-      icon: 'i-lucide-shuffle',
-      onSelect: (): void => swapDay(day.key, otherKey, slots.value),
-    }),
-  ),
+  otherDayKeys.map((otherKey): DropdownMenuItem => ({
+    label: `${t('menu.flex.swap.action')} ${t(`menu.day.${otherKey}`)}`,
+    icon: 'i-lucide-shuffle',
+    onSelect: (): void => swapDay(day.key, otherKey, slots.value),
+  })),
 ]);
 
 // "Lundi" alone does not say which Monday. Reading a week meant counting rows
@@ -129,7 +127,9 @@ watch(
           :aria-controls="`day-${day.key}`"
           @click="isOpen = !isOpen"
         >
-          <span class="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2.5">
+          <span
+            class="flex min-w-0 flex-col leading-tight sm:flex-row sm:items-baseline sm:gap-2.5"
+          >
             <span class="font-serif text-2xl">{{ $t(`menu.day.${day.key}`) }}</span>
             <span v-if="dateLabel !== undefined" class="text-sm text-muted tabular-nums">
               {{ dateLabel }}

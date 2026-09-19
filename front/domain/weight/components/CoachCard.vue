@@ -104,7 +104,9 @@ const rateLabel = computed((): string | undefined => {
             :disabled="justAdjusted"
             @click="applyAdjustment"
           >
-            {{ justAdjusted ? $t('weight.coach.adjustTargetsDone') : $t('weight.coach.adjustTargets') }}
+            {{
+              justAdjusted ? $t('weight.coach.adjustTargetsDone') : $t('weight.coach.adjustTargets')
+            }}
           </UButton>
 
           <p v-if="adjustFailed" class="mt-2 text-xs text-error" role="alert">
@@ -112,10 +114,7 @@ const rateLabel = computed((): string | undefined => {
           </p>
         </div>
 
-        <p
-          v-else-if="advice.kcalAdjustment !== undefined"
-          class="mt-3 text-xs text-dimmed"
-        >
+        <p v-else-if="advice.kcalAdjustment !== undefined" class="mt-3 text-xs text-dimmed">
           {{ $t('weight.coach.adjustTargetsNoProfile') }}
         </p>
       </div>

@@ -35,9 +35,7 @@ describe('useBatchPlan', () => {
       .filter((quantity): boolean => quantity.food.id === 'salmon')
       .reduce((total, quantity): number => total + quantity.grams, 0);
 
-    const chicken = chili.quantities.find(
-      (quantity): boolean => quantity.food.id === 'salmon',
-    );
+    const chicken = chili.quantities.find((quantity): boolean => quantity.food.id === 'salmon');
 
     expect(chicken?.grams).toBe(Math.round(expected ?? 0));
   });

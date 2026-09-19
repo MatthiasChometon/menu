@@ -29,7 +29,9 @@ describe('arming a timer from a step', () => {
   });
 
   it('offers to arm a timer for the duration written in the step', async () => {
-    const wrapper = await mountSuspended(StepList, { props: { steps: [NO_DURATION, WITH_DURATION] } });
+    const wrapper = await mountSuspended(StepList, {
+      props: { steps: [NO_DURATION, WITH_DURATION] },
+    });
 
     expect(wrapper.text()).toContain('Armer un minuteur');
     expect(wrapper.text()).toContain('25');
@@ -69,7 +71,9 @@ describe('arming a timer from a step', () => {
 
 describe('ticking a step off', () => {
   it('marks a step done on tap, and counts it in the progress', async () => {
-    const wrapper = await mountSuspended(StepList, { props: { steps: [NO_DURATION, WITH_DURATION] } });
+    const wrapper = await mountSuspended(StepList, {
+      props: { steps: [NO_DURATION, WITH_DURATION] },
+    });
 
     expect(wrapper.text()).toContain('0 / 2');
 

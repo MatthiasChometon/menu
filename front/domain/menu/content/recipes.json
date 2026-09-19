@@ -16,13 +16,7 @@
       "wholewheatPasta": 120,
       "oliveOil": 10
     },
-    "seasonings": [
-      "oregano",
-      "garlic",
-      "balsamicVinegar",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["oregano", "garlic", "balsamicVinegar", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer {l’oignon|onion} et râper {la carotte|carrot} ; les faire suer dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}, 4 min.",
@@ -59,12 +53,7 @@
       "honey": 8,
       "oliveOil": 8
     },
-    "seasonings": [
-      "ginger",
-      "garlic",
-      "soySauce",
-      "pepper"
-    ],
+    "seasonings": ["ginger", "garlic", "soySauce", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min à petits bouillons.",
@@ -104,14 +93,7 @@
       "brownRice": 120,
       "oliveOil": 10
     },
-    "seasonings": [
-      "cumin",
-      "turmeric",
-      "paprika",
-      "ginger",
-      "garlic",
-      "salt"
-    ],
+    "seasonings": ["cumin", "turmeric", "paprika", "ginger", "garlic", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} à l’eau salée, 35 min.",
@@ -149,12 +131,7 @@
       "brownRice": 120,
       "oliveOil": 12
     },
-    "seasonings": [
-      "herbesDeProvence",
-      "garlic",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["herbesDeProvence", "garlic", "salt", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} à l’eau salée, 35 min.",
@@ -191,12 +168,7 @@
       "mushrooms": 60,
       "oliveOil": 10
     },
-    "seasonings": [
-      "ginger",
-      "garlic",
-      "soySauce",
-      "chilli"
-    ],
+    "seasonings": ["ginger", "garlic", "soySauce", "chilli"],
     "steps": {
       "fr": [
         "Cuire {les nouilles complètes|wholewheatPasta} al dente, les égoutter et les réserver.",
@@ -233,13 +205,7 @@
       "brownRice": 120,
       "oliveOil": 10
     },
-    "seasonings": [
-      "oregano",
-      "garlic",
-      "paprika",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["oregano", "garlic", "paprika", "salt", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} à l’eau salée, 35 min.",
@@ -276,13 +242,7 @@
       "peanutButter": 15,
       "oliveOil": 8
     },
-    "seasonings": [
-      "soySauce",
-      "ginger",
-      "garlic",
-      "chilli",
-      "lemon"
-    ],
+    "seasonings": ["soySauce", "ginger", "garlic", "chilli", "lemon"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min à petits bouillons.",
@@ -318,13 +278,7 @@
       "blackOlives": 20,
       "oliveOil": 12
     },
-    "seasonings": [
-      "lemon",
-      "oregano",
-      "garlic",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "oregano", "garlic", "salt", "pepper"],
     "steps": {
       "fr": [
         "Mettre {les pâtes complètes|wholewheatPasta} à cuire à l’eau salée.",
@@ -360,12 +314,7 @@
       "wholegrainBread": 90,
       "oliveOil": 14
     },
-    "seasonings": [
-      "herbesDeProvence",
-      "garlic",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["herbesDeProvence", "garlic", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer {le poireau|leek} et {la carotte|carrot} en rondelles.",
@@ -402,13 +351,7 @@
       "avocado": 50,
       "oliveOil": 8
     },
-    "seasonings": [
-      "cumin",
-      "smokedPaprika",
-      "chilli",
-      "lemon",
-      "garlic"
-    ],
+    "seasonings": ["cumin", "smokedPaprika", "chilli", "lemon", "garlic"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -445,13 +388,7 @@
       "egg": 60,
       "oliveOil": 8
     },
-    "seasonings": [
-      "soySauce",
-      "ginger",
-      "garlic",
-      "chilli",
-      "pepper"
-    ],
+    "seasonings": ["soySauce", "ginger", "garlic", "chilli", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -487,14 +424,7 @@
       "onion": 60,
       "oliveOil": 12
     },
-    "seasonings": [
-      "cumin",
-      "smokedPaprika",
-      "garlic",
-      "lemon",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["cumin", "smokedPaprika", "garlic", "lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -530,14 +460,7 @@
       "tomato": 100,
       "oliveOil": 10
     },
-    "seasonings": [
-      "curryPowder",
-      "turmeric",
-      "chilli",
-      "ginger",
-      "garlic",
-      "salt"
-    ],
+    "seasonings": ["curryPowder", "turmeric", "chilli", "ginger", "garlic", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -572,13 +495,7 @@
       "freshSpinach": 100,
       "oliveOil": 12
     },
-    "seasonings": [
-      "lemon",
-      "garlic",
-      "herbesDeProvence",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "garlic", "herbesDeProvence", "salt", "pepper"],
     "steps": {
       "fr": [
         "Mettre {les pâtes complètes|wholewheatPasta} à cuire à l’eau salée.",
@@ -614,13 +531,7 @@
       "onion": 50,
       "oliveOil": 4
     },
-    "seasonings": [
-      "curryPowder",
-      "turmeric",
-      "ginger",
-      "garlic",
-      "salt"
-    ],
+    "seasonings": ["curryPowder", "turmeric", "ginger", "garlic", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -656,13 +567,7 @@
       "oliveOil": 16,
       "wholegrainBread": 60
     },
-    "seasonings": [
-      "garlic",
-      "oregano",
-      "lemon",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "oregano", "lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer {l’oignon|onion} et le faire suer dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}, 5 min.",
@@ -698,13 +603,7 @@
       "blackOlives": 25,
       "oliveOil": 4
     },
-    "seasonings": [
-      "lemon",
-      "oregano",
-      "garlic",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "oregano", "garlic", "salt", "pepper"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -740,14 +639,7 @@
       "crushedTomatoes": 150,
       "oliveOil": 12
     },
-    "seasonings": [
-      "smokedPaprika",
-      "paprika",
-      "chilli",
-      "garlic",
-      "lemon",
-      "salt"
-    ],
+    "seasonings": ["smokedPaprika", "paprika", "chilli", "garlic", "lemon", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -782,13 +674,7 @@
       "freshSpinach": 80,
       "oliveOil": 16
     },
-    "seasonings": [
-      "garlic",
-      "chilli",
-      "lemon",
-      "smokedPaprika",
-      "salt"
-    ],
+    "seasonings": ["garlic", "chilli", "lemon", "smokedPaprika", "salt"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -824,14 +710,7 @@
       "onion": 60,
       "oliveOil": 4
     },
-    "seasonings": [
-      "curryPowder",
-      "turmeric",
-      "ginger",
-      "garlic",
-      "chilli",
-      "salt"
-    ],
+    "seasonings": ["curryPowder", "turmeric", "ginger", "garlic", "chilli", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -866,13 +745,7 @@
       "wholegrainBread": 130,
       "oliveOil": 8
     },
-    "seasonings": [
-      "garlic",
-      "lemon",
-      "chilli",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "lemon", "chilli", "salt", "pepper"],
     "steps": {
       "fr": [
         "Faire tomber {les épinards frais|freshSpinach} 3 min dans un filet d’{huile d’olive|oliveOil}, réserver.",
@@ -908,14 +781,7 @@
       "lightCoconutMilk": 60,
       "oliveOil": 4
     },
-    "seasonings": [
-      "curryPowder",
-      "turmeric",
-      "ginger",
-      "garlic",
-      "chilli",
-      "salt"
-    ],
+    "seasonings": ["curryPowder", "turmeric", "ginger", "garlic", "chilli", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -951,13 +817,7 @@
       "blackOlives": 20,
       "oliveOil": 6
     },
-    "seasonings": [
-      "garlic",
-      "oregano",
-      "lemon",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "oregano", "lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Mettre {les pâtes complètes|wholewheatPasta} à cuire à l’eau salée.",
@@ -994,14 +854,7 @@
       "tomato": 100,
       "oliveOil": 6
     },
-    "seasonings": [
-      "cumin",
-      "smokedPaprika",
-      "chilli",
-      "lemon",
-      "garlic",
-      "salt"
-    ],
+    "seasonings": ["cumin", "smokedPaprika", "chilli", "lemon", "garlic", "salt"],
     "steps": {
       "fr": [
         "Lancer {le riz complet|brownRice} dans deux fois son volume d’eau salée, 35 min.",
@@ -1037,13 +890,7 @@
       "wholegrainBread": 90,
       "oliveOil": 10
     },
-    "seasonings": [
-      "cumin",
-      "smokedPaprika",
-      "chilli",
-      "garlic",
-      "salt"
-    ],
+    "seasonings": ["cumin", "smokedPaprika", "chilli", "garlic", "salt"],
     "steps": {
       "fr": [
         "Émincer {l’oignon|onion} et {la carotte|carrot}, les faire suer 6 min dans {l’huile d’olive|oliveOil} avec {l’ail|garlic}.",
@@ -1078,12 +925,7 @@
       "egg": 60,
       "oliveOil": 8
     },
-    "seasonings": [
-      "garlic",
-      "smokedPaprika",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "smokedPaprika", "salt", "pepper"],
     "steps": {
       "fr": [
         "Égoutter {les haricots blancs|whiteBeans} et les rincer.",
@@ -1430,9 +1272,7 @@
       "hardCheese": 20,
       "oliveOil": 8
     },
-    "seasonings": [
-      "pepper"
-    ],
+    "seasonings": ["pepper"],
     "steps": {
       "fr": [
         "Mixer {l'avoine|oats}, {l'œuf|egg} et {le lait|semiSkimmedMilk} jusqu'à obtenir une pâte lisse.",
@@ -1468,11 +1308,7 @@
       "oliveOil": 8,
       "wholegrainBread": 70
     },
-    "seasonings": [
-      "garlic",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer {les champignons|mushrooms} et les faire dorer 4 min dans {l'huile d'olive|oliveOil} avec {l'ail|garlic}.",
@@ -1508,12 +1344,7 @@
       "oliveOil": 10,
       "wholegrainBread": 80
     },
-    "seasonings": [
-      "garlic",
-      "smokedPaprika",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["garlic", "smokedPaprika", "salt", "pepper"],
     "steps": {
       "fr": [
         "Émincer {le poivron|bellPepper} et {l'oignon|onion}.",
@@ -1548,11 +1379,7 @@
       "wholegrainBread": 70,
       "oliveOil": 8
     },
-    "seasonings": [
-      "salt",
-      "pepper",
-      "garlic"
-    ],
+    "seasonings": ["salt", "pepper", "garlic"],
     "steps": {
       "fr": [
         "Détailler {le brocoli|broccoli} en petits bouquets et les cuire 5 min à la vapeur, encore croquants.",
@@ -1587,11 +1414,7 @@
       "oliveOil": 8,
       "wholegrainBread": 70
     },
-    "seasonings": [
-      "oregano",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["oregano", "salt", "pepper"],
     "steps": {
       "fr": [
         "Couper {la courgette|zucchini} en petits dés.",
@@ -1626,9 +1449,7 @@
       "hardCheese": 15,
       "oliveOil": 8
     },
-    "seasonings": [
-      "pepper"
-    ],
+    "seasonings": ["pepper"],
     "steps": {
       "fr": [
         "Émincer {le poireau|leek} finement.",
@@ -1662,10 +1483,7 @@
       "cucumber": 100,
       "quark": 60
     },
-    "seasonings": [
-      "lemon",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "pepper"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -1698,11 +1516,7 @@
       "tomato": 80,
       "oliveOil": 8
     },
-    "seasonings": [
-      "lemon",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Cuire {l'œuf|egg} dur 10 min.",
@@ -1735,11 +1549,7 @@
       "tomato": 80,
       "oliveOil": 6
     },
-    "seasonings": [
-      "lemon",
-      "pepper",
-      "oregano"
-    ],
+    "seasonings": ["lemon", "pepper", "oregano"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -2785,10 +2595,7 @@
       "quark": 40,
       "cucumber": 100
     },
-    "seasonings": [
-      "lemon",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "pepper"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -2817,10 +2624,7 @@
       "mackerelTin": 90,
       "tomato": 100
     },
-    "seasonings": [
-      "lemon",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "pepper"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -2849,10 +2653,7 @@
       "apple": 180,
       "almonds": 15
     },
-    "seasonings": [
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["salt", "pepper"],
     "steps": {
       "fr": [
         "Cuire {les œufs|egg} durs 10 min dans l’eau bouillante.",
@@ -3131,10 +2932,7 @@
       "cucumber": 80,
       "tomato": 80
     },
-    "seasonings": [
-      "lemon",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "pepper"],
     "steps": {
       "fr": [
         "Égoutter {le thon|tunaTin} et l’émietter dans un bol avec {le cottage cheese|cottageCheese}.",
@@ -3216,10 +3014,7 @@
       "orange": 150,
       "almonds": 15
     },
-    "seasonings": [
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["salt", "pepper"],
     "steps": {
       "fr": [
         "Cuire {les œufs|egg} durs 10 min, les rafraîchir et les écaler.",
@@ -3275,10 +3070,7 @@
       "sardinesTin": 90,
       "cucumber": 100
     },
-    "seasonings": [
-      "lemon",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "pepper"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",
@@ -3417,11 +3209,7 @@
       "tunaTin": 100,
       "avocado": 60
     },
-    "seasonings": [
-      "lemon",
-      "salt",
-      "pepper"
-    ],
+    "seasonings": ["lemon", "salt", "pepper"],
     "steps": {
       "fr": [
         "Faire griller {le pain complet|wholegrainBread}.",

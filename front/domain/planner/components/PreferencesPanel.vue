@@ -43,7 +43,10 @@ type Option = { label: string; value: number | undefined };
 
 const prepItems = computed((): Option[] => [
   { label: t('planner.preferences.maxPrepNone'), value: undefined },
-  ...PREP_PRESETS.map((minutes): Option => ({ label: `${minutes} ${t('recipe.minutes')}`, value: minutes })),
+  ...PREP_PRESETS.map((minutes): Option => ({
+    label: `${minutes} ${t('recipe.minutes')}`,
+    value: minutes,
+  })),
 ]);
 
 const repeatItems = computed((): Option[] => [

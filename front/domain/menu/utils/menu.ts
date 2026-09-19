@@ -116,7 +116,9 @@ export const buildMenu = (raw: RawMenu, catalog: MenuCatalog): Menu => {
     .filter((day): day is Day => day !== undefined);
 
   const shoppingList = buildShoppingList(days);
-  const usedRecipeIds = new Set(days.flatMap((day): string[] => day.meals.map((meal): string => meal.recipe.id)));
+  const usedRecipeIds = new Set(
+    days.flatMap((day): string[] => day.meals.map((meal): string => meal.recipe.id)),
+  );
   const recipes = [...usedRecipeIds]
     .map((id): Recipe | undefined => catalog.recipeOf(id))
     .filter((recipe): recipe is Recipe => recipe !== undefined);

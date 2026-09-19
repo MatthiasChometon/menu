@@ -132,9 +132,7 @@ const statusLabel = computed((): string => {
           :color="isLocked(day.key, slot) ? 'primary' : 'neutral'"
           size="sm"
           :aria-pressed="isLocked(day.key, slot)"
-          :aria-label="
-            isLocked(day.key, slot) ? $t('planner.lock.unpin') : $t('planner.lock.pin')
-          "
+          :aria-label="isLocked(day.key, slot) ? $t('planner.lock.unpin') : $t('planner.lock.pin')"
           @click="toggleLock(day.key, slot)"
         />
         <UButton

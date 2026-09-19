@@ -25,11 +25,39 @@ const food = (partial: Partial<Food> & Pick<Food, 'id' | 'aisle'>): Food => ({
   ...partial,
 });
 
-const chickenBreast = food({ id: 'chickenBreast', aisle: 'butcher', protein: 23, fat: 2, carbs: 0, kcal: 110 });
-const turkeyBreast = food({ id: 'turkeyBreast', aisle: 'butcher', protein: 22, fat: 2, carbs: 0, kcal: 108 });
-const leanBeef = food({ id: 'leanBeef', aisle: 'butcher', protein: 21, fat: 8, carbs: 0, kcal: 170 });
+const chickenBreast = food({
+  id: 'chickenBreast',
+  aisle: 'butcher',
+  protein: 23,
+  fat: 2,
+  carbs: 0,
+  kcal: 110,
+});
+const turkeyBreast = food({
+  id: 'turkeyBreast',
+  aisle: 'butcher',
+  protein: 22,
+  fat: 2,
+  carbs: 0,
+  kcal: 108,
+});
+const leanBeef = food({
+  id: 'leanBeef',
+  aisle: 'butcher',
+  protein: 21,
+  fat: 8,
+  carbs: 0,
+  kcal: 170,
+});
 const wholeMilk = food({ id: 'wholeMilk', aisle: 'dairy', protein: 3, fat: 3, carbs: 5, kcal: 65 });
-const solitarySupplement = food({ id: 'creatine', aisle: 'supplement', protein: 0, fat: 0, carbs: 0, kcal: 0 });
+const solitarySupplement = food({
+  id: 'creatine',
+  aisle: 'supplement',
+  protein: 0,
+  fat: 0,
+  carbs: 0,
+  kcal: 0,
+});
 
 describe('substitutesFor', () => {
   it('ranks the closest macros first, within the same aisle', () => {
