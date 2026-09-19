@@ -49,10 +49,17 @@ const isChecked = (id: string): boolean => checked.value.has(id);
             "
             aria-hidden="true"
           >
+            <!-- Decorative: the label beside it already names the tool. Lazy and
+                 role-less like every other thumbnail, so a slow image host cannot
+                 hold up the page's load event — the eager spelling here was the
+                 one thing that let a stalled host time the batch page out. -->
             <img
               v-if="equipmentImage(item.id)"
               :src="equipmentImage(item.id)"
               alt=""
+              role="presentation"
+              loading="lazy"
+              decoding="async"
               class="size-full object-cover"
             />
             <UIcon v-else :name="item.icon" class="size-4.5" />
