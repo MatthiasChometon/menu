@@ -14,7 +14,7 @@ export class GroceryBasketRepository {
     }
 
     await this.database.insert(groceryBasketLine).values(
-      lines.map((line) => ({
+      lines.map((line): typeof groceryBasketLine.$inferInsert => ({
         jobId,
         foodId: line.foodId,
         label: line.label ?? null,

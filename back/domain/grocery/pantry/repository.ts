@@ -22,7 +22,12 @@ export class GroceryPantryRepository {
   async replace(userId: string, leftovers: Map<string, number>): Promise<void> {
     const rows = [...leftovers.entries()]
       .filter(([, grams]): boolean => grams > 0)
-      .map(([foodId, grams]) => ({ userId, foodId, grams, updatedAt: new Date() }));
+      .map(([foodId, grams]): typeof groceryPantry.$inferInsert => ({
+        userId,
+        foodId,
+        grams,
+        updatedAt: new Date(),
+      }));
 
     await this.database.transaction(async (transaction): Promise<void> => {
       await transaction.delete(groceryPantry).where(eq(groceryPantry.userId, userId));
