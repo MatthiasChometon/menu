@@ -17,6 +17,12 @@ export default defineConfig({
   testDir: '.',
   testMatch: ['**/*visual.test.ts', '**/*e2e.test.ts'],
   fullyParallel: true,
+  // The preview server is one Nitro process: every page it serves is rendered on
+  // a single event loop. Ten browsers loading full pages at once queue behind one
+  // another until page.goto times out — the flake that only ever showed in a full
+  // run, never in isolation. Four keeps the machine busy without drowning the one
+  // server behind it.
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
