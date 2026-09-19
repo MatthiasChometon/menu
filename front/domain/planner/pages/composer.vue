@@ -4,14 +4,11 @@ const {
   targets,
   steps,
   step,
-  stepCount,
   currentGroups,
   isStepComplete,
   isLastStep,
   goNext,
   goBack,
-  goToStep,
-  canReachStep,
   limitsOf,
   chosenDishes,
   completeSelection,
@@ -102,24 +99,6 @@ const missing = computed((): number =>
   }, 0),
 );
 
-// The step names, so the bar says what it is walking through rather than just
-// how far along it is.
-const stepLabels = computed((): string[] => [
-  ...steps.map((groups): string =>
-    groups.map((group): string => t(`planner.group.${group}`)).join(' & '),
-  ),
-  t('planner.week'),
-]);
-
-// Done, not passed. Colouring by position meant a step already filled went grey
-// again the moment you walked back past it — the bar has to answer "what is
-// settled", which is not the same question as "where am I".
-const isStepDone = (index: number): boolean => {
-  if (!canReachStep(index)) return false;
-
-  return index >= steps.length ? hasWeek.value : isStepComplete(index);
-};
-
 // Spreading is what turns four lists into a week, and it has to happen however
 // the week is reached: the steps are clickable, and arriving through the bar
 // used to land on an empty week with nothing to save.
@@ -132,11 +111,6 @@ const enterWeek = (): void => {
 const onNext = (): void => {
   if (step.value === steps.length - 1) enterWeek();
   goNext();
-};
-
-const onStep = (index: number): void => {
-  if (index === steps.length) enterWeek();
-  goToStep(index);
 };
 
 onMounted((): void => {
@@ -179,60 +153,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
     <PlannerWeekChooser class="rise mb-5" />
     <PlannerAutoCompose class="rise mb-5" />
 
-    <!-- Where you are and how much is left, in one line: four choices feel long
-         only when you cannot see the end of them. -->
-    <div class="rise">
-      <div class="flex items-center justify-between gap-3 text-sm">
-        <h1 class="font-semibold">{{ $t('planner.pageTitle') }}</h1>
-        <p class="shrink-0 tabular-nums text-muted">
-          {{ Math.min(step + 1, stepCount) }} / {{ stepCount }}
-        </p>
-      </div>
-      <!-- Named and clickable: knowing a step is called "Goûter" is what lets
-           you jump back to it, and a bar you cannot walk back through makes a
-           mistake feel final. -->
-      <nav class="mt-2 flex gap-1.5 overflow-x-auto pb-1" :aria-label="$t('planner.pageTitle')">
-        <button
-          v-for="(label, index) in stepLabels"
-          :key="label"
-          type="button"
-          class="group flex min-w-0 flex-1 flex-col gap-1.5 rounded-lg px-1.5 py-1.5 text-left transition-colors"
-          :class="
-            canReachStep(index)
-              ? 'cursor-pointer hover:bg-elevated focus-visible:bg-elevated'
-              : 'cursor-not-allowed opacity-40'
-          "
-          :disabled="!canReachStep(index)"
-          :aria-current="index === step ? 'step' : undefined"
-          @click="onStep(index)"
-        >
-          <span
-            class="h-1.5 rounded-full transition-colors"
-            :class="[
-              isStepDone(index) ? 'bg-primary' : index === step ? 'bg-primary/40' : 'bg-elevated',
-              canReachStep(index) && !isStepDone(index) ? 'group-hover:bg-primary/40' : '',
-            ]"
-          />
-          <!-- Read out but not drawn on a phone: five names in three hundred and
-               ninety pixels came out as "Déjeun…", "Petit-déj…", "Post-trai…",
-               which name nothing. The step's real title sits right underneath
-               in full, so the bar is left to do the one job it can do at that
-               width — show how far along the week is. -->
-          <span
-            class="sr-only text-[0.7rem] leading-tight transition-colors sm:not-sr-only sm:truncate"
-            :class="
-              index === step
-                ? 'font-bold text-primary'
-                : canReachStep(index)
-                  ? 'text-muted group-hover:text-highlighted'
-                  : 'text-muted'
-            "
-          >
-            {{ label }}
-          </span>
-        </button>
-      </nav>
-    </div>
+    <PlannerStepBar />
 
     <!-- Never the menu's own targets while the profile is still on its way:
          showing 3100 kcal and swapping it for 2939 tells the reader a number
