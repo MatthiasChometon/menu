@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { customRecipeFormConstraints } from '../../customCatalog/utils/constraints';
-import { CUSTOM_RECIPE_SLOTS, toAppSlot, toGraphqlSlot } from '../../customCatalog/utils/toCatalog';
 import type { CustomRecipe, CustomRecipeDraft } from '../../customCatalog/types/customCatalog.type';
 import type { FoodQuantity, Macros, RecipeSlot } from '../../menu/types/menu.type';
 
@@ -16,6 +14,7 @@ const { foods, foodOf } = useFoods();
 const { macrosOfQuantities } = useNutrition();
 const { nameOf } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
+const { recipeSlots, toAppSlot, toGraphqlSlot } = useCustomCatalog();
 const {
   maxNameLength,
   maxIngredients,
@@ -23,7 +22,7 @@ const {
   maxStepLength,
   maxGramsPerIngredient,
   maxPrepMinutes,
-} = customRecipeFormConstraints();
+} = useCustomCatalogConstraints().recipe;
 
 type IngredientRow = { foodId: string | undefined; grams: number };
 
@@ -64,7 +63,7 @@ const foodItems = computed((): { label: string; value: string }[] =>
 );
 
 const slotItems = computed((): { label: string; value: RecipeSlot }[] =>
-  CUSTOM_RECIPE_SLOTS.map((value): { label: string; value: RecipeSlot } => ({
+  recipeSlots.map((value): { label: string; value: RecipeSlot } => ({
     label: t(`library.myRecipes.slot.${value}`),
     value,
   })),

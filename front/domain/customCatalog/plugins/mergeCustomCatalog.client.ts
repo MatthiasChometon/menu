@@ -1,6 +1,5 @@
 import { foodCatalog } from '~~/domain/menu/composables/useFoods';
 import { recipeCatalog } from '~~/domain/menu/composables/useRecipes';
-import { customFoodToFood, customRecipeToRecipe } from '../utils/toCatalog';
 import type { CustomFood, CustomRecipe } from '../types/customCatalog.type';
 
 // Keeps the shared catalogues honest as a signed-in reader's own foods and
@@ -14,12 +13,13 @@ let mergedRecipeIds: string[] = [];
 export default defineNuxtPlugin((): void => {
   const { foods } = useMyFoods();
   const { recipes } = useMyRecipes();
+  const { toFood, toRecipe } = useCustomCatalog();
 
   watch(
     foods,
     (custom: CustomFood[]): void => {
       for (const id of mergedFoodIds) Reflect.deleteProperty(foodCatalog, id);
-      for (const food of custom) foodCatalog[food.id] = customFoodToFood(food);
+      for (const food of custom) foodCatalog[food.id] = toFood(food);
       mergedFoodIds = custom.map((food): string => food.id);
     },
     { immediate: true },
@@ -29,7 +29,7 @@ export default defineNuxtPlugin((): void => {
     recipes,
     (custom: CustomRecipe[]): void => {
       for (const id of mergedRecipeIds) Reflect.deleteProperty(recipeCatalog, id);
-      for (const recipe of custom) recipeCatalog[recipe.id] = customRecipeToRecipe(recipe);
+      for (const recipe of custom) recipeCatalog[recipe.id] = toRecipe(recipe);
       mergedRecipeIds = custom.map((recipe): string => recipe.id);
     },
     { immediate: true },

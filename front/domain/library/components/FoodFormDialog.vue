@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { customFoodFormConstraints } from '../../customCatalog/utils/constraints';
 import type { CustomFood, CustomFoodDraft } from '../../customCatalog/types/customCatalog.type';
 
 // Creates or edits one of the reader's own foods. Editing is told apart from
@@ -10,7 +9,7 @@ const open = defineModel<boolean>({ required: true });
 
 const { create, update } = useMyFoods();
 const { t } = useNuxtApp().$i18n;
-const { maxNameLength, maxKcal, maxMacro, maxPricePerKg } = customFoodFormConstraints();
+const { maxNameLength, maxKcal, maxMacro, maxPricePerKg } = useCustomCatalogConstraints().food;
 
 const isEditing = computed((): boolean => food !== undefined);
 
