@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { SlotWindow } from '../composables/useSlotWindows';
-
 // Three named stretches rather than free hours: nobody wants to type 480 to
 // mean eight o'clock, and a delivery is welcome by half-day, not by minute.
 const PERIODS = [
@@ -31,7 +29,7 @@ const toggle = (weekday: number, period: (typeof PERIODS)[number]): void => {
 };
 
 const submit = async (): Promise<void> => {
-  await save(windows.value as SlotWindow[]);
+  await save(windows.value);
 };
 
 onMounted((): void => {
