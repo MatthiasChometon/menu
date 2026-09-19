@@ -137,9 +137,6 @@ export const startTestApp = async (): Promise<TestApp> => {
   // Multipart has to be assembled by hand: inject() takes a body and headers,
   // and the routes that receive a photograph will only ever be exercised this
   // way — a JSON stand-in would test a request the server never gets.
-  // Multipart has to be assembled by hand: inject() takes a body and headers,
-  // and the routes that receive a photograph will only ever be exercised this
-  // way — a JSON stand-in would test a request the server never gets.
   //
   // The line endings are CRLF because the format says so. Bare newlines parse
   // as an unterminated part, which reads as a corrupt upload rather than as a

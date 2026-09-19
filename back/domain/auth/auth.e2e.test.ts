@@ -79,7 +79,9 @@ describe('registering', () => {
     // never a second account, never a verification link a stranger could spend.
     const notice = api.mails().at(-1);
     expect(notice?.to).toBe(EMAIL);
-    expect(`${notice?.subject} ${notice?.text}`.toLowerCase()).toMatch(/compte existe|account already/);
+    expect(`${notice?.subject} ${notice?.text}`.toLowerCase()).toMatch(
+      /compte existe|account already/,
+    );
     expect(notice?.text).not.toContain(PASSWORD);
   });
 

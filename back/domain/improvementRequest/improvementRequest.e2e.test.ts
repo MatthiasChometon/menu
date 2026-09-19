@@ -30,7 +30,12 @@ const suggestionOf = (message: string, importance = 'WOULD_HELP'): object => ({
   input: {
     importance,
     message,
-    context: { page: '/composer', userAgent: 'Mozilla/5.0 (probe)', viewport: '390x844', locale: 'fr' },
+    context: {
+      page: '/composer',
+      userAgent: 'Mozilla/5.0 (probe)',
+      viewport: '390x844',
+      locale: 'fr',
+    },
   },
 });
 
