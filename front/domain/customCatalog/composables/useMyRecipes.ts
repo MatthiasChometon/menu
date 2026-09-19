@@ -21,7 +21,7 @@ export const useMyRecipes = (): {
   );
 
   return {
-    recipes: data as Ref<CustomRecipe[]>,
+    recipes: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     // Reloaded rather than patched in place: the book is ordered by the
     // server, and guessing where a new recipe belongs is how a list starts to

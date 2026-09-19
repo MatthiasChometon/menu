@@ -33,7 +33,7 @@ export const useWeightLog = (): {
   };
 
   return {
-    entries: data as Ref<WeightEntry[]>,
+    entries: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     hasFailed: computed((): boolean => error.value !== undefined),
     bounds,
