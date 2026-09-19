@@ -15,8 +15,6 @@ const { selectedMenu: menu, isLoading, isDemo } = useSelectedWeek();
 // without touching the plan underneath.
 const { days: flexedDays, adherenceMenu } = useFlexedWeek(menu);
 
-const { rate, eatenCount, totalCount, history } = useAdherence(adherenceMenu);
-
 const otherDayKeysOf = (key: DayKey): DayKey[] =>
   flexedDays.value.map((day): DayKey => day.key).filter((other): boolean => other !== key);
 
@@ -51,14 +49,9 @@ const averageMacros = computed((): Macros | undefined => {
   };
 });
 
-const { profile, hasAnswered } = useProfile();
+const { hasAnswered } = useProfile();
 const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
 const { isDismissed: isOnboardingDismissed } = useOnboardingStatus();
-const {
-  isGenerating: isGeneratingFirstWeek,
-  hasFailed: generateFirstWeekFailed,
-  generate: generateFirstWeek,
-} = useGenerateFirstWeek();
 
 // Everything date-related waits for the client: a prerendered page would freeze
 // whatever day it was built on.
@@ -91,19 +84,6 @@ const deliveryLabel = computed((): string | undefined => {
     minute: '2-digit',
   });
 });
-
-const reminders = computed((): { icon: string; text: string }[] => [
-  { icon: 'i-lucide-pill', text: t('menu.reminder.creatine') },
-  { icon: 'i-lucide-glass-water', text: t('menu.reminder.water') },
-  { icon: 'i-lucide-sun', text: t('menu.reminder.vitaminD') },
-  {
-    icon: 'i-lucide-scale',
-    // The one habit that is not the same for everyone: which way the scale is
-    // meant to move follows the goal. On the example (no profile) it reads as a
-    // bulk, which is what the sample week is.
-    text: t(`menu.reminder.weighIn.${profile.value?.goal ?? 'GAIN_MUSCLE'}`),
-  },
-]);
 
 useSeoMeta({ title: (): string => t('menu.pageTitle') });
 </script>
@@ -247,53 +227,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           </div>
         </section>
 
-        <section
-          class="rise mt-6"
-          style="animation-delay: 100ms"
-          :aria-label="$t('menu.adherence.title')"
-        >
-          <UCard>
-            <h2 class="font-serif text-2xl">{{ $t('menu.adherence.title') }}</h2>
-            <p class="mt-1 max-w-sm text-sm text-muted">{{ $t('menu.adherence.hint') }}</p>
-
-            <!-- The tally lives in this device's own storage, unknown to a
-                 prerendered page: held back until mounted so the reader never
-                 sees a wrong count flash before the right one. -->
-            <template v-if="isMounted">
-              <MenuAdherenceRing
-                class="mt-5"
-                :rate="rate"
-                :eaten-count="eatenCount"
-                :total-count="totalCount"
-              />
-
-              <div class="mt-6 border-t border-default pt-4">
-                <p class="mb-3 text-sm font-semibold text-muted">
-                  {{ $t('menu.adherence.trend') }}
-                </p>
-                <MenuAdherenceHistory :history="history" />
-              </div>
-            </template>
-            <template v-else>
-              <div class="mt-5 flex items-center gap-5" aria-hidden="true">
-                <USkeleton class="size-[148px] shrink-0 rounded-full" />
-                <div class="min-w-0 flex-1 space-y-2">
-                  <USkeleton class="h-7 w-24" />
-                  <USkeleton class="h-4 w-28" />
-                </div>
-              </div>
-              <div class="mt-6 border-t border-default pt-4">
-                <p class="mb-3 text-sm font-semibold text-muted">
-                  {{ $t('menu.adherence.trend') }}
-                </p>
-                <div class="flex items-end gap-4" aria-hidden="true">
-                  <USkeleton v-for="n in 4" :key="n" class="h-16 flex-1 rounded-md" />
-                </div>
-              </div>
-              <span class="sr-only">{{ $t('accessibility.loading') }}</span>
-            </template>
-          </UCard>
-        </section>
+        <MenuAdherenceCard :adherence-menu="adherenceMenu" />
 
         <section class="rise mt-6 grid gap-3 sm:grid-cols-2" style="animation-delay: 140ms">
           <UButton
@@ -332,21 +266,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           />
         </section>
 
-        <section
-          class="rise mt-8 rounded-2xl border border-default bg-elevated/40 p-5"
-          style="animation-delay: 120ms"
-        >
-          <h2 class="mb-3 flex items-center gap-2 font-bold">
-            <UIcon name="i-lucide-alarm-clock-check" class="size-5 text-primary" />
-            {{ $t('menu.reminder.title') }}
-          </h2>
-          <ul class="space-y-2">
-            <li v-for="reminder in reminders" :key="reminder.text" class="flex items-start gap-2.5">
-              <UIcon :name="reminder.icon" class="mt-0.5 size-4 shrink-0 text-primary" />
-              <span class="text-sm text-muted">{{ reminder.text }}</span>
-            </li>
-          </ul>
-        </section>
+        <MenuReminders />
       </template>
 
       <!-- Signed in, this week not composed yet. No profile is a different
@@ -365,46 +285,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           {{ $t('menu.needProfile.action') }}
         </UButton>
       </div>
-      <div v-else class="flex flex-col items-center gap-3 py-20 text-center">
-        <UIcon name="i-lucide-calendar-plus" class="size-12 text-dimmed" />
-        <h2 class="text-xl font-bold">{{ $t('menu.compose.title') }}</h2>
-        <p class="max-w-sm text-muted">{{ $t('menu.compose.hint') }}</p>
-        <!-- The one-click path first, since it is the whole point of never
-             showing an empty week — composing by hand stays one tap away for
-             whoever would rather choose every dish. -->
-        <div class="mt-2 flex flex-wrap justify-center gap-3">
-          <UButton
-            color="primary"
-            icon="i-lucide-sparkles"
-            class="font-semibold text-white"
-            :loading="isGeneratingFirstWeek"
-            :disabled="isGeneratingFirstWeek"
-            @click="generateFirstWeek"
-          >
-            {{
-              isGeneratingFirstWeek
-                ? $t('planner.generate.working')
-                : $t('menu.compose.generateAction')
-            }}
-          </UButton>
-          <UButton
-            :to="localePath('/composer')"
-            color="primary"
-            variant="outline"
-            icon="i-lucide-square-pen"
-          >
-            {{ $t('menu.compose.action') }}
-          </UButton>
-        </div>
-        <UAlert
-          v-if="generateFirstWeekFailed"
-          class="mt-3"
-          color="error"
-          variant="subtle"
-          icon="i-lucide-triangle-alert"
-          :title="$t('menu.compose.generateError')"
-        />
-      </div>
+      <MenuComposePrompt v-else />
     </template>
   </div>
 </template>
