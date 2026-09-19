@@ -282,9 +282,6 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         </span>
       </p>
 
-      <USkeleton v-if="!isMounted" class="mt-6 h-32 rounded-xl" />
-      <OrderButton v-else-if="user && currentMenu" class="mt-6" :menu="currentMenu" />
-
       <!-- Also before mount: the prerendered HTML knows nothing of the
            household, so it lists the menu's own grammes. Rendering them and
            then swapping them for a skeleton made the whole list appear,
