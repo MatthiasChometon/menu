@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { user } from '../user/schema';
+import type { ImprovementImportance, ImprovementStatus } from './enum';
 import { improvementRequest } from './schema';
 import type { ImprovementRequestRecord, SuggestionContext } from './type';
 
@@ -16,7 +17,7 @@ export class ImprovementRequestRepository {
 
   async create(
     userId: string,
-    importance: string,
+    importance: ImprovementImportance,
     message: string,
     context: SuggestionContext,
   ): Promise<ImprovementRequestRecord> {
@@ -55,7 +56,10 @@ export class ImprovementRequestRepository {
     return row?.total ?? 0;
   }
 
-  async setStatus(id: string, status: string): Promise<ImprovementRequestRecord | undefined> {
+  async setStatus(
+    id: string,
+    status: ImprovementStatus,
+  ): Promise<ImprovementRequestRecord | undefined> {
     const [record] = await this.database
       .update(improvementRequest)
       .set({ status })

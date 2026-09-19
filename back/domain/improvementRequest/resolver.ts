@@ -4,7 +4,6 @@ import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
 import { AdminGuard } from '../auth/admin/guard';
 import { User } from '../user/model';
-import { ImprovementImportance, ImprovementStatus } from './enum';
 import { ImprovementStatusInput, RequestImprovementInput } from './input';
 import { ImprovementRequest } from './model';
 import { ImprovementRequestRepository, type RequestWithRequester } from './repository';
@@ -16,10 +15,10 @@ const present = (
   requesterEmail: string | null,
 ): ImprovementRequest => ({
   id: record.id,
-  importance: record.importance as ImprovementImportance,
+  importance: record.importance,
   message: record.message,
   context: record.context,
-  status: record.status as ImprovementStatus,
+  status: record.status,
   requestedBy: requesterEmail,
   createdAt: record.createdAt.toISOString(),
 });

@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { user } from '../user/schema';
+import { ImprovementImportance, ImprovementStatus } from './enum';
 import type { SuggestionContext } from './type';
 
 // An idea somebody had while using the site, kept whole. Sibling to bug_report:
@@ -17,9 +18,9 @@ export const improvementRequest = pgTable('improvement_request', {
     .primaryKey()
     .$defaultFn((): string => randomUUID()),
   userId: uuid('user_id').references(() => user.id, { onDelete: 'set null' }),
-  importance: text('importance').notNull(),
+  importance: text('importance').$type<ImprovementImportance>().notNull(),
   message: text('message').notNull(),
   context: jsonb('context').$type<SuggestionContext>().notNull(),
-  status: text('status').notNull().default('NEW'),
+  status: text('status').$type<ImprovementStatus>().notNull().default(ImprovementStatus.NEW),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
