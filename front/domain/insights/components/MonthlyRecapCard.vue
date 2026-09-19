@@ -7,8 +7,7 @@ const { history } = useAdherence(undefined);
 const { entries } = useWeightLog();
 const { menuOf } = useMenu();
 const { recapOf } = useMonthlyRecap();
-const { draw } = useMonthlyRecapCard();
-const { download, shareCard, canShareFiles } = useWeekShareCard();
+const { draw, download, shareCard, canShareFiles } = useMonthlyRecapCard();
 const { nameOf } = useFoodFormat();
 const localePath = useLocalePath();
 

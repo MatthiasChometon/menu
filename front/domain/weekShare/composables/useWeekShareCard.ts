@@ -1,23 +1,25 @@
 import type { WeekShareData } from '../types/share.type';
-
-const CARD_WIDTH = 1080;
-const CARD_HEIGHT = 1350;
-const MARGIN = 56;
-const PAD = 48;
+import {
+  CARD_HEIGHT,
+  CARD_MARGIN as MARGIN,
+  CARD_PAD as PAD,
+  CARD_WIDTH,
+  cardCssVar,
+  cardPalette,
+  drawCardFooter,
+  drawCardFrame,
+  roundedRectPath,
+  useCardCanvas,
+  waitForFonts,
+  type CardPalette,
+} from '../../../infrastructure/ui/composables/useCardCanvas';
 
 type EnergyKey = 'protein' | 'carbs' | 'fat';
 const energyKeys: readonly EnergyKey[] = ['protein', 'carbs', 'fat'];
 
-type Palette = {
-  canvas: string;
-  surface: string;
-  border: string;
-  text: string;
-  textMuted: string;
-  textDimmed: string;
-  primary: string;
-  energy: Record<EnergyKey, string>;
-};
+// The generic frame is shared with every other card; the weekly card adds the
+// macro colours the donut and its legend are drawn in.
+type Palette = CardPalette & { energy: Record<EnergyKey, string> };
 
 const energyOf = (macros: Macros): Record<EnergyKey, number> & { total: number } => {
   const protein = macros.protein * 4;
@@ -27,57 +29,14 @@ const energyOf = (macros: Macros): Record<EnergyKey, number> & { total: number }
   return { protein, carbs, fat, total: total === 0 ? 1 : total };
 };
 
-const cssVar = (name: string, fallback: string): string => {
-  if (typeof window === 'undefined') return fallback;
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  return value === '' ? fallback : value;
-};
-
-// Read fresh at draw time, never cached: the same card has to come out right
-// whichever mode the reader happens to be in.
 const paletteNow = (): Palette => ({
-  canvas: cssVar('--canvas', '#eaeee3'),
-  surface: cssVar('--ui-bg', '#ffffff'),
-  border: cssVar('--ui-border', '#dde1d4'),
-  text: cssVar('--ui-text', '#4e5443'),
-  textMuted: cssVar('--ui-text-muted', '#848b73'),
-  textDimmed: cssVar('--ui-text-dimmed', '#a7ad97'),
-  primary: cssVar('--ui-primary', '#235030'),
+  ...cardPalette(),
   energy: {
-    protein: cssVar('--macro-protein', '#2b683c'),
-    carbs: cssVar('--macro-carbs', '#9a7212'),
-    fat: cssVar('--macro-fat', '#a84e2b'),
+    protein: cardCssVar('--macro-protein', '#2b683c'),
+    carbs: cardCssVar('--macro-carbs', '#9a7212'),
+    fat: cardCssVar('--macro-fat', '#a84e2b'),
   },
 });
-
-const roundedRectPath = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-): void => {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
-};
-
-const drawBackground = (ctx: CanvasRenderingContext2D, palette: Palette): void => {
-  ctx.fillStyle = palette.canvas;
-  ctx.fillRect(0, 0, CARD_WIDTH, CARD_HEIGHT);
-
-  roundedRectPath(ctx, MARGIN, MARGIN, CARD_WIDTH - MARGIN * 2, CARD_HEIGHT - MARGIN * 2, 40);
-  ctx.fillStyle = palette.surface;
-  ctx.fill();
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = palette.border;
-  ctx.stroke();
-};
 
 const drawHeader = (ctx: CanvasRenderingContext2D, palette: Palette, data: WeekShareData): void => {
   ctx.textAlign = 'left';
@@ -207,28 +166,6 @@ const drawStats = (ctx: CanvasRenderingContext2D, palette: Palette, data: WeekSh
   drawStat(ctx, palette, x2, width, data.recipesLabel, String(data.recipeCount));
 };
 
-const drawFooter = (ctx: CanvasRenderingContext2D, palette: Palette, data: WeekShareData): void => {
-  ctx.textAlign = 'center';
-  ctx.fillStyle = palette.textDimmed;
-  ctx.font = '500 24px "Instrument Sans", sans-serif';
-  ctx.fillText(data.footer, CARD_WIDTH / 2, CARD_HEIGHT - MARGIN - 36);
-  ctx.textAlign = 'left';
-};
-
-const waitForFonts = async (): Promise<void> => {
-  if (typeof document === 'undefined' || document.fonts === undefined) return;
-  await document.fonts.ready.catch((): undefined => undefined);
-};
-
-const toPngBlob = (canvas: HTMLCanvasElement): Promise<Blob | undefined> =>
-  new Promise((resolve): void => {
-    if (typeof canvas.toBlob !== 'function') {
-      resolve(undefined);
-      return;
-    }
-    canvas.toBlob((blob): void => resolve(blob ?? undefined), 'image/png');
-  });
-
 export const useWeekShareCard = (): {
   draw: (canvas: HTMLCanvasElement, data: WeekShareData) => Promise<void>;
   download: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
@@ -244,49 +181,13 @@ export const useWeekShareCard = (): {
     await waitForFonts();
 
     const palette = paletteNow();
-    drawBackground(ctx, palette);
+    drawCardFrame(ctx, palette);
     drawHeader(ctx, palette, data);
     const donut = drawDonut(ctx, palette, data);
     drawMacroRows(ctx, palette, data, donut);
     drawStats(ctx, palette, data);
-    drawFooter(ctx, palette, data);
+    drawCardFooter(ctx, palette, data.footer);
   };
 
-  const download = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
-    const blob = await toPngBlob(canvas);
-    if (blob === undefined) return;
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const canShareFiles = (): boolean =>
-    typeof navigator !== 'undefined' &&
-    typeof navigator.share === 'function' &&
-    typeof navigator.canShare === 'function';
-
-  const shareCard = async (canvas: HTMLCanvasElement, filename: string): Promise<boolean> => {
-    if (!canShareFiles()) return false;
-
-    const blob = await toPngBlob(canvas);
-    if (blob === undefined) return false;
-
-    const file = new File([blob], filename, { type: 'image/png' });
-    if (!navigator.canShare({ files: [file] })) return false;
-
-    // A reader closing the native share sheet throws AbortError: not a
-    // failure, just a change of mind, so it is swallowed rather than reported.
-    try {
-      await navigator.share({ files: [file], title: filename });
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  return { draw, download, shareCard, canShareFiles };
+  return { draw, ...useCardCanvas() };
 };
