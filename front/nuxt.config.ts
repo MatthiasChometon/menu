@@ -1,11 +1,8 @@
-import {
-  componentsList,
-  cssList,
-  layerConfigTsGlobList,
-  layerList,
-  recipeRouteList,
-  typesDirList,
-} from './ddd';
+import { buildDynamicLayers } from './infrastructure/ddd/buildDynamicLayers';
+import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
+
+const { componentsList, cssList, layerConfigTsGlobList, layerList, typesDirList } =
+  buildDynamicLayers();
 
 export default defineNuxtConfig({
   extends: layerList,

@@ -1,4 +1,6 @@
-import { translationFileList } from '../../ddd';
+import { buildDynamicLayers } from '../ddd/buildDynamicLayers';
+
+const { translationFileList } = buildDynamicLayers();
 
 export default defineNuxtConfig({
   modules: ['@nuxtjs/i18n'],
