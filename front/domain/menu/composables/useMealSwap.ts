@@ -1,5 +1,5 @@
 const { storedValue, isRecordOf } = useStoredValue();
-const { isMealPointer } = useMenuBuilder();
+const { isMealPointer } = useMealPointer();
 
 const pointerKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 

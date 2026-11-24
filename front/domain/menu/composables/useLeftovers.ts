@@ -1,7 +1,7 @@
 type LeftoverDecision = 'used' | 'declined';
 
 const { storedValue, isRecordOf, isArrayOf } = useStoredValue();
-const { isMealPointer } = useMenuBuilder();
+const { isMealPointer } = useMealPointer();
 
 const isString = (value: unknown): value is string => typeof value === 'string';
 
