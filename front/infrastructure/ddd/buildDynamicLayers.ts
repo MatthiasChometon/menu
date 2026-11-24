@@ -64,4 +64,4 @@ const deriveLayerPrefix = (layerPath: string): string =>
 const isNameSegment = (segment: string): boolean =>
   !['domain', 'infrastructure', 'layers'].includes(segment);
 
-const capitalise = (segment: string): string => segment[0]!.toUpperCase() + segment.slice(1);
+const capitalise = (segment: string): string => segment.charAt(0).toUpperCase() + segment.slice(1);

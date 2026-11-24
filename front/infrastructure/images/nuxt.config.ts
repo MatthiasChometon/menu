@@ -11,10 +11,24 @@
 // falls back to an empty manifest and the runtime read carries it.
 const base = process.env.NUXT_PUBLIC_IMAGES_BASE ?? 'https://images.menu.mtxlab.xyz';
 
-const manifestAtBuild = async (): Promise<Record<string, Record<string, string>>> => {
+type ImageManifest = Record<string, Record<string, string>>;
+
+const isImageManifest = (value: unknown): value is ImageManifest =>
+  typeof value === 'object' &&
+  value !== null &&
+  Object.values(value).every(
+    (files): boolean =>
+      typeof files === 'object' &&
+      files !== null &&
+      Object.values(files).every((file): boolean => typeof file === 'string'),
+  );
+
+const manifestAtBuild = async (): Promise<ImageManifest> => {
   try {
-    const response = await fetch(`${base}/manifest.json`);
-    return response.ok ? ((await response.json()) as Record<string, Record<string, string>>) : {};
+    const response = await fetch(`${base}/manifest.json`, { signal: AbortSignal.timeout(10_000) });
+    if (!response.ok) return {};
+    const manifest: unknown = await response.json();
+    return isImageManifest(manifest) ? manifest : {};
   } catch {
     // Offline, or the host is down: the pages still build, and the browser
     // fetches the manifest itself. Failing the build over a picture would be

@@ -85,12 +85,15 @@ export const drawCardFooter = (
 };
 
 export const waitForFonts = async (): Promise<void> => {
+  // Old browsers have no FontFaceSet, whatever the DOM typings say.
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof document === 'undefined' || document.fonts === undefined) return;
   await document.fonts.ready.catch((): undefined => undefined);
 };
 
 const toPngBlob = (canvas: HTMLCanvasElement): Promise<Blob | undefined> =>
   new Promise((resolve): void => {
+    // A canvas that could not be captured has no toBlob.
     if (typeof canvas.toBlob !== 'function') {
       resolve(undefined);
       return;
