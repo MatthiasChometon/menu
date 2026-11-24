@@ -77,7 +77,7 @@ export type TestApp = {
    * the message under test is the one the real MailService built.
    */
   mails: () => MailMessage[];
-  /** Waits for what the app does after answering — announcements, pushes — to finish. */
+  /** Waits for what the app does after answering - announcements, pushes - to finish. */
   settled: () => Promise<void>;
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;

@@ -5,7 +5,7 @@ export class GroceryBasketLine {
   @Field({ description: 'The food of the menu this stands for.' })
   foodId!: string;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'How the menu names it, which a substitute must live up to.',
   })
@@ -17,13 +17,13 @@ export class GroceryBasketLine {
   @Field(() => Int, { description: 'Grams already at home, hence fewer units to buy.' })
   fromPantry!: number;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'Barcode the shop accepts. Absent while no product is known.',
   })
   ean?: string | undefined;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   productName?: string | undefined;
 
   @Field(() => Int, { nullable: true, description: 'Usable content of one unit.' })

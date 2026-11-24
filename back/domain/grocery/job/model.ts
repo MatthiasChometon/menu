@@ -14,16 +14,16 @@ export class GroceryJobEvent {
   @Field()
   at!: Date;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'The food of the menu this concerns, when it is about one.',
   })
   foodId?: string | undefined;
 
-  @Field({ nullable: true, description: 'The product as the shop names it.' })
+  @Field(() => String, { nullable: true, description: 'The product as the shop names it.' })
   label?: string | undefined;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'Why, in one sentence: what was substituted and for what.',
   })
@@ -51,10 +51,10 @@ export class GroceryJob {
   @Field()
   createdAt!: Date;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   startedAt?: Date | undefined;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   finishedAt?: Date | undefined;
 
   @Field(() => Int, { nullable: true, description: 'Groceries only, in cents.' })
