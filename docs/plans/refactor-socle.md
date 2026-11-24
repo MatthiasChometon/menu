@@ -118,10 +118,8 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `endMinute > startMinute` and concurrent `replace` on slots (needs a constraint, so a migration).
   Review round: `finish` only closes a RUNNING run (a retry returns the stored run, no second mail:
   the extension retries a close with `FAILED`, which used to overwrite a success); the report goes out
-  in the background (`GroceryReportNotifier`, web-push call capped at 5 s) so a dead mail or push
+  in the background (`GroceryReportNotifier`, web-push call capped at 5 s, drained on shutdown; the pantry and prices restate shares the status flip transaction) so a dead mail or push
   service cannot hold the browser; `GroceryService` split (notifier, `CatalogAbsorber`); an event can
   only be appended to a RUNNING run, in one statement; `recordPrices` in one transaction and after the
   upsert; indexes on every FK and on the claim query (migration 0015); tests for the failure paths and
-  the all-or-nothing writes. Deferred: `timestamp` to `timestamptz` (a generated `SET DATA TYPE` has no
-  `USING ... AT TIME ZONE 'UTC'` and would shift production data with the server time zone: proposed as
-  decision D11); SMTP transport timeouts (infrastructure/mail, not this lot).
+  the all-or-nothing writes. Deferred: `timestamp` to `timestamptz` (see D11); SMTP transport timeouts (infrastructure/mail, not this lot).

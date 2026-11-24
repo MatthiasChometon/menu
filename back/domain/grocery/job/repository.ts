@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
 import { insertedRow } from '../../../infrastructure/database/rows';
-import { DATABASE, type Database } from '../../../infrastructure/database/token';
+import {
+  DATABASE,
+  type Database,
+  type DatabaseExecutor,
+} from '../../../infrastructure/database/token';
 import { basketRowsOf } from '../basket/rows';
 import { groceryBasketLine } from '../basket/schema';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
@@ -16,6 +20,10 @@ import {
   ReportedEvent,
   JobEventDetails,
 } from './type';
+
+// Thrown inside the closing transaction to undo what was done for a run that
+// someone else had already closed.
+class AlreadyClosed extends Error {}
 
 @Injectable()
 export class GroceryJobRepository {
@@ -128,23 +136,18 @@ export class GroceryJobRepository {
   // Only a run being worked on can be closed. A second close, which the browser
   // sends when it retries after losing the answer to the first, finds the run
   // already closed and gets it back as it was stored, never rewritten.
+  //
+  // What closing entails (`whenClosing`) shares the transaction of the status
+  // change, and goes first: if it fails the run is still RUNNING and the retry
+  // does it all again; if the run turns out to be closed already, it is undone.
   async finish(
     jobId: string,
     deviceId: string,
     closing: JobClosing,
+    whenClosing?: (executor: DatabaseExecutor) => Promise<void>,
   ): Promise<ClosedJob | undefined> {
     const ownedByDevice = and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId));
-    const [closed] = await this.database
-      .update(groceryJob)
-      .set({
-        status: closing.status,
-        finishedAt: new Date(),
-        productsCents: closing.productsCents ?? null,
-        deliveryFeesCents: closing.deliveryFeesCents ?? null,
-        shortOfMinimumCents: closing.shortOfMinimumCents ?? null,
-      })
-      .where(and(ownedByDevice, eq(groceryJob.status, GroceryJobStatus.RUNNING)))
-      .returning();
+    const closed = await this.closeWhileRunning(ownedByDevice, closing, whenClosing);
 
     const [record] =
       closed === undefined
@@ -157,6 +160,39 @@ export class GroceryJobRepository {
     const job = this.toJob(record, await this.eventsOf(record.id));
 
     return { job, justClosed: closed !== undefined };
+  }
+
+  private async closeWhileRunning(
+    ownedByDevice: SQL | undefined,
+    closing: JobClosing,
+    whenClosing: ((executor: DatabaseExecutor) => Promise<void>) | undefined,
+  ): Promise<JobRecord | undefined> {
+    try {
+      return await this.database.transaction(async (transaction): Promise<JobRecord> => {
+        await whenClosing?.(transaction);
+        const [closed] = await transaction
+          .update(groceryJob)
+          .set({
+            status: closing.status,
+            finishedAt: new Date(),
+            productsCents: closing.productsCents ?? null,
+            deliveryFeesCents: closing.deliveryFeesCents ?? null,
+            shortOfMinimumCents: closing.shortOfMinimumCents ?? null,
+          })
+          .where(and(ownedByDevice, eq(groceryJob.status, GroceryJobStatus.RUNNING)))
+          .returning();
+        if (closed === undefined) {
+          throw new AlreadyClosed();
+        }
+
+        return closed;
+      });
+    } catch (error) {
+      if (error instanceof AlreadyClosed) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
   private async eventsOf(jobId: string): Promise<GroceryJobEvent[]> {

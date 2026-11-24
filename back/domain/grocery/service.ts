@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { type DatabaseExecutor } from '../../infrastructure/database/token';
 import { GroceryBasketLine } from './basket/model';
 import { GroceryBasketRepository } from './basket/repository';
 import { BasketTargetService } from './basket/target.service';
@@ -91,7 +92,14 @@ export class GroceryService {
 
   async close(closure: JobClosure): Promise<GroceryJob> {
     const { jobId, deviceId, userId, status, report } = closure;
-    const closed = await this.jobs.finish(jobId, deviceId, { status, ...report });
+    const closed = await this.jobs.finish(
+      jobId,
+      deviceId,
+      { status, ...report },
+      status === GroceryJobStatus.SUCCEEDED
+        ? (executor): Promise<void> => this.restateWhatWasBought(closure, executor)
+        : undefined,
+    );
     if (closed === undefined) {
       throw new NotFoundException();
     }
@@ -101,9 +109,6 @@ export class GroceryService {
       return detailed;
     }
 
-    if (status === GroceryJobStatus.SUCCEEDED) {
-      await this.restateWhatWasBought(closure);
-    }
     this.notifier.tell(userId, detailed);
 
     return detailed;
@@ -112,14 +117,17 @@ export class GroceryService {
   // Closing a run is also when the cupboard is restated: a week that has been
   // bought leaves something behind, and without this the next order buys a
   // second bag of rice for the 40 g still on the shelf.
-  private async restateWhatWasBought(closure: JobClosure): Promise<void> {
-    await this.absorber.absorb(closure.observations);
+  private async restateWhatWasBought(
+    closure: JobClosure,
+    executor: DatabaseExecutor,
+  ): Promise<void> {
+    await this.absorber.absorb(closure.observations, executor);
 
     const lines = await this.basket.linesOf(closure.jobId);
     // A line the shop could not supply was never bought, so it must not be
     // counted as sitting in the cupboard.
     const bought = lines.filter((line): boolean => !closure.missingFoodIds.includes(line.foodId));
-    await this.pantry.replace(closure.userId, this.target.leftoversAfter(bought));
+    await this.pantry.replace(closure.userId, this.target.leftoversAfter(bought), executor);
   }
 
   private async withLines(job: GroceryJob): Promise<GroceryJob> {

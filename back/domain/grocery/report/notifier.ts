@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, type OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../../../infrastructure/mail/service';
 import { PushService } from '../../../infrastructure/push/service';
@@ -15,7 +15,7 @@ const reasonOf = (error: unknown): string =>
   error instanceof Error ? error.message : 'unknown error';
 
 @Injectable()
-export class GroceryReportNotifier {
+export class GroceryReportNotifier implements OnApplicationShutdown {
   private readonly logger = new Logger(GroceryReportNotifier.name);
   private readonly inFlight = new Set<Promise<void>>();
 
@@ -41,6 +41,12 @@ export class GroceryReportNotifier {
   /** Resolves once everything handed to `tell` has gone out or given up. */
   async settled(): Promise<void> {
     await Promise.all(this.inFlight);
+  }
+
+  // A report still on its way when the server stops would be lost: wait for it,
+  // as long as the mail and push timeouts allow.
+  async onApplicationShutdown(): Promise<void> {
+    await this.settled();
   }
 
   // The work is already done: a report that cannot be sent must lose nothing.

@@ -952,6 +952,24 @@ describe('closing a run that is already closed', () => {
     expect(reportsTo('matthias@example.com')).toHaveLength(1);
   });
 
+  it('stays running when the cupboard cannot be restated, and the retry completes it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    vi.spyOn(api.resolve(GroceryPantryRepository), 'replace').mockRejectedValueOnce(
+      new Error('database went away'),
+    );
+
+    const failed = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
+    const waiting = await api.graphql<{ groceryJob: { status: string } }>(JOB, { jobId }, cookie);
+    const retried = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
+    await api.resolve(GroceryReportNotifier).settled();
+
+    expect(failed.errors?.[0]?.message).toBeDefined();
+    expect(waiting.data?.groceryJob.status).toBe('RUNNING');
+    expect(retried.data?.finishGroceryJob.status).toBe('SUCCEEDED');
+    expect(reportsTo('matthias@example.com')).toHaveLength(1);
+  });
+
   it('takes no more events once the run is closed', async () => {
     const cookie = await signIn('matthias@example.com');
     const { token, jobId } = await startRun(cookie);
