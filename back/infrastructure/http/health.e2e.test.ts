@@ -21,6 +21,13 @@ describe('the health check the platform polls', () => {
     expect(JSON.parse(response.body)).toEqual({ status: 'ok' });
   });
 
+  it('reports ready once the database answers', async () => {
+    const response = await api.get('/health/ready');
+
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({ status: 'ok' });
+  });
+
   it('is not the endpoint the platform used to poll', async () => {
     // Kept as a statement of why /health exists at all: a GET on /graphql is
     // not a success, so it can never serve as a health check.
