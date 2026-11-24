@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const token = request.cookies?.[this.cookie.name];
+    const token = request.cookies[this.cookie.name];
     if (token === undefined) {
       throw new UnauthorizedException();
     }

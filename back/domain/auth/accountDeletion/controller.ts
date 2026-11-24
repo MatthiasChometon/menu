@@ -44,7 +44,7 @@ export class AccountDeletionController {
 
     // A password on the account means it has to be typed. Skipping the check
     // when one exists would make the session alone enough to destroy the data.
-    if (record?.passwordHash !== undefined && record?.passwordHash !== null) {
+    if (record?.passwordHash !== undefined && record.passwordHash !== null) {
       if (password === undefined || !(await this.passwords.verify(password, record.passwordHash))) {
         throw new UnauthorizedException('Wrong password.');
       }

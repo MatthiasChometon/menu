@@ -72,7 +72,7 @@ describe('suggesting an improvement', () => {
 
     await api.graphql(SUGGEST, suggestionOf('Un mode sombre, ce serait agréable.'), session);
 
-    const notice = api.mails().find((mail): boolean => (mail.subject ?? '').includes('Idée'));
+    const notice = api.mails().find((mail): boolean => mail.subject.includes('Idée'));
     expect(notice?.to).toBe(ADMIN);
   });
 

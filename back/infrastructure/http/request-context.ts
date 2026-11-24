@@ -8,7 +8,7 @@ export class RequestContext {
   // a guard has to come through here: switchToHttp() returns undefined under
   // GraphQL, and the failure it causes surfaces far from its cause.
   static from(context: ExecutionContext): FastifyRequest | undefined {
-    if (context.getType<'graphql'>() === 'graphql') {
+    if (context.getType<string>() === 'graphql') {
       return GqlExecutionContext.create(context).getContext<{ req?: FastifyRequest }>().req;
     }
 

@@ -68,7 +68,7 @@ export class GoogleController {
     // failed one must not leave it lying around for another.
     reply.setCookie(STATE_COOKIE, '', { path: '/', maxAge: 0 });
 
-    const expected = request.cookies?.[STATE_COOKIE];
+    const expected = request.cookies[STATE_COOKIE];
     if (
       code === undefined ||
       state === undefined ||

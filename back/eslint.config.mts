@@ -54,6 +54,7 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
       'func-style': ['error', 'expression'],
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-console': 'error',

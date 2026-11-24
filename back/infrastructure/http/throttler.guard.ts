@@ -22,7 +22,7 @@ export class GqlAwareThrottlerGuard extends ThrottlerGuard {
   // down and come back" from "the server is broken", and a real fault could not
   // be told from a limit being hit. The code says which one it is.
   protected override throwThrottlingException(context: ExecutionContext): Promise<void> {
-    if (context.getType<'graphql'>() !== 'graphql') throw new ThrottlerException();
+    if (context.getType<string>() !== 'graphql') throw new ThrottlerException();
 
     throw new GraphQLError('Too many requests. Try again shortly.', {
       extensions: { code: 'TOO_MANY_REQUESTS', http: { status: 429 } },
@@ -33,7 +33,7 @@ export class GqlAwareThrottlerGuard extends ThrottlerGuard {
     req: Record<string, unknown>;
     res: Record<string, unknown>;
   } {
-    if (context.getType<'graphql'>() !== 'graphql') return super.getRequestResponse(context);
+    if (context.getType<string>() !== 'graphql') return super.getRequestResponse(context);
 
     // Only what the limiter reads, copied by name: the request's address and
     // headers are accessors on its prototype, so spreading it would drop them.
