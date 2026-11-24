@@ -6,6 +6,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { AppModule } from '../../app.module';
+import { BackgroundTasks } from '../background/service';
 import { DATABASE, type Database } from '../database/token';
 import { MAIL_TRANSPORT, type MailMessage } from '../mail/token';
 import { configureApp, createAdapter } from '../http/setup';
@@ -76,6 +77,8 @@ export type TestApp = {
    * the message under test is the one the real MailService built.
    */
   mails: () => MailMessage[];
+  /** Waits for what the app does after answering - announcements, pushes - to finish. */
+  settled: () => Promise<void>;
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;
   close: () => Promise<void>;
@@ -125,7 +128,7 @@ export const startTestApp = async (): Promise<TestApp> => {
     const response = await app.inject({
       method: 'POST',
       url,
-      payload: body,
+      ...(body === undefined ? {} : { payload: body }),
       headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
     });
 
@@ -224,9 +227,12 @@ export const startTestApp = async (): Promise<TestApp> => {
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
     database: (): Database => app.get<Database>(DATABASE),
     mails: (): MailMessage[] => sent,
+    settled: (): Promise<void> => app.get(BackgroundTasks).settled(),
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
     reset: async (): Promise<void> => {
+      // Nothing still running may write into the tables being emptied.
+      await app.get(BackgroundTasks).settled();
       // grocery_product hangs off no account, so CASCADE never reaches it: it
       // has to be named.
       await database.execute(
@@ -236,4 +242,11 @@ export const startTestApp = async (): Promise<TestApp> => {
     },
     close: (): Promise<void> => app.close(),
   };
+};
+
+/** What a test expects to be there: a clear failure instead of a `!` that fails later. */
+export const expectPresent = <Value>(value: Value | null | undefined, what: string): Value => {
+  if (value === null || value === undefined) throw new Error(`Expected ${what} to be there.`);
+
+  return value;
 };

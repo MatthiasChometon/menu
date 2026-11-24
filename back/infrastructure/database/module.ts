@@ -2,6 +2,7 @@ import { Global, Inject, Module, OnModuleDestroy, Provider } from '@nestjs/commo
 import { ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import { BackgroundTasks } from '../background/service';
 import { DATABASE, DATABASE_CLIENT, type Database, type DatabaseClient } from './token';
 
 const clientProvider: Provider = {
@@ -25,9 +26,14 @@ const databaseProvider: Provider = {
   exports: [DATABASE],
 })
 export class DatabaseInfrastructureModule implements OnModuleDestroy {
-  constructor(@Inject(DATABASE_CLIENT) private readonly client: DatabaseClient) {}
+  constructor(
+    @Inject(DATABASE_CLIENT) private readonly client: DatabaseClient,
+    private readonly background: BackgroundTasks,
+  ) {}
 
   async onModuleDestroy(): Promise<void> {
+    // Work still in flight (a mail, a push) reads the database: let it finish.
+    await this.background.settled();
     await this.client.end();
   }
 }

@@ -1,4 +1,5 @@
 import type { MailMessage } from '../../infrastructure/mail/token';
+import { BugSeverity } from './enum';
 import type { ReportContext } from './type';
 
 // Written for one reader — whoever maintains the site — so it says what is
@@ -15,21 +16,21 @@ const escape = (text: string): string =>
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 
-const SEVERITY_LABEL: Record<string, string> = {
-  BLOCKING: 'Bloquant',
-  ANNOYING: 'Gênant',
-  COSMETIC: 'Cosmétique',
+const SEVERITY_LABEL: Record<BugSeverity, string> = {
+  [BugSeverity.BLOCKING]: 'Bloquant',
+  [BugSeverity.ANNOYING]: 'Gênant',
+  [BugSeverity.COSMETIC]: 'Cosmétique',
 };
 
 export const bugReportEmail = (
   to: string,
-  severity: string,
+  severity: BugSeverity,
   message: string,
   context: ReportContext,
   reportedBy: string,
   filedToday: number,
 ): MailMessage => {
-  const label = SEVERITY_LABEL[severity] ?? severity;
+  const label = SEVERITY_LABEL[severity];
   const lines = [
     ['Gravité', label],
     ['Page', context.page],

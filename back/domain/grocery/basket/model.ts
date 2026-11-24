@@ -5,11 +5,11 @@ export class GroceryBasketLine {
   @Field({ description: 'The food of the menu this stands for.' })
   foodId!: string;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'How the menu names it, which a substitute must live up to.',
   })
-  label?: string;
+  label?: string | undefined;
 
   @Field(() => Int, { description: 'Grams the menu calls for, before the cupboard is counted.' })
   grams!: number;
@@ -17,21 +17,21 @@ export class GroceryBasketLine {
   @Field(() => Int, { description: 'Grams already at home, hence fewer units to buy.' })
   fromPantry!: number;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'Barcode the shop accepts. Absent while no product is known.',
   })
-  ean?: string;
+  ean?: string | undefined;
 
-  @Field({ nullable: true })
-  productName?: string;
+  @Field(() => String, { nullable: true })
+  productName?: string | undefined;
 
   @Field(() => Int, { nullable: true, description: 'Usable content of one unit.' })
-  unitSize?: number;
+  unitSize?: number | undefined;
 
   @Field(() => Int, {
     nullable: true,
     description: 'How many to buy. Absent when the run still has to find the product itself.',
   })
-  units?: number;
+  units?: number | undefined;
 }

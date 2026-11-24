@@ -1,5 +1,11 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { eq } from 'drizzle-orm';
+import { expectPresent, startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
+import { user } from '../user/schema';
+import { UserRepository } from '../user/repository';
+import { CustomRecipeSlot } from './enum';
+import { customRecipe } from './schema';
 import { customRecipeConstraints } from './utils';
 
 const OWNER = 'matthias@example.com';
@@ -212,6 +218,49 @@ describe('writing a recipe of one’s own', () => {
 
     expect(response.errors?.[0]?.message).toContain(String(maxItems));
   });
+
+  it('never goes past the limit when the last place is taken at that very moment', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+    const { maxItems } = customRecipeConstraints();
+    const owner = expectPresent(
+      await api.resolve(UserRepository).findRecordByEmail(OWNER),
+      'the owner',
+    );
+    const row = (name: string): typeof customRecipe.$inferInsert => ({
+      userId: owner.id,
+      name,
+      slot: CustomRecipeSlot.MAIN,
+      ingredients: { chickenBreast: 150 },
+      steps: ['Faire cuire le poulet.'],
+      prepMinutes: 20,
+    });
+    await api
+      .database()
+      .insert(customRecipe)
+      .values(
+        Array.from({ length: maxItems - 1 }, (_, filled): typeof customRecipe.$inferInsert =>
+          row(`Recette ${filled}`),
+        ),
+      );
+
+    // Another request has locked the owner and is filling the last place.
+    const held = await holdTransaction(api.database(), async (transaction): Promise<void> => {
+      await transaction
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.id, owner.id))
+        .for('update');
+      await transaction.insert(customRecipe).values(row('La dernière'));
+    });
+
+    const adding = api.graphql(CREATE, { input: { name: 'En trop', ...DRAFT } }, session);
+    expect(await staysPending(adding)).toBe(true);
+    await held.release();
+
+    expect((await adding).errors?.[0]?.message).toContain(String(maxItems));
+    const stored = await api.graphql<{ myCustomRecipes: Recipe[] }>(MINE, undefined, session);
+    expect(stored.data?.myCustomRecipes).toHaveLength(maxItems);
+  });
 });
 
 describe('correcting and removing a custom recipe', () => {
@@ -274,5 +323,13 @@ describe('whose book it is', () => {
 
     const still = await api.graphql<{ myCustomRecipes: Recipe[] }>(MINE, undefined, owner);
     expect(still.data?.myCustomRecipes).toHaveLength(1);
+  });
+
+  it('answers a malformed identifier as bad input, not as a server error', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+
+    const response = await api.graphql(DELETE, { id: 'not-a-uuid' }, session);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 });

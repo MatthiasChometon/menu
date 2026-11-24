@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { weight } from './schema';
 import { WeightEntryDraft, WeightEntryRecord } from './type';
 import { roundToOneDecimal } from './utils';
@@ -10,12 +11,12 @@ export class WeightRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
   async add(userId: string, entry: WeightEntryDraft): Promise<WeightEntryRecord> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(weight)
       .values({ userId, date: entry.date, kg: roundToOneDecimal(entry.kg) })
       .returning();
 
-    return this.toEntry(record);
+    return this.toEntry(insertedRow(records));
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed

@@ -14,20 +14,20 @@ export class GroceryJobEvent {
   @Field()
   at!: Date;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'The food of the menu this concerns, when it is about one.',
   })
-  foodId?: string;
+  foodId?: string | undefined;
 
-  @Field({ nullable: true, description: 'The product as the shop names it.' })
-  label?: string;
+  @Field(() => String, { nullable: true, description: 'The product as the shop names it.' })
+  label?: string | undefined;
 
-  @Field({
+  @Field(() => String, {
     nullable: true,
     description: 'Why, in one sentence: what was substituted and for what.',
   })
-  detail?: string;
+  detail?: string | undefined;
 }
 
 @ObjectType({ description: 'One request to fill the basket of a week.' })
@@ -46,29 +46,29 @@ export class GroceryJob {
     description:
       'Warn above this total, in cents. Copied from the preferences when the run was asked for.',
   })
-  alertThresholdCents?: number;
+  alertThresholdCents?: number | undefined;
 
   @Field()
   createdAt!: Date;
 
-  @Field({ nullable: true })
-  startedAt?: Date;
+  @Field(() => Date, { nullable: true })
+  startedAt?: Date | undefined;
 
-  @Field({ nullable: true })
-  finishedAt?: Date;
+  @Field(() => Date, { nullable: true })
+  finishedAt?: Date | undefined;
 
   @Field(() => Int, { nullable: true, description: 'Groceries only, in cents.' })
-  productsCents?: number;
+  productsCents?: number | undefined;
 
   @Field(() => Int, { nullable: true })
-  deliveryFeesCents?: number;
+  deliveryFeesCents?: number | undefined;
 
   @Field(() => Int, {
     nullable: true,
     description:
       'Still missing to reach the shop order minimum. Above zero, nothing can be ordered.',
   })
-  shortOfMinimumCents?: number;
+  shortOfMinimumCents?: number | undefined;
 
   @Field({
     description: 'Whether the basket went over what this account asked to be warned about.',

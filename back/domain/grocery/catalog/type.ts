@@ -3,8 +3,8 @@ import { KnownProduct } from '../basket/type';
 export type ObservedProduct = KnownProduct & {
   foodId: string;
   /** What the shop displays, kept verbatim: "the 3 tins of 400g". */
-  packaging?: string;
-  priceCents?: number;
+  packaging?: string | undefined;
+  priceCents?: number | undefined;
 };
 
 /** What a run saw of a product it actually put in the basket. */

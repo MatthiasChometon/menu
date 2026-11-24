@@ -11,17 +11,20 @@ export class GroceryDevice {
   @Field()
   pairedAt!: Date;
 
-  @Field({ nullable: true, description: 'Last time it asked for work.' })
-  lastSeenAt?: Date;
+  @Field(() => Date, { nullable: true, description: 'Last time it asked for work.' })
+  lastSeenAt?: Date | undefined;
 
-  @Field({
+  @Field(() => Boolean, {
     nullable: true,
     description: 'Whether the extension last saw this browser signed in to Carrefour.',
   })
-  carrefourSignedIn?: boolean;
+  carrefourSignedIn?: boolean | undefined;
 
-  @Field({ nullable: true, description: 'When the extension last checked the Carrefour session.' })
-  carrefourCheckedAt?: Date;
+  @Field(() => Date, {
+    nullable: true,
+    description: 'When the extension last checked the Carrefour session.',
+  })
+  carrefourCheckedAt?: Date | undefined;
 }
 
 @ObjectType({

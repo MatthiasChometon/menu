@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MailService } from '../../infrastructure/mail/service';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 
 const ADMIN = 'matthias@example.com';
@@ -72,8 +73,60 @@ describe('suggesting an improvement', () => {
 
     await api.graphql(SUGGEST, suggestionOf('Un mode sombre, ce serait agréable.'), session);
 
-    const notice = api.mails().find((mail): boolean => (mail.subject ?? '').includes('Idée'));
+    await api.settled();
+    const notice = api.mails().find((mail): boolean => mail.subject.includes('Idée'));
     expect(notice?.to).toBe(ADMIN);
+  });
+
+  it('answers without waiting for the announcement to go out', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    // A mail server that stays silent until the test lets go of it: the reader
+    // must not be held waiting meanwhile.
+    let release: () => void = (): void => undefined;
+    const stuck = vi.spyOn(api.resolve(MailService), 'send').mockImplementation(
+      (): Promise<void> =>
+        new Promise<void>((resolve): void => {
+          release = resolve;
+        }),
+    );
+
+    try {
+      const response = await api.graphql(
+        SUGGEST,
+        suggestionOf('Un serveur de mail qui ne répond plus.'),
+        session,
+      );
+
+      expect(response.errors).toBeUndefined();
+      expect(stuck).toHaveBeenCalled();
+    } finally {
+      release();
+      await api.settled();
+      stuck.mockRestore();
+    }
+  });
+
+  it('keeps the idea when the announcement cannot be sent', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    const broken = vi
+      .spyOn(api.resolve(MailService), 'send')
+      .mockRejectedValue(new Error('connection refused'));
+
+    try {
+      const response = await api.graphql(
+        SUGGEST,
+        suggestionOf('Rien ne part vers le serveur de mail.'),
+        session,
+      );
+      await api.settled();
+
+      expect(response.errors).toBeUndefined();
+    } finally {
+      broken.mockRestore();
+    }
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const list = await api.graphql<{ improvementRequests: unknown[] }>(LIST, undefined, admin);
+    expect(list.data?.improvementRequests).toHaveLength(1);
   });
 
   it('refuses an idea too short to act on', async () => {

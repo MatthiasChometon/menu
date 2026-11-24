@@ -58,10 +58,16 @@ describe('logging a weigh-in', () => {
     expect(response.errors?.[0]?.message).toBe('Unauthorized');
   });
 
-  it('cannot be added without a session', async () => {
-    const response = await api.graphql(ADD, { input: { date: '2026-08-01', kg: 75 } });
+  it('cannot be added, changed or removed without a session', async () => {
+    const id = '5f1b7c52-0a53-4a1e-9d0e-6a6c3c1f4b11';
 
-    expect(response.errors?.[0]?.message).toBe('Unauthorized');
+    const added = await api.graphql(ADD, { input: { date: '2026-08-01', kg: 75 } });
+    const updated = await api.graphql(UPDATE, { input: { id, date: '2026-08-01', kg: 75 } });
+    const removed = await api.graphql(DELETE, { id });
+
+    expect(added.errors?.[0]?.message).toBe('Unauthorized');
+    expect(updated.errors?.[0]?.message).toBe('Unauthorized');
+    expect(removed.errors?.[0]?.message).toBe('Unauthorized');
   });
 
   it('starts empty', async () => {
@@ -125,6 +131,14 @@ describe('logging a weigh-in', () => {
     expect(response.errors?.[0]?.message).toBeDefined();
   });
 
+  it('refuses a day that does not exist', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+
+    const response = await api.graphql(ADD, { input: { date: '2026-02-30', kg: 75 } }, session);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+
   it('lists newest first', async () => {
     const session = await api.signUp(OWNER, PASSWORD);
     await add(session, { date: '2026-07-01', kg: 74 });
@@ -170,6 +184,16 @@ describe('correcting and removing a weigh-in', () => {
   });
 });
 
+describe('an identifier that cannot be one', () => {
+  it('is refused as bad input when removing', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+
+    const response = await api.graphql(DELETE, { id: 'not-a-uuid' }, session);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+});
+
 describe('whose diary it is', () => {
   it('shows nobody else’s weigh-ins', async () => {
     const owner = await api.signUp(OWNER, PASSWORD);
@@ -193,6 +217,7 @@ describe('whose diary it is', () => {
     );
 
     expect(response.errors?.[0]?.message).toBe('No such weigh-in.');
+    expect(response.errors?.[0]?.extensions?.code).toBe('NOT_FOUND');
   });
 
   it('refuses to remove somebody else’s entry', async () => {

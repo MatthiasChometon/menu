@@ -9,3 +9,14 @@ export const insertedRow = <Row>(rows: Row[]): Row => {
 
   return row;
 };
+
+// A count() query always answers with one row; reading its absence as zero
+// would mean "room left" in a cap check, the unsafe direction.
+export const countedRow = (rows: { total: number }[]): number => {
+  const [row] = rows;
+  if (row === undefined) {
+    throw new Error('The count returned no row.');
+  }
+
+  return row.total;
+};

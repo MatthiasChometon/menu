@@ -181,6 +181,18 @@ describe('what the API refuses to store', () => {
     expect(response.errors?.[0]?.message).toBeDefined();
   });
 
+  it.each([
+    ['reading', MINE, { weekOf: 'next-monday' }],
+    ['deleting', DELETE, { weekOf: '2026-13-45' }],
+    ['saving', SAVE, { input: { weekOf: '2026-02-30', days: [] } }],
+  ])('refuses a week that is not a date when %s', async (_operation, query, variables) => {
+    const cookie = await signIn('matthias@example.com');
+
+    const response = await api.graphql(query, variables, cookie);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+
   it('rejects a day that is not a day', async () => {
     const cookie = await signIn('matthias@example.com');
 
