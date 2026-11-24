@@ -1,6 +1,11 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { isAxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
@@ -15,6 +20,8 @@ const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 // to two HTTP calls.
 @Injectable()
 export class GoogleOAuth {
+  private readonly logger = new Logger(GoogleOAuth.name);
+
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
@@ -95,13 +102,20 @@ export class GoogleOAuth {
     }
   }
 
-  // A reply from Google that is not a success maps to "unauthorised". No reply
-  // at all (unreachable, timed out) is not Google refusing anything: the sign-in
-  // is unavailable for now, which is a different answer from a wrong code.
+  // A refusal from Google (a 4xx) maps to "unauthorised". Google being down or
+  // out of reach (no reply, a timeout, a 5xx) is not a refusal: the sign-in is
+  // unavailable for now. Anything else is a fault of ours and goes to the global
+  // filter unchanged.
+  //
+  // Only the code of the failure is logged: the request carries the
+  // authorisation code, the client secret and the access token.
   private refused(error: unknown, message: string): Error {
-    if (isAxiosError(error) && error.response !== undefined) {
-      return new UnauthorizedException(message);
-    }
+    if (!isAxiosError(error)) return error instanceof Error ? error : new Error(String(error));
+
+    const status = error.response?.status;
+    if (status !== undefined && status < 500) return new UnauthorizedException(message);
+
+    this.logger.warn(`Google unreachable or failing: ${error.code ?? 'no code'} ${status ?? ''}`);
     return new ServiceUnavailableException('Google could not be reached. Try again in a moment.');
   }
 

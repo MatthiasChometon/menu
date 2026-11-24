@@ -148,3 +148,20 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   and a migration); mail sends stay awaited (a failed verification mail must surface; background sends
   need mail timeouts and a drain, infrastructure/mail lot), so forgot-password and resend still differ
   in timing between known and unknown addresses; logout does not revoke the 30-day JWT.
+- 2026-11-24 — M3 review round. Race tests now hold a transaction (`holdTransaction`, uncommitted
+  account row or `FOR UPDATE` on the owner) so the second call provably meets the contested state;
+  Google callback query is a validated DTO (arrays refused with 400, Google's extra parameters
+  dropped); a failure of Google is 503 only for no reply, timeout or 5xx (cause code logged, never the
+  request), 4xx stays 401, anything else rethrows; the 5 s cap is asserted on the module wiring
+  (`googleHttpModule`); reset-password checks the link is live before hashing; the blocked check runs
+  before the upsert, and `oauth_state` is cleared on every callback outcome; one `FRONT_URL`
+  normalisation (`frontUrl`). **Residual risk (not changed in this lot, verification flow untouched):**
+  an address squatted by a password sign-up keeps the squatter's password if the real owner confirms
+  through the e-mail link (confirming signs them in and leaves the hash); mitigation is forgot-password,
+  which replaces the password and retires every session (covered by an HTTP-level test). Linking Google
+  to an unconfirmed address does drop that password. **For Matthias, no slice lot owns it:** e-mail
+  case-insensitivity (case variants bypass the unique key and the conflict handling): needs a prod data
+  check for case duplicates (`select lower(email), count(*) from "user" group by 1 having count(*) > 1`)
+  before a unique `lower(email)` index. Awaited mail sends (forgot-password / resend / register timing
+  between known and unknown addresses): owner M13 / infrastructure mail (transport timeouts, drain).
+  JWT not revoked on logout: accepted, the guard checks `sessionVersion` and a reset retires sessions.

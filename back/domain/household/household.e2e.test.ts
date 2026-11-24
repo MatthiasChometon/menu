@@ -1,5 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
+import { UserRepository } from '../user/repository';
+import { user } from '../user/schema';
+import { HouseholdRepository } from './repository';
+import { householdMember } from './schema';
 import { Sex, StarchQuality, TrainingType } from '../profile/enum';
 import { buildMeasurements } from '../profile/testing/measurements.builder';
 import { householdConstraints } from './utils';
@@ -107,19 +114,32 @@ describe('adding somebody to cook for', () => {
     expect(response.errors?.[0]?.message).toContain(String(maxMembers));
   });
 
-  it('never goes past the limit when additions arrive together', async () => {
+  it('never goes past the limit when the last place is taken at that very moment', async () => {
     const session = await api.signUp(OWNER, PASSWORD);
     const { maxMembers } = householdConstraints();
     for (let filled = 0; filled < maxMembers - 1; filled += 1) await add(`N°${filled}`, session);
+    const owner = await api.resolve(UserRepository).findRecordByEmail(OWNER);
+    if (owner === undefined) throw new Error('The owner was not created.');
 
-    await Promise.all(
-      ['A', 'B', 'C'].map((name): Promise<unknown> =>
-        api.graphql(ADD, { input: { name, ...ANSWERS } }, session),
-      ),
-    );
+    // Another request has locked the owner and is filling the last place.
+    const database = api.database();
+    const held = await holdTransaction(database, async (transaction): Promise<void> => {
+      await transaction
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.id, owner.id))
+        .for('update');
+      await transaction
+        .insert(householdMember)
+        .values({ id: randomUUID(), ownerId: owner.id, name: 'Last', ...ANSWERS });
+    });
 
-    const listed = await api.graphql<{ householdMembers: Member[] }>(MEMBERS, undefined, session);
-    expect(listed.data?.householdMembers).toHaveLength(maxMembers);
+    const adding = api.graphql(ADD, { input: { name: 'Too many', ...ANSWERS } }, session);
+    expect(await staysPending(adding)).toBe(true);
+    await held.release();
+
+    expect((await adding).errors?.[0]?.message).toContain(String(maxMembers));
+    expect(await api.resolve(HouseholdRepository).findByOwner(owner.id)).toHaveLength(maxMembers);
   });
 
   it('refuses somebody with no name at all', async () => {

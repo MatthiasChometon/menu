@@ -44,8 +44,12 @@ export class PasswordResetService {
    *  stops working, which is the point: a reset exists for the case where
    *  somebody else is already inside. */
   async reset(token: string, password: string): Promise<User> {
-    // Hashed before the link is spent: scrypt is the slow step and must not
-    // keep a transaction open while it runs.
+    // A made-up token is refused before any hashing: scrypt is the slow step and
+    // a request with a well-formed random token must not get it for free.
+    if (!(await this.tokens.isLive(token, PASSWORD_RESET))) throw this.invalidLink();
+
+    // Hashed before the link is spent: scrypt must not keep a transaction open
+    // while it runs.
     const passwordHash = await this.passwords.hash(password);
 
     // Spent in the same transaction that sets the password: a failure in
@@ -53,12 +57,14 @@ export class PasswordResetService {
     const record = await this.tokens.spend(token, PASSWORD_RESET, (userId, executor) =>
       this.users.replacePassword(userId, passwordHash, executor),
     );
-    if (record === undefined) {
-      throw new UnauthorizedException('This link is no longer valid. Ask for a new one.');
-    }
+    if (record === undefined) throw this.invalidLink();
 
     // Through the mapper, always: a REST reply serialises whatever object it is
     // handed, and the raw row carries the password hash.
     return this.mapper.toUser(record);
+  }
+
+  private invalidLink(): UnauthorizedException {
+    return new UnauthorizedException('This link is no longer valid. Ask for a new one.');
   }
 }

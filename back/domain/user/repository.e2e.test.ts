@@ -1,5 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
+import { user } from './schema';
 import { UserRepository } from './repository';
 
 let api: TestApp;
@@ -70,14 +72,20 @@ describe('linking Google to an account that already has a password', () => {
     expect(record?.passwordHash).toBe('a-hash');
   });
 
-  it('opens one account when two first sign-ins arrive together', async () => {
-    const [first, second] = await Promise.all([
-      users.upsertByGoogle('google-1', 'matthias@example.com'),
-      users.upsertByGoogle('google-1', 'matthias@example.com'),
-    ]);
+  it('links to an account being created by another request at that very moment', async () => {
+    const held = await holdTransaction(api.database(), async (transaction): Promise<void> => {
+      await transaction
+        .insert(user)
+        .values({ email: 'matthias@example.com', passwordHash: 'a-hash' });
+    });
 
-    expect(first.user.id).toBe(second.user.id);
-    expect([first.isNew, second.isNew].filter(Boolean)).toHaveLength(1);
+    const signingIn = users.upsertByGoogle('google-1', 'matthias@example.com');
+    expect(await staysPending(signingIn)).toBe(true);
+    await held.release();
+
+    const linked = await signingIn;
+    expect(linked.isNew).toBe(false);
+    expect((await users.findRecordByEmail('matthias@example.com'))?.googleId).toBe('google-1');
   });
 });
 

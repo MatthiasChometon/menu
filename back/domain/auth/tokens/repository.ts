@@ -42,6 +42,17 @@ export class AuthTokenRepository {
     return token;
   }
 
+  /** Whether the link exists and is still good, without spending it: a cheap
+   *  look that lets a caller refuse a made-up token before doing slow work. */
+  async isLive(token: string, type: AuthTokenType): Promise<boolean> {
+    const [record] = await this.database
+      .select({ expiresAt: authToken.expiresAt })
+      .from(authToken)
+      .where(and(eq(authToken.tokenHash, digest(token)), eq(authToken.type, type)));
+
+    return record !== undefined && record.expiresAt.getTime() >= Date.now();
+  }
+
   /** Spends the link and runs `apply` with whose account it opened, in one
    *  transaction: if `apply` fails the link is still good for another try.
    *
