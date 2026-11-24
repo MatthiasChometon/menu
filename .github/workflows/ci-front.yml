@@ -18,6 +18,9 @@ on:
       - ".github/workflows/ci-front.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-front-${{ github.ref }}
   cancel-in-progress: true

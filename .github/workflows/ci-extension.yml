@@ -5,9 +5,12 @@ on:
   pull_request:
     paths:
       - "extension/**"
-      - "front/domain/order/**"
+      - "front/**"
       - ".github/workflows/ci-extension.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-extension-${{ github.ref }}
@@ -23,13 +26,14 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          # The extension does not declare packageManager; same pnpm as the front.
-          version: 11.9.0
+          package_json_file: extension/package.json
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: extension/pnpm-lock.yaml
+          cache-dependency-path: |
+            extension/pnpm-lock.yaml
+            front/pnpm-lock.yaml
 
       # The postinstall hook runs `wxt prepare`, which generates the typings and
       # the ESLint auto-imports the lint step needs.
@@ -48,14 +52,12 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      # The bridge code is shared with the front (../front/domain/order), and the
-      # bundler resolves it through the front's generated tsconfig: the front
-      # must be prepared (installed, then `nuxt prepare`) before the build.
-      - name: Prepare the front the extension imports from
+      # The extension imports the bridge from front/domain/order and the bundler
+      # resolves it through the front's generated tsconfig: installing the front
+      # runs its postinstall (`nuxt prepare`), which generates it.
+      - name: Install the front the extension imports from
         working-directory: front
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm exec nuxt prepare
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
