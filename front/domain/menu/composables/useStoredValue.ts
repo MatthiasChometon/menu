@@ -9,6 +9,8 @@ type StoredValue = {
 // localStorage is the reader's browser, not our code: an old version of the app,
 // another tab or a hand edit may have left anything under a key. A value is
 // trusted only once it passes its guard; otherwise the fallback stands in.
+// All or nothing, on purpose: one bad entry drops the whole stored value (a
+// four-week history, a week of swaps) rather than keeping a half-trusted rest.
 export const useStoredValue = (): StoredValue => {
   const isObject = (value: unknown): value is object => typeof value === 'object' && value !== null;
 

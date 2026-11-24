@@ -113,3 +113,34 @@ describe('useLeftovers', () => {
     expect(assignedOriginOf('thursday', 'dinner')).toBeUndefined();
   });
 });
+
+describe('corrupted stored leftovers', () => {
+  it('fall back to no assignment when one pointer is malformed', () => {
+    const week = '2090-02-05';
+    localStorage.setItem(
+      `leftoverAssignments:${week}`,
+      JSON.stringify([
+        {
+          origin: { day: 'monday', slot: 'dinner' },
+          target: { day: 'tuesday', slot: 'lunch' },
+        },
+        { origin: { day: 'someday', slot: 'dinner' }, target: { day: 'tuesday', slot: 'lunch' } },
+      ]),
+    );
+
+    const { assignedOriginOf, assignedTargetOf } = useLeftovers(week);
+
+    expect(assignedOriginOf('tuesday', 'lunch')).toBeUndefined();
+    expect(assignedTargetOf('monday', 'dinner')).toBeUndefined();
+  });
+
+  it('fall back to no decision when one is unknown', () => {
+    const week = '2090-02-12';
+    localStorage.setItem(
+      `leftoverDecisions:${week}`,
+      JSON.stringify({ 'monday:dinner': 'used', 'tuesday:dinner': 'maybe' }),
+    );
+
+    expect(useLeftovers(week).decisionAt('monday', 'dinner')).toBeUndefined();
+  });
+});
