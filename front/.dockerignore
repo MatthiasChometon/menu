@@ -17,3 +17,7 @@ test-results
 playwright-report
 coverage
 *.log
+
+# Every local override, whatever its suffix; the example file stays.
+.env.*
+!.env.example
