@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, inArray } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { insertedRow } from '../../infrastructure/database/rows';
+import { user } from '../user/schema';
 import { customFood } from './schema';
 import { CustomFoodDraft, CustomFoodRecord } from './type';
 
@@ -9,13 +10,29 @@ import { CustomFoodDraft, CustomFoodRecord } from './type';
 export class CustomFoodRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  async add(userId: string, food: CustomFoodDraft): Promise<CustomFoodRecord> {
-    const records = await this.database
-      .insert(customFood)
-      .values({ userId, ...food })
-      .returning();
+  // Counted and inserted under a lock on the owner, so two adds sent together
+  // cannot both see room for one more: nothing comes back when the pantry is
+  // already full.
+  async addUnlessFull(
+    userId: string,
+    food: CustomFoodDraft,
+    maxItems: number,
+  ): Promise<CustomFoodRecord | undefined> {
+    return this.database.transaction(async (transaction): Promise<CustomFoodRecord | undefined> => {
+      await transaction.select({ id: user.id }).from(user).where(eq(user.id, userId)).for('update');
+      const [current] = await transaction
+        .select({ total: count() })
+        .from(customFood)
+        .where(eq(customFood.userId, userId));
+      if ((current?.total ?? 0) >= maxItems) return undefined;
 
-    return this.toFood(insertedRow(records));
+      const records = await transaction
+        .insert(customFood)
+        .values({ userId, ...food })
+        .returning();
+
+      return this.toFood(insertedRow(records));
+    });
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed
@@ -55,15 +72,6 @@ export class CustomFoodRepository {
       .orderBy(customFood.createdAt, customFood.id);
 
     return records.map((record): CustomFoodRecord => this.toFood(record));
-  }
-
-  async countByOwner(userId: string): Promise<number> {
-    const [row] = await this.database
-      .select({ total: count() })
-      .from(customFood)
-      .where(eq(customFood.userId, userId));
-
-    return row?.total ?? 0;
   }
 
   // What a custom recipe's ingredients are checked against: a recipe may point

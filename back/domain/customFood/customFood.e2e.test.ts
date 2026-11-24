@@ -1,5 +1,10 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { eq } from 'drizzle-orm';
+import { expectPresent, startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
+import { user } from '../user/schema';
+import { UserRepository } from '../user/repository';
+import { customFood } from './schema';
 import { customFoodConstraints } from './utils';
 
 const OWNER = 'matthias@example.com';
@@ -140,6 +145,46 @@ describe('defining a food of one’s own', () => {
 
     expect(response.errors?.[0]?.message).toContain(String(maxItems));
   });
+
+  it('never goes past the limit when the last place is taken at that very moment', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+    const { maxItems } = customFoodConstraints();
+    const owner = expectPresent(
+      await api.resolve(UserRepository).findRecordByEmail(OWNER),
+      'the owner',
+    );
+    const row = (name: string): typeof customFood.$inferInsert => ({
+      userId: owner.id,
+      name,
+      ...DRAFT,
+    });
+    await api
+      .database()
+      .insert(customFood)
+      .values(
+        Array.from({ length: maxItems - 1 }, (_, filled): typeof customFood.$inferInsert =>
+          row(`Aliment ${filled}`),
+        ),
+      );
+
+    // Another request has locked the owner and is filling the last place.
+    const held = await holdTransaction(api.database(), async (transaction): Promise<void> => {
+      await transaction
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.id, owner.id))
+        .for('update');
+      await transaction.insert(customFood).values(row('Le dernier'));
+    });
+
+    const adding = api.graphql(CREATE, { input: { name: 'En trop', ...DRAFT } }, session);
+    expect(await staysPending(adding)).toBe(true);
+    await held.release();
+
+    expect((await adding).errors?.[0]?.message).toContain(String(maxItems));
+    const stored = await api.graphql<{ myCustomFoods: Food[] }>(MINE, undefined, session);
+    expect(stored.data?.myCustomFoods).toHaveLength(maxItems);
+  });
 });
 
 describe('correcting and removing a custom food', () => {
@@ -191,6 +236,7 @@ describe('whose pantry it is', () => {
     );
 
     expect(response.errors?.[0]?.message).toBe('No such food.');
+    expect(response.errors?.[0]?.extensions?.code).toBe('NOT_FOUND');
   });
 
   it('refuses to remove somebody else’s food', async () => {
@@ -202,5 +248,13 @@ describe('whose pantry it is', () => {
 
     const still = await api.graphql<{ myCustomFoods: Food[] }>(MINE, undefined, owner);
     expect(still.data?.myCustomFoods).toHaveLength(1);
+  });
+
+  it('answers a malformed identifier as bad input, not as a server error', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+
+    const response = await api.graphql(DELETE, { id: 'not-a-uuid' }, session);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 });

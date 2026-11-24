@@ -3,9 +3,10 @@ import { AuthModule } from '../auth/module';
 import { CustomFoodModule } from '../customFood/module';
 import { CustomRecipeRepository } from './repository';
 import { CustomRecipeResolver } from './resolver';
+import { CustomRecipeService } from './service';
 
 @Module({
   imports: [AuthModule, CustomFoodModule],
-  providers: [CustomRecipeResolver, CustomRecipeRepository],
+  providers: [CustomRecipeResolver, CustomRecipeService, CustomRecipeRepository],
 })
 export class CustomRecipeModule {}
