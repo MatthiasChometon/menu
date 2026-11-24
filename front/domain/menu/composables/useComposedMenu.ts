@@ -1,5 +1,4 @@
 import { daysFrom } from '../../planner/composables/usePlannerWeek';
-import { buildShoppingList } from '../utils/menu';
 import type { Day, FoodQuantity, Macros, Menu } from '../types/menu.type';
 
 // Turns a week somebody composed into the same Menu shape the rest of the app
@@ -22,6 +21,7 @@ export const useComposedMenu = (): {
   const { recipeOf } = useRecipes();
   const { foodOf } = useFoods();
   const { macrosOfQuantities } = useNutrition();
+  const { buildShoppingList } = useMenuBuilder();
   const { solve } = useMacroSolver();
   const { freshOf } = useSeasonings();
   const { profile } = useProfile();

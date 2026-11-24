@@ -112,3 +112,22 @@ export type ShoppingGroup = {
   lines: ShoppingLine[];
   price: number;
 };
+
+export type Verdict = 'ok' | 'low' | 'high';
+
+export type RawMeal = { recipe: string; foods: Record<string, number> };
+
+export type RawMenu = {
+  weekOf: string;
+  deliveryAt?: string;
+  targets: Macros & { tolerancePct?: MacroTolerance };
+  days: Record<string, Record<string, RawMeal>>;
+};
+
+// The lookups a raw week needs to become a full Menu. The app fills them from its
+// content composables; a script fills them from the same files read off disk.
+export type MenuCatalog = {
+  foodOf: (id: string) => Food | undefined;
+  recipeOf: (id: string) => Recipe | undefined;
+  freshOf: (recipes: Recipe[]) => Seasoning[];
+};

@@ -1,5 +1,4 @@
 import recipeData from '~~/domain/menu/content/recipes.json';
-import { buildRecipeCatalog } from '../utils/catalog';
 import type { Recipe } from '../types/menu.type';
 
 // Reactive so a signed-in reader's own recipes can join the site's, once they
@@ -7,7 +6,7 @@ import type { Recipe } from '../types/menu.type';
 // and only in the browser. The prerender and an anonymous visit never touch
 // that plugin, so both keep seeing this exact static catalogue.
 export const recipeCatalog = reactive<Record<string, Recipe>>({
-  ...buildRecipeCatalog(recipeData),
+  ...useCatalogBuilder().buildRecipeCatalog(recipeData),
 });
 
 export const useRecipes = (): {
