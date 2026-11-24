@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { rename, readFile, writeFile } from 'node:fs/promises';
+import { readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -11,7 +11,7 @@ export type Kind = (typeof KINDS)[number];
 /** The identifiers the site content uses. The API cannot check a dish exists —
  *  the catalogue is content, not a table — but it can refuse anything that is
  *  not shaped like an identifier, which keeps junk out of the folder. */
-const ID = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
+export const IMAGE_ID = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
 
 // What the cards actually display. A photograph off a phone is three thousand
 // pixels wide and four megabytes; served as-is it would undo the whole point of
@@ -36,18 +36,6 @@ export class ImageLibraryService {
     return this.config.getOrThrow<string>('IMAGES_ROOT');
   }
 
-  assertKind(kind: string): asserts kind is Kind {
-    if (!KINDS.includes(kind as Kind)) {
-      throw new BadRequestException(`Unknown kind. Expected one of: ${KINDS.join(', ')}.`);
-    }
-  }
-
-  assertId(id: string): void {
-    if (!ID.test(id)) {
-      throw new BadRequestException('An identifier is a letter followed by letters or digits.');
-    }
-  }
-
   /** Converts whatever arrived into the site's own format, files it under a name
    *  carrying a hash of the result, and records it. Returns the filename. */
   async store(kind: Kind, id: string, incoming: Buffer): Promise<string> {
@@ -68,17 +56,32 @@ export class ImageLibraryService {
     // to change when the served photograph changes, and two different originals
     // can convert to the same picture.
     const name = `${id}.${createHash('sha256').update(photo).digest('hex').slice(0, 8)}.webp`;
-    await writeFile(join(this.root, kind, name), photo);
-    await this.record(kind, id, name);
+    const filePath = join(this.root, kind, name);
+    await writeFile(filePath, photo);
+
+    let replaced: string | undefined;
+    try {
+      replaced = await this.record(kind, id, name);
+    } catch (error: unknown) {
+      // Not in the manifest, so nothing would ever serve or clean it up.
+      await rm(filePath, { force: true });
+      throw error;
+    }
+    // The photograph this one replaces is no longer listed: leaving it would
+    // fill the disk with files nothing points at.
+    if (replaced !== undefined && replaced !== name) {
+      await rm(join(this.root, kind, replaced), { force: true });
+    }
 
     return name;
   }
 
-  private record(kind: Kind, id: string, name: string): Promise<void> {
-    const next = this.queue.then(async (): Promise<void> => {
+  private record(kind: Kind, id: string, name: string): Promise<string | undefined> {
+    const next = this.queue.then(async (): Promise<string | undefined> => {
       const path = join(this.root, MANIFEST);
       const manifest = JSON.parse(await readFile(path, 'utf8')) as Manifest;
 
+      const previous = manifest[kind]?.[id];
       manifest[kind] = { ...(manifest[kind] ?? {}), [id]: name };
 
       // Written beside and moved into place: a reader fetching the manifest
@@ -87,6 +90,8 @@ export class ImageLibraryService {
       const staging = `${path}.${process.pid}.tmp`;
       await writeFile(staging, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
       await rename(staging, path);
+
+      return previous;
     });
 
     // The queue must survive a failure, or one bad upload jams every later one.

@@ -1,4 +1,4 @@
-import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -106,6 +106,23 @@ describe('adding a photograph', () => {
     // first, and a photograph arrives and then quietly disappears.
     const recorded = (await manifest()).recipe ?? {};
     expect(Object.keys(recorded).sort()).toEqual(['first', 'second']);
+  });
+});
+
+describe('replacing a photograph', () => {
+  it('removes the file it replaces rather than leaving it behind', async () => {
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const other = await sharp({
+      create: { width: 1000, height: 700, channels: 3, background: { r: 10, g: 10, b: 200 } },
+    })
+      .jpeg()
+      .toBuffer();
+
+    await api.postFile('/images/recipe/chiliChicken', 'a.jpg', await photograph(), admin);
+    const second = await api.postFile('/images/recipe/chiliChicken', 'b.jpg', other, admin);
+
+    const { file } = JSON.parse(second.body) as { file: string };
+    expect(await readdir(join(ROOT, 'recipe'))).toEqual([file]);
   });
 });
 
