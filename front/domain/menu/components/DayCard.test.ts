@@ -44,11 +44,10 @@ beforeEach(async () => {
 describe('DayCard', () => {
   it('shows the day name and its total calories', async () => {
     const day = flexedDayOf(0);
-    const { dayLabel } = useMenuLabels();
-
     await renderSuspended(DayCard, { props: { day, targets: day.macros, defaultOpen: true } });
 
-    expect(screen.getByText(dayLabel(day.key))).toBeTruthy();
+    expect(day.key).toBe('monday');
+    expect(screen.getByText('Lundi')).toBeTruthy();
     expect(screen.getByText(`${Math.round(day.macros.kcal)} kcal`)).toBeTruthy();
   });
 
@@ -72,14 +71,13 @@ describe('DayCard', () => {
   it('swaps with another day from its menu', async () => {
     const dayA = flexedDayOf(0);
     const dayB = dayOf(1);
-    const { dayLabel } = useMenuLabels();
-
+    expect(dayB.key).toBe('tuesday');
     await renderSuspended(DayCard, {
       props: { day: dayA, targets: dayA.macros, defaultOpen: true, otherDayKeys: [dayB.key] },
     });
 
     await fireEvent.click(screen.getByRole('button', { name: 'Options du jour' }));
-    await fireEvent.click(await screen.findByText(`Échanger avec ${dayLabel(dayB.key)}`));
+    await fireEvent.click(await screen.findByText('Échanger avec Mardi'));
 
     const slot = dayA.meals[0]?.slot;
     if (slot === undefined) throw new Error('the day has no meal');
