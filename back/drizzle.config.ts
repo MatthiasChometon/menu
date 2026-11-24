@@ -6,7 +6,7 @@ export default defineConfig({
   // Each slice owns its table, so the schemas are discovered rather than listed.
   schema: './domain/**/schema.ts',
   out: './infrastructure/database/migrations',
-  dbCredentials: {
-    url: process.env.DATABASE_URL!,
-  },
+  // `generate` never connects, so a checkout without a .env can still write a
+  // migration; `migrate` and `studio` fail on the empty address.
+  dbCredentials: { url: process.env.DATABASE_URL ?? '' },
 });

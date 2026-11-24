@@ -14,6 +14,7 @@ import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
 import { WeightModule } from './domain/weight/module';
+import { validateEnvironment } from './infrastructure/config/env';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
@@ -23,7 +24,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
     SentryModule.forRoot(),
     ThrottlerInfrastructureModule,
     HealthInfrastructureModule,

@@ -3,9 +3,12 @@
 // almost nothing. Its position is the point, not a tidiness preference.
 import './infrastructure/monitoring/instrument';
 import { createServer } from 'node:http';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
+import { DEFAULT_PORT } from './infrastructure/config/env';
 import { configureApp, createAdapter } from './infrastructure/http/setup';
 
 // Phusion Passenger, which is what the shared host runs, opens the listening
@@ -25,9 +28,13 @@ const underPassenger = (): boolean => typeof PhusionPassenger !== 'undefined';
 const bootstrap = async (): Promise<void> => {
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter());
   await configureApp(app);
+  // Lets SIGTERM (a deploy, a restart) close the database pool and finish the
+  // requests in flight instead of cutting them. Here only, never in configureApp:
+  // the e2e suite closes its own app.
+  app.enableShutdownHooks();
 
   if (!underPassenger()) {
-    await app.listen(process.env.PORT ?? 3779, '0.0.0.0');
+    await app.listen(app.get(ConfigService).get<number>('PORT', DEFAULT_PORT), '0.0.0.0');
     return;
   }
 
@@ -42,4 +49,11 @@ const bootstrap = async (): Promise<void> => {
     fastify.routing(request, response);
   }).listen('passenger');
 };
-void bootstrap();
+
+bootstrap().catch((error: unknown): void => {
+  new Logger('Bootstrap').error(
+    'The server failed to start.',
+    error instanceof Error ? error.stack : String(error),
+  );
+  process.exit(1);
+});
