@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { MailService } from '../../../infrastructure/mail/service';
 import { User } from '../../user/model';
 import { UserRepository } from '../../user/repository';
+import { frontUrl } from '../front-url';
 import { verificationEmail } from './emails';
 import { AuthTokenRepository, EMAIL_VERIFICATION } from '../tokens/repository';
 
@@ -23,20 +24,23 @@ export class EmailVerificationService {
 
   async send(userId: string, email: string, locale: string): Promise<void> {
     const token = await this.tokens.issue(userId, EMAIL_VERIFICATION, TTL_MS);
-    const front = this.config.getOrThrow<string>('FRONT_URL').replace(/\/+$/, '');
-    const url = `${front}${VERIFICATION_PATH}?token=${token}`;
+    const url = `${frontUrl(this.config)}${VERIFICATION_PATH}?token=${token}`;
 
     await this.mail.send(verificationEmail(email, url, locale));
   }
 
   /** Spends the link and returns the account it belonged to, now verified. */
   async verify(token: string): Promise<User> {
-    const userId = await this.tokens.consume(token, EMAIL_VERIFICATION);
-    if (userId === undefined) {
+    // Spent in the same transaction that verifies the account: a failure in
+    // between leaves the link usable rather than burnt for nothing.
+    const verified = await this.tokens.spend(token, EMAIL_VERIFICATION, (userId, executor) =>
+      this.users.markEmailVerified(userId, executor),
+    );
+    if (verified === undefined) {
       throw new UnauthorizedException('This link is no longer valid. Ask for a new one.');
     }
 
-    return this.users.markEmailVerified(userId);
+    return verified;
   }
 
   /** Sends another link, and says nothing about whether there was anyone to

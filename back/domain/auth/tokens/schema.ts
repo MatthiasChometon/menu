@@ -1,5 +1,6 @@
-import { pgTable, primaryKey, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { user } from '../../user/schema';
+import type { AuthTokenType } from './type';
 
 // A one-time link, stored as a hash. The token in the email is the only copy
 // that can open anything: a dump of this table lets nobody verify an address,
@@ -18,9 +19,14 @@ export const authToken = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    type: text('type').notNull(),
+    type: text('type').$type<AuthTokenType>().notNull(),
     tokenHash: text('token_hash').notNull(),
     expiresAt: timestamp('expires_at').notNull(),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.type] })],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.type] }),
+    // Looked up by hash when a link is followed; the hash is also what makes one
+    // link open one account only.
+    uniqueIndex('auth_token_token_hash_unique').on(table.tokenHash),
+  ],
 );

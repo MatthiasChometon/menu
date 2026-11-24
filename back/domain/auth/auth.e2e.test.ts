@@ -468,3 +468,57 @@ describe('signing in with Google', () => {
     expect(response.statusCode).toBe(401);
   });
 });
+
+describe('races on the same account', () => {
+  const issueLink = async (): Promise<{ tokens: AuthTokenRepository; token: string }> => {
+    await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+    const account = await api.resolve(UserRepository).findRecordByEmail(EMAIL);
+    if (account === undefined) throw new Error('The account was not created.');
+    const tokens = api.resolve(AuthTokenRepository);
+
+    return { tokens, token: await tokens.issue(account.id, EMAIL_VERIFICATION, 60_000) };
+  };
+
+  it('lets two sign-ups of one address both answer 202 and create one account', async () => {
+    const [first, second] = await Promise.all([
+      api.post('/auth/register', { email: EMAIL, password: PASSWORD }),
+      api.post('/auth/register', { email: EMAIL, password: PASSWORD }),
+    ]);
+
+    expect([first.statusCode, second.statusCode]).toEqual([202, 202]);
+    expect(await api.resolve(UserRepository).findRecordByEmail(EMAIL)).toBeDefined();
+  });
+
+  it('lets only one of two holders of the same link spend it', async () => {
+    const { tokens, token } = await issueLink();
+
+    // The first holder keeps the link locked while the second one tries it.
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve): void => {
+      release = resolve;
+    });
+    const winner = tokens.spend(token, EMAIL_VERIFICATION, async (): Promise<string> => {
+      await held;
+      return 'won';
+    });
+    const loser = tokens.spend(token, EMAIL_VERIFICATION, (): Promise<string> =>
+      Promise.resolve('won too'),
+    );
+    release();
+
+    expect(await Promise.all([winner, loser])).toEqual(['won', undefined]);
+  });
+
+  it('does not burn the link when what it was spent on fails', async () => {
+    const { tokens, token } = await issueLink();
+
+    await expect(
+      tokens.spend(token, EMAIL_VERIFICATION, (): Promise<never> =>
+        Promise.reject(new Error('boom')),
+      ),
+    ).rejects.toThrow('boom');
+
+    const response = await api.post('/auth/verify-email', { token });
+    expect(response.statusCode).toBe(200);
+  });
+});

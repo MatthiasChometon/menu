@@ -5,6 +5,7 @@ import { User } from '../../user/model';
 import { UserMapper } from '../../user/mapper';
 import { UserRepository } from '../../user/repository';
 import { PasswordService } from '../emailAndPassword/password.service';
+import { frontUrl } from '../front-url';
 import { AuthTokenRepository, PASSWORD_RESET } from '../tokens/repository';
 import { passwordResetEmail } from './emails';
 
@@ -34,23 +35,27 @@ export class PasswordResetService {
     if (record === undefined) return;
 
     const token = await this.tokens.issue(record.id, PASSWORD_RESET, TTL_MS);
-    const front = this.config.getOrThrow<string>('FRONT_URL').replace(/\/+$/, '');
+    const url = `${frontUrl(this.config)}${RESET_PATH}?token=${token}`;
 
-    await this.mail.send(
-      passwordResetEmail(record.email, `${front}${RESET_PATH}?token=${token}`, record.locale),
-    );
+    await this.mail.send(passwordResetEmail(record.email, url, record.locale));
   }
 
   /** Spends the link and sets the new password. Every session signed before now
    *  stops working, which is the point: a reset exists for the case where
    *  somebody else is already inside. */
   async reset(token: string, password: string): Promise<User> {
-    const userId = await this.tokens.consume(token, PASSWORD_RESET);
-    if (userId === undefined) {
+    // Hashed before the link is spent: scrypt is the slow step and must not
+    // keep a transaction open while it runs.
+    const passwordHash = await this.passwords.hash(password);
+
+    // Spent in the same transaction that sets the password: a failure in
+    // between leaves the link usable rather than burnt for nothing.
+    const record = await this.tokens.spend(token, PASSWORD_RESET, (userId, executor) =>
+      this.users.replacePassword(userId, passwordHash, executor),
+    );
+    if (record === undefined) {
       throw new UnauthorizedException('This link is no longer valid. Ask for a new one.');
     }
-
-    const record = await this.users.replacePassword(userId, await this.passwords.hash(password));
 
     // Through the mapper, always: a REST reply serialises whatever object it is
     // handed, and the raw row carries the password hash.
