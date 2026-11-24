@@ -67,7 +67,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M2 — impl · review · ci · ok · merged (PR #3, 4759525)
 - [x] M3 — impl · review · ci · ok · merged (PR #5, a10a9ee)
 - [x] M4 — impl · review · ci · ok · merged (PR #9, f76b490)
-- [ ] M5 — impl · review · ci · ok · merged
+- [x] M5 — impl · review · ci · ok · merged (PR #11, 3175bbc)
 - [ ] M6 — impl · review · ci · ok · merged
 - [ ] M7 — impl · review · ci · ok · merged
 - [ ] M8 — impl · review · ci · ok · merged
@@ -248,3 +248,6 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `document.fonts` (old browsers have no FontFaceSet; carries an eslint-disable) and `canvas.toBlob` (covered by a test; it
   needs no directive). `CRC_TABLE[...] ?? 0` in `asset/scripts/workflow.ts` is kept: a throwing access would
   add a branch nothing can reach.
+- 2026-11-24 — M5 merged (PR #11): 2 review rounds, 9 findings. Front and extension now have PR CI.
+  Prod bug found by the reviewer: the extension read Carrefour slots in the browser's time zone (hidden by a test TZ pin);
+  fixed to Europe/Paris. Next: M6 (front `domain/menu`).
