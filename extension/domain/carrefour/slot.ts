@@ -1,16 +1,39 @@
 import type { DeliverySlot, SlotWindow } from './type';
 
-const minutesOf = (date: Date): number => date.getHours() * 60 + date.getMinutes();
+// The shop's windows are wall-clock times in France, whatever zone the browser
+// or the test runner is in.
+const SHOP_CLOCK = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Paris',
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
 
-// ISO counts Sunday as 7; getDay returns 0 for it.
-const weekdayOf = (date: Date): number => (date.getDay() === 0 ? 7 : date.getDay());
+const ISO_WEEKDAY: Record<string, number> = {
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+  Sun: 7,
+};
+
+const shopTimeOf = (date: Date): { weekday: number; minute: number } => {
+  const part = (type: string): string =>
+    SHOP_CLOCK.formatToParts(date).find((item): boolean => item.type === type)?.value ?? '';
+  return {
+    weekday: ISO_WEEKDAY[part('weekday')] ?? 0,
+    minute: Number(part('hour')) * 60 + Number(part('minute')),
+  };
+};
 
 const fits = (slot: DeliverySlot, windows: SlotWindow[]): boolean => {
   const begin = new Date(slot.begin);
   if (Number.isNaN(begin.getTime())) return false;
 
-  const weekday = weekdayOf(begin);
-  const minute = minutesOf(begin);
+  const { weekday, minute } = shopTimeOf(begin);
 
   return windows.some(
     (window): boolean =>

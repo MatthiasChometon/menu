@@ -200,3 +200,51 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   Shutdown fix: Nest runs `onModuleDestroy` before `beforeApplicationShutdown`, so background work is drained by the
   database module itself (`BackgroundTasks.settled()`, ceiling 120 s) — covers the M2 grocery notifier too.
   Back socle of menu is done; next M5 (front socle + CI front/extension).
+- 2026-11-24 — M5 (front socle: `nuxt.config.ts`, `infrastructure/**`, `app.vue`, tsconfig/ESLint, CI).
+  **Turned on:** TS `noImplicitOverride`, `noFallthroughCasesInSwitch`, `noImplicitReturns`,
+  `noUnusedLocals`, `noUnusedParameters` (zero errors; Nuxt 4 already sets `noUncheckedIndexedAccess`);
+  type-aware ESLint (`projectService`, so `pnpm lint` is slower, about 2 min) with `no-explicit-any`,
+  `eqeqeq`, `no-console` (CLI scripts excepted), `no-non-null-assertion` (tests excepted),
+  `no-floating-promises`, `no-unnecessary-condition`: all on for `infrastructure/**` and root files,
+  **off for `domain/**` through one block at the end of the `eslint.config.ts` rules, which the last
+  front slice lot (M10) deletes.** Counts to fix in the domain: `no-non-null-assertion` ~29 (IntroSlides,
+  usePlannerWeek, useWeightChart production; the rest tests are already exempt), `no-floating-promises` 2
+  (`menu/layout/Header.vue`, `weight/Form.vue`), `no-unnecessary-condition` ~22, `no-console` 1
+  (`planner/usePlanner.ts:988`). **Deferred (M10):** `exactOptionalPropertyTypes`: ~35 errors in domain
+  slices (planner `PreferencesPanel.vue` Nuxt UI `USelect` handlers 6, library 4, `domain/menu/utils` 3,
+  one each across 17 other slices) **plus 14 in `.nuxt/gql/default.ts` (generated GraphQL client) and 1 in
+  `eslint.config.ts`**: M10 must decide how to cope with the generated file (exclude it from the app
+  tsconfig or keep the flag off). Visual tests are not in CI: baselines are `*-win32.png` only, a Linux
+  runner has none and renders fonts differently; the Playwright `*.e2e.test.ts` suites need Chromium and a
+  preview server, they stay local. **New CI:** `ci-front.yml` (lint, format, typecheck, unit tests, build)
+  and `ci-extension.yml` (same, extension has no `packageManager`, so pnpm is pinned in the workflow; M11
+  may add the field). **Bug fixed:** the build scripts `pnpm icons|og|seed-images|photos` all crashed
+  ("front root not found"): `paths.ts` looked for the removed `ddd/index.ts`; now it looks for
+  `package.json` (test `paths.test.ts`, red on the old code); after the fix the regenerated icons and
+  OG cards are byte-identical to the committed ones. **Also:** `infrastructure/asset/utils` (auto-imported
+  into the app for nothing, against the "no utils/" rule) moved next to its scripts; the plate drawing
+  duplicated in `icons.ts` and `og.ts` is one `drawPlate`; the image manifest read at build is validated
+  and capped at 10 s; the recipe list read at build is validated; `buildWorkflow` names the node a
+  template lacks; Dockerfile prod `HEALTHCHECK`, `.dockerignore` covers every `.env.*`, `.env.example`
+  lists the Sentry and `GQL_SCHEMA` variables. Security (no secret in the bundle: the Sentry DSN is
+  public by construction, source maps are deleted after upload; CSP in `hosting/public/_headers`) and the
+  a11y of the socle components (skip link, `main` landmark, labelled dialog controls, `aria-pressed`,
+  `prefers-reduced-motion`, high-contrast mode) were checked: nothing to change. **Left on purpose, for the
+  lot that owns it:** `infrastructure/asset` and `infrastructure/ui/style` hold brand-specific content
+  (plate palette, OG copy, menu colours; the checklist wants `infrastructure` project-agnostic): a
+  `domain/brand` slice or a move into `domain/menu` is a decision for M6; `domain/menu/utils` and
+  `domain/order/utils` (the "no utils/" rule) are M6/M8; `readContent`/`readJsonAt` in
+  `asset/scripts/content.ts` trust the JSON they parse (build scripts, the `check` script validates the
+  content); `useDisplayPreferences` keeps module-level shared refs on purpose (documented there).
+  **Deletion candidates:** none.
+  M5 addendum: the extension tests depended on the machine time zone (failed on the UTC CI runner). It was a
+  real bug, not a test quirk: `extension/domain/carrefour/slot.ts` now reads weekday and minute in
+  `Europe/Paris`. The extension build imports `front/domain/order`; installing the front runs its
+  `nuxt prepare` postinstall, so `ci-extension.yml` installs it (both lockfiles cached) and triggers on
+  `front/**`. `extension/package.json` now declares `packageManager` (pnpm 11.9.0), which the workflow reads.
+  Owners and exit conditions: the visual and Playwright e2e suites stay out of CI until M11 adds
+  `ci-e2e.yml` with Linux baselines created there (baselines are never updated during the campaign
+  otherwise). Two defensive guards kept on purpose:
+  `document.fonts` (old browsers have no FontFaceSet; carries an eslint-disable) and `canvas.toBlob` (covered by a test; it
+  needs no directive). `CRC_TABLE[...] ?? 0` in `asset/scripts/workflow.ts` is kept: a throwing access would
+  add a branch nothing can reach.

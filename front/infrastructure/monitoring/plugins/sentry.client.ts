@@ -1,7 +1,7 @@
 import { init } from '@sentry/vue';
 
 export default defineNuxtPlugin((nuxtApp): void => {
-  const dsn = String(useRuntimeConfig().public.sentry?.dsn ?? '').trim();
+  const dsn = useRuntimeConfig().public.sentry.dsn.trim();
 
   // No address to report to is the normal state of a local checkout. Calling
   // init anyway would warn on every page load about a decision nobody made.

@@ -12,7 +12,7 @@ const openDialog = async (): Promise<void> => {
 
 const buttonWithText = (text: string): HTMLButtonElement | undefined =>
   [...document.querySelectorAll('button')].find(
-    (button): boolean => button.textContent?.trim() === text,
+    (button): boolean => button.textContent.trim() === text,
   );
 
 beforeEach(async (): Promise<void> => {

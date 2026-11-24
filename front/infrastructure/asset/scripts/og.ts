@@ -1,14 +1,15 @@
 // Draws the link-preview (Open Graph) cards: the shared plate motif plus the
 // brand/tagline/lead read from the site's own translations, one per language.
-// wrap() is pure and tested (asset/utils/og); this runner does the render.
+// wrap() is pure and tested (scripts/wrapText); this runner does the render.
 //
 // Usage: pnpm --dir front og
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GlobalFonts, createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
-import { PLATE_PALETTE, plateWedges } from '../utils/icon';
-import { wrap } from '../utils/og';
+import { drawPlate } from './drawPlate';
+import { PLATE_PALETTE } from './plate';
+import { wrap } from './wrapText';
 import { FRONT, SEO_PUBLIC } from './paths';
 
 const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
@@ -43,7 +44,7 @@ const FONT_CANDIDATES: Record<string, string[]> = {
 // the platform default when none is found (e.g. a Linux CI without these fonts).
 const family = (weight: string): string => {
   const label = `OG-${weight}`;
-  for (const path of FONT_CANDIDATES[weight]!) {
+  for (const path of FONT_CANDIDATES[weight] ?? []) {
     if (existsSync(path) && GlobalFonts.registerFromPath(path, label)) return label;
   }
   return 'sans-serif';
@@ -68,23 +69,13 @@ export const drawCard = async (brand: string, tagline: string, lead: string): Pr
   const left = width - diameter * 0.62;
   const cx = left + diameter / 2;
   const cy = height / 2;
-  const disc = (radius: number, fill: string): void => {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fillStyle = fill;
-    ctx.fill();
-  };
-
-  disc(diameter / 2, PLATE_PALETTE.plate);
-  plateWedges().forEach((wedge, index): void => {
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, diameter * 0.34, wedge.start, wedge.end);
-    ctx.closePath();
-    ctx.fillStyle = PLATE_PALETTE.wedges[index]!;
-    ctx.fill();
+  drawPlate(ctx, {
+    centerX: cx,
+    centerY: cy,
+    plateRadius: diameter / 2,
+    wedgeRadius: diameter * 0.34,
+    holeRadius: diameter * 0.16,
   });
-  disc(diameter * 0.16, PLATE_PALETTE.plate);
 
   const titleSize = 84 * SUPERSAMPLE;
   const taglineSize = 40 * SUPERSAMPLE;

@@ -46,4 +46,13 @@ describe('buildWorkflow', () => {
 
     expect(source['6']!.inputs.text).toBe('');
   });
+
+  it('names the node a template is missing instead of failing on undefined', () => {
+    const withoutNegative = template();
+    delete withoutNegative['7'];
+
+    expect(() => buildWorkflow(withoutNegative, 'a dish', 'ugly', [1024, 640], 42)).toThrow(
+      'no node 7',
+    );
+  });
 });

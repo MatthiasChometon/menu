@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { FAVICON_SVG, PLATE_PALETTE, plateWedges } from './icon';
+import { FAVICON_SVG, PLATE_PALETTE, plateWedges } from './plate';
 
 describe('plateWedges', () => {
   it('splits the plate into one wedge per macro', () => {

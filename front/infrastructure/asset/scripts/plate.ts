@@ -2,7 +2,6 @@
 // plate on a forest gradient with three wedges coloured like the app's own
 // macro donut — protein green, carbs wheat, fat copper. Pure geometry and
 // palette; the canvas rendering lives in the runners.
-
 export const PLATE_PALETTE = {
   top: '#3e8a52',
   bottom: '#1d4028',
@@ -12,11 +11,12 @@ export const PLATE_PALETTE = {
 
 const deg = (value: number): number => (value * Math.PI) / 180;
 
-// Three equal wedges starting from the top, in radians.
-export const plateWedges = (): { start: number; end: number }[] =>
-  PLATE_PALETTE.wedges.map((_, index): { start: number; end: number } => ({
+// Three equal wedges starting from the top, in radians, each with its colour.
+export const plateWedges = (): { start: number; end: number; colour: string }[] =>
+  PLATE_PALETTE.wedges.map((colour, index): { start: number; end: number; colour: string } => ({
     start: deg(-90 + index * 120),
     end: deg(-90 + (index + 1) * 120),
+    colour,
   }));
 
 export const FAVICON_SVG =

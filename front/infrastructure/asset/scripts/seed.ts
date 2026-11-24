@@ -1,6 +1,6 @@
 // One-shot upload of the repo's photos to the o2switch image host. Each file is
 // renamed by a fingerprint of its own content (recette.a1b2c3d4.webp, from
-// asset/utils/fingerprint), so a year-long cache never serves a stale version.
+// scripts/fingerprint), so a year-long cache never serves a stale version.
 // The manifest tells the site which photos exist and under what name.
 //
 // Usage: pnpm --dir front seed-images [--dry-run]
@@ -18,7 +18,7 @@ import {
 } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fingerprint } from '../utils/fingerprint';
+import { fingerprint } from './fingerprint';
 import { ASSETS } from './paths';
 
 const SOURCE = join(ASSETS, 'images');

@@ -30,6 +30,15 @@ describe('picking a delivery slot', () => {
     expect(chosen?.begin).toBe('2026-08-22T09:00:00+02:00');
   });
 
+  it('reads the slot in the time zone of the shop, not of the machine', () => {
+    // Saturday 00:30 in Paris is still Friday 22:30 in UTC.
+    const lateNight: SlotWindow = { weekday: 6, startMinute: 0, endMinute: 60 };
+
+    const chosen = chooseSlot([slot('2026-08-22T00:30:00+02:00')], [lateNight], NOW);
+
+    expect(chosen).toBeDefined();
+  });
+
   it('ignores a slot on the right day but outside the hours', () => {
     const chosen = chooseSlot([slot('2026-08-22T19:00:00+02:00')], [SATURDAY_MORNING], NOW);
 

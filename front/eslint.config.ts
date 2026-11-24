@@ -19,6 +19,47 @@ export default withNuxt(
     },
   },
   {
+    // Type-aware rules need the project service. The Nuxt tsconfig is a solution-style
+    // file that references the generated ones, which typescript-eslint follows.
+    files: ['**/*.{ts,vue}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        extraFileExtensions: ['.vue'],
+      },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-unnecessary-condition': 'error',
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
+      'no-console': 'error',
+    },
+  },
+  {
+    // Command-line scripts report through the console.
+    files: ['**/scripts/**/*.ts'],
+    rules: { 'no-console': 'off' },
+  },
+  {
+    // A test may assert on a value it has just checked exists.
+    files: ['**/*.test.ts'],
+    rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
+  },
+  {
+    // The domain slices are refactored lot by lot (M6-M10): the last one deletes this
+    // block, so these rules end up on everywhere.
+    files: ['domain/**/*.{ts,vue}'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      'no-console': 'off',
+    },
+  },
+  {
     files: ['infrastructure/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [

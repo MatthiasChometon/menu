@@ -29,11 +29,11 @@ const displayPreferenceClass = computed((): string =>
 
 useHead({
   htmlAttrs: {
-    lang: (): string => head.value.htmlAttrs?.lang ?? 'fr',
+    lang: (): string => head.value.htmlAttrs.lang ?? 'fr',
     class: (): string => displayPreferenceClass.value,
   },
-  link: (): NonNullable<LocaleHead['link']> => head.value.link ?? [],
-  meta: (): NonNullable<LocaleHead['meta']> => head.value.meta ?? [],
+  link: (): NonNullable<LocaleHead['link']> => head.value.link,
+  meta: (): NonNullable<LocaleHead['meta']> => head.value.meta,
 });
 </script>
 

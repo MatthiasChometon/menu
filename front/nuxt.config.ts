@@ -1,6 +1,18 @@
 import { buildDynamicLayers } from './infrastructure/ddd/buildDynamicLayers';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
+// Nuxt already turns on noUncheckedIndexedAccess. Left off on purpose:
+// exactOptionalPropertyTypes (about 50 errors across the domain slices, plus 14 in the
+// types the GraphQL module generates into .nuxt and Nuxt UI prop types that cannot be
+// edited); the last front slice lot turns it on once its own share is fixed.
+const strictnessFlags = {
+  noImplicitOverride: true,
+  noFallthroughCasesInSwitch: true,
+  noImplicitReturns: true,
+  noUnusedLocals: true,
+  noUnusedParameters: true,
+};
+
 const { componentsList, cssList, layerConfigTsGlobList, layerList, typesDirList } =
   buildDynamicLayers();
 
@@ -121,7 +133,13 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: 'build',
-    tsConfig: { exclude: layerConfigTsGlobList, compilerOptions: { incremental: true } },
-    nodeTsConfig: { include: layerConfigTsGlobList, compilerOptions: { incremental: true } },
+    tsConfig: {
+      exclude: layerConfigTsGlobList,
+      compilerOptions: { incremental: true, ...strictnessFlags },
+    },
+    nodeTsConfig: {
+      include: layerConfigTsGlobList,
+      compilerOptions: { incremental: true, ...strictnessFlags },
+    },
   },
 });

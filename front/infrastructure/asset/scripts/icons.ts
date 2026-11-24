@@ -1,12 +1,13 @@
 // Draws the PWA icons (iOS/Android home screen + favicon) from the shared plate
-// motif (asset/utils/icon). drawIcon() renders the PNG bytes; main() writes them.
+// motif (scripts/plate). drawIcon() renders the PNG bytes; main() writes them.
 //
 // Usage: pnpm --dir front icons
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
-import { FAVICON_SVG, PLATE_PALETTE, plateWedges } from '../utils/icon';
+import { drawPlate } from './drawPlate';
+import { FAVICON_SVG, PLATE_PALETTE } from './plate';
 import { SEO_PUBLIC } from './paths';
 
 const SIZES: Record<string, number> = {
@@ -30,23 +31,13 @@ export const drawIcon = async (size: number): Promise<Buffer> => {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, big, big);
 
-  const disc = (radius: number, fill: string): void => {
-    ctx.beginPath();
-    ctx.arc(center, center, radius, 0, Math.PI * 2);
-    ctx.fillStyle = fill;
-    ctx.fill();
-  };
-
-  disc(big * 0.34, PLATE_PALETTE.plate);
-  plateWedges().forEach((wedge, index): void => {
-    ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, big * 0.24, wedge.start, wedge.end);
-    ctx.closePath();
-    ctx.fillStyle = PLATE_PALETTE.wedges[index]!;
-    ctx.fill();
+  drawPlate(ctx, {
+    centerX: center,
+    centerY: center,
+    plateRadius: big * 0.34,
+    wedgeRadius: big * 0.24,
+    holeRadius: big * 0.06,
   });
-  disc(big * 0.06, PLATE_PALETTE.plate);
 
   return sharp(canvas.toBuffer('image/png'))
     .resize(size, size, { kernel: 'lanczos3' })

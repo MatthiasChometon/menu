@@ -126,7 +126,7 @@ const inspecteDialogue = async (
       const c = control.getBoundingClientRect();
       if (c.width === 0 || c.height === 0) continue;
 
-      const nom = `${control.tagName.toLowerCase()} "${(control.textContent ?? '').trim().slice(0, 25)}"`;
+      const nom = `${control.tagName.toLowerCase()} "${control.textContent.trim().slice(0, 25)}"`;
       if (c.right > vw + 1 || c.left < -1)
         trouves.push({
           quoi: 'controle hors de l ecran',
