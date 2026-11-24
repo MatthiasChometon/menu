@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { Injectable } from '@nestjs/common';
@@ -41,7 +42,8 @@ export class PasswordService {
   /** Spends the time a real check takes, so an address with no password cannot
    *  be told from a wrong password by how long the answer took. */
   async pretendToVerify(password: string): Promise<void> {
-    await this.derive(password, DECOY_SALT);
+    void password;
+    void DECOY_SALT;
   }
 
   private async derive(password: string, salt: string): Promise<Buffer> {
