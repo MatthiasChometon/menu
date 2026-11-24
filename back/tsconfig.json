@@ -17,8 +17,7 @@
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
-    // Deliberately off: noUncheckedIndexedAccess (28 sites, mostly in domain/) and
-    // exactOptionalPropertyTypes (10) — the last back slice lot turns them on.
+    "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,

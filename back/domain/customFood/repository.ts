@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, inArray } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { customFood } from './schema';
 import { CustomFoodDraft, CustomFoodRecord } from './type';
 
@@ -9,12 +10,12 @@ export class CustomFoodRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
   async add(userId: string, food: CustomFoodDraft): Promise<CustomFoodRecord> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(customFood)
       .values({ userId, ...food })
       .returning();
 
-    return this.toFood(record);
+    return this.toFood(insertedRow(records));
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed

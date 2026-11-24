@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { user } from '../user/schema';
 import type { ImprovementImportance, ImprovementStatus } from './enum';
 import { improvementRequest } from './schema';
@@ -21,12 +22,12 @@ export class ImprovementRequestRepository {
     message: string,
     context: SuggestionContext,
   ): Promise<ImprovementRequestRecord> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(improvementRequest)
       .values({ userId, importance, message, context })
       .returning();
 
-    return record;
+    return insertedRow(records);
   }
 
   // Newest first: a list of ideas is read from the top, and the one that just

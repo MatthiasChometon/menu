@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { weekPlan } from './schema';
 import type { PlannedDay, WeekPlanRecord } from './type';
 
@@ -11,7 +12,7 @@ export class WeekPlanRepository {
   // Replaced wholesale rather than merged: the caller sends the week it wants,
   // and a partial merge would silently keep a dish the reader had removed.
   async save(userId: string, weekOf: string, days: PlannedDay[]): Promise<WeekPlanRecord> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(weekPlan)
       .values({ userId, weekOf, days, updatedAt: new Date() })
       .onConflictDoUpdate({
@@ -20,7 +21,7 @@ export class WeekPlanRepository {
       })
       .returning();
 
-    return this.toRecord(record);
+    return this.toRecord(insertedRow(records));
   }
 
   async findOne(userId: string, weekOf: string): Promise<WeekPlanRecord | undefined> {
