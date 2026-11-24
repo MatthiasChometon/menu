@@ -1,4 +1,4 @@
-import { Injectable, Logger, type BeforeApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 const reasonOf = (error: unknown): string =>
   error instanceof Error ? error.message : 'unknown error';
@@ -9,7 +9,7 @@ const reasonOf = (error: unknown): string =>
  * it does is logged here rather than thrown at somebody who cannot act on it.
  */
 @Injectable()
-export class BackgroundTasks implements BeforeApplicationShutdown {
+export class BackgroundTasks {
   private readonly logger = new Logger(BackgroundTasks.name);
   private readonly inFlight = new Set<Promise<void>>();
 
@@ -21,16 +21,14 @@ export class BackgroundTasks implements BeforeApplicationShutdown {
     this.inFlight.add(running);
   }
 
-  /** Resolves once everything handed to `run` has finished or given up. */
+  /**
+   * Resolves once everything handed to `run` has finished or given up. The
+   * database module awaits it before closing the pool: Nest ends the pool in
+   * onModuleDestroy, ahead of both shutdown hooks, so draining any later would
+   * find the database gone.
+   */
   async settled(): Promise<void> {
     await Promise.all(this.inFlight);
-  }
-
-  // Work still on its way when the server stops would be lost: wait for it, as
-  // long as the timeouts on what it calls allow. Before, not after: Nest closes
-  // the database pool in onModuleDestroy, which runs before onApplicationShutdown.
-  async beforeApplicationShutdown(): Promise<void> {
-    await this.settled();
   }
 
   private async withoutFailing(label: string, work: () => Promise<void>): Promise<void> {

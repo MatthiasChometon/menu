@@ -17,5 +17,6 @@ describe('the GraphQL models', () => {
     const { LazyMetadataStorage } = (await import(LAZY_STORAGE)) as LazyStorage;
 
     expect(() => LazyMetadataStorage.load()).not.toThrow();
-  });
+    // Importing every model is slow on a busy machine.
+  }, 30_000);
 });

@@ -1,14 +1,14 @@
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { BackgroundTasks } from '../../../infrastructure/background/service';
-import { startTestApp, type TestApp } from '../../../infrastructure/testing/e2e-app';
+import { expectPresent, startTestApp, type TestApp } from '../../../infrastructure/testing/e2e-app';
 import { UserRepository } from '../../user/repository';
 import { GroceryJobStatus } from '../enum';
 import { GroceryJob } from '../job/model';
 import { GroceryReportNotifier } from './notifier';
 
-// A stand-in for work that is slower than the shutdown itself: Nest runs the
-// destroy hooks (database pool) within a few milliseconds of close().
+// Work slower than the shutdown itself: Nest ends the database pool within a
+// few milliseconds of close(), so anything not drained first finds it closed.
 const slowerThanShutdown = (): Promise<void> => new Promise((done) => setTimeout(done, 150));
 
 let api: TestApp;
@@ -25,10 +25,11 @@ afterAll(async (): Promise<void> => {
 
 describe('stopping the server', () => {
   it('lets a grocery report still on its way reach the mail', async () => {
-    await api.signUp('shutdown@example.com', 'a-long-enough-password');
+    await api.signUp('matthias@example.com', 'a-long-enough-password');
     const users = api.resolve(UserRepository);
-    const account = await users.findRecordById(
-      (await users.findRecordByEmail('shutdown@example.com'))?.id ?? '',
+    const account = expectPresent(
+      await users.findRecordByEmail('matthias@example.com'),
+      'the account',
     );
     const realFind = users.findById.bind(users);
     // The report starts by reading the account: hold that read until the
@@ -49,11 +50,11 @@ describe('stopping the server', () => {
     });
     const before = api.mails().length;
 
-    api.resolve(GroceryReportNotifier).tell(account?.id ?? '', job);
+    api.resolve(GroceryReportNotifier).tell(account.id, job);
     await api.close();
 
     expect(api.mails().length).toBe(before + 1);
-    expect(api.mails().at(-1)?.to).toBe('shutdown@example.com');
+    expect(api.mails().at(-1)?.subject).toBe('Panier prêt');
   });
 });
 

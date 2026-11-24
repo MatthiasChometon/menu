@@ -13,7 +13,6 @@ import { GroceryCatalogRepository } from './catalog/repository';
 import { GroceryJobRepository } from './job/repository';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPushRepository } from './push/repository';
-import { GroceryReportNotifier } from './report/notifier';
 import { GrocerySlotRepository } from './slot/repository';
 
 const PAIR_DEVICE = `
@@ -120,7 +119,7 @@ afterAll(async (): Promise<void> => {
 
 beforeEach(async (): Promise<void> => {
   // A report still going out would land in the next test's mailbox.
-  await api.resolve(GroceryReportNotifier).settled();
+  await api.settled();
   await api.reset();
 });
 
@@ -751,7 +750,7 @@ describe('telling somebody the basket is ready', () => {
   // waits for it. Signing up sends its own verification mail, so the report is
   // never the first message of a test — only the last one addressed to the reader.
   const reportMail = async (to: string): Promise<MailMessage> => {
-    await api.resolve(GroceryReportNotifier).settled();
+    await api.settled();
 
     return expectPresent(
       [...api.mails()].reverse().find((message): boolean => message.to === to),
@@ -955,7 +954,7 @@ describe('closing a run that is already closed', () => {
     const { token, jobId } = await startRun(cookie);
     await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
     await closeRun(token, jobId, { outcome: 'FAILED' });
-    await api.resolve(GroceryReportNotifier).settled();
+    await api.settled();
 
     expect(reportsTo('matthias@example.com')).toHaveLength(1);
   });
@@ -970,7 +969,7 @@ describe('closing a run that is already closed', () => {
     const failed = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
     const waiting = await api.graphql<{ groceryJob: { status: string } }>(JOB, { jobId }, cookie);
     const retried = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
-    await api.resolve(GroceryReportNotifier).settled();
+    await api.settled();
 
     expect(failed.errors?.[0]?.message).toBeDefined();
     expect(waiting.data?.groceryJob.status).toBe('RUNNING');
@@ -1054,7 +1053,7 @@ describe('when the report cannot be sent', () => {
     await closeSucceeded((): void => {
       vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
     });
-    await api.resolve(GroceryReportNotifier).settled();
+    await api.settled();
 
     expect(api.mails().some((mail): boolean => mail.subject.startsWith('Panier prêt'))).toBe(true);
   });
@@ -1069,7 +1068,7 @@ describe('when the report cannot be sent', () => {
       expect(closed).toBe('SUCCEEDED');
     } finally {
       stuck.release();
-      await api.resolve(GroceryReportNotifier).settled();
+      await api.settled();
     }
   });
 
@@ -1083,7 +1082,7 @@ describe('when the report cannot be sent', () => {
       expect(closed).toBe('SUCCEEDED');
     } finally {
       stuck.release();
-      await api.resolve(GroceryReportNotifier).settled();
+      await api.settled();
     }
   });
 });

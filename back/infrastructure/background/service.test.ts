@@ -35,7 +35,7 @@ describe('background tasks', () => {
     expect(logged).toHaveBeenCalledWith('announcement: connection refused');
   });
 
-  it('is waited for when the application shuts down', async () => {
+  it('is waited for until the work is over', async () => {
     const tasks = new BackgroundTasks();
     let finished = false;
 
@@ -43,7 +43,7 @@ describe('background tasks', () => {
       await Promise.resolve();
       finished = true;
     });
-    await tasks.beforeApplicationShutdown();
+    await tasks.settled();
 
     expect(finished).toBe(true);
   });
