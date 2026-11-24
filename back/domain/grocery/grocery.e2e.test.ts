@@ -134,7 +134,7 @@ describe('pairing a browser', () => {
   it('refuses to pair for a visitor who is not signed in', async () => {
     const response = await api.graphql(PAIR_DEVICE, { label: 'Desktop' });
 
-    expect(response.errors?.[0].extensions?.code).toBe('UNAUTHENTICATED');
+    expect(response.errors?.[0]?.extensions?.code).toBe('UNAUTHENTICATED');
   });
 });
 
@@ -219,6 +219,30 @@ describe('running a queued order', () => {
   });
 });
 
+describe('refusing an identifier that cannot be one', () => {
+  it('turns down a run id that is not a UUID as a bad input, not a crash', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const response = await api.graphql(JOB, { jobId: 'not-a-uuid' }, cookie);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+
+  it('turns down a run id that is not a UUID when a browser reports on it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+
+    const response = await api.graphql(
+      REPORT_EVENT,
+      { jobId: 'not-a-uuid', input: { kind: 'STARTED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+});
+
 describe('keeping accounts apart', () => {
   it('never hands one account a run queued by another', async () => {
     const mine = await signIn('matthias@example.com');
@@ -254,7 +278,7 @@ describe('keeping accounts apart', () => {
       mine,
     );
 
-    expect(reported.errors?.[0].message).toBeDefined();
+    expect(reported.errors?.[0]?.message).toBeDefined();
     expect(followed.data?.groceryJob.events).toEqual([]);
   });
 
@@ -276,7 +300,7 @@ describe('keeping accounts apart', () => {
       asDevice('not-a-real-token'),
     );
 
-    expect(response.errors?.[0].extensions?.code).toBe('UNAUTHENTICATED');
+    expect(response.errors?.[0]?.extensions?.code).toBe('UNAUTHENTICATED');
   });
 });
 
@@ -304,7 +328,7 @@ describe('working out what to buy', () => {
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).set(account!.id, 'brownRice', 500);
+    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['brownRice', 500]]));
 
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
 
@@ -319,7 +343,7 @@ describe('working out what to buy', () => {
     const queued = await queueJob(cookie, [{ foodId: 'tofu', grams: 400 }]);
 
     expect(queued.lines).toEqual([expect.objectContaining({ foodId: 'tofu', grams: 400 })]);
-    expect(queued.lines[0].units).toBeNull();
+    expect(queued.lines[0]?.units).toBeNull();
   });
 
   it('hands the basket to the browser that takes the run', async () => {
@@ -501,7 +525,7 @@ describe('what the week leaves in the cupboard', () => {
     const cookie = await signIn('matthias@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).set(account!.id, 'oats', 300);
+    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['oats', 300]]));
 
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
@@ -582,7 +606,7 @@ describe('when a delivery is welcome', () => {
       cookie,
     );
 
-    expect(response.errors?.[0].message).toBeDefined();
+    expect(response.errors?.[0]?.message).toBeDefined();
   });
 
   it('keeps one account out of another one windows', async () => {
@@ -658,6 +682,18 @@ describe('keeping the reference in step with the shelves', () => {
     expect(await productOf('tofu')).toEqual(
       expect.objectContaining({ ean: '9999999999999', size: 200 }),
     );
+  });
+
+  it('keeps the last word when a substitute is reported twice in one run', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const tofu = { foodId: 'tofu', ean: '9999999999999', name: 'Tofu', priceCents: 249 };
+
+    await close(cookie, [
+      { ...tofu, size: 200 },
+      { ...tofu, size: 250, priceCents: 259 },
+    ]);
+
+    expect(await productOf('tofu')).toEqual(expect.objectContaining({ size: 250 }));
   });
 
   it('leaves the reference alone when the run did not succeed', async () => {

@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../../auth/currentUser/current-user';
 import { AuthGuard } from '../../auth/currentUser/guard';
@@ -43,7 +43,7 @@ export class GroceryDeviceResolver {
   @UseGuards(AuthGuard)
   async unpairGroceryDevice(
     @CurrentUser() user: User,
-    @Args('deviceId', { type: () => ID }) deviceId: string,
+    @Args('deviceId', { type: () => ID }, ParseUUIDPipe) deviceId: string,
   ): Promise<boolean> {
     return this.devices.unpair(user.id, deviceId);
   }
