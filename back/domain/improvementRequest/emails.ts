@@ -1,4 +1,5 @@
 import type { MailMessage } from '../../infrastructure/mail/token';
+import { ImprovementImportance } from './enum';
 import type { SuggestionContext } from './type';
 
 // Written for whoever maintains the site: what is needed to weigh an idea and
@@ -11,21 +12,21 @@ const escape = (text: string): string =>
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
 
-const IMPORTANCE_LABEL: Record<string, string> = {
-  NICE_TO_HAVE: 'Ce serait sympa',
-  WOULD_HELP: 'Ça aiderait',
-  IMPORTANT: 'Important',
+const IMPORTANCE_LABEL: Record<ImprovementImportance, string> = {
+  [ImprovementImportance.NICE_TO_HAVE]: 'Ce serait sympa',
+  [ImprovementImportance.WOULD_HELP]: 'Ça aiderait',
+  [ImprovementImportance.IMPORTANT]: 'Important',
 };
 
 export const improvementRequestEmail = (
   to: string,
-  importance: string,
+  importance: ImprovementImportance,
   message: string,
   context: SuggestionContext,
   requestedBy: string,
   filedToday: number,
 ): MailMessage => {
-  const label = IMPORTANCE_LABEL[importance] ?? importance;
+  const label = IMPORTANCE_LABEL[importance];
   const lines = [
     ['Importance', label],
     ['Page', context.page],
