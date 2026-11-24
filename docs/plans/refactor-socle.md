@@ -172,3 +172,26 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   Regression guards (not red on a probe, labelled in the PR body): two holders of one link, Google extra params → 302,
   Passenger-keyed checks, malformed UUID, constant-time state. Residual risk and e-mail case-insensitivity: see the
   M3 implementer entry above (case-insensitivity needs Matthias for the prod data check).
+- 2026-11-24 — M4 (back `domain/bugReport`, `improvementRequest`, `customFood`, `customRecipe`,
+  `weekPlan`, `weight`, `imageLibrary`; last back slice lot). **Strictness turned on, one commit each:**
+  `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ESLint `no-unnecessary-condition`,
+  `no-non-null-assertion`, `consistent-type-definitions: type`; every occurrence in the package fixed.
+  Fixed: bug and idea announcements run in the background (`infrastructure/background` `BackgroundTasks`,
+  drained on shutdown, mail transport capped at 10 s; the daily cap is decided in the request, the
+  sending is not); custom food and recipe caps are checked and inserted under a lock on the owner row
+  (`addUnlessFull`, no overshoot by concurrent creates); `deleteCustomFood`, `deleteCustomRecipe` and
+  `deleteWeightEntry` refuse a malformed id as `BAD_USER_INPUT` (was a 500); `weekOf` of `myWeekPlan`,
+  `deleteWeekPlan` and `saveWeekPlan` must be a real day; `weight.date` must be a real day; the
+  upload route takes a validated params DTO and removes the photograph it replaces (and a file whose
+  manifest write failed); `GroceryReportNotifier` and `BackgroundTasks` now drain in
+  `beforeApplicationShutdown` (Nest closes the DB pool before `onApplicationShutdown`, so a report in
+  flight was lost). Services extracted for customFood, customRecipe, weight; email label maps are keyed
+  by their enum. Shared test-app helper everywhere in scope. **Left on purpose:** `timestamp` columns
+  for D11: `bug_report.created_at`, `improvement_request.created_at`, `custom_recipe.created_at`,
+  `custom_food.created_at`, `week_plan.updated_at`, `weight.created_at`; the `string | null` of
+  `userId`/`reportedBy`/`requestedBy` mirror nullable columns (`on delete set null`) and stay at the
+  boundary; duplicate ingredient `foodId`s in a custom recipe are still merged silently by the
+  `Object.fromEntries` storage shape; `RECIPE_ID` (weekPlan) and the food id pattern (customRecipe) are
+  two copies of one rule. **For M12 (infrastructure):** the HTML `escape` helper is copied in the two
+  report emails and the grocery report mail; `GroceryReportNotifier` has its own in-flight set where
+  `BackgroundTasks` would do.
