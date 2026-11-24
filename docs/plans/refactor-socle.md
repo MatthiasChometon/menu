@@ -237,3 +237,6 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `asset/scripts/content.ts` trust the JSON they parse (build scripts, the `check` script validates the
   content); `useDisplayPreferences` keeps module-level shared refs on purpose (documented there).
   **Deletion candidates:** none.
+  M5 addendum: the extension tests depended on the machine time zone (2 of 38 failed on the UTC CI runner):
+  `vitest.config.ts` now pins `Europe/Paris`; the extension build imports `front/domain/order` and needs the
+  front prepared (`nuxt prepare`), so `ci-extension.yml` does that and also triggers on `front/domain/order/**`.
