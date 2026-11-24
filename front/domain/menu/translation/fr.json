@@ -64,6 +64,11 @@
       }
     },
     "weekSummary": "Le résumé de la semaine",
+    "loadFailed": {
+      "title": "Impossible de charger ta semaine",
+      "hint": "Vérifie ta connexion, puis réessaie.",
+      "retry": "Réessayer"
+    },
     "averagePerDay": "Moyenne par jour",
     "budget": "Budget des courses",
     "recipeCount": "Recettes cette semaine",

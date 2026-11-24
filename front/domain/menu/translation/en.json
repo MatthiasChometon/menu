@@ -64,6 +64,11 @@
       }
     },
     "weekSummary": "Week at a glance",
+    "loadFailed": {
+      "title": "Could not load your week",
+      "hint": "Check your connection, then try again.",
+      "retry": "Try again"
+    },
     "averagePerDay": "Daily average",
     "budget": "Shopping budget",
     "recipeCount": "Recipes this week",
