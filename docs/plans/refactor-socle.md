@@ -64,7 +64,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 | M12 | Final pass: duplicates across slices, dead code / unused dependencies (`knip`), README and docs up to date, final PR to `main` | — |
 
 - [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
-- [ ] M2 — impl · review · ci · ok · merged
+- [x] M2 — impl · review · ci · ok · merged (PR #3, 4759525)
 - [ ] M3 — impl · review · ci · ok · merged
 - [ ] M4 — impl · review · ci · ok · merged
 - [ ] M5 — impl · review · ci · ok · merged
@@ -123,3 +123,8 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   only be appended to a RUNNING run, in one statement; `recordPrices` in one transaction and after the
   upsert; indexes on every FK and on the claim query (migration 0015); tests for the failure paths and
   the all-or-nothing writes. Deferred: `timestamp` to `timestamptz` (see D11); SMTP transport timeouts (infrastructure/mail, not this lot).
+- 2026-11-24 — M2 merged (PR #3): 3 review rounds, 20 findings (round 2 blocker: the cupboard/price
+  restate ran after the committed close, so a crash lost it for good; now restate + status flip share one
+  transaction). Accepted as-is: a retried SUCCEEDED close on an already-closed run does the restate work
+  before rolling it back (rare, harmless); no test that this rollback leaves the cupboard untouched.
+  Push body money format is now "84,50 €" like the mail and the front.
