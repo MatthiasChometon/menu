@@ -1,5 +1,9 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
+import { user } from '../user/schema';
+import { PasswordService } from './emailAndPassword/password.service';
+import { GoogleOAuth } from './google/service';
 import { UserRepository } from '../user/repository';
 import { AuthTokenRepository, EMAIL_VERIFICATION } from './tokens/repository';
 
@@ -230,6 +234,18 @@ describe('asking for another link', () => {
 });
 
 describe('resetting a forgotten password', () => {
+  it('refuses a made-up token without hashing the new password', async () => {
+    const hash = vi.spyOn(api.resolve(PasswordService), 'hash');
+
+    const response = await api.post('/auth/reset-password', {
+      token: 'b'.repeat(64),
+      password: 'a-long-enough-password',
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(hash).not.toHaveBeenCalled();
+  });
+
   const NEW_PASSWORD = 'another-long-enough-password';
 
   const linkToken = (): string => {
@@ -466,5 +482,178 @@ describe('signing in with Google', () => {
     const response = await api.get('/auth/google/callback?code=whatever');
 
     expect(response.statusCode).toBe(401);
+  });
+
+  it('refuses a state given twice instead of reading it as text', async () => {
+    const response = await api.get(
+      '/auth/google/callback?code=whatever&state=a&state=b',
+      'oauth_state=a',
+    );
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('accepts the extra parameters Google really adds to the callback', async () => {
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+
+    const response = await api.get(
+      '/auth/google/callback?state=s&code=c&scope=email%20profile%20openid&authuser=0&prompt=consent&iss=https%3A%2F%2Faccounts.google.com',
+      'oauth_state=s',
+    );
+
+    expect(response.statusCode).toBe(302);
+  });
+
+  it('clears the state cookie even when the attempt fails', async () => {
+    const response = await api.get(
+      '/auth/google/callback?code=whatever&state=wrong',
+      'oauth_state=right',
+    );
+
+    expect(response.statusCode).toBe(401);
+    expect(response.cookies.find((cookie): boolean => cookie.name === 'oauth_state')?.maxAge).toBe(
+      0,
+    );
+  });
+
+  it('leaves the account of somebody blocked untouched', async () => {
+    const users = api.resolve(UserRepository);
+    const created = await users.create(EMAIL, 'a-hash');
+    if (created === undefined) throw new Error('The account was not created.');
+    await users.setBlocked(created.id, true);
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+
+    const response = await api.get('/auth/google/callback?code=c&state=s', 'oauth_state=s');
+
+    expect(response.statusCode).toBe(403);
+    const after = await users.findRecordByEmail(EMAIL);
+    expect(after?.googleId).toBeNull();
+    expect(after?.passwordHash).toBe('a-hash');
+  });
+});
+
+describe('an address taken over before its owner arrived', () => {
+  const NEW_PASSWORD = 'another-long-enough-password';
+  const SQUATTER_PASSWORD = 'the-squatters-password';
+
+  const linkToken = (): string => {
+    const token = /token=([a-f0-9]{64})/.exec(api.mails().at(-1)?.text ?? '')?.[1];
+    if (token === undefined) throw new Error('No link was sent.');
+
+    return token;
+  };
+
+  const signInWithPassword = (password: string): Promise<{ statusCode: number }> =>
+    api.post('/auth/login', { email: EMAIL, password });
+
+  it('loses the squatter’s password when the owner arrives through Google, and recovers by reset', async () => {
+    // Somebody registers an address that is not theirs; it stays unconfirmed.
+    await api.post('/auth/register', { email: EMAIL, password: SQUATTER_PASSWORD });
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+
+    const callback = await api.get('/auth/google/callback?code=c&state=s', 'oauth_state=s');
+    expect(callback.statusCode).toBe(302);
+
+    expect((await signInWithPassword(SQUATTER_PASSWORD)).statusCode).toBe(401);
+
+    await api.post('/auth/forgot-password', { email: EMAIL });
+    const reset = await api.post('/auth/reset-password', {
+      token: linkToken(),
+      password: NEW_PASSWORD,
+    });
+    expect(reset.statusCode).toBe(200);
+    expect((await signInWithPassword(NEW_PASSWORD)).statusCode).toBe(200);
+    expect((await signInWithPassword(SQUATTER_PASSWORD)).statusCode).toBe(401);
+  });
+
+  it('keeps the squatter’s password when the owner only confirms the address, until a reset', async () => {
+    // A known residual risk, written down in the plan journal: confirming does
+    // not touch the password. The way out is the forgotten-password flow.
+    await api.post('/auth/register', { email: EMAIL, password: SQUATTER_PASSWORD });
+    await api.post('/auth/verify-email', { token: linkToken() });
+    expect((await signInWithPassword(SQUATTER_PASSWORD)).statusCode).toBe(200);
+
+    await api.post('/auth/forgot-password', { email: EMAIL });
+    await api.post('/auth/reset-password', { token: linkToken(), password: NEW_PASSWORD });
+
+    expect((await signInWithPassword(SQUATTER_PASSWORD)).statusCode).toBe(401);
+    expect((await signInWithPassword(NEW_PASSWORD)).statusCode).toBe(200);
+  });
+});
+
+describe('races on the same account', () => {
+  const issueLink = async (): Promise<{ tokens: AuthTokenRepository; token: string }> => {
+    await api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+    const account = await api.resolve(UserRepository).findRecordByEmail(EMAIL);
+    if (account === undefined) throw new Error('The account was not created.');
+    const tokens = api.resolve(AuthTokenRepository);
+
+    return { tokens, token: await tokens.issue(account.id, EMAIL_VERIFICATION, 60_000) };
+  };
+
+  it('answers a sign-up 202 when the address is taken a moment earlier by another request', async () => {
+    // An uncommitted account holds the address: the second sign-up meets it
+    // exactly mid-flight, which a look beforehand cannot see.
+    const held = await holdTransaction(api.database(), async (transaction): Promise<void> => {
+      await transaction.insert(user).values({ email: EMAIL, passwordHash: 'a-hash' });
+    });
+
+    const registering = api.post('/auth/register', { email: EMAIL, password: PASSWORD });
+    expect(await staysPending(registering)).toBe(true);
+    await held.release();
+
+    expect((await registering).statusCode).toBe(202);
+  });
+
+  it('lets only one of two holders of the same link spend it', async () => {
+    const { tokens, token } = await issueLink();
+
+    // The first holder keeps the link locked, and is known to hold it before the
+    // second one tries: no ordering left to chance.
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve): void => {
+      release = resolve;
+    });
+    let holding: () => void = () => undefined;
+    const isHolding = new Promise<void>((resolve): void => {
+      holding = resolve;
+    });
+    const winner = tokens.spend(token, EMAIL_VERIFICATION, async (): Promise<string> => {
+      holding();
+      await held;
+      return 'won';
+    });
+    await isHolding;
+    const loser = tokens.spend(token, EMAIL_VERIFICATION, (): Promise<string> =>
+      Promise.resolve('won too'),
+    );
+    release();
+
+    expect(await Promise.all([winner, loser])).toEqual(['won', undefined]);
+  });
+
+  it('does not burn the link when what it was spent on fails', async () => {
+    const { tokens, token } = await issueLink();
+
+    await expect(
+      tokens.spend(token, EMAIL_VERIFICATION, (): Promise<never> =>
+        Promise.reject(new Error('boom')),
+      ),
+    ).rejects.toThrow('boom');
+
+    const response = await api.post('/auth/verify-email', { token });
+    expect(response.statusCode).toBe(200);
   });
 });

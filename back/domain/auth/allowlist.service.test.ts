@@ -1,12 +1,23 @@
 import { ForbiddenException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { EmailAllowlist } from './allowlist.service';
 
-const allowlistOf = (value: string | undefined, nodeEnv?: string): EmailAllowlist =>
-  new EmailAllowlist({
-    get: (key: string): string | undefined => (key === 'NODE_ENV' ? nodeEnv : value),
+// The deployed server is recognised by Passenger's global, not by NODE_ENV: a
+// local prod-like stack runs NODE_ENV=production and must not be refused.
+const passengerGlobals = globalThis as { PhusionPassenger?: unknown };
+
+const allowlistOf = (value: string | undefined, deployed = false): EmailAllowlist => {
+  if (deployed) passengerGlobals.PhusionPassenger = {};
+
+  return new EmailAllowlist({
+    get: (): string | undefined => value,
   } as unknown as ConfigService);
+};
+
+afterEach((): void => {
+  delete passengerGlobals.PhusionPassenger;
+});
 
 describe('EmailAllowlist', () => {
   it('lets anyone in when no guest list is configured', () => {
@@ -42,29 +53,27 @@ describe('EmailAllowlist', () => {
     expect(allowlistOf('me@example.com').allows('not-me@example.com.evil.test')).toBe(false);
   });
 
-  it('refuses to start in production with no guest list at all', () => {
+  it('refuses to start on the deployed server with no guest list at all', () => {
     // Silently open is the failure nobody notices; refusing to boot is loud.
-    expect((): void => allowlistOf(undefined, 'production').onModuleInit()).toThrow(
-      /ALLOWED_EMAILS/,
-    );
+    expect((): void => allowlistOf(undefined, true).onModuleInit()).toThrow(/ALLOWED_EMAILS/);
   });
 
-  it('starts happily without a guest list anywhere but production', () => {
-    expect((): void => allowlistOf(undefined, 'development').onModuleInit()).not.toThrow();
+  it('starts happily without a guest list anywhere but the deployed server', () => {
+    expect((): void => allowlistOf(undefined).onModuleInit()).not.toThrow();
   });
 
-  it('starts in production once the guest list is set', () => {
-    expect((): void => allowlistOf('me@example.com', 'production').onModuleInit()).not.toThrow();
+  it('starts on the deployed server once the guest list is set', () => {
+    expect((): void => allowlistOf('me@example.com', true).onModuleInit()).not.toThrow();
   });
 
-  it('starts in production when the door is deliberately opened', () => {
+  it('starts on the deployed server when the door is deliberately opened', () => {
     // The star is the difference between a decision and an oversight, so it has
     // to boot where a blank setting refuses to.
-    expect((): void => allowlistOf('*', 'production').onModuleInit()).not.toThrow();
+    expect((): void => allowlistOf('*', true).onModuleInit()).not.toThrow();
   });
 
   it('admits a stranger once the door is deliberately opened', () => {
-    const allowlist = allowlistOf('*', 'production');
+    const allowlist = allowlistOf('*', true);
 
     expect(allowlist.invitesAnyone()).toBe(true);
     expect(allowlist.allows('stranger@example.com')).toBe(true);

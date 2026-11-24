@@ -128,3 +128,40 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   transaction). Accepted as-is: a retried SUCCEEDED close on an already-closed run does the restate work
   before rolling it back (rare, harmless); no test that this rollback leaves the cupboard untouched.
   Push body money format is now "84,50 €" like the mail and the front.
+- 2026-11-24 — M3 (back `domain/auth`, `user`, `household`, `profile`). Done: a link (verification,
+  reset) is spent in one transaction with the write it authorises (`AuthTokenRepository.spend`, atomic
+  `delete ... returning`), so two holders cannot both use it and a failed write no longer burns it;
+  sign-up lets the unique key decide (`on conflict do nothing`), so two simultaneous sign-ups of one
+  address both answer 202; Google sign-in is one upsert (no race), and it drops a password set on an
+  address that was never confirmed (pre-hijack); an unknown address now pays the scrypt cost like a
+  real one (`pretendToVerify`); OAuth state compared in constant time; outbound HTTP to Google capped
+  at 5 s, no reply maps to 503 instead of a raw 500; production-only checks (JWT secret, guest list)
+  key on Passenger through `infrastructure/config/runtime.ts` (shared with `main.ts`), not on
+  `NODE_ENV`; household cap checked and inserted under a lock on the owner row (no overshoot by
+  concurrent adds); a malformed UUID on `removeHouseholdMember` is `BAD_USER_INPUT`; `$type` on the
+  enum text columns replaces the casts (no migration); `noUncheckedIndexedAccess` sites fixed in the
+  three repositories (flag still off); `FRONT_URL` trimming in one helper; dead code removed
+  (`consume`, `dropExpired`, `countByOwner`). Migration 0016: unique index on `auth_token.token_hash`,
+  index on `household_member.owner_id`. Deferred on purpose: timestamp columns to `timestamptz` (D11:
+  `user.email_verified_at`, `blocked_at`, `created_at`; `auth_token.expires_at`;
+  `household_member.created_at`; `profile.updated_at`); e-mail case-insensitivity (needs a data check
+  and a migration); mail sends stay awaited (a failed verification mail must surface; background sends
+  need mail timeouts and a drain, infrastructure/mail lot), so forgot-password and resend still differ
+  in timing between known and unknown addresses; logout does not revoke the 30-day JWT.
+- 2026-11-24 — M3 review round. Race tests now hold a transaction (`holdTransaction`, uncommitted
+  account row or `FOR UPDATE` on the owner) so the second call provably meets the contested state;
+  Google callback query is a validated DTO (arrays refused with 400, Google's extra parameters
+  dropped); a failure of Google is 503 only for no reply, timeout or 5xx (cause code logged, never the
+  request), 4xx stays 401, anything else rethrows; the 5 s cap is asserted on the module wiring
+  (`googleHttpModule`); reset-password checks the link is live before hashing; the blocked check runs
+  before the upsert, and `oauth_state` is cleared on every callback outcome; one `FRONT_URL`
+  normalisation (`frontUrl`). **Residual risk (not changed in this lot, verification flow untouched):**
+  an address squatted by a password sign-up keeps the squatter's password if the real owner confirms
+  through the e-mail link (confirming signs them in and leaves the hash); mitigation is forgot-password,
+  which replaces the password and retires every session (covered by an HTTP-level test). Linking Google
+  to an unconfirmed address does drop that password. **For Matthias, no slice lot owns it:** e-mail
+  case-insensitivity (case variants bypass the unique key and the conflict handling): needs a prod data
+  check for case duplicates (`select lower(email), count(*) from "user" group by 1 having count(*) > 1`)
+  before a unique `lower(email)` index. Awaited mail sends (forgot-password / resend / register timing
+  between known and unknown addresses): owner M13 / infrastructure mail (transport timeouts, drain).
+  JWT not revoked on logout: accepted, the guard checks `sessionVersion` and a reset retires sessions.

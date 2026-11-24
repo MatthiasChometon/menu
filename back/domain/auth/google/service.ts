@@ -1,6 +1,11 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { isAxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
@@ -10,11 +15,16 @@ const AUTHORISE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 
+// Not a refusal of the code: Google asking to come back later.
+const TRY_AGAIN_STATUSES: ReadonlySet<number> = new Set([408, 429]);
+
 // Written against Google directly rather than through Passport: the passport
 // strategies are built around Express and rub against Fastify, for what amounts
 // to two HTTP calls.
 @Injectable()
 export class GoogleOAuth {
+  private readonly logger = new Logger(GoogleOAuth.name);
+
   constructor(
     private readonly http: HttpService,
     private readonly config: ConfigService,
@@ -22,6 +32,16 @@ export class GoogleOAuth {
 
   newState(): string {
     return randomBytes(16).toString('hex');
+  }
+
+  // Compared in constant time, like every secret handed back by a browser.
+  isExpectedState(state: string, expected: string | undefined): boolean {
+    if (expected === undefined) return false;
+
+    const given = Buffer.from(state);
+    const stored = Buffer.from(expected);
+
+    return given.length === stored.length && timingSafeEqual(given, stored);
   }
 
   authorisationUrl(state: string): string {
@@ -85,14 +105,23 @@ export class GoogleOAuth {
     }
   }
 
-  // A reply from Google that is not a success maps to "unauthorised", the same
-  // verdict the old !response.ok branch reached. A network-level failure — no
-  // reply at all — is not Google refusing anything, so it bubbles up unchanged.
+  // A refusal from Google (a 4xx, bar 408 and 429, which mean "later") maps to
+  // "unauthorised". Google being down or out of reach (no reply, a timeout, a
+  // 5xx) is not a refusal: the sign-in is unavailable for now. Anything else is
+  // a fault of ours and goes to the global filter unchanged.
+  //
+  // Only the code of the failure is logged: the request carries the
+  // authorisation code, the client secret and the access token.
   private refused(error: unknown, message: string): Error {
-    if (isAxiosError(error) && error.response !== undefined) {
+    if (!isAxiosError(error)) return error instanceof Error ? error : new Error(String(error));
+
+    const status = error.response?.status;
+    if (status !== undefined && status < 500 && !TRY_AGAIN_STATUSES.has(status)) {
       return new UnauthorizedException(message);
     }
-    return error instanceof Error ? error : new Error(String(error));
+
+    this.logger.warn(`Google unreachable or failing: ${error.code ?? 'no code'} ${status ?? ''}`);
+    return new ServiceUnavailableException('Google could not be reached. Try again in a moment.');
   }
 
   private redirectUri(): string {

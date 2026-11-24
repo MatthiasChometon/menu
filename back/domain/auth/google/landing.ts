@@ -8,10 +8,6 @@
 // them to dismiss it every single time.
 const PROFILE_PATH = '/profil';
 
-export const landingUrl = (frontUrl: string, isFirstSignIn: boolean): string => {
-  // A configured address is as likely to end in a slash as not, and the double
-  // slash it would otherwise make is not the same URL.
-  const front = frontUrl.replace(/\/+$/, '');
-
-  return isFirstSignIn ? `${front}${PROFILE_PATH}` : front;
-};
+// The front address arrives without a trailing slash (see front-url.ts).
+export const landingUrl = (front: string, isFirstSignIn: boolean): string =>
+  isFirstSignIn ? `${front}${PROFILE_PATH}` : front;

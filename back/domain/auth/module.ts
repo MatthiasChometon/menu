@@ -1,4 +1,3 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,6 +16,7 @@ import { AuthTokenRepository } from './tokens/repository';
 import { PasswordResetController } from './passwordReset/controller';
 import { PasswordResetService } from './passwordReset/service';
 import { GoogleController } from './google/controller';
+import { googleHttpModule } from './google/http';
 import { GoogleOAuth } from './google/service';
 import { PasswordService } from './emailAndPassword/password.service';
 import { AuthResolver } from './resolver';
@@ -24,7 +24,7 @@ import { AuthService } from './service';
 
 @Module({
   imports: [
-    HttpModule,
+    googleHttpModule,
     UserModule,
     JwtModule.registerAsync({
       inject: [ConfigService],

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { MeasurementsInput } from './input';
 import { MeasurementsMapper } from './measurements.mapper';
@@ -15,7 +16,7 @@ export class ProfileRepository {
   ) {}
 
   async save(userId: string, answers: MeasurementsInput): Promise<ProfileRecord> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(profile)
       .values({ userId, ...answers, updatedAt: new Date() })
       .onConflictDoUpdate({
@@ -24,7 +25,7 @@ export class ProfileRepository {
       })
       .returning();
 
-    return this.toProfileRecord(record);
+    return this.toProfileRecord(insertedRow(records));
   }
 
   async findByUserId(userId: string): Promise<ProfileRecord | undefined> {

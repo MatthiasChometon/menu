@@ -1,11 +1,16 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, lt } from 'drizzle-orm';
-import { DATABASE, type Database } from '../../../infrastructure/database/token';
+import { and, eq } from 'drizzle-orm';
+import {
+  DATABASE,
+  type Database,
+  type DatabaseExecutor,
+} from '../../../infrastructure/database/token';
 import { authToken } from './schema';
+import type { AuthTokenType } from './type';
 
-export const EMAIL_VERIFICATION = 'email_verification';
-export const PASSWORD_RESET = 'password_reset';
+export const EMAIL_VERIFICATION = 'email_verification' satisfies AuthTokenType;
+export const PASSWORD_RESET = 'password_reset' satisfies AuthTokenType;
 
 const TOKEN_BYTES = 32;
 
@@ -19,45 +24,70 @@ export class AuthTokenRepository {
 
   /** Mints a link and returns the only readable copy of it. What is kept is the
    *  hash, so a dump of this table opens nothing. */
-  async issue(userId: string, type: string, ttlMs: number): Promise<string> {
+  async issue(userId: string, type: AuthTokenType, ttlMs: number): Promise<string> {
     const token = randomBytes(TOKEN_BYTES).toString('hex');
+    const tokenHash = digest(token);
+    const expiresAt = new Date(Date.now() + ttlMs);
 
     // Replacing rather than adding: asking for a second link has to retire the
     // first, or a message forwarded once leaves a door open for its whole TTL.
     await this.database
       .insert(authToken)
-      .values({ userId, type, tokenHash: digest(token), expiresAt: new Date(Date.now() + ttlMs) })
+      .values({ userId, type, tokenHash, expiresAt })
       .onConflictDoUpdate({
         target: [authToken.userId, authToken.type],
-        set: { tokenHash: digest(token), expiresAt: new Date(Date.now() + ttlMs) },
+        set: { tokenHash, expiresAt },
       });
 
     return token;
   }
 
-  /** Spends the link. Returns whose account it opened, or nothing at all if the
-   *  token is unknown, already used or out of date — the three cases are one
-   *  answer on purpose, since telling them apart helps only an attacker. */
-  async consume(token: string, type: string): Promise<string | undefined> {
+  /** Whether the link exists and is still good, without spending it: a cheap
+   *  look that lets a caller refuse a made-up token before doing slow work. */
+  async isLive(token: string, type: AuthTokenType): Promise<boolean> {
     const [record] = await this.database
-      .select()
+      .select({ expiresAt: authToken.expiresAt })
       .from(authToken)
       .where(and(eq(authToken.tokenHash, digest(token)), eq(authToken.type, type)));
 
-    if (record === undefined) return undefined;
-
-    // Deleted whether or not it had expired: a spent link is spent, and an
-    // expired row left behind is a row somebody has to clean up later.
-    await this.database
-      .delete(authToken)
-      .where(and(eq(authToken.userId, record.userId), eq(authToken.type, type)));
-
-    return record.expiresAt.getTime() < Date.now() ? undefined : record.userId;
+    return record !== undefined && record.expiresAt.getTime() >= Date.now();
   }
 
-  /** Drops links nobody can use any more. Nothing depends on this running —
-   *  consume() checks the date itself — it only keeps the table honest. */
-  async dropExpired(): Promise<void> {
-    await this.database.delete(authToken).where(lt(authToken.expiresAt, new Date()));
+  /** Spends the link and runs `apply` with whose account it opened, in one
+   *  transaction: if `apply` fails the link is still good for another try.
+   *
+   *  Returns nothing at all if the token is unknown, already used or out of
+   *  date — the three cases are one answer on purpose, since telling them apart
+   *  helps only an attacker. */
+  async spend<Result>(
+    token: string,
+    type: AuthTokenType,
+    apply: (userId: string, executor: DatabaseExecutor) => Promise<Result>,
+  ): Promise<Result | undefined> {
+    return this.database.transaction(async (transaction): Promise<Result | undefined> => {
+      const userId = await this.takeOwner(token, type, transaction);
+
+      return userId === undefined ? undefined : apply(userId, transaction);
+    });
+  }
+
+  // Deleted and read in one statement: two requests spending the same link at
+  // once cannot both find it, so only one of them gets the account.
+  //
+  // Deleted whether or not it had expired: a spent link is spent, and an
+  // expired row left behind is a row somebody has to clean up later.
+  private async takeOwner(
+    token: string,
+    type: AuthTokenType,
+    executor: DatabaseExecutor,
+  ): Promise<string | undefined> {
+    const [record] = await executor
+      .delete(authToken)
+      .where(and(eq(authToken.tokenHash, digest(token)), eq(authToken.type, type)))
+      .returning();
+
+    if (record === undefined || record.expiresAt.getTime() < Date.now()) return undefined;
+
+    return record.userId;
   }
 }

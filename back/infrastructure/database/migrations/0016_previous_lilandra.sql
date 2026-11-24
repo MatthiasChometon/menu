@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "auth_token_token_hash_unique" ON "auth_token" USING btree ("token_hash");--> statement-breakpoint
+CREATE INDEX "household_member_owner_id_idx" ON "household_member" USING btree ("owner_id");

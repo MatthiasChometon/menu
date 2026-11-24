@@ -60,6 +60,8 @@ export type TestApp = {
    * stand-in that agrees with whatever it is told.
    */
   resolve: <T>(token: Type<T>) => T;
+  /** The database itself, for the tests that hold a transaction open. */
+  database: () => Database;
   /**
    * Opens an account the way a person does: register, follow the link out of
    * the mail, come back signed in. Returns the session cookie header.
@@ -220,6 +222,7 @@ export const startTestApp = async (): Promise<TestApp> => {
     },
     postFile,
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
+    database: (): Database => app.get<Database>(DATABASE),
     mails: (): MailMessage[] => sent,
     // CASCADE rather than a delete order: the profile hangs off the user, and
     // the list has to keep working when a slice adds its own table.
