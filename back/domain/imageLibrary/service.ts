@@ -1,17 +1,10 @@
 import { createHash } from 'node:crypto';
-import { readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
-
-export const KINDS = ['recipe', 'food'] as const;
-export type Kind = (typeof KINDS)[number];
-
-/** The identifiers the site content uses. The API cannot check a dish exists —
- *  the catalogue is content, not a table — but it can refuse anything that is
- *  not shaped like an identifier, which keeps junk out of the folder. */
-export const IMAGE_ID = /^[A-Za-z][A-Za-z0-9]{0,63}$/;
+import type { Kind } from './kinds';
 
 // What the cards actually display. A photograph off a phone is three thousand
 // pixels wide and four megabytes; served as-is it would undo the whole point of
@@ -57,6 +50,12 @@ export class ImageLibraryService {
     // can convert to the same picture.
     const name = `${id}.${createHash('sha256').update(photo).digest('hex').slice(0, 8)}.webp`;
     const filePath = join(this.root, kind, name);
+    // A file already here may be the one the manifest serves (the same photograph
+    // sent again): a failed record must not take it away.
+    const alreadyThere = await stat(filePath).then(
+      (): boolean => true,
+      (): boolean => false,
+    );
     await writeFile(filePath, photo);
 
     let replaced: string | undefined;
@@ -64,7 +63,7 @@ export class ImageLibraryService {
       replaced = await this.record(kind, id, name);
     } catch (error: unknown) {
       // Not in the manifest, so nothing would ever serve or clean it up.
-      await rm(filePath, { force: true });
+      if (!alreadyThere) await rm(filePath, { force: true });
       throw error;
     }
     // The photograph this one replaces is no longer listed: leaving it would

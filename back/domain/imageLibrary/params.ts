@@ -1,5 +1,5 @@
 import { IsIn, Matches } from 'class-validator';
-import { IMAGE_ID, KINDS, type Kind } from './service';
+import { IMAGE_ID, KINDS, type Kind } from './kinds';
 
 /** Where a photograph goes: the name becomes a path on disk, so both parts are checked. */
 export class ImageParams {

@@ -126,6 +126,36 @@ describe('replacing a photograph', () => {
   });
 });
 
+describe('when the manifest cannot be read', () => {
+  it('leaves no photograph nothing points at', async () => {
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    await writeFile(join(ROOT, 'manifest.json'), 'not json', 'utf8');
+
+    const response = await api.postFile(
+      '/images/recipe/chiliChicken',
+      'photo.jpg',
+      await photograph(),
+      admin,
+    );
+
+    expect(response.statusCode).toBe(500);
+    expect(await readdir(join(ROOT, 'recipe'))).toEqual([]);
+  });
+
+  it('keeps the photograph the manifest serves when the same one is sent again', async () => {
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const bytes = await photograph();
+    const first = await api.postFile('/images/recipe/chiliChicken', 'photo.jpg', bytes, admin);
+    const { file } = JSON.parse(first.body) as { file: string };
+    await writeFile(join(ROOT, 'manifest.json'), 'not json', 'utf8');
+
+    const again = await api.postFile('/images/recipe/chiliChicken', 'photo.jpg', bytes, admin);
+
+    expect(again.statusCode).toBe(500);
+    expect(await readdir(join(ROOT, 'recipe'))).toEqual([file]);
+  });
+});
+
 describe('who may add one', () => {
   it('turns away an account that is not an administrator', async () => {
     const reader = await api.signUp(READER, PASSWORD);
