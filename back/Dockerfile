@@ -46,5 +46,10 @@ COPY docker-entrypoint.sh ./
 RUN chown -R node:node /app
 USER node
 EXPOSE 3779
+# Liveness only (GET /health never touches the database), so a database blip
+# marks the container unhealthy for the length of the blip rather than restarting
+# anything. node is already in the image, unlike curl.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD ["node", "-e", "fetch('http://localhost:' + (process.env.PORT || 3779) + '/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
 ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]

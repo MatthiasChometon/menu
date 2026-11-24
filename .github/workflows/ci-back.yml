@@ -60,6 +60,9 @@ jobs:
         # The lint script has no --fix, so it is already read-only for CI.
         run: pnpm lint
 
+      - name: Format
+        run: pnpm format:check
+
       - name: Typecheck
         run: pnpm typecheck
 
