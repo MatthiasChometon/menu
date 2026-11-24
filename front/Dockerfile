@@ -49,6 +49,7 @@ USER node
 EXPOSE 3777
 # The first boot installs and builds before the server listens, which takes
 # minutes: the start period keeps that from counting as failures.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=600s --retries=3   CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT ?? 3777)).then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=600s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:' + (process.env.PORT ?? 3777)).then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
 ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
 CMD ["node", ".output/server/index.mjs"]
