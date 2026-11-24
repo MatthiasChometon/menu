@@ -14,10 +14,13 @@ import type {
 } from '../types/menu.type';
 import { useNutrition } from './useNutrition';
 
+type DaysSummary = Pick<Menu, 'recipes' | 'shoppingList' | 'freshSeasonings' | 'totalPrice'>;
+
 type MenuBuilder = {
   dayOrder: readonly DayKey[];
   mealOrder: readonly MealSlot[];
   buildShoppingList: (days: Day[]) => ShoppingLine[];
+  summarizeDays: (days: Day[], catalog: Pick<MenuCatalog, 'recipeOf' | 'freshOf'>) => DaysSummary;
   buildMenu: (raw: RawMenu, catalog: MenuCatalog) => Menu;
 };
 
@@ -95,14 +98,13 @@ export const useMenuBuilder = (): MenuBuilder => {
       .sort((left, right): number => right.price - left.price);
   };
 
-  const buildMenu = (raw: RawMenu, catalog: MenuCatalog): Menu => {
-    const days = dayOrder
-      .map((key): Day | undefined => {
-        const rawDay = raw.days[key];
-        return rawDay === undefined ? undefined : buildDay(key, rawDay, catalog);
-      })
-      .filter((day): day is Day => day !== undefined);
-
+  // What follows from a set of days, whoever composed them: the recipes they
+  // use, the shopping list, the fresh seasonings and the price. The one place a
+  // published week and a composed week agree on what a week costs.
+  const summarizeDays = (
+    days: Day[],
+    catalog: Pick<MenuCatalog, 'recipeOf' | 'freshOf'>,
+  ): DaysSummary => {
     const shoppingList = buildShoppingList(days);
     const usedRecipeIds = new Set(
       days.flatMap((day): string[] => day.meals.map((meal): string => meal.recipe.id)),
@@ -110,6 +112,22 @@ export const useMenuBuilder = (): MenuBuilder => {
     const recipes = [...usedRecipeIds]
       .map((id): Recipe | undefined => catalog.recipeOf(id))
       .filter((recipe): recipe is Recipe => recipe !== undefined);
+
+    return {
+      recipes,
+      shoppingList,
+      freshSeasonings: catalog.freshOf(recipes),
+      totalPrice: shoppingList.reduce((total, line): number => total + line.price, 0),
+    };
+  };
+
+  const buildMenu = (raw: RawMenu, catalog: MenuCatalog): Menu => {
+    const days = dayOrder
+      .map((key): Day | undefined => {
+        const rawDay = raw.days[key];
+        return rawDay === undefined ? undefined : buildDay(key, rawDay, catalog);
+      })
+      .filter((day): day is Day => day !== undefined);
 
     const { tolerancePct, ...targets } = raw.targets;
 
@@ -119,10 +137,7 @@ export const useMenuBuilder = (): MenuBuilder => {
       targets,
       tolerancePct: tolerancePct ?? { default: 5 },
       days,
-      recipes,
-      shoppingList,
-      freshSeasonings: catalog.freshOf(recipes),
-      totalPrice: shoppingList.reduce((total, line): number => total + line.price, 0),
+      ...summarizeDays(days, catalog),
     };
   };
 
@@ -130,6 +145,7 @@ export const useMenuBuilder = (): MenuBuilder => {
     dayOrder,
     mealOrder,
     buildShoppingList,
+    summarizeDays,
     buildMenu,
   };
 };

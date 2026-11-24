@@ -21,7 +21,7 @@ export const useComposedMenu = (): {
   const { recipeOf } = useRecipes();
   const { foodOf } = useFoods();
   const { macrosOfQuantities } = useNutrition();
-  const { buildShoppingList } = useMenuBuilder();
+  const { summarizeDays } = useMenuBuilder();
   const { solve } = useMacroSolver();
   const { freshOf } = useSeasonings();
   const { profile } = useProfile();
@@ -113,23 +113,12 @@ export const useComposedMenu = (): {
         .filter((day): day is Day => day !== undefined);
       if (days.length === 0) return undefined;
 
-      const shoppingList = buildShoppingList(days);
-      const usedIds = new Set(days.flatMap((day) => day.meals.map((meal) => meal.recipe.id)));
-      const recipes = [...usedIds]
-        .map((id) => recipeOf(id))
-        .filter(
-          (recipe): recipe is NonNullable<ReturnType<typeof recipeOf>> => recipe !== undefined,
-        );
-
       return {
         weekOf,
         targets,
         tolerancePct: TOLERANCE,
         days,
-        recipes,
-        shoppingList,
-        freshSeasonings: freshOf(recipes),
-        totalPrice: shoppingList.reduce((total, line): number => total + line.price, 0),
+        ...summarizeDays(days, { recipeOf, freshOf }),
       };
     },
   };

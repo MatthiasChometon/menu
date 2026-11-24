@@ -83,4 +83,38 @@ describe('useComposedMenu', () => {
     expect(menu?.shoppingList.length).toBeGreaterThan(0);
     expect(menu?.totalPrice).toBeGreaterThan(0);
   });
+
+  it('summarises the week from its days with the same rules as a published week', async () => {
+    state.targets = TARGETS;
+    state.plan = {
+      weekOf: '2026-01-05',
+      days: {
+        monday: { breakfast: 'ricePuddingBanana', lunch: 'teriyakiSalmonBowl' },
+        tuesday: { lunch: 'teriyakiSalmonBowl' },
+      },
+    };
+
+    const menu = await useComposedMenu().menuFor('2026-01-05');
+    if (menu === undefined) throw new Error('the composed week should exist');
+
+    // Each recipe once, however many meals use it.
+    expect(menu.recipes.map((recipe): string => recipe.id).sort()).toEqual([
+      'ricePuddingBanana',
+      'teriyakiSalmonBowl',
+    ]);
+    // The list is the day quantities added up, food by food, and priced.
+    const gramsOf = (id: string): number =>
+      menu.days
+        .flatMap((day) => day.meals.flatMap((meal) => meal.quantities))
+        .filter((quantity): boolean => quantity.food.id === id)
+        .reduce((total, quantity): number => total + quantity.grams, 0);
+    for (const line of menu.shoppingList) {
+      expect(line.grams).toBe(Math.round(gramsOf(line.food.id)));
+    }
+    expect(menu.totalPrice).toBeCloseTo(
+      menu.shoppingList.reduce((total, line): number => total + line.price, 0),
+      6,
+    );
+    expect(menu.totalPrice).toBeGreaterThan(0);
+  });
 });
