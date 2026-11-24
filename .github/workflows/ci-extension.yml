@@ -1,0 +1,51 @@
+name: CI extension
+
+# Runs on every pull request that touches the browser extension.
+on:
+  pull_request:
+    paths:
+      - "extension/**"
+      - ".github/workflows/ci-extension.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-extension-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extension
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          # The extension does not declare packageManager; same pnpm as the front.
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: extension/pnpm-lock.yaml
+
+      # The postinstall hook runs `wxt prepare`, which generates the typings and
+      # the ESLint auto-imports the lint step needs.
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
