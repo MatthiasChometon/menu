@@ -20,7 +20,6 @@ const missingRequired = (raw: RawEnvironment): string[] =>
 // its cause (a mail transport on port NaN), so it is refused here.
 const malformedNumbers = (raw: RawEnvironment): string[] => {
   const checks: [name: string, isValid: (value: string) => boolean, expected: string][] = [
-    ['PORT', isPort, 'a TCP port'],
     ['MAIL_PORT', isPort, 'a TCP port'],
     ['BUG_NOTICES_PER_HOUR', isCount, 'a whole number'],
   ];
@@ -38,12 +37,21 @@ const malformedNumbers = (raw: RawEnvironment): string[] => {
 // Deliberately short: what only matters to one feature (Google, mail, push) is
 // read with getOrThrow where that feature starts, since an unset value there
 // is a legitimate way to switch the feature off.
-export const validateEnvironment = (raw: RawEnvironment): { PORT: number } => {
+export const validateEnvironment = (raw: RawEnvironment): void => {
   const problems = [...missingRequired(raw), ...malformedNumbers(raw)];
 
   if (problems.length > 0) {
     throw new Error(`Invalid environment: ${problems.join('; ')}.`);
   }
+};
 
-  return { PORT: isBlank(raw.PORT) ? DEFAULT_PORT : Number(raw.PORT) };
+// Read only where a port is actually bound: under Passenger the host hands the
+// process its socket and PORT is never looked at, so a value it set to anything
+// must not stop the boot.
+export const listenPort = (raw: RawEnvironment): number => {
+  if (isBlank(raw.PORT)) return DEFAULT_PORT;
+  if (!isPort(String(raw.PORT).trim()))
+    throw new Error('Invalid environment: PORT must be a TCP port.');
+
+  return Number(raw.PORT);
 };

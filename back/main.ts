@@ -7,7 +7,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { validateEnvironment } from './infrastructure/config/env';
+import { listenPort, validateEnvironment } from './infrastructure/config/env';
 import { configureApp, createAdapter } from './infrastructure/http/setup';
 
 // Phusion Passenger, which is what the shared host runs, opens the listening
@@ -28,8 +28,12 @@ const bootstrap = async (): Promise<void> => {
   // Not through ConfigModule's validate hook: that one validates a copy taken when
   // the module loads, and ConfigService then reads that copy instead of the live
   // process.env. By now ConfigModule has loaded the .env file into process.env.
-  const { PORT } = validateEnvironment(process.env);
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter());
+  validateEnvironment(process.env);
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter(), {
+    // Nest aborts the process (SIGABRT) on a boot error unless told not to; the
+    // catch below is the single path that logs it and exits 1.
+    abortOnError: false,
+  });
   await configureApp(app);
   // Lets SIGTERM (a deploy, a restart) close the database pool and finish the
   // requests in flight instead of cutting them. Here only, never in configureApp:
@@ -37,7 +41,7 @@ const bootstrap = async (): Promise<void> => {
   app.enableShutdownHooks();
 
   if (!underPassenger()) {
-    await app.listen(PORT, '0.0.0.0');
+    await app.listen(listenPort(process.env), '0.0.0.0');
     return;
   }
 

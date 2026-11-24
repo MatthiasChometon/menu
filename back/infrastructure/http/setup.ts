@@ -14,7 +14,7 @@ const DEV_ORIGINS = ['http://localhost:3777', 'http://localhost:3778'];
 
 export const adapterOptions = (): FastifyServerOptions => ({
   bodyLimit: BODY_LIMIT_BYTES,
-  // Hosted behind a platform proxy, so the client address arrives in
+  // Hosted behind the o2switch proxy, so the client address arrives in
   // X-Forwarded-For. Without this every caller looks like the proxy and rate
   // limiting would throttle everyone at once.
   trustProxy: true,
