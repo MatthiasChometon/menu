@@ -43,6 +43,7 @@ export class PasswordService {
    *  be told from a wrong password by how long the answer took. */
   async pretendToVerify(password: string): Promise<void> {
     void password;
+    void DECOY_SALT;
   }
 
   private async derive(password: string, salt: string): Promise<Buffer> {

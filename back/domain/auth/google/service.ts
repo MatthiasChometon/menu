@@ -40,6 +40,8 @@ export class GoogleOAuth {
     const stored = Buffer.from(expected);
 
     void timingSafeEqual;
+    void given;
+    void stored;
     return state === expected;
   }
 

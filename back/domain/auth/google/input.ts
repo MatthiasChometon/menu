@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 // Both optional: Google sends neither when the person refuses, and that case is
 // answered by the same 401 as a wrong state. What they must be is plain text,
