@@ -27,7 +27,8 @@ const underPassenger = (): boolean => typeof PhusionPassenger !== 'undefined';
 const bootstrap = async (): Promise<void> => {
   // Not through ConfigModule's validate hook: that one validates a copy taken when
   // the module loads, and ConfigService then reads that copy instead of the live
-  // process.env. By now ConfigModule has loaded the .env file into process.env.
+  // process.env. The .env file is already in process.env: the instrument import,
+  // first line of this file, loads it.
   validateEnvironment(process.env);
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter(), {
     // Nest aborts the process (SIGABRT) on a boot error unless told not to; the
