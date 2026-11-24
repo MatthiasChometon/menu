@@ -1,7 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { UnauthorizedException } from '@nestjs/common';
-import { of } from 'rxjs';
+import { ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
+import { AxiosError } from 'axios';
+import { of, throwError } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { GoogleOAuth } from './service';
 
@@ -50,5 +51,45 @@ describe('reading a profile from Google', () => {
     const reading = oauthReading({ sub: '1', email: 'admin@example.test' });
 
     await expect(reading.profileFromCode('a-code')).rejects.toThrow(UnauthorizedException);
+  });
+});
+
+describe('when Google does not answer properly', () => {
+  const failingWith = (error: unknown): GoogleOAuth => {
+    const http = { post: (): unknown => throwError(() => error) } as unknown as HttpService;
+
+    return new GoogleOAuth(http, {
+      getOrThrow: (key: keyof typeof CONFIG): string => CONFIG[key],
+    } as unknown as ConfigService);
+  };
+
+  it('reads an error reply as a refusal', async () => {
+    const error = new AxiosError('bad', '500', undefined, undefined, { status: 500 } as never);
+
+    await expect(failingWith(error).profileFromCode('a-code')).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('reads silence or a timeout as Google being unavailable, not as a server fault', async () => {
+    const error = new AxiosError('timeout of 5000ms exceeded', 'ECONNABORTED');
+
+    await expect(failingWith(error).profileFromCode('a-code')).rejects.toThrow(
+      ServiceUnavailableException,
+    );
+  });
+});
+
+describe('checking the state that came back', () => {
+  const oauth = oauthReading({});
+
+  it('accepts the one it issued', () => {
+    expect(oauth.isExpectedState('abc', 'abc')).toBe(true);
+  });
+
+  it('refuses another, a different length and a missing cookie', () => {
+    expect(oauth.isExpectedState('abd', 'abc')).toBe(false);
+    expect(oauth.isExpectedState('ab', 'abc')).toBe(false);
+    expect(oauth.isExpectedState('abc', undefined)).toBe(false);
   });
 });

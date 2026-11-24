@@ -61,7 +61,11 @@ export class GoogleController {
     @Res() reply: FastifyReply,
   ): Promise<void> {
     const expected = request.cookies?.[STATE_COOKIE];
-    if (code === undefined || state === undefined || state !== expected) {
+    if (
+      code === undefined ||
+      state === undefined ||
+      !this.google.isExpectedState(state, expected)
+    ) {
       throw new UnauthorizedException('Invalid Google sign-in attempt.');
     }
 

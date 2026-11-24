@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { underPassenger } from '../../infrastructure/config/runtime';
 
 // Spelt out, because "anyone may sign up" and "somebody forgot the guest list"
 // look identical at runtime and only one of them is a decision. The star is the
@@ -18,7 +19,7 @@ export class EmailAllowlist implements OnModuleInit {
   // only way that mistake gets noticed — which is why opening the app on
   // purpose has to be written down rather than left blank.
   onModuleInit(): void {
-    if (this.config.get<string>('NODE_ENV') === 'production' && this.isUnset()) {
+    if (underPassenger() && this.isUnset()) {
       throw new Error(
         `ALLOWED_EMAILS is empty. Set the invited addresses, or "${OPEN_TO_ALL}" to invite anyone.`,
       );

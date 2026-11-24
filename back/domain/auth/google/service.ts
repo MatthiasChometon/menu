@@ -1,6 +1,6 @@
-import { randomBytes } from 'node:crypto';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { HttpService } from '@nestjs/axios';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { isAxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
@@ -22,6 +22,16 @@ export class GoogleOAuth {
 
   newState(): string {
     return randomBytes(16).toString('hex');
+  }
+
+  // Compared in constant time, like every secret handed back by a browser.
+  isExpectedState(state: string, expected: string | undefined): boolean {
+    if (expected === undefined) return false;
+
+    const given = Buffer.from(state);
+    const stored = Buffer.from(expected);
+
+    return given.length === stored.length && timingSafeEqual(given, stored);
   }
 
   authorisationUrl(state: string): string {
@@ -85,14 +95,14 @@ export class GoogleOAuth {
     }
   }
 
-  // A reply from Google that is not a success maps to "unauthorised", the same
-  // verdict the old !response.ok branch reached. A network-level failure — no
-  // reply at all — is not Google refusing anything, so it bubbles up unchanged.
+  // A reply from Google that is not a success maps to "unauthorised". No reply
+  // at all (unreachable, timed out) is not Google refusing anything: the sign-in
+  // is unavailable for now, which is a different answer from a wrong code.
   private refused(error: unknown, message: string): Error {
     if (isAxiosError(error) && error.response !== undefined) {
       return new UnauthorizedException(message);
     }
-    return error instanceof Error ? error : new Error(String(error));
+    return new ServiceUnavailableException('Google could not be reached. Try again in a moment.');
   }
 
   private redirectUri(): string {

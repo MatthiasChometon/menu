@@ -8,6 +8,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { listenPort, validateEnvironment } from './infrastructure/config/env';
+import { underPassenger } from './infrastructure/config/runtime';
 import { configureApp, createAdapter } from './infrastructure/http/setup';
 
 // Phusion Passenger, which is what the shared host runs, opens the listening
@@ -20,10 +21,6 @@ import { configureApp, createAdapter } from './infrastructure/http/setup';
 // Fastify has the escape hatch for exactly this: routing() feeds an existing
 // server's requests through the router. So the server Passenger is watching is
 // the one we hand it, and Fastify keeps every route, plugin and hook.
-declare const PhusionPassenger: unknown;
-
-const underPassenger = (): boolean => typeof PhusionPassenger !== 'undefined';
-
 const bootstrap = async (): Promise<void> => {
   // Not through ConfigModule's validate hook: that one validates a copy taken when
   // the module loads, and ConfigService then reads that copy instead of the live

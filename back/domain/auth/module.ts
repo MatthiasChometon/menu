@@ -22,9 +22,12 @@ import { PasswordService } from './emailAndPassword/password.service';
 import { AuthResolver } from './resolver';
 import { AuthService } from './service';
 
+const GOOGLE_TIMEOUT_MS = 5000;
+
 @Module({
   imports: [
-    HttpModule,
+    // Google answers in well under a second; waiting longer only ties up a request.
+    HttpModule.register({ timeout: GOOGLE_TIMEOUT_MS }),
     UserModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
