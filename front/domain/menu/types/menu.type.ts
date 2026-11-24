@@ -91,6 +91,9 @@ export type MacroTolerance = Partial<Record<keyof Macros, number>> & { default: 
 
 export type WeekStatus = 'upcoming' | 'current' | 'past';
 
+// A week close to today has a name of its own.
+export type WeekName = 'last' | 'current' | 'next';
+
 export type Menu = {
   weekOf: string;
   deliveryAt?: string;

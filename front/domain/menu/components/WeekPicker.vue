@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { selectedWeek, statusOfSelected, weekOptions } = useSelectedWeek();
 const { keyOf } = useWeekLabel();
+const { weekLabel } = useMenuLabels();
 const { weekToShow } = useWeekStatus();
 const { locale, t } = useNuxtApp().$i18n;
 
@@ -25,7 +26,7 @@ const dateOf = (weekOf: string): string =>
 const nameOf = (weekOf: string): string => {
   const key = now.value === undefined ? undefined : keyOf(weekOf, now.value);
 
-  return key === undefined ? dateOf(weekOf) : t(`menu.week.${key}`);
+  return key === undefined ? dateOf(weekOf) : weekLabel(key);
 };
 
 const subtitleOf = (weekOf: string): string | undefined => {
@@ -110,12 +111,12 @@ onMounted((): void => {
       <span v-if="subtitleOf(selectedWeek)">{{ subtitleOf(selectedWeek) }}</span>
       <!-- A bare date never says whether it is behind or ahead. -->
       <UBadge
-        v-if="showsStatus"
+        v-if="showsStatus && statusOfSelected !== undefined"
         :color="statusOfSelected === 'current' ? 'primary' : 'neutral'"
         variant="subtle"
         size="sm"
       >
-        {{ $t(`menu.week.${statusOfSelected}`) }}
+        {{ weekLabel(statusOfSelected) }}
       </UBadge>
       <UButton
         v-if="isAway && homeWeek"

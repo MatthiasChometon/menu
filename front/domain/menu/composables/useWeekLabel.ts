@@ -1,5 +1,7 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+const weekNames: Record<string, WeekName> = { '-1': 'last', '0': 'current', '1': 'next' };
+
 const mondayOf = (weekOf: string): Date => new Date(`${weekOf}T00:00:00`);
 
 // Midnight of the given day. Windows are anchored to today, not the start of the
@@ -16,14 +18,14 @@ const startOfDay = (day: Date): Date => {
 // uses.
 export const useWeekLabel = (): {
   offsetOf: (weekOf: string, now: Date) => number;
-  keyOf: (weekOf: string, now: Date) => string | undefined;
+  keyOf: (weekOf: string, now: Date) => WeekName | undefined;
 } => {
   const offsetOf = (weekOf: string, now: Date): number =>
     Math.round((mondayOf(weekOf).getTime() - startOfDay(now).getTime()) / (7 * DAY_MS));
 
   return {
     offsetOf,
-    keyOf: (weekOf: string, now: Date): string | undefined =>
-      ({ '-1': 'last', '0': 'current', '1': 'next' })[String(offsetOf(weekOf, now))],
+    keyOf: (weekOf: string, now: Date): WeekName | undefined =>
+      weekNames[String(offsetOf(weekOf, now))],
   };
 };

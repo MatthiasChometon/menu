@@ -8,6 +8,7 @@ const { macros, size = 148 } = defineProps<{
 }>();
 
 const { round } = useFoodFormat();
+const { macroShortLabel } = useMenuLabels();
 
 type EnergyKey = 'protein' | 'carbs' | 'fat';
 const keys: readonly EnergyKey[] = ['protein', 'carbs', 'fat'];
@@ -83,7 +84,7 @@ const shareOf = (key: EnergyKey): number =>
           :style="{ backgroundColor: `var(--macro-${key})` }"
           aria-hidden="true"
         />
-        <dt class="text-sm text-muted">{{ $t(`menu.macroShort.${key}`) }}</dt>
+        <dt class="text-sm text-muted">{{ macroShortLabel(key) }}</dt>
         <dd class="ml-auto text-sm font-semibold tabular-nums">{{ shareOf(key) }}%</dd>
       </div>
     </dl>

@@ -17,6 +17,7 @@ const { nameOf, round } = useFoodFormat();
 const { selectedWeek } = useSelectedWeek();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
+const { dayLabel, mealLabel, mealTimeLabel } = useMenuLabels();
 
 const { statusOf, isEaten, toggleEaten } = useCookingLog(selectedWeek);
 const { setEatingOut, setCheatMeal, clearOverride } = useMealOverrides(selectedWeek);
@@ -78,7 +79,7 @@ const leftoverAssignmentItems = computed((): DropdownMenuItem[] => {
   if (reservedFor !== undefined) {
     return [
       {
-        label: `${t('menu.flex.leftover.reservedFor')} ${t(`menu.day.${reservedFor.day}`)}`,
+        label: `${t('menu.flex.leftover.reservedFor')} ${dayLabel(reservedFor.day)}`,
         icon: 'i-lucide-package-check',
         onSelect: (): void => clearAssignment(reservedFor.day, reservedFor.slot),
       },
@@ -86,7 +87,7 @@ const leftoverAssignmentItems = computed((): DropdownMenuItem[] => {
   }
 
   return leftoverTargets.map((targetDay): DropdownMenuItem => ({
-    label: `${t('menu.flex.leftover.keepFor')} ${t(`menu.day.${targetDay}`)}`,
+    label: `${t('menu.flex.leftover.keepFor')} ${dayLabel(targetDay)}`,
     icon: 'i-lucide-package-plus',
     onSelect: (): void => assignLeftover(dayKey, meal.slot, targetDay, meal.slot),
   }));
@@ -145,8 +146,8 @@ const menuItems = computed((): DropdownMenuItem[][] => {
 
         <div class="min-w-0 flex-1">
           <p class="flex flex-wrap items-center gap-x-2 text-xs text-muted">
-            <span class="font-medium text-primary">{{ $t(`menu.meal.${meal.slot}`) }}</span>
-            <span class="text-dimmed">{{ $t(`menu.mealTime.${meal.slot}`) }}</span>
+            <span class="font-medium text-primary">{{ mealLabel(meal.slot) }}</span>
+            <span class="text-dimmed">{{ mealTimeLabel(meal.slot) }}</span>
           </p>
           <p class="truncate font-medium" :class="(eaten || isExcluded) && 'line-through'">
             {{ nameOf(meal.recipe) }}

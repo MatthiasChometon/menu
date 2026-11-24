@@ -10,6 +10,7 @@ const {
 }>();
 
 const { round } = useFoodFormat();
+const { macroShortLabel } = useMenuLabels();
 
 type MacroRow = {
   key: keyof Macros;
@@ -66,7 +67,7 @@ const fillOf = (key: keyof Macros): string => `var(--macro-${key})`;
               :style="{ backgroundColor: fillOf(row.key) }"
               aria-hidden="true"
             />
-            {{ $t(`menu.macroShort.${row.key}`) }}
+            {{ macroShortLabel(row.key) }}
           </dt>
           <dd class="text-xs font-semibold tabular-nums">
             {{ round(row.value) }}{{ row.unit }}
