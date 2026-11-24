@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import { reasonOf } from '../errors/reason';
 
-// Longer than a mail (10 s x 3 phases, per admin) or a push (5 s) takes; past it,
-// shutting down matters more than a task that is stuck.
-export const SETTLE_CEILING_MS = 60_000;
+// A safety valve, not a budget: one or two admins at 10 s x 3 phases each, or a
+// push at 5 s, finish well under it. Past it, shutting down matters more than a
+// task that is stuck.
+export const SETTLE_CEILING_MS = 120_000;
 
 /**
  * Work that happens after the response has gone: an announcement mail, a push.

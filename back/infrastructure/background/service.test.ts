@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BackgroundTasks } from './service';
 
 afterEach((): void => {
+  vi.useRealTimers();
   vi.restoreAllMocks();
 });
 
@@ -59,6 +60,5 @@ describe('background tasks', () => {
 
     await expect(waiting).resolves.toBeUndefined();
     expect(logged).toHaveBeenCalledWith('1 background task(s) still running after 1000 ms.');
-    vi.useRealTimers();
   });
 });
