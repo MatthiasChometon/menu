@@ -1,37 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Appetite, DailyActivity, Goal, Sex, StarchQuality, TrainingType } from './enum';
 import { Measurements } from './type';
-
-/** A row holding the answers, whoever they were given by. */
-export type MeasurementsRow = {
-  sex: string;
-  age: number;
-  heightCm: number;
-  weightKg: number;
-  dailyActivity: string;
-  trainingDaysPerWeek: number;
-  trainingType: string;
-  starchQuality: string;
-  appetite: string;
-  goal: string;
-};
 
 @Injectable()
 export class MeasurementsMapper {
-  // The columns are plain text, so the enums are restored explicitly rather
-  // than asserted onto the row.
-  fromRow(row: MeasurementsRow): Measurements {
+  // Whoever gave the answers, only the answers: a household row also carries an owner and a creation date
+  // that have no business in a measurement.
+  fromRow(row: Measurements): Measurements {
     return {
-      sex: Sex[row.sex as keyof typeof Sex],
+      sex: row.sex,
       age: row.age,
       heightCm: row.heightCm,
       weightKg: row.weightKg,
-      dailyActivity: DailyActivity[row.dailyActivity as keyof typeof DailyActivity],
+      dailyActivity: row.dailyActivity,
       trainingDaysPerWeek: row.trainingDaysPerWeek,
-      trainingType: TrainingType[row.trainingType as keyof typeof TrainingType],
-      starchQuality: StarchQuality[row.starchQuality as keyof typeof StarchQuality],
-      appetite: Appetite[row.appetite as keyof typeof Appetite],
-      goal: Goal[row.goal as keyof typeof Goal],
+      trainingType: row.trainingType,
+      starchQuality: row.starchQuality,
+      appetite: row.appetite,
+      goal: row.goal,
     };
   }
 }
