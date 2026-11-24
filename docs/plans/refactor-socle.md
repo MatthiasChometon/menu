@@ -56,9 +56,10 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 | M9 | Front `domain/weight`, `insights`, `recipe`, `profile`, `library` | 7.6k |
 | M10 | Front `domain/auth`, `weekShare`, `onboarding`, `bugReport`, `improvementRequest`, `cooking`, `customCatalog`, `legal`, `progress` | 3.4k |
 | M11 | `extension/` | 1.7k |
+| M13 | Dependency upgrades (back, front, extension) until `pnpm audit --prod` is clean, then `pnpm audit --prod` in every CI | — |
 | M12 | Final pass: duplicates across slices, dead code / unused dependencies (`knip`), README and docs up to date, final PR to `main` | — |
 
-- [ ] M1 — impl · review · ci · ok · merged
+- [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
 - [ ] M2 — impl · review · ci · ok · merged
 - [ ] M3 — impl · review · ci · ok · merged
 - [ ] M4 — impl · review · ci · ok · merged
@@ -69,6 +70,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [ ] M9 — impl · review · ci · ok · merged
 - [ ] M10 — impl · review · ci · ok · merged
 - [ ] M11 — impl · review · ci · ok · merged
+- [ ] M13 — impl · review · ci · ok · merged
 - [ ] M12 — impl · review · ci · ok · merged
 - [ ] Final PR `refactor/socle` → `main` opened, left for Matthias
 
@@ -94,3 +96,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   migrations in the entrypoint. `ops/deploy-o2switch.sh` (rewrites old addresses into `.env`) is a
   deletion candidate with `back/render.yaml`. `ops/deploy.sh` does not poll `/health` after the
   restart: the cron has no public API origin to poll and a new curl step must not be able to break it.
+- 2026-11-24 — M1 merged (PR #2): 3 review rounds, 19 findings (4 blockers: env snapshot broke e2e,
+  exponential fragment depth, Fastify 4xx turned into 500, proxy chain). Open for Matthias after the
+  final merge: check on the real server that a spoofed `X-Forwarded-For` does not change the rate-limit
+  bucket. Added lot M13 (dependency upgrades + `pnpm audit` in CI), run before M12.
