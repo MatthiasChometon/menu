@@ -24,17 +24,15 @@ const shouldHoldBack = (): boolean => {
 };
 
 const whenIdle = (run: () => void): void => {
-  const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => void })
-    .requestIdleCallback;
-
   // Braces on both branches: setTimeout hands back a handle, and an arrow that
-  // returns it while promising void is exactly what the build refused.
-  if (idle === undefined) {
+  // returns it while promising void is exactly what the build refused. Safari
+  // has no requestIdleCallback, which the DOM typings do not admit.
+  if (!('requestIdleCallback' in window)) {
     window.setTimeout(run, START_DELAY_MS);
     return;
   }
 
-  idle((): void => {
+  window.requestIdleCallback((): void => {
     window.setTimeout(run, START_DELAY_MS);
   });
 };

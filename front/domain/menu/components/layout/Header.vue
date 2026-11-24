@@ -38,7 +38,7 @@ const currentLocale = computed({
   get: (): string => locale.value,
   set: (value: string): void => {
     const match = locales.value.find((entry): boolean => entry.code === value);
-    if (match !== undefined) setLocale(match.code);
+    if (match !== undefined) void setLocale(match.code);
   },
 });
 
