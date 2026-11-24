@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { wrap } from './og';
+import { wrap } from './wrapText';
 
 // A stand-in for the canvas metric: one unit per character.
 const byChar = (line: string): number => line.length;

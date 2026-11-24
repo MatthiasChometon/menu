@@ -14,7 +14,7 @@ follows.
 - **North star**: legible before it is pretty. It is read at arm's length,
   offline, under supermarket light.
 - **Mark**: the three-wedge plate (protein · carbs · fat), shared by the
-  favicon/PWA icons ([`asset/utils/icon.ts`](../asset/utils/icon.ts)) and the
+  favicon/PWA icons ([`asset/scripts/plate.ts`](../asset/scripts/plate.ts)) and the
   in-app macro donut ([`MenuMacroPlate`](../../domain/menu/components/MacroPlate.vue)).
 
 ## Colour

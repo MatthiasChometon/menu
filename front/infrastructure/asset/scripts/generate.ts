@@ -1,5 +1,5 @@
 // Generates the dish and ingredient photos with ComfyUI (running on :8188). The
-// seed and workflow building are pure (asset/utils/workflow); this runner drives
+// seed and workflow building are pure (scripts/workflow); this runner drives
 // ComfyUI over its HTTP API and writes assets/images/<recipe|food>/<id>.webp.
 //
 // Usage:
@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { parseArgs } from 'node:util';
 import sharp from 'sharp';
-import { buildWorkflow, seedFor, type Workflow } from '../utils/workflow';
+import { buildWorkflow, seedFor, type Workflow } from './workflow';
 import { ASSETS, COMFY } from './paths';
 import { readJsonAt } from './content';
 

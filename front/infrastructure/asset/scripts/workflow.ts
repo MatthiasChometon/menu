@@ -14,7 +14,7 @@ const CRC_TABLE = ((): Uint32Array => {
 const crc32 = (text: string): number => {
   let crc = 0xffffffff;
   for (const byte of new TextEncoder().encode(text))
-    crc = CRC_TABLE[(crc ^ byte) & 0xff]! ^ (crc >>> 8);
+    crc = (CRC_TABLE[(crc ^ byte) & 0xff] ?? 0) ^ (crc >>> 8);
   return (crc ^ 0xffffffff) >>> 0;
 };
 
@@ -22,6 +22,12 @@ const crc32 = (text: string): number => {
 // re-run of the same one reproduces it. crc32 (not a random hash) is stable.
 export const seedFor = (id: string, subject: string): number =>
   crc32(`${id}|${subject}`) % 2_147_483_647;
+
+const inputsOf = (workflow: Workflow, nodeId: string): Record<string, unknown> => {
+  const node = workflow[nodeId];
+  if (node === undefined) throw new Error(`The workflow template has no node ${nodeId}`);
+  return node.inputs;
+};
 
 // A copy of the ComfyUI template with the prompt, negative, size and seed filled in.
 export const buildWorkflow = (
@@ -32,10 +38,10 @@ export const buildWorkflow = (
   seed: number,
 ): Workflow => {
   const workflow = structuredClone(template);
-  workflow['6']!.inputs.text = prompt;
-  workflow['7']!.inputs.text = negative;
-  workflow['5']!.inputs.width = width;
-  workflow['5']!.inputs.height = height;
-  workflow['3']!.inputs.seed = seed;
+  inputsOf(workflow, '6').text = prompt;
+  inputsOf(workflow, '7').text = negative;
+  inputsOf(workflow, '5').width = width;
+  inputsOf(workflow, '5').height = height;
+  inputsOf(workflow, '3').seed = seed;
   return workflow;
 };
