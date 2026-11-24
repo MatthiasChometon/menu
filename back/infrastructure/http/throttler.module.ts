@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { clientAddress } from './client-address';
 import { GqlAwareThrottlerGuard } from './throttler.guard';
 
 // The ambient ceiling every route gets. The sign-in routes narrow it themselves,
@@ -24,16 +25,7 @@ export const GOOGLE_ATTEMPTS = 20;
         // The contract suite hammers sign-in on purpose; only the test that
         // checks the limiter leaves it armed.
         skipIf: (): boolean => config.get<string>('THROTTLE_SKIP') === 'true',
-        // The platform proxy fronts every request. Without reading the
-        // forwarded address the tracker would see one caller for the whole
-        // internet and throttle every user at once. Paired with trustProxy on
-        // the adapter, which is what populates req.ips.
-        getTracker: (req): string => {
-          const forwarded = req?.ips as string[] | undefined;
-          return forwarded !== undefined && forwarded.length > 0
-            ? (forwarded[0] ?? String(req?.ip))
-            : String(req?.ip);
-        },
+        getTracker: (request): string => clientAddress(request),
       }),
     }),
   ],
