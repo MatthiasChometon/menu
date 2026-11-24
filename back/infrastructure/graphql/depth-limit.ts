@@ -30,6 +30,10 @@ export const depthLimit =
     };
   };
 
+// Introspection (`__schema`, `__type`) is the schema describing itself, deep by
+// nature and bounded by the schema, not by the caller: it is not counted.
+const isIntrospection = (fieldName: string): boolean => fieldName.startsWith('__');
+
 // A fragment spread is followed into its definition, otherwise a query could
 // hide any depth behind one. Each fragment is measured once per document: a
 // chain of fragments that each spread the previous one twice is a few hundred
@@ -71,7 +75,7 @@ const selectionDepthMeasurer = (
         if (selection.kind === Kind.INLINE_FRAGMENT) {
           return depthOfSelections(selection.selectionSet.selections);
         }
-        if (selection.selectionSet === undefined) return 0;
+        if (selection.selectionSet === undefined || isIntrospection(selection.name.value)) return 0;
 
         return 1 + depthOfSelections(selection.selectionSet.selections);
       }),
