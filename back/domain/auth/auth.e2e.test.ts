@@ -492,15 +492,22 @@ describe('races on the same account', () => {
   it('lets only one of two holders of the same link spend it', async () => {
     const { tokens, token } = await issueLink();
 
-    // The first holder keeps the link locked while the second one tries it.
+    // The first holder keeps the link locked, and is known to hold it before the
+    // second one tries: no ordering left to chance.
     let release: () => void = () => undefined;
     const held = new Promise<void>((resolve): void => {
       release = resolve;
     });
+    let holding: () => void = () => undefined;
+    const isHolding = new Promise<void>((resolve): void => {
+      holding = resolve;
+    });
     const winner = tokens.spend(token, EMAIL_VERIFICATION, async (): Promise<string> => {
+      holding();
       await held;
       return 'won';
     });
+    await isHolding;
     const loser = tokens.spend(token, EMAIL_VERIFICATION, (): Promise<string> =>
       Promise.resolve('won too'),
     );
