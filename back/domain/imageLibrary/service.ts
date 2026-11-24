@@ -63,7 +63,7 @@ export class ImageLibraryService {
       replaced = await this.record(kind, id, name);
     } catch (error: unknown) {
       // Not in the manifest, so nothing would ever serve or clean it up.
-      if (!alreadyThere) await rm(filePath, { force: true });
+      await rm(filePath, { force: true });
       throw error;
     }
     // The photograph this one replaces is no longer listed: leaving it would
