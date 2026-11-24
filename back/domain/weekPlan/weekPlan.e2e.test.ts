@@ -181,16 +181,16 @@ describe('what the API refuses to store', () => {
     expect(response.errors?.[0]?.message).toBeDefined();
   });
 
-  it('refuses a week that is not a date, on every operation that names one', async () => {
+  it.each([
+    ['reading', MINE, { weekOf: 'next-monday' }],
+    ['deleting', DELETE, { weekOf: '2026-13-45' }],
+    ['saving', SAVE, { input: { weekOf: '2026-02-30', days: [] } }],
+  ])('refuses a week that is not a date when %s', async (_operation, query, variables) => {
     const cookie = await signIn('matthias@example.com');
 
-    const read = await api.graphql(MINE, { weekOf: 'next-monday' }, cookie);
-    const remove = await api.graphql(DELETE, { weekOf: '2026-13-45' }, cookie);
-    const save = await api.graphql(SAVE, { input: { weekOf: '2026-02-30', days: [] } }, cookie);
+    const response = await api.graphql(query, variables, cookie);
 
-    expect(read.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
-    expect(remove.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
-    expect(save.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 
   it('rejects a day that is not a day', async () => {
