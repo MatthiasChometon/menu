@@ -128,3 +128,23 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   transaction). Accepted as-is: a retried SUCCEEDED close on an already-closed run does the restate work
   before rolling it back (rare, harmless); no test that this rollback leaves the cupboard untouched.
   Push body money format is now "84,50 €" like the mail and the front.
+- 2026-11-24 — M3 (back `domain/auth`, `user`, `household`, `profile`). Done: a link (verification,
+  reset) is spent in one transaction with the write it authorises (`AuthTokenRepository.spend`, atomic
+  `delete ... returning`), so two holders cannot both use it and a failed write no longer burns it;
+  sign-up lets the unique key decide (`on conflict do nothing`), so two simultaneous sign-ups of one
+  address both answer 202; Google sign-in is one upsert (no race), and it drops a password set on an
+  address that was never confirmed (pre-hijack); an unknown address now pays the scrypt cost like a
+  real one (`pretendToVerify`); OAuth state compared in constant time; outbound HTTP to Google capped
+  at 5 s, no reply maps to 503 instead of a raw 500; production-only checks (JWT secret, guest list)
+  key on Passenger through `infrastructure/config/runtime.ts` (shared with `main.ts`), not on
+  `NODE_ENV`; household cap checked and inserted under a lock on the owner row (no overshoot by
+  concurrent adds); a malformed UUID on `removeHouseholdMember` is `BAD_USER_INPUT`; `$type` on the
+  enum text columns replaces the casts (no migration); `noUncheckedIndexedAccess` sites fixed in the
+  three repositories (flag still off); `FRONT_URL` trimming in one helper; dead code removed
+  (`consume`, `dropExpired`, `countByOwner`). Migration 0016: unique index on `auth_token.token_hash`,
+  index on `household_member.owner_id`. Deferred on purpose: timestamp columns to `timestamptz` (D11:
+  `user.email_verified_at`, `blocked_at`, `created_at`; `auth_token.expires_at`;
+  `household_member.created_at`; `profile.updated_at`); e-mail case-insensitivity (needs a data check
+  and a migration); mail sends stay awaited (a failed verification mail must surface; background sends
+  need mail timeouts and a drain, infrastructure/mail lot), so forgot-password and resend still differ
+  in timing between known and unknown addresses; logout does not revoke the 30-day JWT.
