@@ -237,3 +237,10 @@ export const startTestApp = async (): Promise<TestApp> => {
     close: (): Promise<void> => app.close(),
   };
 };
+
+/** What a test expects to be there: a clear failure instead of a `!` that fails later. */
+export const expectPresent = <Value>(value: Value | null | undefined, what: string): Value => {
+  if (value === null || value === undefined) throw new Error(`Expected ${what} to be there.`);
+
+  return value;
+};

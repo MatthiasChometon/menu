@@ -3,6 +3,7 @@ import { MailService } from '../../infrastructure/mail/service';
 import type { MailMessage } from '../../infrastructure/mail/token';
 import { PushService } from '../../infrastructure/push/service';
 import {
+  expectPresent,
   startTestApp,
   type GraphqlResponse,
   type TestApp,
@@ -88,7 +89,7 @@ const signIn = async (email: string): Promise<string> =>
 const pair = async (cookie: string, label: string): Promise<string> => {
   const response = await api.graphql<{ pairGroceryDevice: Device }>(PAIR_DEVICE, { label }, cookie);
 
-  return response.data!.pairGroceryDevice.token;
+  return expectPresent(response.data, 'the pairing').pairGroceryDevice.token;
 };
 
 const asDevice = (token: string): Record<string, string> => ({
@@ -106,7 +107,7 @@ const queueJob = async (
     cookie,
   );
 
-  return response.data!.createGroceryJob;
+  return expectPresent(response.data, 'the run').createGroceryJob;
 };
 
 beforeAll(async (): Promise<void> => {
@@ -339,7 +340,9 @@ describe('working out what to buy', () => {
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['brownRice', 500]]));
+    await api
+      .resolve(GroceryPantryRepository)
+      .replace(expectPresent(account, 'the account').id, new Map([['brownRice', 500]]));
 
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
 
@@ -508,7 +511,7 @@ describe('what the week leaves in the cupboard', () => {
   const pantryOf = async (email: string): Promise<Map<string, number>> => {
     const account = await api.resolve(UserRepository).findRecordByEmail(email);
 
-    return api.resolve(GroceryPantryRepository).forUser(account!.id);
+    return api.resolve(GroceryPantryRepository).forUser(expectPresent(account, 'the account').id);
   };
 
   it('keeps what was bought over what was eaten', async () => {
@@ -536,7 +539,9 @@ describe('what the week leaves in the cupboard', () => {
     const cookie = await signIn('matthias@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['oats', 300]]));
+    await api
+      .resolve(GroceryPantryRepository)
+      .replace(expectPresent(account, 'the account').id, new Map([['oats', 300]]));
 
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
@@ -748,7 +753,10 @@ describe('telling somebody the basket is ready', () => {
   const reportMail = async (to: string): Promise<MailMessage> => {
     await api.resolve(GroceryReportNotifier).settled();
 
-    return [...api.mails()].reverse().find((message): boolean => message.to === to)!;
+    return expectPresent(
+      [...api.mails()].reverse().find((message): boolean => message.to === to),
+      `a mail to ${to}`,
+    );
   };
 
   it('writes to the account that asked, once the run is closed', async () => {
@@ -841,7 +849,7 @@ describe('agreeing to be told on a phone', () => {
   const subscriptionsOf = async (email: string): Promise<unknown[]> => {
     const account = await api.resolve(UserRepository).findRecordByEmail(email);
 
-    return api.resolve(GroceryPushRepository).forUser(account!.id);
+    return api.resolve(GroceryPushRepository).forUser(expectPresent(account, 'the account').id);
   };
 
   it('remembers a browser that agreed', async () => {
@@ -1086,7 +1094,7 @@ describe('writes that must land whole or not at all', () => {
   const TOO_BIG = 2 ** 40;
 
   const accountIdOf = async (email: string): Promise<string> =>
-    (await api.resolve(UserRepository).findRecordByEmail(email))!.id;
+    expectPresent(await api.resolve(UserRepository).findRecordByEmail(email), email).id;
 
   it('leaves no run behind when its basket cannot be stored', async () => {
     const cookie = await signIn('matthias@example.com');
