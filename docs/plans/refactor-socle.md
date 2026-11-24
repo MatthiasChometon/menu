@@ -66,7 +66,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
 - [x] M2 — impl · review · ci · ok · merged (PR #3, 4759525)
 - [x] M3 — impl · review · ci · ok · merged (PR #5, a10a9ee)
-- [ ] M4 — impl · review · ci · ok · merged
+- [x] M4 — impl · review · ci · ok · merged (PR #9, f76b490)
 - [ ] M5 — impl · review · ci · ok · merged
 - [ ] M6 — impl · review · ci · ok · merged
 - [ ] M7 — impl · review · ci · ok · merged
@@ -196,3 +196,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   two copies of one rule. **For M12 (infrastructure):** the HTML `escape` helper is copied in the two
   report emails and the grocery report mail; the lock + count + insert cap body is copied between
   customFood, customRecipe and household (a shared `insertUnlessFull` helper). **Deletion candidates:** none.
+- 2026-11-24 — M4 merged (PR #9): 2 review rounds, 12 findings. All deferred strict flags are on in `back`.
+  Shutdown fix: Nest runs `onModuleDestroy` before `beforeApplicationShutdown`, so background work is drained by the
+  database module itself (`BackgroundTasks.settled()`, ceiling 120 s) — covers the M2 grocery notifier too.
+  Back socle of menu is done; next M5 (front socle + CI front/extension).
