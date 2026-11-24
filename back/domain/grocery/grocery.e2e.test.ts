@@ -935,7 +935,11 @@ describe('closing a run that is already closed', () => {
 
     const retried = await closeRun(token, jobId, { outcome: 'FAILED' });
 
-    expect(retried.data?.finishGroceryJob).toEqual({ status: 'SUCCEEDED', productsCents: 8450 });
+    expect(retried.data?.finishGroceryJob).toMatchObject({
+      status: 'SUCCEEDED',
+      productsCents: 8450,
+      deliveryFeesCents: 790,
+    });
   });
 
   it('writes the report once, not once per close', async () => {
@@ -971,11 +975,14 @@ describe('closing a run that is already closed', () => {
 });
 
 describe('when the report cannot be sent', () => {
-  const closeSucceeded = async (): Promise<string | undefined> => {
+  // The failure is armed once the account is open: signing up sends a mail of
+  // its own, which would fail first and prove nothing about the report.
+  const closeSucceeded = async (breakIt: () => void): Promise<string | undefined> => {
     const cookie = await signIn('matthias@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    breakIt();
     const response = await api.graphql<{ finishGroceryJob: { status: string } }>(
       FINISH_JOB,
       { jobId: queued.id, input: { outcome: 'SUCCEEDED', productsCents: 8450 } },
@@ -1002,21 +1009,25 @@ describe('when the report cannot be sent', () => {
   });
 
   it('closes the run all the same when the mail server is down', async () => {
-    vi.spyOn(api.resolve(MailService), 'send').mockRejectedValue(new Error('smtp is down'));
+    const closed = await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(MailService), 'send').mockRejectedValue(new Error('smtp is down'));
+    });
 
-    expect(await closeSucceeded()).toBe('SUCCEEDED');
+    expect(closed).toBe('SUCCEEDED');
   });
 
   it('closes the run all the same when the push service fails', async () => {
-    vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
+    const closed = await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
+    });
 
-    expect(await closeSucceeded()).toBe('SUCCEEDED');
+    expect(closed).toBe('SUCCEEDED');
   });
 
   it('still sends the mail when the push service fails', async () => {
-    vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
-
-    await closeSucceeded();
+    await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
+    });
     await api.resolve(GroceryReportNotifier).settled();
 
     expect(api.mails().some((mail): boolean => mail.subject.startsWith('Panier prêt'))).toBe(true);
@@ -1024,10 +1035,12 @@ describe('when the report cannot be sent', () => {
 
   it('answers the browser without waiting for a mail server that never answers', async () => {
     const stuck = neverAnswering();
-    vi.spyOn(api.resolve(MailService), 'send').mockReturnValue(stuck.pending);
-
     try {
-      expect(await closeSucceeded()).toBe('SUCCEEDED');
+      const closed = await closeSucceeded((): void => {
+        vi.spyOn(api.resolve(MailService), 'send').mockReturnValue(stuck.pending);
+      });
+
+      expect(closed).toBe('SUCCEEDED');
     } finally {
       stuck.release();
       await api.resolve(GroceryReportNotifier).settled();
@@ -1036,10 +1049,12 @@ describe('when the report cannot be sent', () => {
 
   it('answers the browser without waiting for a push service that never answers', async () => {
     const stuck = neverAnswering();
-    vi.spyOn(api.resolve(PushService), 'send').mockReturnValue(stuck.pending);
-
     try {
-      expect(await closeSucceeded()).toBe('SUCCEEDED');
+      const closed = await closeSucceeded((): void => {
+        vi.spyOn(api.resolve(PushService), 'send').mockReturnValue(stuck.pending);
+      });
+
+      expect(closed).toBe('SUCCEEDED');
     } finally {
       stuck.release();
       await api.resolve(GroceryReportNotifier).settled();
