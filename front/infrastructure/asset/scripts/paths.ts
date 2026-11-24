@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// The front root is the ancestor that holds ddd/ — every Nuxt layer carries a
-// nuxt.config.ts, so that alone would stop at the layer, not the project.
+// The front root is the nearest ancestor with a package.json — every Nuxt layer
+// carries a nuxt.config.ts, so that alone would stop at the layer, not the project.
 const findFront = (): string => {
   let dir = dirname(fileURLToPath(import.meta.url));
-  while (!existsSync(join(dir, 'ddd', 'index.ts'))) {
+  while (!existsSync(join(dir, 'package.json'))) {
     const parent = dirname(dir);
     if (parent === dir) throw new Error('front root not found above ' + import.meta.url);
     dir = parent;
