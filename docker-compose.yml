@@ -6,6 +6,9 @@
 #   docker compose up                # everything
 #   docker compose up postgres       # just the database, to run the apps natively
 #
+# Ports are published on 127.0.0.1 only; set BIND_ADDRESS=0.0.0.0 (with PUBLIC_HOST) to
+# reach the front and the API from a phone. Postgres is never published beyond it.
+#
 # Front → http://localhost:3777 · GraphQL → http://localhost:3779/graphql
 # Postgres is published on 5433 so it never collides with another local instance
 # (verdure's compose already holds 5432).
@@ -19,7 +22,7 @@ services:
       POSTGRES_PASSWORD: menu
       POSTGRES_DB: menu
     ports:
-      - '5433:5432'
+      - '127.0.0.1:5433:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -88,7 +91,7 @@ services:
       # reads the committed schema instead.
       GRAPHQL_INTROSPECTION: 'true'
     ports:
-      - '3779:3779'
+      - '${BIND_ADDRESS:-127.0.0.1}:3779:3779'
     volumes:
       - ./back:/app
       - back-node-modules:/app/node_modules
@@ -97,7 +100,7 @@ services:
         - CMD
         - node
         - -e
-        - "require('http').get('http://localhost:3779/graphql', () => process.exit(0)).on('error', () => process.exit(1))"
+        - "require('http').get('http://localhost:3779/health/ready', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
       interval: 10s
       timeout: 5s
       retries: 30
@@ -132,7 +135,7 @@ services:
       NUXT_PUBLIC_API_BASE: http://${PUBLIC_HOST:-localhost}:3779
       NUXT_PUBLIC_I18N_BASE_URL: http://${PUBLIC_HOST:-localhost}:3777
     ports:
-      - '3777:3777'
+      - '${BIND_ADDRESS:-127.0.0.1}:3777:3777'
     volumes:
       - ./front:/app
       # Kept apart from the prod one: an install made under NODE_ENV=production

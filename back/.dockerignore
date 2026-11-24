@@ -5,6 +5,8 @@ coverage
 
 # Secrets and local overrides — the compose file supplies the environment.
 .env
+.env.*
+!.env.example
 
 .git
 .vscode

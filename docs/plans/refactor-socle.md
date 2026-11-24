@@ -77,3 +77,20 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - 2026-11-24 — Worktree `C:\projets\menu-socle` on `refactor/socle`. Checklist
   `docs/best-practices.md` written (courses + verdure back checklist + house conventions).
   Plan written.
+- 2026-11-24 — M1 (back socle). Turned on: `noImplicitOverride`, `noFallthroughCasesInSwitch`,
+  `noImplicitReturns`, `noUnusedLocals`, `noUnusedParameters`; ESLint `no-floating-promises`,
+  `no-unsafe-argument` (were warnings), `eqeqeq` (null allowed), `no-console`.
+  **Deferred to the last back slice lot** (every occurrence must be fixed first, most are in `domain/`):
+  `noUncheckedIndexedAccess` (28 sites: user repository 5, grocery e2e 5, throttler guard 2 now fixed,
+  grocery report/mail 2, grocery job repository 2, target.service.test 2, one each in weight, weekPlan,
+  profile, improvementRequest, household, device, seeder test, customRecipe, customFood, bugReport
+  repositories), `exactOptionalPropertyTypes` (10 errors),
+  `@typescript-eslint/no-unnecessary-condition` (~35 errors), `no-non-null-assertion` (7),
+  `consistent-type-definitions` (fastify module augmentation in domain needs `interface`).
+  Candidate for deletion, not touched (prod is o2switch): `back/render.yaml`.
+  M1 review: `pnpm audit --prod` reports 56 vulnerabilities (27 high, mostly transitive through
+  fastify and apollo), so it is not wired into CI yet: needs a dependency-upgrade lot first. The
+  prod image keeps the full `node_modules` on purpose: `drizzle-kit` (a dev dependency) runs the
+  migrations in the entrypoint. `ops/deploy-o2switch.sh` (rewrites old addresses into `.env`) is a
+  deletion candidate with `back/render.yaml`. `ops/deploy.sh` does not poll `/health` after the
+  restart: the cron has no public API origin to poll and a new curl step must not be able to break it.

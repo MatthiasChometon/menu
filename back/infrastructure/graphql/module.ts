@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { depthLimit } from './depth-limit';
+import { formatGraphqlError } from '../errors/graphql-error';
 
 // Deep enough for every query the front sends (profile → targets → fields),
 // shallow enough that no one can walk a cycle into it later.
@@ -33,6 +34,10 @@ const MAX_QUERY_DEPTH = 8;
         validationRules: [depthLimit(MAX_QUERY_DEPTH)],
         // Errors reach the client without the stack trace that produced them.
         includeStacktraceInErrorResponses: false,
+        // The driver's own HttpException mapping knows four statuses; ours
+        // gives every status its stable code.
+        autoTransformHttpErrors: false,
+        formatError: formatGraphqlError,
         // Apollo's unbounded APQ cache is a documented memory-exhaustion vector,
         // and the front does not use persisted queries.
         persistedQueries: false,

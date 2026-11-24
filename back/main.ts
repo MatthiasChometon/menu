@@ -3,9 +3,11 @@
 // almost nothing. Its position is the point, not a tidiness preference.
 import './infrastructure/monitoring/instrument';
 import { createServer } from 'node:http';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
+import { listenPort, validateEnvironment } from './infrastructure/config/env';
 import { configureApp, createAdapter } from './infrastructure/http/setup';
 
 // Phusion Passenger, which is what the shared host runs, opens the listening
@@ -23,11 +25,24 @@ declare const PhusionPassenger: unknown;
 const underPassenger = (): boolean => typeof PhusionPassenger !== 'undefined';
 
 const bootstrap = async (): Promise<void> => {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter());
+  // Not through ConfigModule's validate hook: that one validates a copy taken when
+  // the module loads, and ConfigService then reads that copy instead of the live
+  // process.env. The .env file is already in process.env: the instrument import,
+  // first line of this file, loads it.
+  validateEnvironment(process.env);
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter(), {
+    // Nest aborts the process (SIGABRT) on a boot error unless told not to; the
+    // catch below is the single path that logs it and exits 1.
+    abortOnError: false,
+  });
   await configureApp(app);
+  // Lets SIGTERM (a deploy, a restart) close the database pool and finish the
+  // requests in flight instead of cutting them. Here only, never in configureApp:
+  // the e2e suite closes its own app.
+  app.enableShutdownHooks();
 
   if (!underPassenger()) {
-    await app.listen(process.env.PORT ?? 3779, '0.0.0.0');
+    await app.listen(listenPort(process.env), '0.0.0.0');
     return;
   }
 
@@ -42,4 +57,11 @@ const bootstrap = async (): Promise<void> => {
     fastify.routing(request, response);
   }).listen('passenger');
 };
-void bootstrap();
+
+bootstrap().catch((error: unknown): void => {
+  new Logger('Bootstrap').error(
+    'The server failed to start.',
+    error instanceof Error ? error.stack : String(error),
+  );
+  process.exit(1);
+});
