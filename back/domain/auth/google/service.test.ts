@@ -74,6 +74,15 @@ describe('when Google does not answer properly', () => {
     );
   });
 
+  it.each([408, 429])(
+    'reads a %i from Google as unavailable for now, not as a refusal',
+    async (status) => {
+      await expect(failingWith(replied(status)).profileFromCode('a-code')).rejects.toThrow(
+        ServiceUnavailableException,
+      );
+    },
+  );
+
   it('reads a Google outage as unavailable', async () => {
     await expect(failingWith(replied(503)).profileFromCode('a-code')).rejects.toThrow(
       ServiceUnavailableException,

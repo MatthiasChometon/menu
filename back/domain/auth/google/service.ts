@@ -18,6 +18,9 @@ const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 // Written against Google directly rather than through Passport: the passport
 // strategies are built around Express and rub against Fastify, for what amounts
 // to two HTTP calls.
+// Not a refusal of the code: Google asking to come back later.
+const TRY_AGAIN_STATUSES: ReadonlySet<number> = new Set([408, 429]);
+
 @Injectable()
 export class GoogleOAuth {
   private readonly logger = new Logger(GoogleOAuth.name);
@@ -102,7 +105,7 @@ export class GoogleOAuth {
     }
   }
 
-  // A refusal from Google (a 4xx) maps to "unauthorised". Google being down or
+  // A refusal from Google (a 4xx, bar 408 and 429, which mean "later") maps to "unauthorised". Google being down or
   // out of reach (no reply, a timeout, a 5xx) is not a refusal: the sign-in is
   // unavailable for now. Anything else is a fault of ours and goes to the global
   // filter unchanged.
@@ -113,7 +116,9 @@ export class GoogleOAuth {
     if (!isAxiosError(error)) return error instanceof Error ? error : new Error(String(error));
 
     const status = error.response?.status;
-    if (status !== undefined && status < 500) return new UnauthorizedException(message);
+    if (status !== undefined && status < 500 && !TRY_AGAIN_STATUSES.has(status)) {
+      return new UnauthorizedException(message);
+    }
 
     this.logger.warn(`Google unreachable or failing: ${error.code ?? 'no code'} ${status ?? ''}`);
     return new ServiceUnavailableException('Google could not be reached. Try again in a moment.');

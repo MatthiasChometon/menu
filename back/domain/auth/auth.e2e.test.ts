@@ -2,6 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
 import { user } from '../user/schema';
+import { PasswordService } from './emailAndPassword/password.service';
 import { GoogleOAuth } from './google/service';
 import { UserRepository } from '../user/repository';
 import { AuthTokenRepository, EMAIL_VERIFICATION } from './tokens/repository';
@@ -233,6 +234,18 @@ describe('asking for another link', () => {
 });
 
 describe('resetting a forgotten password', () => {
+  it('refuses a made-up token without hashing the new password', async () => {
+    const hash = vi.spyOn(api.resolve(PasswordService), 'hash');
+
+    const response = await api.post('/auth/reset-password', {
+      token: 'b'.repeat(64),
+      password: 'a-long-enough-password',
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(hash).not.toHaveBeenCalled();
+  });
+
   const NEW_PASSWORD = 'another-long-enough-password';
 
   const linkToken = (): string => {
@@ -478,6 +491,21 @@ describe('signing in with Google', () => {
     );
 
     expect(response.statusCode).toBe(400);
+  });
+
+  it('accepts the extra parameters Google really adds to the callback', async () => {
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+
+    const response = await api.get(
+      '/auth/google/callback?state=s&code=c&scope=email%20profile%20openid&authuser=0&prompt=consent&iss=https%3A%2F%2Faccounts.google.com',
+      'oauth_state=s',
+    );
+
+    expect(response.statusCode).toBe(302);
   });
 
   it('clears the state cookie even when the attempt fails', async () => {

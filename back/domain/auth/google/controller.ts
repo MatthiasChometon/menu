@@ -5,7 +5,6 @@ import {
   Query,
   Res,
   UnauthorizedException,
-  ValidationPipe,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AUTH_WINDOW_MS, GOOGLE_ATTEMPTS } from '../../../infrastructure/http/throttler.module';
@@ -18,7 +17,7 @@ import { SessionCookie } from '../currentUser/cookie';
 import { AuthService } from '../service';
 import { GoogleOAuth } from './service';
 import { frontUrl } from '../front-url';
-import { GoogleCallbackInput } from './input';
+import { plainText } from './plain-text.pipe';
 import { landingUrl } from './landing';
 import { EmailAllowlist } from '../allowlist.service';
 
@@ -58,11 +57,10 @@ export class GoogleController {
 
   @Get('callback')
   async callback(
-    // Google adds parameters of its own (scope, authuser, prompt...), which the
-    // app-wide pipe would refuse: here they are dropped, and only the two that
-    // matter are checked.
-    @Query(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false, transform: true }))
-    { code, state }: GoogleCallbackInput,
+    // Google adds parameters of its own (scope, authuser, prompt, iss...), so
+    // only the two that matter are read, each checked to be plain text.
+    @Query('code', plainText(2048)) code: string | undefined,
+    @Query('state', plainText(256)) state: string | undefined,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ): Promise<void> {
