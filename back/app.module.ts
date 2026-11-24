@@ -17,6 +17,7 @@ import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { ErrorsInfrastructureModule } from './infrastructure/errors/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
 import { HealthInfrastructureModule } from './infrastructure/http/health.module';
+import { BackgroundInfrastructureModule } from './infrastructure/background/module';
 import { MailInfrastructureModule } from './infrastructure/mail/module';
 import { PushInfrastructureModule } from './infrastructure/push/module';
 import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.module';
@@ -29,6 +30,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
     ThrottlerInfrastructureModule,
     HealthInfrastructureModule,
     DatabaseInfrastructureModule,
+    BackgroundInfrastructureModule,
     MailInfrastructureModule,
     PushInfrastructureModule,
     GraphqlInfrastructureModule,

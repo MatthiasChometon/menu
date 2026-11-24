@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MailService } from '../../infrastructure/mail/service';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 
 const ADMIN = 'matthias@example.com';
@@ -82,6 +83,7 @@ describe('reporting a problem', () => {
 
     await api.graphql(REPORT, reportOf('/', 'Le bouton de connexion ne répond pas.'), session);
 
+    await api.settled();
     const announcement = api.mails().at(-1);
     expect(api.mails().length).toBe(before + 1);
     expect(announcement?.to).toBe(ADMIN);
@@ -89,6 +91,57 @@ describe('reporting a problem', () => {
     // a notification list, not by opening every message.
     expect(announcement?.subject).toContain('Gênant');
     expect(announcement?.text).toContain('ne répond pas');
+  });
+
+  it('answers without waiting for the announcement to go out', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    // A mail server that stays silent until the test lets go of it: the reader
+    // must not be held waiting meanwhile.
+    let release: () => void = (): void => undefined;
+    const stuck = vi.spyOn(api.resolve(MailService), 'send').mockImplementation(
+      (): Promise<void> =>
+        new Promise<void>((resolve): void => {
+          release = resolve;
+        }),
+    );
+
+    try {
+      const response = await api.graphql<{ reportBug: { id: string } }>(
+        REPORT,
+        reportOf('/', 'Le serveur de mail ne répond plus.'),
+        session,
+      );
+
+      expect(response.errors).toBeUndefined();
+      expect(stuck).toHaveBeenCalled();
+    } finally {
+      release();
+      await api.settled();
+      stuck.mockRestore();
+    }
+  });
+
+  it('keeps the report when the announcement cannot be sent', async () => {
+    const session = await api.signUp(READER, PASSWORD);
+    const broken = vi
+      .spyOn(api.resolve(MailService), 'send')
+      .mockRejectedValue(new Error('connection refused'));
+
+    try {
+      const response = await api.graphql(
+        REPORT,
+        reportOf('/', 'Rien ne part vers le serveur.'),
+        session,
+      );
+      await api.settled();
+
+      expect(response.errors).toBeUndefined();
+    } finally {
+      broken.mockRestore();
+    }
+    const admin = await api.signUp(ADMIN, PASSWORD);
+    const list = await api.graphql<{ bugReports: unknown[] }>(LIST, undefined, admin);
+    expect(list.data?.bugReports).toHaveLength(1);
   });
 
   it('turns away somebody who is not signed in', async () => {
@@ -117,6 +170,7 @@ describe('when the same account keeps filing', () => {
       await api.graphql(REPORT, reportOf('/', `Un problème rencontré, numéro ${filed}.`), session);
     }
 
+    await api.settled();
     // Three notices, five reports. What is spammable here is attention, not
     // storage: silencing the mail costs nobody their words.
     expect(api.mails().length).toBe(before + 3);
@@ -131,6 +185,7 @@ describe('when the same account keeps filing', () => {
     await api.graphql(REPORT, reportOf('/', 'Le premier de la soirée.'), session);
     await api.graphql(REPORT, reportOf('/', 'Le deuxième de la soirée.'), session);
 
+    await api.settled();
     // The count is what still reports a flood once the cap has silenced the
     // messages that would have shown it.
     expect(api.mails().at(-1)?.text).toContain('24 h : 2');

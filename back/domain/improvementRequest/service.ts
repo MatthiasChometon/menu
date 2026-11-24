@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { BackgroundTasks } from '../../infrastructure/background/service';
 import { MailService } from '../../infrastructure/mail/service';
 import { Admins } from '../auth/admin/admins.service';
 import { User } from '../user/model';
@@ -25,6 +26,7 @@ export class ImprovementRequestService {
     private readonly requests: ImprovementRequestRepository,
     private readonly admins: Admins,
     private readonly mail: MailService,
+    private readonly background: BackgroundTasks,
   ) {}
 
   async request(
@@ -38,13 +40,39 @@ export class ImprovementRequestService {
       input.context,
     );
 
-    // Saved first, announced after — a failure to announce never loses the idea.
-    await this.announce(record, requester);
+    // Saved first, announced after and in the background: a failure to announce
+    // never loses the idea, and a slow mail server never holds the reader waiting.
+    // Whether to announce is decided here, before the next idea can change the
+    // counts; only the sending itself leaves the request.
+    const filedToday = await this.filedTodayIfAnnounced(record, requester);
+    if (filedToday !== undefined) {
+      this.background.run(
+        `Proposition ${record.id} enregistrée mais non annoncée`,
+        (): Promise<void> => this.announce(record, requester, filedToday),
+      );
+    }
 
     return record;
   }
 
-  private async announce(record: ImprovementRequestRecord, requester: User): Promise<void> {
+  /** How many this account filed in 24 h, or undefined when the notice stays quiet. */
+  private async filedTodayIfAnnounced(
+    record: ImprovementRequestRecord,
+    requester: User,
+  ): Promise<number | undefined> {
+    try {
+      return await this.countIfWithinCaps(record, requester);
+    } catch (error: unknown) {
+      // The idea is saved: not being able to count must not take it back.
+      this.logger.error(`Proposition ${record.id} enregistrée mais non comptée`, error);
+      return undefined;
+    }
+  }
+
+  private async countIfWithinCaps(
+    record: ImprovementRequestRecord,
+    requester: User,
+  ): Promise<number | undefined> {
     const now = Date.now();
     const filedToday = await this.requests.countSince(requester.id, new Date(now - DAY_MS));
     const filedThisHour = await this.requests.countSince(requester.id, new Date(now - HOUR_MS));
@@ -55,9 +83,17 @@ export class ImprovementRequestService {
       this.logger.warn(
         `Proposition ${record.id} enregistrée sans notification : ${filedToday} en 24 h pour ${requester.email}`,
       );
-      return;
+      return undefined;
     }
 
+    return filedToday;
+  }
+
+  private async announce(
+    record: ImprovementRequestRecord,
+    requester: User,
+    filedToday: number,
+  ): Promise<void> {
     for (const admin of this.admins.recipients) {
       try {
         await this.mail.send(

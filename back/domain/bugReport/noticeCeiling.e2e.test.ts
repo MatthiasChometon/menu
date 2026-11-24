@@ -20,6 +20,7 @@ const reportOf = (message: string): object => ({
 });
 
 let api: TestApp;
+const previousCeiling = process.env.BUG_NOTICES_PER_HOUR;
 
 beforeAll(async (): Promise<void> => {
   // Its own file because the ceiling is read when the app is built, and the
@@ -32,7 +33,8 @@ beforeAll(async (): Promise<void> => {
 
 afterAll(async (): Promise<void> => {
   await api.close();
-  process.env.BUG_NOTICES_PER_HOUR = '1000';
+  if (previousCeiling === undefined) delete process.env.BUG_NOTICES_PER_HOUR;
+  else process.env.BUG_NOTICES_PER_HOUR = previousCeiling;
 });
 
 beforeEach(async (): Promise<void> => {
@@ -52,6 +54,8 @@ describe('the ceiling that counts nobody in particular', () => {
     const other = await api.signUp(SECOND, PASSWORD);
     const before = api.mails().length;
     await api.graphql(REPORT, reportOf('Le premier problème de quelqu un d autre.'), other);
+
+    await api.settled();
 
     expect(api.mails().length).toBe(before);
   });
