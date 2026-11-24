@@ -1,13 +1,11 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
-import type { Database } from '../database/token';
 import { HealthController } from './health.controller';
 
-const databaseAnswering = (outcome: 'up' | 'down'): Database =>
-  ({
-    execute: (): Promise<unknown> =>
-      outcome === 'up' ? Promise.resolve([]) : Promise.reject(new Error('connection refused')),
-  }) as unknown as Database;
+const databaseAnswering = (outcome: 'up' | 'down'): { execute: () => Promise<unknown> } => ({
+  execute: (): Promise<unknown> =>
+    outcome === 'up' ? Promise.resolve([]) : Promise.reject(new Error('connection refused')),
+});
 
 describe('the health checks', () => {
   it('reports the process alive without asking the database', () => {

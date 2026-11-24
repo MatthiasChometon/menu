@@ -5,11 +5,13 @@ const EMAIL = 'matthias@example.com';
 const PASSWORD = 'a-long-enough-password';
 
 let api: TestApp;
+let previousThrottleSkip: string | undefined;
 
 beforeAll(async (): Promise<void> => {
   // The rest of the suite runs with the limiter off so it can sign in freely.
   // This file is the one that checks the limiter, so it arms it — read at app
   // creation, which is why it can be set here rather than in the vitest config.
+  previousThrottleSkip = process.env.THROTTLE_SKIP;
   process.env.THROTTLE_SKIP = 'false';
   api = await startTestApp();
 });
@@ -19,7 +21,8 @@ afterAll(async (): Promise<void> => {
   // Put it back: the worker's environment outlives this file, and leaving the
   // limiter armed makes a later file fail on requests its own subject never
   // covered.
-  process.env.THROTTLE_SKIP = 'true';
+  if (previousThrottleSkip === undefined) delete process.env.THROTTLE_SKIP;
+  else process.env.THROTTLE_SKIP = previousThrottleSkip;
 });
 
 beforeEach(async (): Promise<void> => {

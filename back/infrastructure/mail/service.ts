@@ -19,7 +19,7 @@ export class MailService {
       // A local checkout with no mail server still has to be usable, and the
       // link still has to be reachable — so it goes where the developer is
       // already looking. Production refuses to boot in this state instead.
-      this.logger.log(`Mail non envoyé (aucun serveur configuré) — ${message.subject}`);
+      this.logger.log(`Mail not sent (no mail server configured) — ${message.subject}`);
       this.logger.log(message.text);
       return;
     }

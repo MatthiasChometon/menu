@@ -1,9 +1,12 @@
 import { Controller, Get, Inject, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
-import { sql } from 'drizzle-orm';
-import { DATABASE, type Database } from '../database/token';
+import { sql, type SQL } from 'drizzle-orm';
+import { DATABASE } from '../database/token';
 
 type HealthReport = { status: 'ok' };
+
+// All readiness needs from the database: it can run a statement.
+type Probe = { execute: (query: SQL) => PromiseLike<unknown> };
 
 // The platform decides whether the service is alive by asking it, and it wants a
 // 2xx. Pointing that question at /graphql answered 400, because a GET with no
@@ -14,7 +17,7 @@ type HealthReport = { status: 'ok' };
 export class HealthController {
   private readonly logger = new Logger(HealthController.name);
 
-  constructor(@Inject(DATABASE) private readonly database: Database) {}
+  constructor(@Inject(DATABASE) private readonly database: Probe) {}
 
   // Liveness: the process is up and serving, and the database is not asked. A
   // failed liveness check restarts the service, so tying it to the database
