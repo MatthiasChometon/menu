@@ -30,16 +30,18 @@ export class GroceryCatalogRepository {
       return;
     }
 
-    await Promise.all(
-      sightings.map((sighting) =>
-        this.database
+    // All or none: a run's prices are one report, and half of it applied would
+    // read as prices the shop never showed together.
+    await this.database.transaction(async (transaction): Promise<void> => {
+      for (const sighting of sightings) {
+        await transaction
           .update(groceryProduct)
           .set({ name: sighting.name, priceCents: sighting.priceCents, observedAt: new Date() })
           .where(
             and(eq(groceryProduct.foodId, sighting.foodId), eq(groceryProduct.ean, sighting.ean)),
-          ),
-      ),
-    );
+          );
+      }
+    });
   }
 
   // One statement rather than one per product: a run reports the whole basket

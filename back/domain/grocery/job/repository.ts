@@ -4,10 +4,18 @@ import { insertedRow } from '../../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
 import { basketRowsOf } from '../basket/rows';
 import { groceryBasketLine } from '../basket/schema';
-import { GroceryJobStatus } from '../enum';
+import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { groceryJob, groceryJobEvent } from './schema';
-import { JobClosing, NewJob, ReportedEvent } from './type';
+import {
+  ClosedJob,
+  EventRecord,
+  JobClosing,
+  JobRecord,
+  NewJob,
+  ReportedEvent,
+  JobEventDetails,
+} from './type';
 
 @Injectable()
 export class GroceryJobRepository {
@@ -16,27 +24,25 @@ export class GroceryJobRepository {
   // The job and its basket go in together: a run with no lines would be
   // picked up by a browser and fill an empty basket.
   async create(input: NewJob): Promise<GroceryJob> {
-    const record = await this.database.transaction(
-      async (transaction): Promise<typeof groceryJob.$inferSelect> => {
-        const created = insertedRow(
-          await transaction
-            .insert(groceryJob)
-            .values({
-              userId: input.userId,
-              weekOf: input.weekOf,
-              status: GroceryJobStatus.PENDING,
-              alertThresholdCents: input.alertThresholdCents ?? null,
-            })
-            .returning(),
-        );
+    const record = await this.database.transaction(async (transaction): Promise<JobRecord> => {
+      const created = insertedRow(
+        await transaction
+          .insert(groceryJob)
+          .values({
+            userId: input.userId,
+            weekOf: input.weekOf,
+            status: GroceryJobStatus.PENDING,
+            alertThresholdCents: input.alertThresholdCents ?? null,
+          })
+          .returning(),
+      );
 
-        if (input.lines.length > 0) {
-          await transaction.insert(groceryBasketLine).values(basketRowsOf(created.id, input.lines));
-        }
+      if (input.lines.length > 0) {
+        await transaction.insert(groceryBasketLine).values(basketRowsOf(created.id, input.lines));
+      }
 
-        return created;
-      },
-    );
+      return created;
+    });
 
     return this.toJob(record, []);
   }
@@ -85,38 +91,50 @@ export class GroceryJobRepository {
     return record === undefined ? undefined : this.toJob(record, []);
   }
 
-  // Reported by the browser that claimed the run, so the run is checked to be
-  // its own before anything is written: a token alone must not let one browser
-  // write into another one's history.
+  // Reported by the browser that claimed the run, while the run is still its
+  // to work on: one statement checks that and writes, so a run closed or a
+  // browser unpaired in between cannot slip an event into somebody's history.
   async appendEvent(
     jobId: string,
     deviceId: string,
     event: ReportedEvent,
   ): Promise<GroceryJobEvent | undefined> {
-    const [owned] = await this.database
-      .select({ id: groceryJob.id })
-      .from(groceryJob)
-      .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)));
-
-    if (owned === undefined) {
-      return undefined;
-    }
-
     const { kind, ...details } = event;
     const records = await this.database
       .insert(groceryJobEvent)
-      .values({ jobId, kind, payload: details })
+      .select(
+        this.database
+          .select({
+            id: sql<string>`gen_random_uuid()`.as('id'),
+            jobId: groceryJob.id,
+            kind: sql<GroceryJobEventKind>`${kind}::text`.as('kind'),
+            payload: sql<JobEventDetails>`${JSON.stringify(details)}::jsonb`.as('payload'),
+            at: sql<Date>`now()`.as('at'),
+          })
+          .from(groceryJob)
+          .where(
+            and(
+              eq(groceryJob.id, jobId),
+              eq(groceryJob.deviceId, deviceId),
+              eq(groceryJob.status, GroceryJobStatus.RUNNING),
+            ),
+          ),
+      )
       .returning();
 
-    return this.toEvent(insertedRow(records));
+    return records.length === 0 ? undefined : this.toEvent(insertedRow(records));
   }
 
+  // Only a run being worked on can be closed. A second close, which the browser
+  // sends when it retries after losing the answer to the first, finds the run
+  // already closed and gets it back as it was stored, never rewritten.
   async finish(
     jobId: string,
     deviceId: string,
     closing: JobClosing,
-  ): Promise<GroceryJob | undefined> {
-    const [record] = await this.database
+  ): Promise<ClosedJob | undefined> {
+    const ownedByDevice = and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId));
+    const [closed] = await this.database
       .update(groceryJob)
       .set({
         status: closing.status,
@@ -125,14 +143,20 @@ export class GroceryJobRepository {
         deliveryFeesCents: closing.deliveryFeesCents ?? null,
         shortOfMinimumCents: closing.shortOfMinimumCents ?? null,
       })
-      .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)))
+      .where(and(ownedByDevice, eq(groceryJob.status, GroceryJobStatus.RUNNING)))
       .returning();
 
+    const [record] =
+      closed === undefined
+        ? await this.database.select().from(groceryJob).where(ownedByDevice)
+        : [closed];
     if (record === undefined) {
       return undefined;
     }
 
-    return this.toJob(record, await this.eventsOf(record.id));
+    const job = this.toJob(record, await this.eventsOf(record.id));
+
+    return { job, justClosed: closed !== undefined };
   }
 
   private async eventsOf(jobId: string): Promise<GroceryJobEvent[]> {
@@ -145,7 +169,7 @@ export class GroceryJobRepository {
     return records.map((record): GroceryJobEvent => this.toEvent(record));
   }
 
-  private toJob(record: typeof groceryJob.$inferSelect, events: GroceryJobEvent[]): GroceryJob {
+  private toJob(record: JobRecord, events: GroceryJobEvent[]): GroceryJob {
     return {
       id: record.id,
       weekOf: record.weekOf,
@@ -168,7 +192,7 @@ export class GroceryJobRepository {
     };
   }
 
-  private toEvent(record: typeof groceryJobEvent.$inferSelect): GroceryJobEvent {
+  private toEvent(record: EventRecord): GroceryJobEvent {
     const details = record.payload ?? {};
 
     return {

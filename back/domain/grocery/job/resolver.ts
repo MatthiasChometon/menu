@@ -7,22 +7,18 @@ import { CurrentDevice } from '../device/current-device';
 import { GroceryDeviceGuard } from '../device/guard';
 import { type AuthenticatedDevice } from '../device/type';
 import { GroceryJobStatus } from '../enum';
+import { GroceryService } from '../service';
 import { CreateGroceryJobInput, GroceryJobEventInput, GroceryJobOutcomeInput } from './input';
 import { GroceryJob, GroceryJobEvent } from './model';
-import { GroceryJobRepository } from './repository';
-import { GroceryService } from '../service';
 
 @Resolver(() => GroceryJob)
 export class GroceryJobResolver {
-  constructor(
-    private readonly jobs: GroceryJobRepository,
-    private readonly grocery: GroceryService,
-  ) {}
+  constructor(private readonly grocery: GroceryService) {}
 
   @Query(() => [GroceryJob], { description: 'Every run this account has asked for, newest first.' })
   @UseGuards(AuthGuard)
   async myGroceryJobs(@CurrentUser() user: User): Promise<GroceryJob[]> {
-    return this.jobs.listForUser(user.id);
+    return this.grocery.history(user.id);
   }
 
   @Query(() => GroceryJob, {

@@ -1,6 +1,8 @@
 import { BasketLine } from '../basket/type';
 import { ObservedSighting } from '../catalog/type';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
+import { GroceryJob } from './model';
+import type { groceryJob, groceryJobEvent } from './schema';
 
 export type JobEventDetails = {
   foodId?: string;
@@ -38,3 +40,10 @@ export type NewJob = {
   alertThresholdCents?: number;
   lines: BasketLine[];
 };
+
+export type JobRecord = typeof groceryJob.$inferSelect;
+
+export type EventRecord = typeof groceryJobEvent.$inferSelect;
+
+/** The run as stored, and whether this very call is the one that closed it. */
+export type ClosedJob = { job: GroceryJob; justClosed: boolean };

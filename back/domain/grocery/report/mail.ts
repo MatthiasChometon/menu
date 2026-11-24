@@ -3,9 +3,7 @@ import { MailMessage } from '../../../infrastructure/mail/token';
 import { GroceryJobStatus } from '../enum';
 import { GroceryJob } from '../job/model';
 import { shortfallsOf } from '../job/utils';
-
-const euros = (cents: number | undefined): string =>
-  cents === undefined ? '—' : `${(cents / 100).toFixed(2).replace('.', ',')} €`;
+import { euros } from './utils';
 
 // Anything that came from the shop is escaped: a product name is text the shop
 // wrote, and it lands in an HTML document.

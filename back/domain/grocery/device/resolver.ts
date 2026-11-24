@@ -8,7 +8,7 @@ import { GroceryDeviceGuard } from './guard';
 import { GroceryDevice, PairedGroceryDevice } from './model';
 import { GroceryDeviceRepository } from './repository';
 import { DeviceTokenService } from './token.service';
-import { AuthenticatedDevice } from './type';
+import { type AuthenticatedDevice } from './type';
 
 @Resolver(() => GroceryDevice)
 export class GroceryDeviceResolver {
@@ -54,11 +54,9 @@ export class GroceryDeviceResolver {
   })
   @UseGuards(GroceryDeviceGuard)
   async reportCarrefourSession(
-    @CurrentDevice() device: AuthenticatedDevice | undefined,
+    @CurrentDevice() device: AuthenticatedDevice,
     @Args('signedIn') signedIn: boolean,
   ): Promise<boolean> {
-    if (device === undefined) return false;
-
     await this.devices.reportCarrefourSession(device.id, signedIn);
     return true;
   }

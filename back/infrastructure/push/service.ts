@@ -3,6 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import { sendNotification, setVapidDetails, WebPushError } from 'web-push';
 import { PushDelivery, PushRecipient } from './type';
 
+// A push service that does not answer must not hold the caller: well under
+// the time a browser waits for the request that triggered the push.
+const PUSH_TIMEOUT_MS = 5000;
+
 @Injectable()
 export class PushService {
   private readonly logger = new Logger(PushService.name);
@@ -20,7 +24,9 @@ export class PushService {
     const results = await Promise.all(
       recipients.map(async (recipient): Promise<string | undefined> => {
         try {
-          await sendNotification(recipient, JSON.stringify(delivery));
+          await sendNotification(recipient, JSON.stringify(delivery), {
+            timeout: PUSH_TIMEOUT_MS,
+          });
           return undefined;
         } catch (error: unknown) {
           if (
