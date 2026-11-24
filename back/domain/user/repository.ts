@@ -90,20 +90,7 @@ export class UserRepository {
     const records = await this.database
       .insert(user)
       .values({ googleId, email, name: name ?? null, emailVerifiedAt: new Date() })
-      .onConflictDoUpdate({
-        target: user.email,
-        set: {
-          googleId,
-          name: sql`coalesce("user"."name", excluded."name")`,
-          // Google vouches for the address, so signing in through it settles the
-          // verification a password account was still waiting on...
-          emailVerifiedAt: sql`coalesce("user"."email_verified_at", now())`,
-          // ...and drops a password set while the address was unproven: whoever
-          // typed it never owned the mailbox, and keeping it would hand them the
-          // account of the person who just proved they do.
-          passwordHash: sql`case when "user"."email_verified_at" is null then null else "user"."password_hash" end`,
-        },
-      })
+
       .returning({ ...getTableColumns(user), isNew: sql<boolean>`("user".xmax = 0)` });
 
     const { isNew, ...record } = insertedRow(records);
