@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-const reasonOf = (error: unknown): string =>
-  error instanceof Error ? error.message : 'unknown error';
+import { reasonOf } from '../errors/reason';
+
+// Longer than a mail (10 s x 3 phases, per admin) or a push (5 s) takes; past it,
+// shutting down matters more than a task that is stuck.
+export const SETTLE_CEILING_MS = 60_000;
 
 /**
  * Work that happens after the response has gone: an announcement mail, a push.
@@ -22,13 +25,28 @@ export class BackgroundTasks {
   }
 
   /**
-   * Resolves once everything handed to `run` has finished or given up. The
+   * Resolves once everything handed to `run` has finished or given up, or after
+   * `ceilingMs`, logged, so one stuck task cannot hold the shutdown forever. The
    * database module awaits it before closing the pool: Nest ends the pool in
    * onModuleDestroy, ahead of both shutdown hooks, so draining any later would
    * find the database gone.
    */
-  async settled(): Promise<void> {
-    await Promise.all(this.inFlight);
+  async settled(ceilingMs: number = SETTLE_CEILING_MS): Promise<void> {
+    let timer: NodeJS.Timeout | undefined;
+    const ceiling = new Promise<'ceiling'>((resolve): void => {
+      timer = setTimeout((): void => resolve('ceiling'), ceilingMs);
+    });
+
+    const outcome = await Promise.race([
+      Promise.all(this.inFlight).then((): 'done' => 'done'),
+      ceiling,
+    ]);
+    clearTimeout(timer);
+    if (outcome === 'ceiling') {
+      this.logger.error(
+        `${this.inFlight.size} background task(s) still running after ${ceilingMs} ms.`,
+      );
+    }
   }
 
   private async withoutFailing(label: string, work: () => Promise<void>): Promise<void> {

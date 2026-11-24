@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BackgroundTasks } from '../../../infrastructure/background/service';
+import { reasonOf } from '../../../infrastructure/errors/reason';
 import { MailService } from '../../../infrastructure/mail/service';
 import { PushService } from '../../../infrastructure/push/service';
 import { UserRepository } from '../../user/repository';
@@ -11,9 +12,6 @@ import { GroceryReportMail } from './mail';
 import { euros } from './utils';
 
 const DEFAULT_BASKET_URL = 'https://www.carrefour.fr/courses';
-
-const reasonOf = (error: unknown): string =>
-  error instanceof Error ? error.message : 'unknown error';
 
 @Injectable()
 export class GroceryReportNotifier {
@@ -31,9 +29,9 @@ export class GroceryReportNotifier {
 
   // Told once the run is closed, whatever became of it: a run that stopped for
   // a captcha is exactly the one somebody needs to hear about. It goes out in
-  // the background, so a slow mail server cannot hold the browser waiting.
+  // the background, so a slow mail server cannot hold the browser waiting. The
+  // work is already done: a report that cannot be sent must lose nothing.
   tell(userId: string, job: GroceryJob): void {
-    // The work is already done: a report that cannot be sent must lose nothing.
     this.background.run(`Could not tell user ${userId} about job ${job.id}`, () =>
       this.sendReport(userId, job),
     );

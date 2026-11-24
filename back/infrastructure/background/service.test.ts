@@ -47,4 +47,18 @@ describe('background tasks', () => {
 
     expect(finished).toBe(true);
   });
+
+  it('gives up on a task that never ends, and says so', async () => {
+    vi.useFakeTimers();
+    const logged = vi.spyOn(Logger.prototype, 'error').mockImplementation((): void => undefined);
+    const tasks = new BackgroundTasks();
+    tasks.run('stuck', (): Promise<void> => new Promise<void>((): void => undefined));
+
+    const waiting = tasks.settled(1000);
+    await vi.advanceTimersByTimeAsync(1000);
+
+    await expect(waiting).resolves.toBeUndefined();
+    expect(logged).toHaveBeenCalledWith('1 background task(s) still running after 1000 ms.');
+    vi.useRealTimers();
+  });
 });
