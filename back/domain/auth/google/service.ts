@@ -15,12 +15,12 @@ const AUTHORISE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 
-// Written against Google directly rather than through Passport: the passport
-// strategies are built around Express and rub against Fastify, for what amounts
-// to two HTTP calls.
 // Not a refusal of the code: Google asking to come back later.
 const TRY_AGAIN_STATUSES: ReadonlySet<number> = new Set([408, 429]);
 
+// Written against Google directly rather than through Passport: the passport
+// strategies are built around Express and rub against Fastify, for what amounts
+// to two HTTP calls.
 @Injectable()
 export class GoogleOAuth {
   private readonly logger = new Logger(GoogleOAuth.name);
@@ -105,10 +105,10 @@ export class GoogleOAuth {
     }
   }
 
-  // A refusal from Google (a 4xx, bar 408 and 429, which mean "later") maps to "unauthorised". Google being down or
-  // out of reach (no reply, a timeout, a 5xx) is not a refusal: the sign-in is
-  // unavailable for now. Anything else is a fault of ours and goes to the global
-  // filter unchanged.
+  // A refusal from Google (a 4xx, bar 408 and 429, which mean "later") maps to
+  // "unauthorised". Google being down or out of reach (no reply, a timeout, a
+  // 5xx) is not a refusal: the sign-in is unavailable for now. Anything else is
+  // a fault of ours and goes to the global filter unchanged.
   //
   // Only the code of the failure is logged: the request carries the
   // authorisation code, the client secret and the access token.
