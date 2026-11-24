@@ -28,3 +28,13 @@ describe('PasswordService', () => {
     await expect(service.verify('whatever', 'not-a-real-hash')).resolves.toBe(false);
   });
 });
+
+describe('PasswordService.pretendToVerify', () => {
+  it('does the work of a real check, so an unknown address cannot be timed out', async () => {
+    const started = performance.now();
+    await service.pretendToVerify('whatever');
+
+    // One scrypt derivation takes milliseconds, never zero.
+    expect(performance.now() - started).toBeGreaterThan(1);
+  });
+});

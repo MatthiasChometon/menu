@@ -8,6 +8,7 @@ import { PasswordService } from './emailAndPassword/password.service';
 import { LoginInput, RegisterInput } from './emailAndPassword/input';
 import { EmailVerificationService } from './emailVerification/service';
 import { ConfigService } from '@nestjs/config';
+import { frontUrl } from './front-url';
 import { MailService } from '../../infrastructure/mail/service';
 import { accountExistsEmail } from './emailAndPassword/emails';
 
@@ -42,23 +43,32 @@ export class AuthService {
     // no longer is.
     const passwordHash = await this.passwords.hash(password);
 
-    const existing = await this.users.findRecordByEmail(email);
-    if (existing !== undefined) {
-      // The same 202 a real sign-up gets — telling a stranger the address is
-      // taken is exactly the account list not to hand out. The one thing that
-      // differs is a note to the address's real owner, saying somebody tried
-      // and what to do if it was them.
-      const front = this.config.getOrThrow<string>('FRONT_URL').replace(/\/+$/, '');
-      await this.mail.send(accountExistsEmail(existing.email, existing.locale, front));
+    // The unique key decides, not a look beforehand: two sign-ups of one
+    // address sent together would both pass a check and one would then fail
+    // with an error that gives the address away.
+    const record = await this.users.create(email, passwordHash, name, locale);
+    if (record === undefined) {
+      await this.warnOwner(email);
       return;
     }
-
-    const record = await this.users.create(email, passwordHash, name, locale);
 
     // No session comes back from here. Handing one out would make the
     // verification decorative: anybody could open an account on somebody
     // else's address and use it while the real owner deleted the mail.
     await this.verification.send(record.id, record.email, record.locale);
+  }
+
+  // The same 202 a real sign-up gets: telling a stranger the address is taken is
+  // exactly the account list not to hand out. The one thing that differs is a
+  // note to the address's real owner, saying somebody tried and what to do if it
+  // was them.
+  private async warnOwner(email: string): Promise<void> {
+    const existing = await this.users.findRecordByEmail(email);
+    if (existing === undefined) return;
+
+    await this.mail.send(
+      accountExistsEmail(existing.email, existing.locale, frontUrl(this.config)),
+    );
   }
 
   async login({ email, password }: LoginInput): Promise<User> {
@@ -67,6 +77,7 @@ export class AuthService {
     // One message for both branches: saying which one failed would tell an
     // attacker whether the address has an account.
     if (record?.passwordHash === undefined || record.passwordHash === null) {
+      await this.passwords.pretendToVerify(password);
       throw new UnauthorizedException('Wrong email or password.');
     }
     if (!(await this.passwords.verify(password, record.passwordHash))) {
