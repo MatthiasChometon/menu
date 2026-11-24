@@ -1,4 +1,4 @@
-import { Injectable, Logger, type OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, Logger, type BeforeApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '../../../infrastructure/mail/service';
 import { PushService } from '../../../infrastructure/push/service';
@@ -15,7 +15,7 @@ const reasonOf = (error: unknown): string =>
   error instanceof Error ? error.message : 'unknown error';
 
 @Injectable()
-export class GroceryReportNotifier implements OnApplicationShutdown {
+export class GroceryReportNotifier implements BeforeApplicationShutdown {
   private readonly logger = new Logger(GroceryReportNotifier.name);
   private readonly inFlight = new Set<Promise<void>>();
 
@@ -44,8 +44,9 @@ export class GroceryReportNotifier implements OnApplicationShutdown {
   }
 
   // A report still on its way when the server stops would be lost: wait for it,
-  // as long as the mail and push timeouts allow.
-  async onApplicationShutdown(): Promise<void> {
+  // as long as the mail and push timeouts allow. Before, not after: Nest closes
+  // the database pool in onModuleDestroy, which runs before onApplicationShutdown.
+  async beforeApplicationShutdown(): Promise<void> {
     await this.settled();
   }
 

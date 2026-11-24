@@ -43,7 +43,7 @@ describe('background tasks', () => {
       await Promise.resolve();
       finished = true;
     });
-    await tasks.onApplicationShutdown();
+    await tasks.beforeApplicationShutdown();
 
     expect(finished).toBe(true);
   });
