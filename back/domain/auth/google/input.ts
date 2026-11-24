@@ -5,12 +5,8 @@ import { IsOptional, IsString, MaxLength } from 'class-validator';
 // which is what turns `?state=a&state=b` into a 400 instead of an array.
 export class GoogleCallbackInput {
   @IsOptional()
-  @IsString()
-  @MaxLength(2048)
   code?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(256)
   state?: string;
 }

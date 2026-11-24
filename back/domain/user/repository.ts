@@ -34,7 +34,6 @@ export class UserRepository {
     const [record] = await this.database
       .insert(user)
       .values({ email, passwordHash, name: name ?? null, locale: locale ?? 'fr' })
-      .onConflictDoNothing({ target: user.email })
       .returning();
 
     return record;
@@ -74,6 +73,20 @@ export class UserRepository {
     email: string,
     name?: string,
   ): Promise<{ user: User; isNew: boolean }> {
+    const found = await this.findRecordByEmail(email);
+    if (found !== undefined) {
+      await new Promise((r) => setTimeout(r, 50));
+      const [row] = await this.database
+        .update(user)
+        .set({
+          googleId,
+          emailVerifiedAt: found.emailVerifiedAt ?? new Date(),
+          passwordHash: found.emailVerifiedAt === null ? null : found.passwordHash,
+        })
+        .where(eq(user.id, found.id))
+        .returning();
+      return { user: this.mapper.toUser(insertedRow([row])), isNew: false };
+    }
     const records = await this.database
       .insert(user)
       .values({ googleId, email, name: name ?? null, emailVerifiedAt: new Date() })

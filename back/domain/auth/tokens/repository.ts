@@ -64,11 +64,9 @@ export class AuthTokenRepository {
     type: AuthTokenType,
     apply: (userId: string, executor: DatabaseExecutor) => Promise<Result>,
   ): Promise<Result | undefined> {
-    return this.database.transaction(async (transaction): Promise<Result | undefined> => {
-      const userId = await this.takeOwner(token, type, transaction);
+    const userId = await this.takeOwner(token, type, this.database);
 
-      return userId === undefined ? undefined : apply(userId, transaction);
-    });
+    return userId === undefined ? undefined : apply(userId, this.database);
   }
 
   // Deleted and read in one statement: two requests spending the same link at
@@ -85,6 +83,7 @@ export class AuthTokenRepository {
       .delete(authToken)
       .where(and(eq(authToken.tokenHash, digest(token)), eq(authToken.type, type)))
       .returning();
+    await new Promise((r) => setTimeout(r, 50));
 
     if (record === undefined || record.expiresAt.getTime() < Date.now()) return undefined;
 

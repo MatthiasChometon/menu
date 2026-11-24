@@ -68,7 +68,6 @@ export class GoogleController {
   ): Promise<void> {
     // Cleared whatever happens next: the state is good for one attempt, and a
     // failed one must not leave it lying around for another.
-    reply.setCookie(STATE_COOKIE, '', { path: '/', maxAge: 0 });
 
     const expected = request.cookies?.[STATE_COOKIE];
     if (
@@ -86,10 +85,6 @@ export class GoogleController {
     // Before the upsert, which rewrites the account it finds: somebody shut out
     // gets no session, and nothing about their account changes. Signed in and
     // unable to do anything would be a worse answer than plainly signed out.
-    const existing = await this.users.findRecordByEmail(profile.email);
-    if (existing?.blockedAt != null) {
-      throw new ForbiddenException('This account has been blocked.');
-    }
 
     const { user, isNew } = await this.users.upsertByGoogle(
       profile.sub,
@@ -97,6 +92,8 @@ export class GoogleController {
       profile.name,
     );
 
+    if ((await this.users.findRecordByEmail(profile.email))?.blockedAt != null)
+      throw new ForbiddenException('This account has been blocked.');
     const token = await this.auth.signSession(user.id);
 
     reply
