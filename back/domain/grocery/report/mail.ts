@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { MailMessage } from '../../../infrastructure/mail/token';
-import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
+import { GroceryJobStatus } from '../enum';
 import { GroceryJob } from '../job/model';
+import { shortfallsOf } from '../job/utils';
 
 const euros = (cents: number | undefined): string =>
   cents === undefined ? '—' : `${(cents / 100).toFixed(2).replace('.', ',')} €`;
@@ -15,15 +16,14 @@ const escaped = (text: string): string =>
 export class GroceryReportMail {
   build(to: string, job: GroceryJob, basketUrl: string): MailMessage {
     const attention = this.attentionOf(job);
-    const shortfalls = job.events.filter(
-      (event): boolean =>
-        event.kind === GroceryJobEventKind.LINE_MISSING ||
-        event.kind === GroceryJobEventKind.LINE_SUBSTITUTED,
-    );
-
-    const lines = [
+    const shortfalls = shortfallsOf(job.events);
+    const summary = [
       `Courses : ${euros(job.productsCents)}`,
       `Livraison : ${euros(job.deliveryFeesCents)}`,
+    ];
+
+    const lines = [
+      ...summary,
       ...attention,
       shortfalls.length === 0
         ? 'Rien à signaler sur les produits.'
@@ -41,7 +41,7 @@ export class GroceryReportMail {
       subject: this.subjectOf(job, attention.length > 0),
       text: lines.join('\n'),
       html: `<div style="font-family:system-ui,sans-serif;line-height:1.5">
-  <p>${escaped(lines[0])}<br>${escaped(lines[1])}</p>
+  <p>${summary.map(escaped).join('<br>')}</p>
   ${attention.map((note): string => `<p style="font-weight:600">${escaped(note)}</p>`).join('')}
   <ul>${shortfalls
     .map(

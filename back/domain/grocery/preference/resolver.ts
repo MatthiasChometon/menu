@@ -23,8 +23,6 @@ export class GroceryPreferenceResolver {
     @CurrentUser() user: User,
     @Args('input') input: GroceryPreferenceInput,
   ): Promise<GroceryPreference> {
-    await this.preferences.save(user.id, input.alertThresholdCents);
-
-    return this.preferences.forUser(user.id);
+    return this.preferences.save(user.id, input.alertThresholdCents);
   }
 }

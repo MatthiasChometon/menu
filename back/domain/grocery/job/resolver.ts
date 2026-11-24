@@ -1,4 +1,4 @@
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../../auth/currentUser/current-user';
 import { AuthGuard } from '../../auth/currentUser/guard';
@@ -32,7 +32,7 @@ export class GroceryJobResolver {
   @UseGuards(AuthGuard)
   async groceryJob(
     @CurrentUser() user: User,
-    @Args('jobId', { type: () => ID }) jobId: string,
+    @Args('jobId', { type: () => ID }, ParseUUIDPipe) jobId: string,
   ): Promise<GroceryJob | undefined> {
     return this.grocery.detail(user.id, jobId);
   }
@@ -64,37 +64,27 @@ export class GroceryJobResolver {
   @UseGuards(GroceryDeviceGuard)
   async reportGroceryJobEvent(
     @CurrentDevice() device: AuthenticatedDevice,
-    @Args('jobId', { type: () => ID }) jobId: string,
+    @Args('jobId', { type: () => ID }, ParseUUIDPipe) jobId: string,
     @Args('input') input: GroceryJobEventInput,
   ): Promise<GroceryJobEvent> {
-    const event = await this.jobs.appendEvent(jobId, device.id, input);
-    if (event === undefined) {
-      throw new NotFoundException();
-    }
-
-    return event;
+    return this.grocery.reportEvent(jobId, device.id, input);
   }
 
   @Mutation(() => GroceryJob, { description: 'Closes a run, whatever became of it.' })
   @UseGuards(GroceryDeviceGuard)
   async finishGroceryJob(
     @CurrentDevice() device: AuthenticatedDevice,
-    @Args('jobId', { type: () => ID }) jobId: string,
+    @Args('jobId', { type: () => ID }, ParseUUIDPipe) jobId: string,
     @Args('input') input: GroceryJobOutcomeInput,
   ): Promise<GroceryJob> {
-    const job = await this.grocery.close(
+    return this.grocery.close({
       jobId,
-      device.id,
-      device.userId,
-      GroceryJobStatus[input.outcome],
-      input,
-      input.missingFoodIds,
-      input.observations,
-    );
-    if (job === undefined) {
-      throw new NotFoundException();
-    }
-
-    return job;
+      deviceId: device.id,
+      userId: device.userId,
+      status: GroceryJobStatus[input.outcome],
+      report: input,
+      missingFoodIds: input.missingFoodIds,
+      observations: input.observations,
+    });
   }
 }
