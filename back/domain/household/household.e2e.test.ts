@@ -107,6 +107,21 @@ describe('adding somebody to cook for', () => {
     expect(response.errors?.[0]?.message).toContain(String(maxMembers));
   });
 
+  it('never goes past the limit when additions arrive together', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+    const { maxMembers } = householdConstraints();
+    for (let filled = 0; filled < maxMembers - 1; filled += 1) await add(`N°${filled}`, session);
+
+    await Promise.all(
+      ['A', 'B', 'C'].map((name): Promise<unknown> =>
+        api.graphql(ADD, { input: { name, ...ANSWERS } }, session),
+      ),
+    );
+
+    const listed = await api.graphql<{ householdMembers: Member[] }>(MEMBERS, undefined, session);
+    expect(listed.data?.householdMembers).toHaveLength(maxMembers);
+  });
+
   it('refuses somebody with no name at all', async () => {
     const session = await api.signUp(OWNER, PASSWORD);
 
@@ -139,6 +154,16 @@ describe('correcting and removing', () => {
 
     const response = await api.graphql<{ householdMembers: Member[] }>(MEMBERS, undefined, session);
     expect(response.data?.householdMembers).toHaveLength(0);
+  });
+});
+
+describe('removing with something that is not an identifier', () => {
+  it('is a bad input, not a database error', async () => {
+    const session = await api.signUp(OWNER, PASSWORD);
+
+    const response = await api.graphql(REMOVE, { id: 'not-a-uuid' }, session);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 });
 

@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException, UseGuards } from '@nestjs/common';
+import { BadRequestException, NotFoundException, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../auth/currentUser/current-user';
 import { AuthGuard } from '../auth/currentUser/guard';
@@ -33,11 +33,12 @@ export class HouseholdResolver {
     @Args('input') input: HouseholdMemberInput,
   ): Promise<HouseholdMember> {
     const { maxMembers } = householdConstraints();
-    if ((await this.members.countByOwner(user.id)) >= maxMembers) {
+    const member = await this.members.addUnlessFull(user.id, input, maxMembers);
+    if (member === undefined) {
       throw new BadRequestException(`A household holds at most ${maxMembers} people.`);
     }
 
-    return this.withTargets(await this.members.add(user.id, input));
+    return this.withTargets(member);
   }
 
   @Mutation(() => HouseholdMember, { description: 'Replaces a member wholesale.' })
@@ -59,7 +60,7 @@ export class HouseholdResolver {
   @Mutation(() => Boolean, { description: 'Removes a member. Their name stops appearing at once.' })
   async removeHouseholdMember(
     @CurrentUser() user: User,
-    @Args('id', { type: () => ID }) id: string,
+    @Args('id', { type: () => ID }, ParseUUIDPipe) id: string,
   ): Promise<boolean> {
     if (!(await this.members.remove(user.id, id))) throw new NotFoundException('No such member.');
 

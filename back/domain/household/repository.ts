@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq } from 'drizzle-orm';
+import { insertedRow } from '../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
 import { MeasurementsMapper } from '../profile/measurements.mapper';
+import { user } from '../user/schema';
 import { householdMember } from './schema';
 import { MemberRecord } from './type';
 
@@ -15,13 +17,34 @@ export class HouseholdRepository {
 
   // The identifier is made here rather than by the database: the server runs on
   // PostgreSQL 9.6, which has neither pgcrypto nor gen_random_uuid().
-  async add(ownerId: string, member: Omit<MemberRecord, 'id'>): Promise<MemberRecord> {
-    const [record] = await this.database
-      .insert(householdMember)
-      .values({ id: randomUUID(), ownerId, ...member })
-      .returning();
+  //
+  // Counted and inserted under a lock on the owner, so two adds sent together
+  // cannot both see room for one more: nothing comes back when the household is
+  // already full.
+  async addUnlessFull(
+    ownerId: string,
+    member: Omit<MemberRecord, 'id'>,
+    maxMembers: number,
+  ): Promise<MemberRecord | undefined> {
+    return this.database.transaction(async (transaction): Promise<MemberRecord | undefined> => {
+      await transaction
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.id, ownerId))
+        .for('update');
+      const [current] = await transaction
+        .select({ total: count() })
+        .from(householdMember)
+        .where(eq(householdMember.ownerId, ownerId));
+      if ((current?.total ?? 0) >= maxMembers) return undefined;
 
-    return this.toMember(record);
+      const records = await transaction
+        .insert(householdMember)
+        .values({ id: randomUUID(), ownerId, ...member })
+        .returning();
+
+      return this.toMember(insertedRow(records));
+    });
   }
 
   // The owner is part of the condition, not checked afterwards: a member id
@@ -61,15 +84,6 @@ export class HouseholdRepository {
       .orderBy(householdMember.createdAt, householdMember.id);
 
     return records.map((record): MemberRecord => this.toMember(record));
-  }
-
-  async countByOwner(ownerId: string): Promise<number> {
-    const [row] = await this.database
-      .select({ total: count() })
-      .from(householdMember)
-      .where(eq(householdMember.ownerId, ownerId));
-
-    return row?.total ?? 0;
   }
 
   private toMember(record: typeof householdMember.$inferSelect): MemberRecord {
