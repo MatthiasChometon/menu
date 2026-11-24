@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "extension/**"
+      - "front/domain/order/**"
       - ".github/workflows/ci-extension.yml"
   workflow_dispatch:
 
@@ -46,6 +47,15 @@ jobs:
 
       - name: Unit tests
         run: pnpm test
+
+      # The bridge code is shared with the front (../front/domain/order), and the
+      # bundler resolves it through the front's generated tsconfig: the front
+      # must be prepared (installed, then `nuxt prepare`) before the build.
+      - name: Prepare the front the extension imports from
+        working-directory: front
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec nuxt prepare
 
       - name: Build
         run: pnpm build
