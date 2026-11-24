@@ -4,8 +4,6 @@ import { createTransport } from 'nodemailer';
 import { MailService } from './service';
 import { MAIL_TRANSPORT, type MailTransport } from './token';
 
-const MAIL_TIMEOUT_MS = 10_000;
-
 const transportProvider: Provider = {
   provide: MAIL_TRANSPORT,
   useFactory: (config: ConfigService): MailTransport => {
@@ -32,12 +30,6 @@ const transportProvider: Provider = {
       // fails on a name mismatch that reads like an authentication problem.
       secure: config.get<string>('MAIL_SECURE') !== 'false',
       auth: user === undefined ? undefined : { user, pass },
-      // Nodemailer's own defaults are measured in minutes. A mail server that
-      // stops answering must not pin a request, or a background announcement,
-      // for that long.
-      connectionTimeout: MAIL_TIMEOUT_MS,
-      greetingTimeout: MAIL_TIMEOUT_MS,
-      socketTimeout: MAIL_TIMEOUT_MS,
     });
   },
   inject: [ConfigService],

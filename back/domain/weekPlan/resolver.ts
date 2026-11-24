@@ -7,7 +7,6 @@ import { WeekPlanInput } from './input';
 import { WeekPlan } from './model';
 import { WeekPlanRepository } from './repository';
 import type { WeekPlanRecord } from './type';
-import { weekOfPipe } from './week-of.pipe';
 
 // Every operation here is scoped to the signed-in user by construction: the week
 // is read and written under their id, never under one the caller supplies. That
@@ -23,7 +22,7 @@ export class WeekPlanResolver {
   })
   async myWeekPlan(
     @CurrentUser() user: User,
-    @Args('weekOf', weekOfPipe) weekOf: string,
+    @Args('weekOf') weekOf: string,
   ): Promise<WeekPlan | undefined> {
     return this.present(await this.plans.findOne(user.id, weekOf));
   }
@@ -48,7 +47,7 @@ export class WeekPlanResolver {
   @Mutation(() => Boolean, { description: 'Forgets a week. False when there was none.' })
   async deleteWeekPlan(
     @CurrentUser() user: User,
-    @Args('weekOf', weekOfPipe) weekOf: string,
+    @Args('weekOf') weekOf: string,
   ): Promise<boolean> {
     return this.plans.remove(user.id, weekOf);
   }

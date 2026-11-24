@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BackgroundTasks } from '../../infrastructure/background/service';
 import { MailService } from '../../infrastructure/mail/service';
 import { User } from '../user/model';
 import { Admins } from '../auth/admin/admins.service';
@@ -43,7 +42,6 @@ export class BugReportService {
     private readonly admins: Admins,
     private readonly mail: MailService,
     private readonly config: ConfigService,
-    private readonly background: BackgroundTasks,
   ) {}
 
   private get ceiling(): number {
@@ -63,42 +61,15 @@ export class BugReportService {
       input.context,
     );
 
-    // Saved first, announced after, and in the background: a failure to announce
-    // does not undo the report, and a slow mail server does not hold the reader
-    // waiting. Somebody took the trouble to describe a problem; losing it
+    // Saved first, announced after — and a failure to announce does not undo
+    // the report. Somebody took the trouble to describe a problem; losing it
     // because a mail server was down would be the worse of the two failures.
-    //
-    // Whether to announce is decided here, before the next report can change the
-    // counts; only the sending itself leaves the request.
-    const filedToday = await this.filedTodayIfAnnounced(record, reporter);
-    if (filedToday !== undefined) {
-      this.background.run(
-        `Signalement ${record.id} enregistré mais non annoncé`,
-        (): Promise<void> => this.announce(record, reporter, filedToday),
-      );
-    }
+    await this.announce(record, reporter);
 
     return record;
   }
 
-  /** How many this account filed in 24 h, or undefined when the notice stays quiet. */
-  private async filedTodayIfAnnounced(
-    record: BugReportRecord,
-    reporter: User,
-  ): Promise<number | undefined> {
-    try {
-      return await this.countIfWithinCaps(record, reporter);
-    } catch (error: unknown) {
-      // The report is saved: not being able to count must not take it back.
-      this.logger.error(`Signalement ${record.id} enregistré mais non compté`, error);
-      return undefined;
-    }
-  }
-
-  private async countIfWithinCaps(
-    record: BugReportRecord,
-    reporter: User,
-  ): Promise<number | undefined> {
+  private async announce(record: BugReportRecord, reporter: User): Promise<void> {
     const now = Date.now();
     const filedToday = await this.reports.countSince(reporter.id, new Date(now - DAY_MS));
     const filedThisHour = await this.reports.countSince(reporter.id, new Date(now - HOUR_MS));
@@ -109,7 +80,7 @@ export class BugReportService {
       this.logger.warn(
         `Signalement ${record.id} enregistré sans notification : ${filedToday} en 24 h pour ${reporter.email}`,
       );
-      return undefined;
+      return;
     }
 
     const filedByEverybody = await this.reports.countAllSince(new Date(now - HOUR_MS));
@@ -117,17 +88,9 @@ export class BugReportService {
       this.logger.warn(
         `Signalement ${record.id} enregistré sans notification : ${filedByEverybody} signalements dans l'heure, tous comptes confondus`,
       );
-      return undefined;
+      return;
     }
 
-    return filedToday;
-  }
-
-  private async announce(
-    record: BugReportRecord,
-    reporter: User,
-    filedToday: number,
-  ): Promise<void> {
     for (const admin of this.admins.recipients) {
       try {
         await this.mail.send(

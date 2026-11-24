@@ -4,7 +4,6 @@ import {
   ArrayMaxSize,
   IsArray,
   IsEnum,
-  IsISO8601,
   IsString,
   Matches,
   MaxLength,
@@ -50,8 +49,6 @@ export class WeekPlanInput {
   @Field(() => String)
   @IsString()
   @MaxLength(10)
-  // The shape below fixes the format; strict makes it a day that exists.
-  @IsISO8601({ strict: true })
   @Matches(/^\d{4}-\d{2}-\d{2}$/, { message: 'weekOf must be a YYYY-MM-DD date.' })
   weekOf!: string;
 

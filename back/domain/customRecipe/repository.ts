@@ -1,8 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
-import { insertedRow } from '../../infrastructure/database/rows';
-import { user } from '../user/schema';
+import { CustomRecipeSlot } from './enum';
 import { customRecipe, StoredIngredients } from './schema';
 import { CustomRecipeDraft, CustomRecipeIngredient, CustomRecipeRecord } from './type';
 
@@ -16,35 +15,13 @@ const toIngredientList = (stored: StoredIngredients): CustomRecipeIngredient[] =
 export class CustomRecipeRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  // Counted and inserted under a lock on the owner, so two adds sent together
-  // cannot both see room for one more: nothing comes back when the book is
-  // already full.
-  async addUnlessFull(
-    userId: string,
-    recipe: CustomRecipeDraft,
-    maxItems: number,
-  ): Promise<CustomRecipeRecord | undefined> {
-    return this.database.transaction(
-      async (transaction): Promise<CustomRecipeRecord | undefined> => {
-        await transaction
-          .select({ id: user.id })
-          .from(user)
-          .where(eq(user.id, userId))
-          .for('update');
-        const [current] = await transaction
-          .select({ total: count() })
-          .from(customRecipe)
-          .where(eq(customRecipe.userId, userId));
-        if ((current?.total ?? 0) >= maxItems) return undefined;
+  async add(userId: string, recipe: CustomRecipeDraft): Promise<CustomRecipeRecord> {
+    const [record] = await this.database
+      .insert(customRecipe)
+      .values({ userId, ...recipe, ingredients: toStoredIngredients(recipe.ingredients) })
+      .returning();
 
-        const records = await transaction
-          .insert(customRecipe)
-          .values({ userId, ...recipe, ingredients: toStoredIngredients(recipe.ingredients) })
-          .returning();
-
-        return this.toRecipe(insertedRow(records));
-      },
-    );
+    return this.toRecipe(record);
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed
@@ -86,11 +63,22 @@ export class CustomRecipeRepository {
     return records.map((record): CustomRecipeRecord => this.toRecipe(record));
   }
 
+  async countByOwner(userId: string): Promise<number> {
+    const [row] = await this.database
+      .select({ total: count() })
+      .from(customRecipe)
+      .where(eq(customRecipe.userId, userId));
+
+    return row?.total ?? 0;
+  }
+
+  // The column is plain text, so the enum is restored explicitly rather than
+  // asserted onto the row.
   private toRecipe(record: typeof customRecipe.$inferSelect): CustomRecipeRecord {
     return {
       id: record.id,
       name: record.name,
-      slot: record.slot,
+      slot: CustomRecipeSlot[record.slot as keyof typeof CustomRecipeSlot],
       ingredients: toIngredientList(record.ingredients),
       steps: record.steps,
       prepMinutes: record.prepMinutes,

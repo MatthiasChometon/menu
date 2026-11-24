@@ -1,10 +1,9 @@
-import { BadRequestException, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Param, Post, Req, UseGuards, BadRequestException } from '@nestjs/common';
 // Decorated signatures need type-only imports under isolatedModules +
 // emitDecoratorMetadata, otherwise TS1272.
 import type { FastifyRequest } from 'fastify';
 import { AdminGuard } from '../auth/admin/guard';
 import { AuthGuard } from '../auth/currentUser/guard';
-import { ImageParams } from './params';
 import { ImageLibraryService } from './service';
 
 // REST rather than GraphQL: a photograph arrives as multipart, which GraphQL
@@ -19,9 +18,13 @@ export class ImageLibraryController {
 
   @Post(':kind/:id')
   async upload(
-    @Param() { kind, id }: ImageParams,
+    @Param('kind') kind: string,
+    @Param('id') id: string,
     @Req() request: FastifyRequest,
   ): Promise<{ kind: string; id: string; file: string }> {
+    this.images.assertKind(kind);
+    this.images.assertId(id);
+
     const upload = await request.file();
     if (upload === undefined) {
       throw new BadRequestException('Send the photograph as a file field.');

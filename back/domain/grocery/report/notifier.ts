@@ -1,6 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, type OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { BackgroundTasks } from '../../../infrastructure/background/service';
 import { MailService } from '../../../infrastructure/mail/service';
 import { PushService } from '../../../infrastructure/push/service';
 import { UserRepository } from '../../user/repository';
@@ -16,11 +15,11 @@ const reasonOf = (error: unknown): string =>
   error instanceof Error ? error.message : 'unknown error';
 
 @Injectable()
-export class GroceryReportNotifier {
+export class GroceryReportNotifier implements OnApplicationShutdown {
   private readonly logger = new Logger(GroceryReportNotifier.name);
+  private readonly inFlight = new Set<Promise<void>>();
 
   constructor(
-    private readonly background: BackgroundTasks,
     private readonly users: UserRepository,
     private readonly config: ConfigService,
     private readonly mail: MailService,
@@ -33,10 +32,30 @@ export class GroceryReportNotifier {
   // a captcha is exactly the one somebody needs to hear about. It goes out in
   // the background, so a slow mail server cannot hold the browser waiting.
   tell(userId: string, job: GroceryJob): void {
-    // The work is already done: a report that cannot be sent must lose nothing.
-    this.background.run(`Could not tell user ${userId} about job ${job.id}`, () =>
-      this.sendReport(userId, job),
-    );
+    const sending = this.tellWithoutFailing(userId, job).finally((): void => {
+      this.inFlight.delete(sending);
+    });
+    this.inFlight.add(sending);
+  }
+
+  /** Resolves once everything handed to `tell` has gone out or given up. */
+  async settled(): Promise<void> {
+    await Promise.all(this.inFlight);
+  }
+
+  // A report still on its way when the server stops would be lost: wait for it,
+  // as long as the mail and push timeouts allow.
+  async onApplicationShutdown(): Promise<void> {
+    await this.settled();
+  }
+
+  // The work is already done: a report that cannot be sent must lose nothing.
+  private async tellWithoutFailing(userId: string, job: GroceryJob): Promise<void> {
+    try {
+      await this.sendReport(userId, job);
+    } catch (error: unknown) {
+      this.logger.warn(`Could not tell user ${userId} about job ${job.id}: ${reasonOf(error)}`);
+    }
   }
 
   private async sendReport(userId: string, job: GroceryJob): Promise<void> {

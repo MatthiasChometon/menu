@@ -1,7 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { user } from '../user/schema';
-import { CustomRecipeSlot } from './enum';
 
 // Grammes by food id, the same shape the static recipes already use. Stored as
 // an object rather than a table: a recipe is read and written whole, never
@@ -20,7 +19,7 @@ export const customRecipe = pgTable('custom_recipe', {
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  slot: text('slot').$type<CustomRecipeSlot>().notNull(),
+  slot: text('slot').notNull(),
   ingredients: jsonb('ingredients').$type<StoredIngredients>().notNull(),
   steps: jsonb('steps').$type<string[]>().notNull(),
   prepMinutes: integer('prep_minutes').notNull(),
