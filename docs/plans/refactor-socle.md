@@ -237,6 +237,14 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `asset/scripts/content.ts` trust the JSON they parse (build scripts, the `check` script validates the
   content); `useDisplayPreferences` keeps module-level shared refs on purpose (documented there).
   **Deletion candidates:** none.
-  M5 addendum: the extension tests depended on the machine time zone (2 of 38 failed on the UTC CI runner):
-  `vitest.config.ts` now pins `Europe/Paris`; the extension build imports `front/domain/order` and needs the
-  front prepared (`nuxt prepare`), so `ci-extension.yml` does that and also triggers on `front/domain/order/**`.
+  M5 addendum: the extension tests depended on the machine time zone (failed on the UTC CI runner). It was a
+  real bug, not a test quirk: `extension/domain/carrefour/slot.ts` now reads weekday and minute in
+  `Europe/Paris`. The extension build imports `front/domain/order`; installing the front runs its
+  `nuxt prepare` postinstall, so `ci-extension.yml` installs it (both lockfiles cached) and triggers on
+  `front/**`. `extension/package.json` now declares `packageManager` (pnpm 11.9.0), which the workflow reads.
+  Owners and exit conditions: the visual and Playwright e2e suites stay out of CI until M11 adds
+  `ci-e2e.yml` with Linux baselines created there (baselines are never updated during the campaign
+  otherwise). Two defensive guards kept on purpose:
+  `document.fonts` (old browsers have no FontFaceSet; carries an eslint-disable) and `canvas.toBlob` (covered by a test; it
+  needs no directive). `CRC_TABLE[...] ?? 0` in `asset/scripts/workflow.ts` is kept: a throwing access would
+  add a branch nothing can reach.
