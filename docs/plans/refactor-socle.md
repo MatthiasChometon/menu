@@ -183,9 +183,10 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `deleteWeightEntry` refuse a malformed id as `BAD_USER_INPUT` (was a 500); `weekOf` of `myWeekPlan`,
   `deleteWeekPlan` and `saveWeekPlan` must be a real day; `weight.date` must be a real day; the
   upload route takes a validated params DTO and removes the photograph it replaces (and a file whose
-  manifest write failed); `GroceryReportNotifier` and `BackgroundTasks` now drain in
-  `beforeApplicationShutdown` (Nest closes the DB pool before `onApplicationShutdown`, so a report in
-  flight was lost). Services extracted for customFood, customRecipe, weight; email label maps are keyed
+  manifest write failed); the database module awaits `BackgroundTasks.settled()` before ending the
+  pool, and the grocery report goes through `BackgroundTasks` (Nest's `close()` runs `onModuleDestroy`
+  BEFORE `beforeApplicationShutdown` and `onApplicationShutdown`, so no shutdown hook can drain work that
+  reads the database; a report in flight was lost). Services extracted for customFood, customRecipe, weight; email label maps are keyed
   by their enum. Shared test-app helper everywhere in scope. **Left on purpose:** `timestamp` columns
   for D11: `bug_report.created_at`, `improvement_request.created_at`, `custom_recipe.created_at`,
   `custom_food.created_at`, `week_plan.updated_at`, `weight.created_at`; the `string | null` of
@@ -193,5 +194,4 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   boundary; duplicate ingredient `foodId`s in a custom recipe are still merged silently by the
   `Object.fromEntries` storage shape; `RECIPE_ID` (weekPlan) and the food id pattern (customRecipe) are
   two copies of one rule. **For M12 (infrastructure):** the HTML `escape` helper is copied in the two
-  report emails and the grocery report mail; `GroceryReportNotifier` has its own in-flight set where
-  `BackgroundTasks` would do.
+  report emails and the grocery report mail.
