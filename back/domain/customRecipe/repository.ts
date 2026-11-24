@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
-import { insertedRow } from '../../infrastructure/database/rows';
+import { countedRow, insertedRow } from '../../infrastructure/database/rows';
 import { user } from '../user/schema';
 import { customRecipe, StoredIngredients } from './schema';
 import { CustomRecipeDraft, CustomRecipeIngredient, CustomRecipeRecord } from './type';
@@ -31,11 +31,11 @@ export class CustomRecipeRepository {
           .from(user)
           .where(eq(user.id, userId))
           .for('update');
-        const [current] = await transaction
+        const counted = await transaction
           .select({ total: count() })
           .from(customRecipe)
           .where(eq(customRecipe.userId, userId));
-        if ((current?.total ?? 0) >= maxItems) return undefined;
+        if (countedRow(counted) >= maxItems) return undefined;
 
         const records = await transaction
           .insert(customRecipe)
