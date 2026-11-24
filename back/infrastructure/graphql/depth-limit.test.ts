@@ -48,3 +48,24 @@ describe('the query depth limit', () => {
     expect(() => errorsFor(query, 50)).not.toThrow();
   });
 });
+
+describe('the depth limit against a fragment bomb', () => {
+  const bombOfSize = (size: number): string => {
+    const fragments = Array.from({ length: size }, (_unused, index): string =>
+      index === 0
+        ? 'fragment F0 on Node { name }'
+        : `fragment F${index} on Node { child { ...F${index - 1} ...F${index - 1} } }`,
+    );
+
+    return `{ node { ...F${size - 1} } } ${fragments.join(' ')}`;
+  };
+
+  it('answers at once and still reports the depth', () => {
+    const started = performance.now();
+
+    const errors = errorsFor(bombOfSize(30));
+
+    expect(performance.now() - started).toBeLessThan(500);
+    expect(errors).toHaveLength(1);
+  });
+});

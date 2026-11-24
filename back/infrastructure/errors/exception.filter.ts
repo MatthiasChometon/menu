@@ -33,6 +33,17 @@ const conflictFrom = (exception: unknown): ConflictException | undefined => {
   return new ConflictException('The request conflicts with existing data.');
 };
 
+// Fastify's own errors (body over the limit, broken JSON, unsupported media type,
+// upload over the cap) are not HttpExceptions but carry the status to answer
+// with. They are the caller's mistake, not a crash: answered as such, unreported.
+const clientErrorFrom = (exception: unknown): HttpException | undefined => {
+  if (!(exception instanceof Error) || !('statusCode' in exception)) return undefined;
+  const { statusCode } = exception;
+  if (typeof statusCode !== 'number' || statusCode < 400 || statusCode >= 500) return undefined;
+
+  return new HttpException(exception.message, statusCode);
+};
+
 const bodyOf = (failure: HttpException): object => {
   const response = failure.getResponse();
   return typeof response === 'string'
@@ -69,7 +80,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   }
 
   private expectedFailureOf(exception: unknown): HttpException | undefined {
-    return exception instanceof HttpException ? exception : conflictFrom(exception);
+    return exception instanceof HttpException
+      ? exception
+      : (clientErrorFrom(exception) ?? conflictFrom(exception));
   }
 
   private reportUnexpected(exception: unknown): HttpException {
