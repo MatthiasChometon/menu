@@ -1,10 +1,24 @@
 type LeftoverDecision = 'used' | 'declined';
 
-type MealPointer = { day: DayKey; slot: MealSlot };
+const { storedValue, isRecordOf, isArrayOf } = useStoredValue();
+const { isMealPointer } = useMenuBuilder();
+
+const isString = (value: unknown): value is string => typeof value === 'string';
+
+const isDecision = (value: unknown): value is LeftoverDecision =>
+  value === 'used' || value === 'declined';
 
 // One side reused for a leftover kept for a chosen slot: where it came from,
 // and where it is now standing in for the planned dish.
 type LeftoverAssignment = { origin: MealPointer; target: MealPointer };
+
+const isAssignment = (value: unknown): value is LeftoverAssignment =>
+  typeof value === 'object' &&
+  value !== null &&
+  'origin' in value &&
+  isMealPointer(value.origin) &&
+  'target' in value &&
+  isMealPointer(value.target);
 
 const mealKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 
@@ -25,7 +39,7 @@ const originsFor = (weekOf: string): Ref<string[]> => {
   const existing = originStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<string[]>(`leftoverOrigins:${weekOf}`, []);
+  const created = storedValue<string[]>(`leftoverOrigins:${weekOf}`, [], isArrayOf(isString));
   originStores.set(weekOf, created);
   return created;
 };
@@ -34,9 +48,10 @@ const decisionsFor = (weekOf: string): Ref<Record<string, LeftoverDecision>> => 
   const existing = decisionStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<Record<string, LeftoverDecision>>(
+  const created = storedValue<Record<string, LeftoverDecision>>(
     `leftoverDecisions:${weekOf}`,
     {},
+    isRecordOf(isDecision),
   );
   decisionStores.set(weekOf, created);
   return created;
@@ -46,7 +61,11 @@ const assignmentsFor = (weekOf: string): Ref<LeftoverAssignment[]> => {
   const existing = assignmentStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<LeftoverAssignment[]>(`leftoverAssignments:${weekOf}`, []);
+  const created = storedValue<LeftoverAssignment[]>(
+    `leftoverAssignments:${weekOf}`,
+    [],
+    isArrayOf(isAssignment),
+  );
   assignmentStores.set(weekOf, created);
   return created;
 };

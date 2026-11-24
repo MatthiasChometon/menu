@@ -12,11 +12,15 @@ import type {
   Recipe,
   ShoppingLine,
 } from '../types/menu.type';
+import type { MealPointer } from '../types/flex.type';
 import { useNutrition } from './useNutrition';
 
 type MenuBuilder = {
   dayOrder: readonly DayKey[];
   mealOrder: readonly MealSlot[];
+  isDayKey: (value: unknown) => value is DayKey;
+  isMealSlot: (value: unknown) => value is MealSlot;
+  isMealPointer: (value: unknown) => value is MealPointer;
   buildShoppingList: (days: Day[]) => ShoppingLine[];
   buildMenu: (raw: RawMenu, catalog: MenuCatalog) => Menu;
 };
@@ -126,5 +130,27 @@ export const useMenuBuilder = (): MenuBuilder => {
     };
   };
 
-  return { dayOrder, mealOrder, buildShoppingList, buildMenu };
+  const isDayKey = (value: unknown): value is DayKey =>
+    dayOrder.some((key): boolean => key === value);
+
+  const isMealSlot = (value: unknown): value is MealSlot =>
+    mealOrder.some((slot): boolean => slot === value);
+
+  const isMealPointer = (value: unknown): value is MealPointer =>
+    typeof value === 'object' &&
+    value !== null &&
+    'day' in value &&
+    isDayKey(value.day) &&
+    'slot' in value &&
+    isMealSlot(value.slot);
+
+  return {
+    dayOrder,
+    mealOrder,
+    isDayKey,
+    isMealSlot,
+    isMealPointer,
+    buildShoppingList,
+    buildMenu,
+  };
 };
