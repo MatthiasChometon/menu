@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '../../auth/currentUser/current-user';
 import { AuthGuard } from '../../auth/currentUser/guard';
@@ -8,7 +8,7 @@ import { GroceryDeviceGuard } from './guard';
 import { GroceryDevice, PairedGroceryDevice } from './model';
 import { GroceryDeviceRepository } from './repository';
 import { DeviceTokenService } from './token.service';
-import { AuthenticatedDevice } from './type';
+import { type AuthenticatedDevice } from './type';
 
 @Resolver(() => GroceryDevice)
 export class GroceryDeviceResolver {
@@ -43,7 +43,7 @@ export class GroceryDeviceResolver {
   @UseGuards(AuthGuard)
   async unpairGroceryDevice(
     @CurrentUser() user: User,
-    @Args('deviceId', { type: () => ID }) deviceId: string,
+    @Args('deviceId', { type: () => ID }, ParseUUIDPipe) deviceId: string,
   ): Promise<boolean> {
     return this.devices.unpair(user.id, deviceId);
   }
@@ -54,11 +54,9 @@ export class GroceryDeviceResolver {
   })
   @UseGuards(GroceryDeviceGuard)
   async reportCarrefourSession(
-    @CurrentDevice() device: AuthenticatedDevice | undefined,
+    @CurrentDevice() device: AuthenticatedDevice,
     @Args('signedIn') signedIn: boolean,
   ): Promise<boolean> {
-    if (device === undefined) return false;
-
     await this.devices.reportCarrefourSession(device.id, signedIn);
     return true;
   }

@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, sql } from 'drizzle-orm';
-import { DATABASE, type Database } from '../../../infrastructure/database/token';
+import {
+  DATABASE,
+  type Database,
+  type DatabaseExecutor,
+} from '../../../infrastructure/database/token';
 import { KnownProduct } from '../basket/type';
 import { groceryProduct } from './schema';
 import { ObservedProduct, PriceSighting } from './type';
@@ -25,32 +29,40 @@ export class GroceryCatalogRepository {
   // A price seen on a product already on file. The size is deliberately left
   // alone: the cart states what a line cost, never what a unit holds, and
   // overwriting a known size with nothing would break every count afterwards.
-  async recordPrices(sightings: PriceSighting[]): Promise<void> {
+  async recordPrices(
+    sightings: PriceSighting[],
+    executor: DatabaseExecutor = this.database,
+  ): Promise<void> {
     if (sightings.length === 0) {
       return;
     }
 
-    await Promise.all(
-      sightings.map((sighting) =>
-        this.database
+    // All or none: a run's prices are one report, and half of it applied would
+    // read as prices the shop never showed together.
+    await executor.transaction(async (transaction): Promise<void> => {
+      for (const sighting of sightings) {
+        await transaction
           .update(groceryProduct)
           .set({ name: sighting.name, priceCents: sighting.priceCents, observedAt: new Date() })
           .where(
             and(eq(groceryProduct.foodId, sighting.foodId), eq(groceryProduct.ean, sighting.ean)),
-          ),
-      ),
-    );
+          );
+      }
+    });
   }
 
   // One statement rather than one per product: a run reports the whole basket
   // at once, and the reference is small enough that rewriting a row that has
   // not moved costs nothing.
-  async record(products: ObservedProduct[]): Promise<void> {
+  async record(
+    products: ObservedProduct[],
+    executor: DatabaseExecutor = this.database,
+  ): Promise<void> {
     if (products.length === 0) {
       return;
     }
 
-    await this.database
+    await executor
       .insert(groceryProduct)
       .values(
         products.map((product): typeof groceryProduct.$inferInsert => ({

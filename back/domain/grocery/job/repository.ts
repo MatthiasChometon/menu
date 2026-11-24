@@ -1,29 +1,56 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
-import { DATABASE, type Database } from '../../../infrastructure/database/token';
+import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
+import { insertedRow } from '../../../infrastructure/database/rows';
+import {
+  DATABASE,
+  type Database,
+  type DatabaseExecutor,
+} from '../../../infrastructure/database/token';
+import { basketRowsOf } from '../basket/rows';
+import { groceryBasketLine } from '../basket/schema';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { groceryJob, groceryJobEvent } from './schema';
-import { JobReport, ReportedEvent } from './type';
+import {
+  ClosedJob,
+  EventRecord,
+  JobClosing,
+  JobRecord,
+  NewJob,
+  ReportedEvent,
+  JobEventDetails,
+} from './type';
+
+// Thrown inside the closing transaction to undo what was done for a run that
+// someone else had already closed.
+class AlreadyClosed extends Error {}
 
 @Injectable()
 export class GroceryJobRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  async create(
-    userId: string,
-    weekOf: string,
-    alertThresholdCents: number | undefined,
-  ): Promise<GroceryJob> {
-    const [record] = await this.database
-      .insert(groceryJob)
-      .values({
-        userId,
-        weekOf,
-        status: GroceryJobStatus.PENDING,
-        alertThresholdCents: alertThresholdCents ?? null,
-      })
-      .returning();
+  // The job and its basket go in together: a run with no lines would be
+  // picked up by a browser and fill an empty basket.
+  async create(input: NewJob): Promise<GroceryJob> {
+    const record = await this.database.transaction(async (transaction): Promise<JobRecord> => {
+      const created = insertedRow(
+        await transaction
+          .insert(groceryJob)
+          .values({
+            userId: input.userId,
+            weekOf: input.weekOf,
+            status: GroceryJobStatus.PENDING,
+            alertThresholdCents: input.alertThresholdCents ?? null,
+          })
+          .returning(),
+      );
+
+      if (input.lines.length > 0) {
+        await transaction.insert(groceryBasketLine).values(basketRowsOf(created.id, input.lines));
+      }
+
+      return created;
+    });
 
     return this.toJob(record, []);
   }
@@ -46,7 +73,7 @@ export class GroceryJobRepository {
       .select()
       .from(groceryJob)
       .where(eq(groceryJob.userId, userId))
-      .orderBy(sql`${groceryJob.createdAt} desc`, groceryJob.id);
+      .orderBy(desc(groceryJob.createdAt), groceryJob.id);
 
     return records.map((record): GroceryJob => this.toJob(record, []));
   }
@@ -62,7 +89,7 @@ export class GroceryJobRepository {
         sql`${groceryJob.id} = (
           select ${groceryJob.id} from ${groceryJob}
           where ${groceryJob.userId} = ${userId} and ${groceryJob.status} = ${GroceryJobStatus.PENDING}
-          order by ${groceryJob.createdAt}
+          order by ${groceryJob.createdAt}, ${groceryJob.id}
           limit 1
           for update skip locked
         )`,
@@ -72,55 +99,100 @@ export class GroceryJobRepository {
     return record === undefined ? undefined : this.toJob(record, []);
   }
 
-  // Reported by the browser that claimed the run, so the run is checked to be
-  // its own before anything is written: a token alone must not let one browser
-  // write into another one's history.
+  // Reported by the browser that claimed the run, while the run is still its
+  // to work on: one statement checks that and writes, so a run closed or a
+  // browser unpaired in between cannot slip an event into somebody's history.
   async appendEvent(
     jobId: string,
     deviceId: string,
     event: ReportedEvent,
   ): Promise<GroceryJobEvent | undefined> {
-    const [owned] = await this.database
-      .select({ id: groceryJob.id })
-      .from(groceryJob)
-      .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)));
-
-    if (owned === undefined) {
-      return undefined;
-    }
-
     const { kind, ...details } = event;
-    const [record] = await this.database
+    const records = await this.database
       .insert(groceryJobEvent)
-      .values({ jobId, kind, payload: details })
+      .select(
+        this.database
+          .select({
+            id: sql<string>`gen_random_uuid()`.as('id'),
+            jobId: groceryJob.id,
+            kind: sql<GroceryJobEventKind>`${kind}::text`.as('kind'),
+            payload: sql<JobEventDetails>`${JSON.stringify(details)}::jsonb`.as('payload'),
+            at: sql<Date>`now()`.as('at'),
+          })
+          .from(groceryJob)
+          .where(
+            and(
+              eq(groceryJob.id, jobId),
+              eq(groceryJob.deviceId, deviceId),
+              eq(groceryJob.status, GroceryJobStatus.RUNNING),
+            ),
+          ),
+      )
       .returning();
 
-    return this.toEvent(record);
+    return records.length === 0 ? undefined : this.toEvent(insertedRow(records));
   }
 
+  // Only a run being worked on can be closed. A second close, which the browser
+  // sends when it retries after losing the answer to the first, finds the run
+  // already closed and gets it back as it was stored, never rewritten.
+  //
+  // What closing entails (`whenClosing`) shares the transaction of the status
+  // change, and goes first: if it fails the run is still RUNNING and the retry
+  // does it all again; if the run turns out to be closed already, it is undone.
   async finish(
     jobId: string,
     deviceId: string,
-    status: GroceryJobStatus,
-    report: JobReport,
-  ): Promise<GroceryJob | undefined> {
-    const [record] = await this.database
-      .update(groceryJob)
-      .set({
-        status,
-        finishedAt: new Date(),
-        productsCents: report.productsCents ?? null,
-        deliveryFeesCents: report.deliveryFeesCents ?? null,
-        shortOfMinimumCents: report.shortOfMinimumCents ?? null,
-      })
-      .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)))
-      .returning();
+    closing: JobClosing,
+    whenClosing?: (executor: DatabaseExecutor) => Promise<void>,
+  ): Promise<ClosedJob | undefined> {
+    const ownedByDevice = and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId));
+    const closed = await this.closeWhileRunning(ownedByDevice, closing, whenClosing);
 
+    const [record] =
+      closed === undefined
+        ? await this.database.select().from(groceryJob).where(ownedByDevice)
+        : [closed];
     if (record === undefined) {
       return undefined;
     }
 
-    return this.toJob(record, await this.eventsOf(record.id));
+    const job = this.toJob(record, await this.eventsOf(record.id));
+
+    return { job, justClosed: closed !== undefined };
+  }
+
+  private async closeWhileRunning(
+    ownedByDevice: SQL | undefined,
+    closing: JobClosing,
+    whenClosing: ((executor: DatabaseExecutor) => Promise<void>) | undefined,
+  ): Promise<JobRecord | undefined> {
+    try {
+      return await this.database.transaction(async (transaction): Promise<JobRecord> => {
+        await whenClosing?.(transaction);
+        const [closed] = await transaction
+          .update(groceryJob)
+          .set({
+            status: closing.status,
+            finishedAt: new Date(),
+            productsCents: closing.productsCents ?? null,
+            deliveryFeesCents: closing.deliveryFeesCents ?? null,
+            shortOfMinimumCents: closing.shortOfMinimumCents ?? null,
+          })
+          .where(and(ownedByDevice, eq(groceryJob.status, GroceryJobStatus.RUNNING)))
+          .returning();
+        if (closed === undefined) {
+          throw new AlreadyClosed();
+        }
+
+        return closed;
+      });
+    } catch (error) {
+      if (error instanceof AlreadyClosed) {
+        return undefined;
+      }
+      throw error;
+    }
   }
 
   private async eventsOf(jobId: string): Promise<GroceryJobEvent[]> {
@@ -133,11 +205,11 @@ export class GroceryJobRepository {
     return records.map((record): GroceryJobEvent => this.toEvent(record));
   }
 
-  private toJob(record: typeof groceryJob.$inferSelect, events: GroceryJobEvent[]): GroceryJob {
+  private toJob(record: JobRecord, events: GroceryJobEvent[]): GroceryJob {
     return {
       id: record.id,
       weekOf: record.weekOf,
-      status: GroceryJobStatus[record.status as keyof typeof GroceryJobStatus],
+      status: record.status,
       alertThresholdCents: record.alertThresholdCents ?? undefined,
       createdAt: record.createdAt,
       startedAt: record.startedAt ?? undefined,
@@ -156,12 +228,12 @@ export class GroceryJobRepository {
     };
   }
 
-  private toEvent(record: typeof groceryJobEvent.$inferSelect): GroceryJobEvent {
+  private toEvent(record: EventRecord): GroceryJobEvent {
     const details = record.payload ?? {};
 
     return {
       id: record.id,
-      kind: GroceryJobEventKind[record.kind as keyof typeof GroceryJobEventKind],
+      kind: record.kind,
       at: record.at,
       foodId: details.foodId,
       label: details.label,

@@ -6,7 +6,6 @@ import { NestFactory } from '@nestjs/core';
 import { DatabaseInfrastructureModule } from '../../../infrastructure/database/module';
 import { GroceryCatalogRepository } from './repository';
 import { GroceryCatalogSeeder } from './seeder';
-import { ReferenceEntry } from './type';
 
 // Only what the seeding needs. Booting the whole application would drag in
 // GraphQL and the HTTP stack for a task that never serves a request.
@@ -24,12 +23,7 @@ const run = async (): Promise<void> => {
   });
 
   try {
-    // JSON.parse hands back any, and this is the one edge where the shape is
-    // asserted rather than inferred: the file is data on disk, not code.
-    const reference = JSON.parse(await readFile(REFERENCE, 'utf-8')) as Record<
-      string,
-      ReferenceEntry | string
-    >;
+    const reference: unknown = JSON.parse(await readFile(REFERENCE, 'utf-8'));
     const seeded = await context.get(GroceryCatalogSeeder).seed(reference);
     process.stdout.write(`${seeded.length} products seeded from ${REFERENCE}\n`);
   } finally {
@@ -37,4 +31,9 @@ const run = async (): Promise<void> => {
   }
 };
 
-void run();
+run().catch((error: unknown): void => {
+  process.stderr.write(
+    `Seeding failed: ${error instanceof Error ? error.message : String(error)}\n`,
+  );
+  process.exitCode = 1;
+});

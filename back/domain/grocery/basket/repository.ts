@@ -8,32 +8,12 @@ import { BasketLine } from './type';
 export class GroceryBasketRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  async saveLines(jobId: string, lines: BasketLine[]): Promise<void> {
-    if (lines.length === 0) {
-      return;
-    }
-
-    await this.database.insert(groceryBasketLine).values(
-      lines.map((line): typeof groceryBasketLine.$inferInsert => ({
-        jobId,
-        foodId: line.foodId,
-        label: line.label ?? null,
-        grams: line.grams,
-        fromPantry: line.fromPantry,
-        ean: line.product?.ean ?? null,
-        productName: line.product?.name ?? null,
-        unitSize: line.product?.size ?? null,
-        units: line.units ?? null,
-      })),
-    );
-  }
-
   async linesOf(jobId: string): Promise<BasketLine[]> {
     const records = await this.database
       .select()
       .from(groceryBasketLine)
       .where(eq(groceryBasketLine.jobId, jobId))
-      .orderBy(groceryBasketLine.foodId);
+      .orderBy(groceryBasketLine.foodId, groceryBasketLine.id);
 
     return records.map((record): BasketLine => this.toLine(record));
   }

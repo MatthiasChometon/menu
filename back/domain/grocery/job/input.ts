@@ -138,6 +138,7 @@ export class GroceryJobOutcomeInput {
   @Field(() => [String], { defaultValue: [] })
   @IsArray()
   @IsString({ each: true })
+  @MaxLength(jobConstraints().foodIdMaxLength, { each: true })
   @ArrayMaxSize(jobConstraints().maxNeedsPerJob)
   missingFoodIds!: string[];
 

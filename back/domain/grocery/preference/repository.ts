@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, sql } from 'drizzle-orm';
+import { insertedRow } from '../../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
+import { GroceryPreference } from './model';
 import { groceryPreference } from './schema';
 import { defaultPreference } from './utils';
 
@@ -10,7 +12,7 @@ export class GroceryPreferenceRepository {
 
   // Someone who has never opened the settings still gets warned: the default
   // is a value, not the absence of one.
-  async forUser(userId: string): Promise<{ alertThresholdCents?: number }> {
+  async forUser(userId: string): Promise<GroceryPreference> {
     const [record] = await this.database
       .select()
       .from(groceryPreference)
@@ -20,11 +22,11 @@ export class GroceryPreferenceRepository {
       return { alertThresholdCents: defaultPreference().alertThresholdCents };
     }
 
-    return { alertThresholdCents: record.alertThresholdCents ?? undefined };
+    return this.toPreference(record);
   }
 
-  async save(userId: string, alertThresholdCents: number | undefined): Promise<void> {
-    await this.database
+  async save(userId: string, alertThresholdCents: number | undefined): Promise<GroceryPreference> {
+    const records = await this.database
       .insert(groceryPreference)
       .values({ userId, alertThresholdCents: alertThresholdCents ?? null, updatedAt: new Date() })
       .onConflictDoUpdate({
@@ -33,6 +35,13 @@ export class GroceryPreferenceRepository {
           alertThresholdCents: sql`excluded.alert_threshold_cents`,
           updatedAt: sql`excluded.updated_at`,
         },
-      });
+      })
+      .returning();
+
+    return this.toPreference(insertedRow(records));
+  }
+
+  private toPreference(record: typeof groceryPreference.$inferSelect): GroceryPreference {
+    return { alertThresholdCents: record.alertThresholdCents ?? undefined };
   }
 }

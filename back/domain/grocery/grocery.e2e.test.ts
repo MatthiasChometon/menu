@@ -1,10 +1,19 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MailService } from '../../infrastructure/mail/service';
 import type { MailMessage } from '../../infrastructure/mail/token';
+import { PushService } from '../../infrastructure/push/service';
+import {
+  startTestApp,
+  type GraphqlResponse,
+  type TestApp,
+} from '../../infrastructure/testing/e2e-app';
 import { UserRepository } from '../user/repository';
 import { GroceryCatalogRepository } from './catalog/repository';
+import { GroceryJobRepository } from './job/repository';
 import { GroceryPantryRepository } from './pantry/repository';
 import { GroceryPushRepository } from './push/repository';
+import { GroceryReportNotifier } from './report/notifier';
+import { GrocerySlotRepository } from './slot/repository';
 
 const PAIR_DEVICE = `
   mutation ($label: String!) {
@@ -109,6 +118,8 @@ afterAll(async (): Promise<void> => {
 });
 
 beforeEach(async (): Promise<void> => {
+  // A report still going out would land in the next test's mailbox.
+  await api.resolve(GroceryReportNotifier).settled();
   await api.reset();
 });
 
@@ -134,7 +145,7 @@ describe('pairing a browser', () => {
   it('refuses to pair for a visitor who is not signed in', async () => {
     const response = await api.graphql(PAIR_DEVICE, { label: 'Desktop' });
 
-    expect(response.errors?.[0].extensions?.code).toBe('UNAUTHENTICATED');
+    expect(response.errors?.[0]?.extensions?.code).toBe('UNAUTHENTICATED');
   });
 });
 
@@ -219,6 +230,30 @@ describe('running a queued order', () => {
   });
 });
 
+describe('refusing an identifier that cannot be one', () => {
+  it('turns down a run id that is not a UUID as a bad input, not a crash', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const response = await api.graphql(JOB, { jobId: 'not-a-uuid' }, cookie);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+
+  it('turns down a run id that is not a UUID when a browser reports on it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+
+    const response = await api.graphql(
+      REPORT_EVENT,
+      { jobId: 'not-a-uuid', input: { kind: 'STARTED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+});
+
 describe('keeping accounts apart', () => {
   it('never hands one account a run queued by another', async () => {
     const mine = await signIn('matthias@example.com');
@@ -254,7 +289,7 @@ describe('keeping accounts apart', () => {
       mine,
     );
 
-    expect(reported.errors?.[0].message).toBeDefined();
+    expect(reported.errors?.[0]?.message).toBeDefined();
     expect(followed.data?.groceryJob.events).toEqual([]);
   });
 
@@ -276,7 +311,7 @@ describe('keeping accounts apart', () => {
       asDevice('not-a-real-token'),
     );
 
-    expect(response.errors?.[0].extensions?.code).toBe('UNAUTHENTICATED');
+    expect(response.errors?.[0]?.extensions?.code).toBe('UNAUTHENTICATED');
   });
 });
 
@@ -304,7 +339,7 @@ describe('working out what to buy', () => {
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).set(account!.id, 'brownRice', 500);
+    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['brownRice', 500]]));
 
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
 
@@ -319,7 +354,7 @@ describe('working out what to buy', () => {
     const queued = await queueJob(cookie, [{ foodId: 'tofu', grams: 400 }]);
 
     expect(queued.lines).toEqual([expect.objectContaining({ foodId: 'tofu', grams: 400 })]);
-    expect(queued.lines[0].units).toBeNull();
+    expect(queued.lines[0]?.units).toBeNull();
   });
 
   it('hands the basket to the browser that takes the run', async () => {
@@ -501,7 +536,7 @@ describe('what the week leaves in the cupboard', () => {
     const cookie = await signIn('matthias@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
     const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
-    await api.resolve(GroceryPantryRepository).set(account!.id, 'oats', 300);
+    await api.resolve(GroceryPantryRepository).replace(account!.id, new Map([['oats', 300]]));
 
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
@@ -582,7 +617,7 @@ describe('when a delivery is welcome', () => {
       cookie,
     );
 
-    expect(response.errors?.[0].message).toBeDefined();
+    expect(response.errors?.[0]?.message).toBeDefined();
   });
 
   it('keeps one account out of another one windows', async () => {
@@ -660,6 +695,18 @@ describe('keeping the reference in step with the shelves', () => {
     );
   });
 
+  it('keeps the last word when a substitute is reported twice in one run', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const tofu = { foodId: 'tofu', ean: '9999999999999', name: 'Tofu', priceCents: 249 };
+
+    await close(cookie, [
+      { ...tofu, size: 200 },
+      { ...tofu, size: 250, priceCents: 259 },
+    ]);
+
+    expect(await productOf('tofu')).toEqual(expect.objectContaining({ size: 250 }));
+  });
+
   it('leaves the reference alone when the run did not succeed', async () => {
     const cookie = await signIn('matthias@example.com');
     const token = await pair(cookie, 'Desktop');
@@ -695,17 +742,21 @@ describe('telling somebody the basket is ready', () => {
     );
   };
 
-  // Signing up sends its own verification mail, so the report is never the
-  // first message of a test — only the last one addressed to the reader.
-  const reportMail = (to: string): MailMessage =>
-    [...api.mails()].reverse().find((message): boolean => message.to === to)!;
+  // The report goes out in the background once the run is closed, so the test
+  // waits for it. Signing up sends its own verification mail, so the report is
+  // never the first message of a test — only the last one addressed to the reader.
+  const reportMail = async (to: string): Promise<MailMessage> => {
+    await api.resolve(GroceryReportNotifier).settled();
+
+    return [...api.mails()].reverse().find((message): boolean => message.to === to)!;
+  };
 
   it('writes to the account that asked, once the run is closed', async () => {
     const cookie = await signIn('matthias@example.com');
 
     await closeWith(cookie, { productsCents: 8450, deliveryFeesCents: 790 });
 
-    expect(reportMail('matthias@example.com')).toEqual(
+    expect(await reportMail('matthias@example.com')).toEqual(
       expect.objectContaining({ to: 'matthias@example.com', subject: 'Panier prêt' }),
     );
   });
@@ -722,7 +773,7 @@ describe('telling somebody the basket is ready', () => {
 
     await closeWith(cookie, { productsCents: 8450 });
 
-    expect(reportMail('matthias@example.com').subject).toBe('Panier prêt, à vérifier');
+    expect((await reportMail('matthias@example.com')).subject).toBe('Panier prêt, à vérifier');
   });
 
   it('writes even when the run was stopped, which is when it matters most', async () => {
@@ -738,7 +789,7 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect(reportMail('matthias@example.com').subject).toBe(
+    expect((await reportMail('matthias@example.com')).subject).toBe(
       'Courses interrompues : il faut ton intervention',
     );
   });
@@ -765,8 +816,8 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect(reportMail('matthias@example.com').html).not.toContain('<script>');
-    expect(reportMail('matthias@example.com').html).toContain('&lt;script&gt;');
+    expect((await reportMail('matthias@example.com')).html).not.toContain('<script>');
+    expect((await reportMail('matthias@example.com')).html).toContain('&lt;script&gt;');
   });
 });
 
@@ -844,5 +895,310 @@ describe('agreeing to be told on a phone', () => {
     const response = await api.graphql<{ groceryPushKey: string | null }>(KEY);
 
     expect(response.errors).toBeUndefined();
+  });
+});
+
+describe('closing a run that is already closed', () => {
+  const startRun = async (cookie: string): Promise<{ token: string; jobId: string }> => {
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    return { token, jobId: queued.id };
+  };
+
+  const closeRun = (
+    token: string,
+    jobId: string,
+    input: Record<string, unknown>,
+  ): Promise<GraphqlResponse<{ finishGroceryJob: { status: string; productsCents: number } }>> =>
+    api.graphql<{ finishGroceryJob: { status: string; productsCents: number } }>(
+      FINISH_JOB,
+      { jobId, input },
+      undefined,
+      asDevice(token),
+    );
+
+  const reportsTo = (email: string): MailMessage[] =>
+    api
+      .mails()
+      .filter((mail): boolean => mail.to === email && !/token=[a-f0-9]{64}/.test(mail.text));
+
+  it('keeps the totals of the first close when the browser retries with a failure', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    await closeRun(token, jobId, {
+      outcome: 'SUCCEEDED',
+      productsCents: 8450,
+      deliveryFeesCents: 790,
+    });
+
+    const retried = await closeRun(token, jobId, { outcome: 'FAILED' });
+
+    expect(retried.data?.finishGroceryJob).toMatchObject({
+      status: 'SUCCEEDED',
+      productsCents: 8450,
+      deliveryFeesCents: 790,
+    });
+  });
+
+  it('writes the report once, not once per close', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
+    await closeRun(token, jobId, { outcome: 'FAILED' });
+    await api.resolve(GroceryReportNotifier).settled();
+
+    expect(reportsTo('matthias@example.com')).toHaveLength(1);
+  });
+
+  it('stays running when the cupboard cannot be restated, and the retry completes it', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    vi.spyOn(api.resolve(GroceryPantryRepository), 'replace').mockRejectedValueOnce(
+      new Error('database went away'),
+    );
+
+    const failed = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
+    const waiting = await api.graphql<{ groceryJob: { status: string } }>(JOB, { jobId }, cookie);
+    const retried = await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
+    await api.resolve(GroceryReportNotifier).settled();
+
+    expect(failed.errors?.[0]?.message).toBeDefined();
+    expect(waiting.data?.groceryJob.status).toBe('RUNNING');
+    expect(retried.data?.finishGroceryJob.status).toBe('SUCCEEDED');
+    expect(reportsTo('matthias@example.com')).toHaveLength(1);
+  });
+
+  it('takes no more events once the run is closed', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    await closeRun(token, jobId, { outcome: 'SUCCEEDED' });
+
+    const reported = await api.graphql(
+      REPORT_EVENT,
+      { jobId, input: { kind: 'LINE_ADDED', foodId: 'brownRice' } },
+      undefined,
+      asDevice(token),
+    );
+    const followed = await api.graphql<{ groceryJob: { events: unknown[] } }>(
+      JOB,
+      { jobId },
+      cookie,
+    );
+
+    expect(reported.errors?.[0]?.message).toBeDefined();
+    expect(followed.data?.groceryJob.events).toEqual([]);
+  });
+});
+
+describe('when the report cannot be sent', () => {
+  // The failure is armed once the account is open: signing up sends a mail of
+  // its own, which would fail first and prove nothing about the report.
+  const closeSucceeded = async (breakIt: () => void): Promise<string | undefined> => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+    breakIt();
+    const response = await api.graphql<{ finishGroceryJob: { status: string } }>(
+      FINISH_JOB,
+      { jobId: queued.id, input: { outcome: 'SUCCEEDED', productsCents: 8450 } },
+      undefined,
+      asDevice(token),
+    );
+
+    return response.data?.finishGroceryJob.status;
+  };
+
+  // Stands in for a server that accepts the connection and never answers. It is
+  // let go at the end of the test so nothing is left waiting on it.
+  const neverAnswering = (): { pending: Promise<never>; release: () => void } => {
+    let release = (): void => undefined;
+    const pending = new Promise<never>((resolve): void => {
+      release = resolve as () => void;
+    });
+
+    return { pending, release };
+  };
+
+  afterEach((): void => {
+    vi.restoreAllMocks();
+  });
+
+  it('closes the run all the same when the mail server is down', async () => {
+    const closed = await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(MailService), 'send').mockRejectedValue(new Error('smtp is down'));
+    });
+
+    expect(closed).toBe('SUCCEEDED');
+  });
+
+  it('closes the run all the same when the push service fails', async () => {
+    const closed = await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
+    });
+
+    expect(closed).toBe('SUCCEEDED');
+  });
+
+  it('still sends the mail when the push service fails', async () => {
+    await closeSucceeded((): void => {
+      vi.spyOn(api.resolve(PushService), 'send').mockRejectedValue(new Error('push is down'));
+    });
+    await api.resolve(GroceryReportNotifier).settled();
+
+    expect(api.mails().some((mail): boolean => mail.subject.startsWith('Panier prêt'))).toBe(true);
+  });
+
+  it('answers the browser without waiting for a mail server that never answers', async () => {
+    const stuck = neverAnswering();
+    try {
+      const closed = await closeSucceeded((): void => {
+        vi.spyOn(api.resolve(MailService), 'send').mockReturnValue(stuck.pending);
+      });
+
+      expect(closed).toBe('SUCCEEDED');
+    } finally {
+      stuck.release();
+      await api.resolve(GroceryReportNotifier).settled();
+    }
+  });
+
+  it('answers the browser without waiting for a push service that never answers', async () => {
+    const stuck = neverAnswering();
+    try {
+      const closed = await closeSucceeded((): void => {
+        vi.spyOn(api.resolve(PushService), 'send').mockReturnValue(stuck.pending);
+      });
+
+      expect(closed).toBe('SUCCEEDED');
+    } finally {
+      stuck.release();
+      await api.resolve(GroceryReportNotifier).settled();
+    }
+  });
+});
+
+describe('writes that must land whole or not at all', () => {
+  // Postgres refuses 2^40 in an integer column, which is how a write is made to
+  // fail half way without touching the application's own rules.
+  const TOO_BIG = 2 ** 40;
+
+  const accountIdOf = async (email: string): Promise<string> =>
+    (await api.resolve(UserRepository).findRecordByEmail(email))!.id;
+
+  it('leaves no run behind when its basket cannot be stored', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const userId = await accountIdOf('matthias@example.com');
+
+    await expect(
+      api.resolve(GroceryJobRepository).create({
+        userId,
+        weekOf: '2026-08-24',
+        lines: [
+          { foodId: 'brownRice', grams: 960, fromPantry: 0 },
+          { foodId: 'oats', grams: TOO_BIG, fromPantry: 0 },
+        ],
+      }),
+    ).rejects.toThrow();
+
+    const jobs = await api.graphql<{ myGroceryJobs: unknown[] }>(
+      `query { myGroceryJobs { id } }`,
+      undefined,
+      cookie,
+    );
+    expect(jobs.data?.myGroceryJobs).toEqual([]);
+  });
+
+  it('keeps the old cupboard when the new one cannot be stored', async () => {
+    await signIn('matthias@example.com');
+    const userId = await accountIdOf('matthias@example.com');
+    const pantry = api.resolve(GroceryPantryRepository);
+    await pantry.replace(userId, new Map([['oats', 300]]));
+
+    await expect(
+      pantry.replace(
+        userId,
+        new Map([
+          ['brownRice', 40],
+          ['lentils', TOO_BIG],
+        ]),
+      ),
+    ).rejects.toThrow();
+
+    expect(await pantry.forUser(userId)).toEqual(new Map([['oats', 300]]));
+  });
+
+  it('restates the cupboard as exactly the new set', async () => {
+    await signIn('matthias@example.com');
+    const userId = await accountIdOf('matthias@example.com');
+    const pantry = api.resolve(GroceryPantryRepository);
+    await pantry.replace(userId, new Map([['oats', 300]]));
+
+    await pantry.replace(
+      userId,
+      new Map([
+        ['brownRice', 40],
+        ['lentils', 0],
+      ]),
+    );
+
+    expect(await pantry.forUser(userId)).toEqual(new Map([['brownRice', 40]]));
+  });
+
+  it('keeps the old windows when the new ones cannot be stored', async () => {
+    await signIn('matthias@example.com');
+    const userId = await accountIdOf('matthias@example.com');
+    const slots = api.resolve(GrocerySlotRepository);
+    const saturday = { weekday: 6, startMinute: 540, endMinute: 720 };
+    await slots.replace(userId, [saturday]);
+
+    await expect(
+      slots.replace(userId, [
+        { weekday: 3, startMinute: 1080, endMinute: 1260 },
+        { weekday: TOO_BIG, startMinute: 0, endMinute: 60 },
+      ]),
+    ).rejects.toThrow();
+
+    expect(await slots.forUser(userId)).toEqual([saturday]);
+  });
+
+  it('applies none of the prices of a run when one of them cannot be stored', async () => {
+    const catalog = api.resolve(GroceryCatalogRepository);
+    await catalog.record([
+      { foodId: 'oats', ean: '1', name: 'Oats', size: 500 },
+      { foodId: 'brownRice', ean: '2', name: 'Rice', size: 500 },
+    ]);
+
+    await expect(
+      catalog.recordPrices([
+        { foodId: 'oats', ean: '1', name: 'Oats renamed', priceCents: 150 },
+        { foodId: 'brownRice', ean: '2', name: 'Rice renamed', priceCents: TOO_BIG },
+      ]),
+    ).rejects.toThrow();
+
+    expect((await catalog.knownProducts()).get('oats')?.name).toBe('Oats');
+  });
+});
+
+describe('refusing a list of foods that cannot be one', () => {
+  it('turns down a missing food whose identifier is absurdly long', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const response = await api.graphql(
+      FINISH_JOB,
+      {
+        jobId: queued.id,
+        input: { outcome: 'SUCCEEDED', missingFoodIds: ['x'.repeat(1000)] },
+      },
+      undefined,
+      asDevice(token),
+    );
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 });

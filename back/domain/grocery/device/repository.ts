@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
+import { insertedRow } from '../../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
 import { GroceryDevice } from './model';
 import { groceryDevice } from './schema';
@@ -9,12 +10,12 @@ export class GroceryDeviceRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
   async pair(userId: string, label: string, tokenHash: string): Promise<GroceryDevice> {
-    const [record] = await this.database
+    const records = await this.database
       .insert(groceryDevice)
       .values({ userId, label, tokenHash })
       .returning();
 
-    return this.toDevice(record);
+    return this.toDevice(insertedRow(records));
   }
 
   async findByTokenHash(tokenHash: string): Promise<{ id: string; userId: string } | undefined> {

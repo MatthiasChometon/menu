@@ -15,11 +15,5 @@ export type PriceSighting = {
   priceCents: number;
 };
 
-/** One entry of front/domain/menu/content/carrefour-products.json, which seeds the table. */
-export type ReferenceEntry = {
-  name?: string;
-  ean?: string;
-  size?: number;
-  packagingObserved?: string;
-  price?: number;
-};
+/** A sighting that also states what a unit holds: only a substitute does. */
+export type ObservedSighting = PriceSighting & { size?: number };

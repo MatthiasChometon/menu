@@ -104,3 +104,22 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   exponential fragment depth, Fastify 4xx turned into 500, proxy chain). Open for Matthias after the
   final merge: check on the real server that a spoofed `X-Forwarded-For` does not change the rate-limit
   bucket. Added lot M13 (dependency upgrades + `pnpm audit` in CI), run before M12.
+- 2026-11-24 — M2 (back `domain/grocery`). Done: every `noUncheckedIndexedAccess` site of the slice
+  fixed (flag still off, last back lot turns it on; `insertedRow` helper in
+  `infrastructure/database/rows.ts` for `insert ... returning`); job status / event kind typed on the
+  column (`$type`, no migration) instead of cast; job + basket lines created in one transaction;
+  stable `ORDER BY` (claim, basket lines, push, slots); `close` takes one object and throws
+  `NotFoundException` from the service like `reportEvent`; the report notification can no longer fail a
+  closed run; same food observed twice in one run no longer 500s (upsert hit one row twice); a malformed
+  UUID argument is a `BAD_USER_INPUT` instead of a 500; seeder validates the JSON file at runtime and
+  the seed script exits non-zero on failure; dead code removed (`PushMessage`, `pantry.set`,
+  `ReferenceEntry`). Deferred on purpose: scalar arguments without a length cap (`label`, `endpoint`;
+  moving them into input types changes the contract the extension and front use); slot window
+  `endMinute > startMinute` and concurrent `replace` on slots (needs a constraint, so a migration).
+  Review round: `finish` only closes a RUNNING run (a retry returns the stored run, no second mail:
+  the extension retries a close with `FAILED`, which used to overwrite a success); the report goes out
+  in the background (`GroceryReportNotifier`, web-push call capped at 5 s, drained on shutdown; the pantry and prices restate shares the status flip transaction) so a dead mail or push
+  service cannot hold the browser; `GroceryService` split (notifier, `CatalogAbsorber`); an event can
+  only be appended to a RUNNING run, in one statement; `recordPrices` in one transaction and after the
+  upsert; indexes on every FK and on the claim query (migration 0015); tests for the failure paths and
+  the all-or-nothing writes. Deferred: `timestamp` to `timestamptz` (see D11); SMTP transport timeouts (infrastructure/mail, not this lot).
