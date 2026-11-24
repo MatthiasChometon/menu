@@ -65,7 +65,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 
 - [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
 - [x] M2 — impl · review · ci · ok · merged (PR #3, 4759525)
-- [ ] M3 — impl · review · ci · ok · merged
+- [x] M3 — impl · review · ci · ok · merged (PR #5, a10a9ee)
 - [ ] M4 — impl · review · ci · ok · merged
 - [ ] M5 — impl · review · ci · ok · merged
 - [ ] M6 — impl · review · ci · ok · merged
@@ -165,3 +165,10 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   before a unique `lower(email)` index. Awaited mail sends (forgot-password / resend / register timing
   between known and unknown addresses): owner M13 / infrastructure mail (transport timeouts, drain).
   JWT not revoked on logout: accepted, the guard checks `sessionVersion` and a reset retires sessions.
+- 2026-11-24 — M3 merged (PR #5): 4 review rounds, 18 findings. Bugs fixed with fail-first proven on probes #6/#7
+  (list in the PR body): sign-up race on a taken address, Google upsert race, household cap race, link burnt by a
+  failed write, unknown-email login timing, Google callback refusing an array `state`, `oauth_state` cookie left on
+  failure, blocked account modified before the check, made-up reset token costing a hash, Google 4xx/408/429 mapping.
+  Regression guards (not red on a probe, labelled in the PR body): two holders of one link, Google extra params → 302,
+  Passenger-keyed checks, malformed UUID, constant-time state. Residual risk and e-mail case-insensitivity: see the
+  M3 implementer entry above (case-insensitivity needs Matthias for the prod data check).
