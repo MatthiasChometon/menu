@@ -29,7 +29,7 @@ const reminders = computed((): { icon: string; text: string }[] => [
       {{ $t('menu.reminder.title') }}
     </h2>
     <ul class="space-y-2">
-      <li v-for="reminder in reminders" :key="reminder.text" class="flex items-start gap-2.5">
+      <li v-for="reminder in reminders" :key="reminder.icon" class="flex items-start gap-2.5">
         <UIcon :name="reminder.icon" class="mt-0.5 size-4 shrink-0 text-primary" />
         <span class="text-sm text-muted">{{ reminder.text }}</span>
       </li>

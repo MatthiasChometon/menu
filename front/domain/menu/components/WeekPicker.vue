@@ -119,7 +119,7 @@ onMounted((): void => {
         {{ weekLabel(statusOfSelected) }}
       </UBadge>
       <UButton
-        v-if="isAway && homeWeek"
+        v-if="isAway && homeWeek !== undefined"
         color="primary"
         variant="link"
         size="xs"
