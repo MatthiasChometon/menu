@@ -6,5 +6,5 @@ export class GroceryPreference {
     nullable: true,
     description: 'Warn when the basket goes above this, in cents. Absent means never warn.',
   })
-  alertThresholdCents?: number;
+  alertThresholdCents?: number | undefined;
 }

@@ -125,7 +125,7 @@ export const startTestApp = async (): Promise<TestApp> => {
     const response = await app.inject({
       method: 'POST',
       url,
-      payload: body,
+      ...(body === undefined ? {} : { payload: body }),
       headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
     });
 

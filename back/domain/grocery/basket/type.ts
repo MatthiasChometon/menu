@@ -2,7 +2,7 @@ export type FoodNeed = {
   foodId: string;
   grams: number;
   /** How the menu names this food, which is what a substitute must live up to. */
-  label?: string;
+  label?: string | undefined;
 };
 
 export type KnownProduct = {
@@ -14,12 +14,12 @@ export type KnownProduct = {
 
 export type BasketLine = {
   foodId: string;
-  label?: string;
+  label?: string | undefined;
   /** Grams the menu calls for, before the pantry is taken off. */
   grams: number;
   /** Grams already at home, which is why fewer units may be needed. */
   fromPantry: number;
-  product?: KnownProduct;
+  product?: KnownProduct | undefined;
   /** How many of that product to put in the basket. Absent when no product is known yet. */
-  units?: number;
+  units?: number | undefined;
 };

@@ -5,9 +5,9 @@ import { GroceryJob } from './model';
 import type { groceryJob, groceryJobEvent } from './schema';
 
 export type JobEventDetails = {
-  foodId?: string;
-  label?: string;
-  detail?: string;
+  foodId?: string | undefined;
+  label?: string | undefined;
+  detail?: string | undefined;
 };
 
 export type ReportedEvent = JobEventDetails & {
@@ -15,9 +15,9 @@ export type ReportedEvent = JobEventDetails & {
 };
 
 export type JobReport = {
-  productsCents?: number;
-  deliveryFeesCents?: number;
-  shortOfMinimumCents?: number;
+  productsCents?: number | undefined;
+  deliveryFeesCents?: number | undefined;
+  shortOfMinimumCents?: number | undefined;
 };
 
 /** How a run ended, as far as the run itself is concerned. */
@@ -37,7 +37,7 @@ export type JobClosure = {
 export type NewJob = {
   userId: string;
   weekOf: string;
-  alertThresholdCents?: number;
+  alertThresholdCents?: number | undefined;
   lines: BasketLine[];
 };
 
