@@ -194,4 +194,5 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   boundary; duplicate ingredient `foodId`s in a custom recipe are still merged silently by the
   `Object.fromEntries` storage shape; `RECIPE_ID` (weekPlan) and the food id pattern (customRecipe) are
   two copies of one rule. **For M12 (infrastructure):** the HTML `escape` helper is copied in the two
-  report emails and the grocery report mail.
+  report emails and the grocery report mail; the lock + count + insert cap body is copied between
+  customFood, customRecipe and household (a shared `insertUnlessFull` helper). **Deletion candidates:** none.
