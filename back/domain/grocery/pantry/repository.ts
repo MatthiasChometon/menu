@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
 import { groceryPantry } from './schema';
 
@@ -35,15 +35,5 @@ export class GroceryPantryRepository {
         await transaction.insert(groceryPantry).values(rows);
       }
     });
-  }
-
-  async set(userId: string, foodId: string, grams: number): Promise<void> {
-    await this.database
-      .insert(groceryPantry)
-      .values({ userId, foodId, grams, updatedAt: new Date() })
-      .onConflictDoUpdate({
-        target: [groceryPantry.userId, groceryPantry.foodId],
-        set: { grams: sql`excluded.grams`, updatedAt: sql`excluded.updated_at` },
-      });
   }
 }

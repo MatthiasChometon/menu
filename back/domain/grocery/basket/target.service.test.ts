@@ -31,7 +31,7 @@ describe('turning a week into a basket', () => {
       new Map([['brownRice', RICE]]),
     );
 
-    expect(lines[0].units).toBe(1);
+    expect(lines[0]?.units).toBe(1);
   });
 
   it('takes the pantry off before counting units', () => {
@@ -74,7 +74,7 @@ describe('turning a week into a basket', () => {
     const lines = service.linesFor([{ foodId: 'tofu', grams: 400 }], new Map(), new Map());
 
     expect(lines).toEqual([expect.objectContaining({ foodId: 'tofu', grams: 400 })]);
-    expect(lines[0].units).toBeUndefined();
+    expect(lines[0]?.units).toBeUndefined();
   });
 });
 

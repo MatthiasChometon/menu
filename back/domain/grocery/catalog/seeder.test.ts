@@ -1,25 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { GroceryCatalogRepository } from './repository';
-import { GroceryCatalogSeeder } from './seeder';
-import { ObservedProduct } from './type';
-
-let recorded: ObservedProduct[];
-let seeder: GroceryCatalogSeeder;
-
-beforeEach((): void => {
-  recorded = [];
-  const catalog = {
-    record: vi.fn((products: ObservedProduct[]): Promise<void> => {
-      recorded = products;
-      return Promise.resolve();
-    }),
-  };
-  seeder = new GroceryCatalogSeeder(catalog as unknown as GroceryCatalogRepository);
-});
+import { describe, expect, it } from 'vitest';
+import { productsFromReference } from './seeder';
 
 describe('reading the product reference', () => {
-  it('keeps the barcode, the size and the price in cents', async () => {
-    await seeder.seed({
+  it('keeps the barcode, the size and the price in cents', () => {
+    const recorded = productsFromReference({
       brownRice: {
         name: "Riz Complet CARREFOUR CLASSIC'",
         ean: '3560070510771',
@@ -41,8 +25,8 @@ describe('reading the product reference', () => {
     ]);
   });
 
-  it('skips the comment the file carries alongside the products', async () => {
-    await seeder.seed({
+  it('skips the comment the file carries alongside the products', () => {
+    const recorded = productsFromReference({
       _comment: 'Produits Carrefour retenus pour le menu.',
       brownRice: { name: 'Rice', ean: '3560070510771', size: 500 },
     });
@@ -50,8 +34,8 @@ describe('reading the product reference', () => {
     expect(recorded.map((product): string => product.foodId)).toEqual(['brownRice']);
   });
 
-  it('leaves out an entry that has no barcode to order with', async () => {
-    await seeder.seed({
+  it('leaves out an entry that has no barcode to order with', () => {
+    const recorded = productsFromReference({
       tofu: { name: 'Tofu', size: 200 },
       brownRice: { name: 'Rice', ean: '3560070510771', size: 500 },
     });
@@ -59,11 +43,24 @@ describe('reading the product reference', () => {
     expect(recorded.map((product): string => product.foodId)).toEqual(['brownRice']);
   });
 
-  it('rounds a price that does not divide into whole cents', async () => {
-    await seeder.seed({
+  it('rounds a price that does not divide into whole cents', () => {
+    const recorded = productsFromReference({
       milk: { name: 'Milk', ean: '3270190207443', size: 1000, price: 1.345 },
     });
 
-    expect(recorded[0].priceCents).toBe(135);
+    expect(recorded[0]?.priceCents).toBe(135);
+  });
+
+  it('reads nothing from a file that is not a list of products', () => {
+    expect(productsFromReference('not an object')).toEqual([]);
+    expect(productsFromReference(null)).toEqual([]);
+  });
+
+  it('leaves out an entry whose size is not a number', () => {
+    const recorded = productsFromReference({
+      rice: { name: 'Rice', ean: '3560070510771', size: '500' },
+    });
+
+    expect(recorded).toEqual([]);
   });
 });
