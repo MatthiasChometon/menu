@@ -28,7 +28,7 @@ const whenIdle = (run: () => void): void => {
   // returns it while promising void is exactly what the build refused. Safari
   // has no requestIdleCallback, which the DOM typings do not admit.
   if (!('requestIdleCallback' in window)) {
-    window.setTimeout(run, START_DELAY_MS);
+    setTimeout(run, START_DELAY_MS);
     return;
   }
 
