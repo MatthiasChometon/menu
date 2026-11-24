@@ -31,19 +31,19 @@ const malformedNumbers = (raw: RawEnvironment): string[] => {
     .map(([name, , expected]): string => `${name} must be ${expected}`);
 };
 
-// Run by ConfigModule before anything is built, so a missing secret stops the
+// Run by bootstrap before anything is built, so a missing secret stops the
 // process at boot with every problem listed, not on the first request that
 // happens to need it. Values are never echoed: they may be secrets.
 //
 // Deliberately short: what only matters to one feature (Google, mail, push) is
 // read with getOrThrow where that feature starts, since an unset value there
 // is a legitimate way to switch the feature off.
-export const validateEnvironment = (raw: RawEnvironment): RawEnvironment => {
+export const validateEnvironment = (raw: RawEnvironment): { PORT: number } => {
   const problems = [...missingRequired(raw), ...malformedNumbers(raw)];
 
   if (problems.length > 0) {
     throw new Error(`Invalid environment: ${problems.join('; ')}.`);
   }
 
-  return { ...raw, PORT: isBlank(raw.PORT) ? DEFAULT_PORT : Number(raw.PORT) };
+  return { PORT: isBlank(raw.PORT) ? DEFAULT_PORT : Number(raw.PORT) };
 };

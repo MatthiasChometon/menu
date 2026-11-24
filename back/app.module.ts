@@ -13,7 +13,6 @@ import { ProfileModule } from './domain/profile/module';
 import { UserModule } from './domain/user/module';
 import { WeekPlanModule } from './domain/weekPlan/module';
 import { WeightModule } from './domain/weight/module';
-import { validateEnvironment } from './infrastructure/config/env';
 import { DatabaseInfrastructureModule } from './infrastructure/database/module';
 import { ErrorsInfrastructureModule } from './infrastructure/errors/module';
 import { GraphqlInfrastructureModule } from './infrastructure/graphql/module';
@@ -24,7 +23,7 @@ import { ThrottlerInfrastructureModule } from './infrastructure/http/throttler.m
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, validate: validateEnvironment }),
+    ConfigModule.forRoot({ isGlobal: true }),
     SentryModule.forRoot(),
     ErrorsInfrastructureModule,
     ThrottlerInfrastructureModule,

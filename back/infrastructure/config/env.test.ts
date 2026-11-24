@@ -16,12 +16,6 @@ describe('the environment check made at boot', () => {
     expect(environment.PORT).toBe(4000);
   });
 
-  it('keeps every other variable untouched', () => {
-    const environment = validateEnvironment({ ...valid, FRONT_URL: 'http://localhost:3777' });
-
-    expect(environment.FRONT_URL).toBe('http://localhost:3777');
-  });
-
   it.each(['DATABASE_URL', 'JWT_SECRET'])('refuses to boot without %s', (name) => {
     expect(() => validateEnvironment({ ...valid, [name]: '  ' })).toThrow(`${name} is required`);
   });

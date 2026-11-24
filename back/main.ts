@@ -4,11 +4,10 @@
 import './infrastructure/monitoring/instrument';
 import { createServer } from 'node:http';
 import { Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import { DEFAULT_PORT } from './infrastructure/config/env';
+import { validateEnvironment } from './infrastructure/config/env';
 import { configureApp, createAdapter } from './infrastructure/http/setup';
 
 // Phusion Passenger, which is what the shared host runs, opens the listening
@@ -26,6 +25,10 @@ declare const PhusionPassenger: unknown;
 const underPassenger = (): boolean => typeof PhusionPassenger !== 'undefined';
 
 const bootstrap = async (): Promise<void> => {
+  // Not through ConfigModule's validate hook: that one validates a copy taken when
+  // the module loads, and ConfigService then reads that copy instead of the live
+  // process.env. By now ConfigModule has loaded the .env file into process.env.
+  const { PORT } = validateEnvironment(process.env);
   const app = await NestFactory.create<NestFastifyApplication>(AppModule, createAdapter());
   await configureApp(app);
   // Lets SIGTERM (a deploy, a restart) close the database pool and finish the
@@ -34,7 +37,7 @@ const bootstrap = async (): Promise<void> => {
   app.enableShutdownHooks();
 
   if (!underPassenger()) {
-    await app.listen(app.get(ConfigService).get<number>('PORT', DEFAULT_PORT), '0.0.0.0');
+    await app.listen(PORT, '0.0.0.0');
     return;
   }
 
