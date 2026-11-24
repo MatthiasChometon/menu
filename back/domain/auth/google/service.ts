@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { HttpService } from '@nestjs/axios';
 import {

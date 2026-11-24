@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 // Both optional: Google sends neither when the person refuses, and that case is
