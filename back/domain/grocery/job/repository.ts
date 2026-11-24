@@ -1,29 +1,42 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
+import { insertedRow } from '../../../infrastructure/database/rows';
 import { DATABASE, type Database } from '../../../infrastructure/database/token';
-import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
+import { basketRowsOf } from '../basket/rows';
+import { groceryBasketLine } from '../basket/schema';
+import { GroceryJobStatus } from '../enum';
 import { GroceryJob, GroceryJobEvent } from './model';
 import { groceryJob, groceryJobEvent } from './schema';
-import { JobReport, ReportedEvent } from './type';
+import { JobClosing, NewJob, ReportedEvent } from './type';
 
 @Injectable()
 export class GroceryJobRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  async create(
-    userId: string,
-    weekOf: string,
-    alertThresholdCents: number | undefined,
-  ): Promise<GroceryJob> {
-    const [record] = await this.database
-      .insert(groceryJob)
-      .values({
-        userId,
-        weekOf,
-        status: GroceryJobStatus.PENDING,
-        alertThresholdCents: alertThresholdCents ?? null,
-      })
-      .returning();
+  // The job and its basket go in together: a run with no lines would be
+  // picked up by a browser and fill an empty basket.
+  async create(input: NewJob): Promise<GroceryJob> {
+    const record = await this.database.transaction(
+      async (transaction): Promise<typeof groceryJob.$inferSelect> => {
+        const created = insertedRow(
+          await transaction
+            .insert(groceryJob)
+            .values({
+              userId: input.userId,
+              weekOf: input.weekOf,
+              status: GroceryJobStatus.PENDING,
+              alertThresholdCents: input.alertThresholdCents ?? null,
+            })
+            .returning(),
+        );
+
+        if (input.lines.length > 0) {
+          await transaction.insert(groceryBasketLine).values(basketRowsOf(created.id, input.lines));
+        }
+
+        return created;
+      },
+    );
 
     return this.toJob(record, []);
   }
@@ -46,7 +59,7 @@ export class GroceryJobRepository {
       .select()
       .from(groceryJob)
       .where(eq(groceryJob.userId, userId))
-      .orderBy(sql`${groceryJob.createdAt} desc`, groceryJob.id);
+      .orderBy(desc(groceryJob.createdAt), groceryJob.id);
 
     return records.map((record): GroceryJob => this.toJob(record, []));
   }
@@ -62,7 +75,7 @@ export class GroceryJobRepository {
         sql`${groceryJob.id} = (
           select ${groceryJob.id} from ${groceryJob}
           where ${groceryJob.userId} = ${userId} and ${groceryJob.status} = ${GroceryJobStatus.PENDING}
-          order by ${groceryJob.createdAt}
+          order by ${groceryJob.createdAt}, ${groceryJob.id}
           limit 1
           for update skip locked
         )`,
@@ -90,28 +103,27 @@ export class GroceryJobRepository {
     }
 
     const { kind, ...details } = event;
-    const [record] = await this.database
+    const records = await this.database
       .insert(groceryJobEvent)
       .values({ jobId, kind, payload: details })
       .returning();
 
-    return this.toEvent(record);
+    return this.toEvent(insertedRow(records));
   }
 
   async finish(
     jobId: string,
     deviceId: string,
-    status: GroceryJobStatus,
-    report: JobReport,
+    closing: JobClosing,
   ): Promise<GroceryJob | undefined> {
     const [record] = await this.database
       .update(groceryJob)
       .set({
-        status,
+        status: closing.status,
         finishedAt: new Date(),
-        productsCents: report.productsCents ?? null,
-        deliveryFeesCents: report.deliveryFeesCents ?? null,
-        shortOfMinimumCents: report.shortOfMinimumCents ?? null,
+        productsCents: closing.productsCents ?? null,
+        deliveryFeesCents: closing.deliveryFeesCents ?? null,
+        shortOfMinimumCents: closing.shortOfMinimumCents ?? null,
       })
       .where(and(eq(groceryJob.id, jobId), eq(groceryJob.deviceId, deviceId)))
       .returning();
@@ -137,7 +149,7 @@ export class GroceryJobRepository {
     return {
       id: record.id,
       weekOf: record.weekOf,
-      status: GroceryJobStatus[record.status as keyof typeof GroceryJobStatus],
+      status: record.status,
       alertThresholdCents: record.alertThresholdCents ?? undefined,
       createdAt: record.createdAt,
       startedAt: record.startedAt ?? undefined,
@@ -161,7 +173,7 @@ export class GroceryJobRepository {
 
     return {
       id: record.id,
-      kind: GroceryJobEventKind[record.kind as keyof typeof GroceryJobEventKind],
+      kind: record.kind,
       at: record.at,
       foodId: details.foodId,
       label: details.label,

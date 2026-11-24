@@ -17,7 +17,12 @@ export class GrocerySlotRepository {
       })
       .from(grocerySlotWindow)
       .where(eq(grocerySlotWindow.userId, userId))
-      .orderBy(grocerySlotWindow.weekday, grocerySlotWindow.startMinute);
+      .orderBy(
+        grocerySlotWindow.weekday,
+        grocerySlotWindow.startMinute,
+        grocerySlotWindow.endMinute,
+        grocerySlotWindow.id,
+      );
 
     return records;
   }

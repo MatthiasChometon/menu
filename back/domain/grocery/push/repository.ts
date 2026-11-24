@@ -12,7 +12,8 @@ export class GroceryPushRepository {
     const records = await this.database
       .select()
       .from(groceryPushSubscription)
-      .where(eq(groceryPushSubscription.userId, userId));
+      .where(eq(groceryPushSubscription.userId, userId))
+      .orderBy(groceryPushSubscription.createdAt, groceryPushSubscription.id);
 
     return records.map((record): PushTarget => ({
       endpoint: record.endpoint,

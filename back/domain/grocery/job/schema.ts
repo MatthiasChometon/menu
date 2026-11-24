@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { groceryDevice } from '../device/schema';
 import { user } from '../../user/schema';
+import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
 import { JobEventDetails } from './type';
 
 // One request to fill a basket. Created by the site, picked up by whichever
@@ -16,7 +17,7 @@ export const groceryJob = pgTable('grocery_job', {
   weekOf: text('week_of').notNull(),
   // Stored as text so a new status costs no Postgres enum migration, as the
   // profile answers already are.
-  status: text('status').notNull(),
+  status: text('status').$type<GroceryJobStatus>().notNull(),
   deviceId: uuid('device_id').references(() => groceryDevice.id, { onDelete: 'set null' }),
   // Copied from the preferences when the job is created: what the run was told
   // to warn above, not what the account happens to want today.
@@ -40,7 +41,7 @@ export const groceryJobEvent = pgTable('grocery_job_event', {
   jobId: uuid('job_id')
     .notNull()
     .references(() => groceryJob.id, { onDelete: 'cascade' }),
-  kind: text('kind').notNull(),
+  kind: text('kind').$type<GroceryJobEventKind>().notNull(),
   payload: jsonb('payload').$type<JobEventDetails>(),
   at: timestamp('at').notNull().defaultNow(),
 });
