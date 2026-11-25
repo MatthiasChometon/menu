@@ -1,4 +1,4 @@
-import { daysFrom, parisMinutesOf, startOf } from '../../planner/composables/usePlannerWeek';
+import { daysFrom } from '../../planner/composables/usePlannerWeek';
 
 // When each slot's window opens. The recipe schedule the meals are written for
 // (see menu.mealTime in the menu translation): from a slot's own start until

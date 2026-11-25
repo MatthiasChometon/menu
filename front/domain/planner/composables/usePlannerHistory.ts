@@ -1,5 +1,3 @@
-import { weeksBetween } from './usePlannerWeek';
-
 /** A week as it stood the last time it was spread across its days — kept on
  *  the device so the composer can look back without an account. */
 export type ComposedWeekEntry = {

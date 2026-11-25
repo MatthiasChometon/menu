@@ -1,5 +1,3 @@
-import { startOf } from '../../planner/composables/usePlannerWeek';
-
 // A plain French seasonal calendar for the fresh produce the app cooks with —
 // months a shopper actually finds it at its best, not a botanical almanac.
 // Imported staples available year-round (banana, avocado, onion, mushrooms,

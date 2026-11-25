@@ -1,5 +1,3 @@
-import { shiftedBy, startOf } from '../../planner/composables/usePlannerWeek';
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 // A weigh-in is a calendar day in Paris, kept as a plain 'YYYY-MM-DD' string and

@@ -1,4 +1,4 @@
-import { startOf, weeksFrom } from '../../planner/composables/usePlannerWeek';
+import { weeksFrom } from '../../planner/composables/usePlannerWeek';
 import type { Menu, WeekStatus } from '../types/menu.type';
 
 // The week every screen is looking at, and which menu fills it. Held in shared

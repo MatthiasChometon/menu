@@ -1,5 +1,3 @@
-import { startOf, weeksBetween } from '../../planner/composables/usePlannerWeek';
-
 const weekNames: Record<string, WeekName> = { '-1': 'last', '0': 'current', '1': 'next' };
 
 // "Cette semaine" says where you are; "Semaine du 3 août" needs working out.

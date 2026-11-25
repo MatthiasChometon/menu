@@ -1,5 +1,3 @@
-import { shiftedBy, startOf } from '../../planner/composables/usePlannerWeek';
-
 // 0 for Monday … 6 for Sunday, of a 'YYYY-MM-DD' day. Read on UTC midnight, which
 // has no daylight-saving hour and no device zone to trip over.
 const weekdayOf = (day: string): number => (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7;
