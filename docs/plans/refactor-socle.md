@@ -251,23 +251,30 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - 2026-11-24 — M5 merged (PR #11): 2 review rounds, 9 findings. Front and extension now have PR CI.
   Prod bug found by the reviewer: the extension read Carrefour slots in the browser's time zone (hidden by a test TZ pin);
   fixed to Europe/Paris. Next: M6 (front `domain/menu`).
-- 2026-11-24 — M6 (front `domain/menu`), PR on `refactor/socle-m6`. **Turned on:** `utils/` dissolved into pure
-  composables (`useNutrition`, `useTarget`, `useFoodSubstitutes`, `useCatalogBuilder`, `useMenuBuilder`; still
-  free of Nuxt auto-imports so `check.ts`, `loader.ts` and `domain/order/scripts/order.ts` call them; `check`
-  output identical before/after). No dynamic i18n keys left in the slice (`useMenuLabels`; the rule
-  `@intlify/vue-i18n/no-dynamic-keys` is `error` on `domain/menu/**`). Persisted localStorage state is
-  validated (`useStoredValue` + guards) in adherence, leftovers, overrides and swap stores; `useImages` no
-  longer casts the manifest (`as unknown as` gone). Home page split (`ExampleBanner`, `WeekSummary`) and a
-  failed week fetch now shows a retry (`hasFailed`/`retry` on `useSelectedWeek`) instead of an empty week.
+- 2026-11-24 — M6 (front `domain/menu`), PR #12 on `refactor/socle-m6`. **Turned on:** `utils/` dissolved into pure
+  composables (`useNutrition`, `useTarget`, `useFoodSubstitutes`, `useCatalogBuilder`, `useMenuBuilder`). Only
+  `useNutrition`, `useTarget`, `useCatalogBuilder` and `useMenuBuilder` are free of Nuxt auto-imports (a test
+  guards them) because `check.ts`, `loader.ts` and `domain/order/scripts/order.ts` run them under tsx;
+  `useFoodSubstitutes`, `useFoods`, `useRecipes`, `useSeasonings` use auto-imports. `check --courses --detail`
+  and `order` outputs verified identical before/after (diff in the PR body) and a test pins the totals of
+  the published week. `useComposedMenu` and `buildMenu` share one tail (`useMenuBuilder`); the ring geometry is
+  shared (`useRing`). No dynamic i18n keys left in the slice (`useMenuLabels`, tested for completeness in fr and
+  en; `@intlify/vue-i18n/no-dynamic-keys` is `error` on `domain/menu/**`). Persisted localStorage state is
+  validated (`useStoredValue` + guards, a corrupted-storage test per store; one bad entry drops the whole value,
+  on purpose). `useImages` no longer casts the manifest. Home page split (`ExampleBanner`, `WeekSummary`);
+  behaviour change, announced in the PR: a failed week fetch shows an alert (`role="alert"`) with a retry
+  instead of looking like an empty week (tested). **Brand moved into the slice:** palette, fonts and macro
+  colours are `domain/menu/style/tokens.css`, imported by `infrastructure/ui/style/main.css` through the
+  `#brand-tokens` alias (verdure V5 pattern; Tailwind reads `@theme` only in the importing file); the plate
+  palette, icon, OG card scripts and their fonts are `domain/menu/scripts/brand/`. Generated icons and OG
+  cards are byte-identical (sha256 in the PR body). Left in `infrastructure/seo/public`: the generated brand
+  files themselves (served root of the seo layer), owner M10 only if the seo layer is reviewed there.
   **Exempted rules (M5 block) inside the slice:** `no-non-null-assertion` 0, `no-floating-promises` 1 (fixed),
   `no-unnecessary-condition` 1 (fixed), `no-console` 18 in `scripts/check.ts` (allowed by the scripts override).
-  The `domain/**` block is therefore not needed for this slice. **Deferred:** brand content in
-  `infrastructure/asset` (plate palette, OG copy read from `domain/menu/translation`) and `infrastructure/ui/style`:
-  build-time tools whose outputs must stay byte-identical; moving them means a `domain/brand` slice, left for
-  M10 with the other infrastructure decisions; `useComposedMenu` still mirrors part of `buildMenu`
-  (portion ratio, used-recipe set, total price); `RADIUS`/`CIRCUMFERENCE` duplicated in `MacroPlate` and
-  `AdherenceRing` (two lines, no shared abstraction worth it). **Other slices still using dynamic keys**
-  `menu.day.*`, `menu.meal.*`, `menu.macroShort.*`: `domain/batch/components/Containers.vue`,
-  `domain/library/components/RecipeCard.vue` and `Filters.vue` (use `useMenuLabels`).
+  The `domain/**` block is therefore not needed for this slice. **Other slices still using dynamic keys**
+  `menu.day.*`, `menu.meal.*`, `menu.macroShort.*`: `domain/batch/components/Containers.vue` (owner M8, batch)
+  and `domain/library/components/RecipeCard.vue` and `Filters.vue` (owner M9, library): each must switch to
+  `useMenuLabels` and turn `no-dynamic-keys` on for its slice in its own lot (exit condition: rule `error`
+  on the slice, lint green).
   Observation: `infrastructure/images/nuxt.config.ts` `isImageManifest` rejects a manifest carrying a numeric
   `version`. **Deletion candidates:** none.
