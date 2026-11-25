@@ -74,7 +74,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M7 — impl · review · ci · ok · merged (PR #13, c6734e4)
 - [x] M14 — impl · review · ci · ok · merged (PR #14, 0288698)
 - [x] M8 — impl · review · ci · ok · merged (PR #17, 5e5b1ae)
-- [x] M9 — impl · review · ci · ok · merged (PR #20, be0bae9); M9 review nits for M12: anchor `query me` in the e2e stub with `/querys+meb/`, and build the Intl stub with `Object.create(Intl)` instead of `{...Intl}`
+- [x] M9 — impl · review · ci · ok · merged (PR #20, be0bae9); M9 review nits for M12: anchor `query me` in the e2e stub with `/query\s+me/`, and build the Intl stub with `Object.create(Intl)` instead of `{...Intl}`
 - [x] M10 — impl · review · ci · ok · merged (PR #19, d31a3a1); also from M14: the sign-in redirect survives the Google OAuth round trip (carried in `state`, tested)
 - [x] M11 — impl · review · ci · ok · merged (PR #15, 1aa82aa; deploy the back before the extension); also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
 - [ ] M13 — impl · review · ci · ok · merged
