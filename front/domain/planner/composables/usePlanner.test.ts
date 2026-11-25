@@ -2,13 +2,15 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PlannedWeek } from '../types/planner.type';
 
-const { load, persist, user } = vi.hoisted(() => ({
+const { load, persist, user, reportError } = vi.hoisted(() => ({
+  reportError: vi.fn<(context: string, error: unknown) => void>(),
   load: vi.fn<(weekOf: string) => Promise<PlannedWeek | undefined>>(),
   persist: vi.fn<(plan: PlannedWeek) => Promise<string | undefined>>(),
   user: { value: { id: 'reader' } as { id: string } | undefined },
 }));
 
 mockNuxtImport('useWeekPlanStore', () => (): object => ({ load, save: persist }));
+mockNuxtImport('useErrorReporting', () => (): object => ({ reportError }));
 mockNuxtImport('useAuth', () => (): object => ({ user: ref(user.value) }));
 mockNuxtImport('useProfile', () => (): object => ({
   profile: ref({ targets: { kcal: 3000, protein: 165, fat: 80, carbs: 445, fiber: 30 } }),
@@ -30,6 +32,7 @@ const PLANNER_STATE = [
   'planner:savedAt',
   'planner:dirty',
   'planner:saveFailed',
+  'planner:loadFailed',
   'planner:spreadFrom',
   'planner:loaded',
   'planner:drafts',
@@ -38,6 +41,7 @@ const PLANNER_STATE = [
 beforeEach((): void => {
   load.mockReset();
   persist.mockReset();
+  reportError.mockReset();
   user.value = { id: 'reader' };
   clearNuxtState(PLANNER_STATE);
   useState<string>('planner:week').value = WEEK;
@@ -169,6 +173,18 @@ describe('saving the week', () => {
     expect(isSaving.value).toBe(false);
   });
 
+  it('reports the cause of a failed save', async () => {
+    const cause = new Error('offline');
+    persist.mockRejectedValue(cause);
+    selectEveryGroup();
+    const { spread, save } = usePlanner();
+    spread();
+
+    await save();
+
+    expect(reportError).toHaveBeenCalledWith('planner:save', cause);
+  });
+
   it('does not save for somebody who is signed out', async () => {
     user.value = undefined;
     selectEveryGroup();
@@ -200,6 +216,33 @@ describe('reading a week back from the account', () => {
     expect(plan.value.days.monday?.lunch).toBe('a');
     expect(length.value).toBe(3);
     expect(isDirty.value).toBe(false);
+  });
+
+  it('flags a failed read, reports it and keeps what the tab holds', async () => {
+    const cause = new Error('offline');
+    load.mockRejectedValue(cause);
+    selectEveryGroup();
+    const { spread, loadFromAccount, loadFailed, plan, isDirty } = usePlanner();
+    spread();
+    const before = JSON.parse(JSON.stringify(plan.value)) as PlannedWeek;
+
+    await loadFromAccount();
+
+    expect(loadFailed.value).toBe(true);
+    expect(plan.value).toEqual(before);
+    expect(isDirty.value).toBe(true);
+    expect(reportError).toHaveBeenCalledWith('planner:load', cause);
+  });
+
+  it('reads the week on a retry and clears the failure', async () => {
+    load.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(stored());
+    const { loadFromAccount, loadFailed, plan } = usePlanner();
+
+    await loadFromAccount();
+    await loadFromAccount();
+
+    expect(loadFailed.value).toBe(false);
+    expect(plan.value.days.monday?.lunch).toBe('a');
   });
 
   it('starts blank when nothing is stored for that week', async () => {

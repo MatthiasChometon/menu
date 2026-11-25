@@ -18,6 +18,7 @@ export const useComposedMenu = (): {
   menuFor: (weekOf: string) => Promise<Menu | undefined>;
 } => {
   const { load } = useWeekPlanStore();
+  const { reportError } = useErrorReporting();
   const { recipeOf } = useRecipes();
   const { quantitiesOf } = useRecipeQuantities();
   const { macrosOfQuantities } = useNutrition();
@@ -95,7 +96,12 @@ export const useComposedMenu = (): {
       const targets = profile.value?.targets;
       if (targets === undefined) return undefined;
 
-      const plan = await load(weekOf);
+      // A week that cannot be read is shown as a week with nothing in it: the
+      // menu pages have no retry of their own, and the failure is reported.
+      const plan = await load(weekOf).catch((error: unknown): undefined => {
+        reportError('menu:composedWeek', error);
+        return undefined;
+      });
       if (plan === undefined) return undefined;
 
       // In window order — from the day the week starts, not Monday — so the

@@ -23,6 +23,7 @@ const {
   canSave,
   isDirty,
   saveFailed,
+  loadFailed,
   savedAt,
   save,
   loadFromAccount,
@@ -67,12 +68,14 @@ watch(savedAt, (at): void => {
   onScopeDispose((): void => clearTimeout(timer));
 });
 
-const saveState = computed((): SaveState => {
-  if (user.value === undefined) return 'signedOut';
-  if (saveFailed.value) return 'failed';
-  if (isDirty.value) return 'pending';
-  return savedAt.value === undefined ? 'nothing' : 'saved';
-});
+const saveState = computed((): SaveState =>
+  saveStateOf({
+    isSignedIn: user.value !== undefined,
+    failed: saveFailed.value,
+    isDirty: isDirty.value,
+    savedAt: savedAt.value,
+  }),
+);
 
 const hasAnyChoice = computed((): boolean =>
   Object.values(chosenDishes.value).some((picked): boolean => picked.length > 0),
@@ -270,6 +273,8 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
             </UButton>
           </div>
         </div>
+
+        <PlannerLoadFailed v-if="loadFailed" @retry="loadFromAccount" />
 
         <PlannerSaveStatus
           :has-week="hasWeek"

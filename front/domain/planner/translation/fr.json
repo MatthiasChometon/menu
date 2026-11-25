@@ -24,7 +24,9 @@
       "done": "Enregistrée sur ton compte à",
       "justDone": "Enregistré",
       "nothingToSave": "Rien de nouveau à enregistrer pour l'instant.",
-      "failed": "L'enregistrement n'a pas abouti. Réessaie dans un instant."
+      "failed": "L'enregistrement n'a pas abouti. Réessaie dans un instant.",
+      "loadFailed": "Ta semaine n'a pas pu être lue depuis ton compte. Ce qui est à l'écran n'est pas enregistré.",
+      "loadRetry": "Réessayer"
     },
     "group": {
       "main": "Déjeuner et dîner",

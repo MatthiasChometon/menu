@@ -14,6 +14,9 @@ export type PlannerSaving = {
   savedAt: Ref<string | undefined>;
   /** The last attempt to save did not go through. */
   saveFailed: Ref<boolean>;
+  /** The week could not be read from the account. The screen keeps what the tab
+   *  holds, and loadFromAccount is the retry. */
+  loadFailed: Ref<boolean>;
   canSave: ComputedRef<boolean>;
   save: () => Promise<void>;
   loadFromAccount: () => Promise<void>;
@@ -50,10 +53,12 @@ export const usePlannerSaving = (
   const { week: plannerWeek } = usePlannerWeek();
   const { user } = useAuth();
   const { load, save: persist } = useWeekPlanStore();
+  const { reportError } = useErrorReporting();
 
   const isSaving = useState<boolean>('planner:saving', (): boolean => false);
   const savedAt = useState<string | undefined>('planner:savedAt', (): undefined => undefined);
   const saveFailed = useState<boolean>('planner:saveFailed', (): boolean => false);
+  const loadFailed = useState<boolean>('planner:loadFailed', (): boolean => false);
   const loadedWeek = useState<string | undefined>('planner:loaded', (): undefined => undefined);
   // One week's work in progress each, kept for as long as the tab lives.
   const drafts = useState<Record<string, WeekDraft>>(
@@ -75,10 +80,11 @@ export const usePlannerSaving = (
     try {
       savedAt.value = await persist({ ...plan.value, weekOf: plannerWeek.value });
       isDirty.value = false;
-    } catch {
+    } catch (error) {
       // Surfaced through saveFailed: the button used to go back to how it
       // looked, and the week appeared saved when nothing had left the browser.
       saveFailed.value = true;
+      reportError('planner:save', error);
     } finally {
       isSaving.value = false;
     }
@@ -89,7 +95,20 @@ export const usePlannerSaving = (
     if (user.value === undefined || week === '' || loadedWeek.value === week) return;
 
     loadedWeek.value = week;
-    const stored = await load(week);
+    let stored: PlannedWeek | undefined;
+    try {
+      stored = await load(week);
+    } catch (error) {
+      // Not "nothing stored": the week may well exist. Whatever the tab holds
+      // stays on screen, the week is marked unread so a retry can try again, and
+      // the page says so instead of offering a blank week to overwrite it with.
+      loadedWeek.value = undefined;
+      loadFailed.value = true;
+      reportError('planner:load', error);
+
+      return;
+    }
+    loadFailed.value = false;
 
     // A week with nothing stored starts blank. Keeping the previous week's
     // choices on screen would offer them up for saving under a date they were
@@ -130,6 +149,7 @@ export const usePlannerSaving = (
     step.value = 0;
     savedAt.value = undefined;
     saveFailed.value = false;
+    loadFailed.value = false;
 
     const draft = drafts.value[week];
     if (draft !== undefined) {
@@ -150,5 +170,5 @@ export const usePlannerSaving = (
     void loadFromAccount();
   };
 
-  return { isSaving, savedAt, saveFailed, canSave, save, loadFromAccount, switchWeek };
+  return { isSaving, savedAt, saveFailed, loadFailed, canSave, save, loadFromAccount, switchWeek };
 };

@@ -24,7 +24,9 @@
       "done": "Saved to your account at",
       "justDone": "Saved",
       "nothingToSave": "Nothing new to save just yet.",
-      "failed": "Saving did not go through. Try again in a moment."
+      "failed": "Saving did not go through. Try again in a moment.",
+      "loadFailed": "Your week could not be read from your account. What is on screen is not saved.",
+      "loadRetry": "Try again"
     },
     "group": {
       "main": "Lunch and dinner",
