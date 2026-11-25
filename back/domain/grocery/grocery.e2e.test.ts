@@ -1,7 +1,9 @@
+import { eq } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MailService } from '../../infrastructure/mail/service';
 import type { MailMessage } from '../../infrastructure/mail/token';
 import { PushService } from '../../infrastructure/push/service';
+import { holdTransaction, staysPending } from '../../infrastructure/testing/held-transaction';
 import {
   expectPresent,
   startTestApp,
@@ -10,8 +12,10 @@ import {
 } from '../../infrastructure/testing/e2e-app';
 import { UserRepository } from '../user/repository';
 import { GroceryCatalogRepository } from './catalog/repository';
+import { GroceryJobStatus } from './enum';
 import { GroceryJobRepository } from './job/repository';
 import { GroceryPantryRepository } from './pantry/repository';
+import { groceryJob } from './job/schema';
 import { GroceryPushRepository } from './push/repository';
 import { GrocerySlotRepository } from './slot/repository';
 
@@ -1307,6 +1311,41 @@ describe('retrying a call whose answer was lost', () => {
 
     expect(claimed.data?.claimGroceryJob?.id).toBe(first.id);
     expect(retried.data?.claimGroceryJob).toEqual({ id: first.id, status: 'RUNNING' });
+  });
+
+  it('hands back the run an overlapping original is taking, instead of failing on the key', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const devices = await api.graphql<{ myGroceryDevices: { id: string }[] }>(
+      MY_DEVICES,
+      undefined,
+      cookie,
+    );
+    const deviceId = expectPresent(devices.data?.myGroceryDevices[0], 'the device').id;
+    const first = await queueJob(cookie, undefined, '2026-08-24');
+    const second = await queueJob(cookie, undefined, '2026-08-31');
+
+    // The original call has taken the first run under the key and not committed
+    // yet; the retry arrives now and finds the first run locked.
+    const original = await holdTransaction(api.database(), async (transaction): Promise<void> => {
+      await transaction
+        .update(groceryJob)
+        .set({ status: GroceryJobStatus.RUNNING, deviceId, claimKey: KEY, startedAt: new Date() })
+        .where(eq(groceryJob.id, first.id));
+    });
+    const retry = claimWith(token, KEY);
+    expect(await staysPending(retry)).toBe(true);
+    await original.release();
+
+    const answered = await retry;
+    expect(answered.errors).toBeUndefined();
+    expect(answered.data?.claimGroceryJob).toEqual({ id: first.id, status: 'RUNNING' });
+    const untouched = await api.graphql<{ groceryJob: { status: string } }>(
+      JOB,
+      { jobId: second.id },
+      cookie,
+    );
+    expect(untouched.data?.groceryJob.status).toBe('PENDING');
   });
 
   it('takes the next run when the key is a new one', async () => {
