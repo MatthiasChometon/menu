@@ -7,6 +7,7 @@ import type { CoachAdvice, CoachStatus } from '../composables/useWeightCoach';
 const { entries } = useWeightLog();
 const { adviceOf } = useWeightCoach();
 const { hasAnswered, adjustTargets } = useProfile();
+const { t } = useNuxtApp().$i18n;
 
 const advice = computed((): CoachAdvice => adviceOf(entries.value));
 
@@ -17,7 +18,7 @@ const canAdjust = computed(
 );
 
 const isAdjusting = ref(false);
-const adjustFailed = ref(false);
+const { hasFailed: adjustFailed, run } = useAttempt();
 const justAdjusted = ref(false);
 
 // Never applied silently: this only ever runs from the explicit click below,
@@ -27,7 +28,6 @@ watch(
   (): CoachStatus => advice.value.status,
   (): void => {
     justAdjusted.value = false;
-    adjustFailed.value = false;
   },
 );
 
@@ -36,16 +36,28 @@ const applyAdjustment = async (): Promise<void> => {
   if (delta === undefined) return;
 
   isAdjusting.value = true;
-  adjustFailed.value = false;
   try {
-    await adjustTargets(delta);
-    justAdjusted.value = true;
-  } catch {
-    adjustFailed.value = true;
+    await run(() => adjustTargets(delta));
+    justAdjusted.value = !adjustFailed.value;
   } finally {
     isAdjusting.value = false;
   }
 };
+
+// Literal keys, so the translation checker sees every one of them.
+const titles = computed((): Record<CoachStatus, string> => ({
+  notEnoughData: t('weight.coach.notEnoughData.title'),
+  tooSlow: t('weight.coach.tooSlow.title'),
+  onTrack: t('weight.coach.onTrack.title'),
+  tooFast: t('weight.coach.tooFast.title'),
+}));
+
+const descriptions = computed((): Record<CoachStatus, string> => ({
+  notEnoughData: t('weight.coach.notEnoughData.description'),
+  tooSlow: t('weight.coach.tooSlow.description'),
+  onTrack: t('weight.coach.onTrack.description'),
+  tooFast: t('weight.coach.tooFast.description'),
+}));
 
 const icons: Record<CoachStatus, string> = {
   notEnoughData: 'i-lucide-hourglass',
@@ -81,9 +93,9 @@ const rateLabel = computed((): string | undefined => {
       </span>
 
       <div class="min-w-0">
-        <p class="font-semibold">{{ $t(`weight.coach.${advice.status}.title`) }}</p>
+        <p class="font-semibold">{{ titles[advice.status] }}</p>
         <p class="mt-0.5 text-sm text-muted">
-          {{ $t(`weight.coach.${advice.status}.description`) }}
+          {{ descriptions[advice.status] }}
         </p>
 
         <p v-if="rateLabel !== undefined" class="mt-2 text-xs text-dimmed">

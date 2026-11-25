@@ -6,6 +6,7 @@ const { state, adjustTargets } = vi.hoisted(() => ({
   state: {
     entries: [] as { id: string; date: string; kg: number }[],
     hasAnswered: true,
+    live: undefined as { value: { id: string; date: string; kg: number }[] } | undefined,
   },
   adjustTargets: vi.fn(),
 }));
@@ -15,9 +16,12 @@ const { state, adjustTargets } = vi.hoisted(() => ({
 // adjust action reaches the profile composable's own mutation.
 mockNuxtImport(
   'useWeightLog',
-  () => (): { entries: Ref<{ id: string; date: string; kg: number }[]> } => ({
-    entries: ref(state.entries),
-  }),
+  () => (): { entries: Ref<{ id: string; date: string; kg: number }[]> } => {
+    const entries = ref(state.entries);
+    state.live = entries;
+
+    return { entries };
+  },
 );
 
 mockNuxtImport(
@@ -139,6 +143,34 @@ describe('the coach card', () => {
     const wrapper = await mountSuspended(CoachCard);
     await wrapper.find('button').trigger('click');
 
-    expect(wrapper.text()).toContain("n'a pas fonctionné");
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas fonctionné");
+  });
+
+  it('keeps the failure message when the verdict changes, until the next attempt replaces it', async () => {
+    state.entries = [
+      { id: 'a', date: '2026-08-01', kg: 80 },
+      { id: 'b', date: '2026-08-15', kg: 80.1 },
+    ];
+    adjustTargets.mockRejectedValue(new Error('network down'));
+
+    const wrapper = await mountSuspended(CoachCard);
+    await wrapper.find('button').trigger('click');
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true);
+
+    // A new weigh-in turns the stall into a climb that is too fast.
+    if (state.live !== undefined) {
+      state.live.value = [
+        { id: 'a', date: '2026-08-01', kg: 80 },
+        { id: 'b', date: '2026-08-15', kg: 81.4 },
+      ];
+    }
+    await nextTick();
+
+    expect(wrapper.text()).toContain('Tu montes trop vite');
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas fonctionné");
+
+    adjustTargets.mockResolvedValue(undefined);
+    await wrapper.find('button').trigger('click');
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
   });
 });

@@ -6,8 +6,14 @@ const { t, locale } = useNuxtApp().$i18n;
 const { foodOf } = useFoods();
 const { nameOf } = useFoodFormat();
 
+// Built from the Paris month rather than from today's date on the device clock,
+// so the title names the month the produce below is in season for. The year is
+// arbitrary: only the month name is read back.
 const monthLabel = computed((): string =>
-  new Date().toLocaleDateString(locale.value, { month: 'long' }),
+  new Date(Date.UTC(2026, useSeason().currentMonth() - 1, 1)).toLocaleDateString(locale.value, {
+    month: 'long',
+    timeZone: 'UTC',
+  }),
 );
 
 const foods = computed((): Food[] =>

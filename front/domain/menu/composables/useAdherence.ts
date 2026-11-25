@@ -24,6 +24,11 @@ const isWeekAdherence = (value: unknown): value is WeekAdherence =>
 
 let historyStore: Ref<WeekAdherence[]> | undefined;
 
+// The saved trend was there but unreadable (an old version, another tab, a hand
+// edit), so it was dropped: said out loud, not shown as a history that is simply
+// short.
+const isHistoryUnreadable = ref(false);
+
 // One store for every week ever looked at, not one per week: unlike the cooking
 // diary, the trend needs to compare weeks against each other, so they live
 // together under a single key.
@@ -32,6 +37,9 @@ const historyOf = (): Ref<WeekAdherence[]> => {
     'adherence:history',
     [],
     isArrayOf(isWeekAdherence),
+    (): void => {
+      isHistoryUnreadable.value = true;
+    },
   );
   return historyStore;
 };
@@ -54,6 +62,10 @@ export const useAdherence = (
   /** The current week and, before it, up to three earlier ones this device has
    *  tallied — oldest first. */
   history: ComputedRef<WeekAdherence[]>;
+  /** The saved trend could not be read and was left out. */
+  hasFailed: ComputedRef<boolean>;
+  /** Acknowledges the failure: the trend starts again from this week. */
+  dismissFailure: () => void;
 } => {
   const totalCount = computed((): number =>
     (toValue(menu)?.days ?? []).reduce((total, day): number => total + day.meals.length, 0),
@@ -107,5 +119,9 @@ export const useAdherence = (
     totalCount,
     rate,
     history: computed((): WeekAdherence[] => historyOf().value.slice(-HISTORY_LENGTH)),
+    hasFailed: computed((): boolean => isHistoryUnreadable.value),
+    dismissFailure: (): void => {
+      isHistoryUnreadable.value = false;
+    },
   };
 };

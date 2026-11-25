@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+afterEach((): void => {
+  vi.useRealTimers();
+});
 
 describe('useWeightDates', () => {
   it('counts the days between two dates', () => {
@@ -44,5 +48,38 @@ describe('useWeightDates', () => {
     const { todayDate } = useWeightDates();
 
     expect(todayDate()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it("reads today's date on the Paris calendar, whatever the zone of the device", () => {
+    // 22:00 in Paris: the same instant is already tomorrow in Auckland, the zone
+    // the suite runs in, and still today in New York.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-08-20T20:00:00Z'));
+
+    expect(useWeightDates().todayDate()).toBe('2026-08-20');
+  });
+
+  it('rejects a day the calendar does not have', () => {
+    const { isValidDate } = useWeightDates();
+
+    expect(isValidDate('2026-02-31')).toBe(false);
+    expect(isValidDate('2026-04-31')).toBe(false);
+    expect(isValidDate('2026-02-29')).toBe(false);
+    expect(isValidDate('2028-02-29')).toBe(true);
+  });
+
+  it('counts a week as a week across a daylight-saving change', () => {
+    const { weeksBetween, daysBetween, shiftDate } = useWeightDates();
+
+    // Paris springs forward on 2026-03-29, Auckland on 2026-09-27: a week that
+    // holds either is 167 hours long on a local clock, not 168.
+    expect(weeksBetween('2026-03-25', '2026-04-01')).toBe(1);
+    expect(weeksBetween('2026-09-24', '2026-10-01')).toBe(1);
+    expect(daysBetween('2026-09-24', '2026-10-01')).toBe(7);
+    expect(shiftDate('2026-09-24', 7)).toBe('2026-10-01');
+  });
+
+  it('keeps a fraction of a week as a fraction', () => {
+    expect(useWeightDates().weeksBetween('2026-08-01', '2026-08-04')).toBeCloseTo(3 / 7, 10);
   });
 });

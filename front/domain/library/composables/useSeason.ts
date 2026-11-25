@@ -32,5 +32,6 @@ export const useSeason = (): {
     Object.entries(seasonByFoodId)
       .filter(([, months]): boolean => months.includes(month))
       .map(([foodId]): string => foodId),
-  currentMonth: (): Month => new Date().getMonth() + 1,
+  // The produce is bought in France: the month is the Paris one, not the device's.
+  currentMonth: (): Month => Number(startOf(new Date()).slice(5, 7)) as Month,
 });

@@ -3,7 +3,7 @@ import type { MeasurementsInput } from '#gql';
 const { t } = useNuxtApp().$i18n;
 const { user, isLoading: isLoadingUser } = useAuth();
 useSignInRedirect();
-const { profile, isLoading: isLoadingProfile, hasAnswered } = useProfile();
+const { profile, isLoading: isLoadingProfile, hasAnswered, hasFailed, refresh } = useProfile();
 // Somebody who filled the questions during the walkthrough before signing in
 // gets them back here rather than starting over.
 const { draft: draftProfile, clear: clearDraftProfile } = useOnboardingDraftProfile();
@@ -54,7 +54,31 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
         <span class="sr-only">{{ $t('accessibility.loading') }}</span>
       </div>
 
-      <ProfileSignInPrompt v-else-if="!user" />
+      <AuthSignInOptions
+        v-else-if="!user"
+        icon="i-lucide-user-round"
+        :title="$t('profile.signedOut.title')"
+        :hint="$t('profile.signedOut.hint')"
+        :unavailable="$t('profile.signedOut.unavailable')"
+      />
+
+      <!-- Before the form, never inside it: a failed read looks like "no answers",
+           and the form would then offer to overwrite answers it merely failed
+           to load. -->
+      <UAlert
+        v-else-if="hasFailed"
+        role="alert"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="$t('profile.loadFailed')"
+      >
+        <template #actions>
+          <UButton color="error" variant="subtle" @click="refresh">
+            {{ $t('profile.retry') }}
+          </UButton>
+        </template>
+      </UAlert>
 
       <ProfileForm
         v-else-if="isFillingIn"

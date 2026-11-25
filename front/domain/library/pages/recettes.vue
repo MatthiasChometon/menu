@@ -5,7 +5,11 @@ const { recipes } = useRecipes();
 const { entriesOf } = useRecipeCatalog();
 const { seasonalFoodIds, currentMonth } = useSeason();
 const { user } = useAuth();
-const { recipes: myRecipes } = useMyRecipes();
+const {
+  recipes: myRecipes,
+  hasFailed: haveMyRecipesFailed,
+  refresh: refreshMyRecipes,
+} = useMyRecipes();
 const { t } = useNuxtApp().$i18n;
 const isMounted = useMounted();
 
@@ -71,6 +75,26 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
         </div>
       </ClientOnly>
     </header>
+
+    <!-- Their own recipes are missing from the grid below, which would otherwise
+         look complete. -->
+    <ClientOnly>
+      <UAlert
+        v-if="user !== undefined && haveMyRecipesFailed"
+        role="alert"
+        class="mt-6"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="$t('library.myRecipes.loadFailed')"
+      >
+        <template #actions>
+          <UButton color="error" variant="subtle" @click="refreshMyRecipes">
+            {{ $t('library.myRecipes.retry') }}
+          </UButton>
+        </template>
+      </UAlert>
+    </ClientOnly>
 
     <ClientOnly>
       <LibraryMyFoodsPanel v-if="user !== undefined" class="rise mt-6" />

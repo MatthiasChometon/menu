@@ -14,18 +14,31 @@ export const answersOfMember = (member: Member): MemberAnswers => {
 export const useHousehold = (): {
   members: Ref<Member[]>;
   isLoading: ComputedRef<boolean>;
+  hasFailed: ComputedRef<boolean>;
+  refresh: () => Promise<void>;
   add: (name: string, answers: MemberAnswers) => Promise<void>;
   update: (id: string, name: string, answers: MemberAnswers) => Promise<void>;
   remove: (id: string) => Promise<void>;
 } => {
   // Browser-only and shared, like the profile it sits beside: the prerender has
   // no session cookie, so asking the API there would only ever return nothing.
-  const { data, status, refresh } = useAsyncData(
+  const { data, status, error, refresh } = useAsyncData(
     'household-members',
     async (): Promise<Member[]> => {
-      const result = await GqlHouseholdMembers().catch((): undefined => undefined);
+      try {
+        const { householdMembers } = await GqlHouseholdMembers();
 
-      return result?.householdMembers ?? [];
+        // The schema promises a list. A reply without one is a broken answer, and
+        // reading it as an empty household would hide that.
+        if (!Array.isArray(householdMembers)) {
+          throw new TypeError('The household reply carries no member list.');
+        }
+
+        return householdMembers;
+      } catch (failure) {
+        if (isUnauthenticated(failure)) return [];
+        throw failure;
+      }
     },
     { server: false, dedupe: 'defer', default: (): Member[] => [] },
   );
@@ -42,6 +55,8 @@ export const useHousehold = (): {
   return {
     members: data,
     isLoading: computed((): boolean => status.value === 'pending'),
+    hasFailed: computed((): boolean => error.value !== undefined),
+    refresh: reload,
     // Reloaded rather than patched in place: the list is ordered by the server,
     // and guessing where a new person belongs is how a list starts to disagree
     // with the one behind it.

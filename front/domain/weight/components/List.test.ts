@@ -1,4 +1,5 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import List from './List.vue';
 
@@ -34,11 +35,27 @@ mockNuxtImport(
 beforeEach(async () => {
   await useNuxtApp().$i18n.setLocale('fr');
   update.mockClear();
-  remove.mockClear();
+  remove.mockReset();
   errorOf.mockReturnValue(undefined);
 });
 
 describe('the weigh-in list', () => {
+  it('says so, in an alert, when a weigh-in could not be removed', async () => {
+    state.entries = [{ id: 'a', date: '2026-08-01', kg: 80 }];
+    remove.mockRejectedValue(new Error('offline'));
+
+    const wrapper = await mountSuspended(List);
+    await wrapper.find('button[aria-label^="Supprimer"]').trigger('click');
+    const confirm = wrapper
+      .findAll('button')
+      .find((candidate): boolean => candidate.text() === 'Supprimer');
+    await confirm?.trigger('click');
+    await flushPromises();
+
+    expect(remove).toHaveBeenCalledWith('a');
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas fonctionné");
+  });
+
   it('lists every weigh-in it is given, most recent first', async () => {
     state.entries = [
       { id: 'b', date: '2026-08-15', kg: 80.7 },

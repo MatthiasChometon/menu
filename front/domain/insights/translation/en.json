@@ -16,7 +16,9 @@
         "insufficientData": "Not enough weeks on both sides yet (high and low adherence) to compare.",
         "moreRegularWithAdherence": "In weeks where you eat at least 90% of your planned meals, your weight rises more steadily. A trend worth watching, not a proof.",
         "noClearLink": "No clear link yet between your adherence and your weight curve over these weeks."
-      }
+      },
+      "loadFailed": "Your weight diary could not be loaded.",
+      "retry": "Try again"
     },
     "budget": {
       "title": "Budget efficiency",
@@ -58,6 +60,11 @@
       "footer": "menu.mtxlab.xyz",
       "download": "Download",
       "share": "Share",
+      "loadFailed": "The recap could not be worked out: your weigh-ins did not load.",
+      "retry": "Try again",
+      "historyFailed": "The recap could not be worked out: the weeks saved on this device could not be read.",
+      "dismiss": "Start again from this week",
+      "failed": "The recap could not be created. Try again in a moment.",
       "cardAlt": "Recap card of the month, with weight gained, average adherence, budget and favourite dishes",
       "empty": "Not enough data this month yet for a recap.",
       "ctaWeight": "Add a weigh-in",

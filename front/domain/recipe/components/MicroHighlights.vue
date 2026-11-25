@@ -2,6 +2,29 @@
 const { quantities } = defineProps<{ quantities: FoodQuantity[] }>();
 
 const { microsOfQuantities, highlightsOf } = useMicros();
+const { t } = useNuxtApp().$i18n;
+
+// Literal keys, so the translation checker sees every one of them.
+const names = computed((): Record<MicroKey, string> => ({
+  iron: t('recipe.micro.name.iron'),
+  zinc: t('recipe.micro.name.zinc'),
+  magnesium: t('recipe.micro.name.magnesium'),
+  calcium: t('recipe.micro.name.calcium'),
+  potassium: t('recipe.micro.name.potassium'),
+  vitaminC: t('recipe.micro.name.vitaminC'),
+  vitaminD: t('recipe.micro.name.vitaminD'),
+  omega3: t('recipe.micro.name.omega3'),
+}));
+const reasons = computed((): Record<MicroKey, string> => ({
+  iron: t('recipe.micro.why.iron'),
+  zinc: t('recipe.micro.why.zinc'),
+  magnesium: t('recipe.micro.why.magnesium'),
+  calcium: t('recipe.micro.why.calcium'),
+  potassium: t('recipe.micro.why.potassium'),
+  vitaminC: t('recipe.micro.why.vitaminC'),
+  vitaminD: t('recipe.micro.why.vitaminD'),
+  omega3: t('recipe.micro.why.omega3'),
+}));
 
 const highlights = computed((): MicroHighlight[] => highlightsOf(microsOfQuantities(quantities)));
 
@@ -24,7 +47,7 @@ const format = (highlight: MicroHighlight): string =>
         class="rounded-2xl border border-default bg-elevated/30 p-3.5"
       >
         <div class="flex items-baseline justify-between gap-3">
-          <span class="font-semibold">{{ $t(`recipe.micro.name.${highlight.key}`) }}</span>
+          <span class="font-semibold">{{ names[highlight.key] }}</span>
           <span class="shrink-0 text-sm tabular-nums text-muted">
             {{ format(highlight) }} {{ highlight.unit }}
           </span>
@@ -42,7 +65,7 @@ const format = (highlight: MicroHighlight): string =>
           </span>
         </div>
 
-        <p class="mt-2 text-sm text-muted">{{ $t(`recipe.micro.why.${highlight.key}`) }}</p>
+        <p class="mt-2 text-sm text-muted">{{ reasons[highlight.key] }}</p>
       </li>
     </ul>
   </div>

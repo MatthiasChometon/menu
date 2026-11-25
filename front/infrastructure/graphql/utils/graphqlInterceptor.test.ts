@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { handleGraphqlFailure, type GraphqlFailure } from './graphqlInterceptor';
+import { handleGraphqlFailure, isUnauthenticated, type GraphqlFailure } from './graphqlInterceptor';
 
 const handle = (
   failure: Partial<GraphqlFailure>,
@@ -69,4 +69,32 @@ describe('a failed GraphQL operation', () => {
       expect(expireSession).not.toHaveBeenCalled();
     },
   );
+});
+
+describe('telling a signed-out reader from a failure', () => {
+  it('recognises a 401', () => {
+    expect(isUnauthenticated({ statusCode: 401, gqlErrors: [] })).toBe(true);
+  });
+
+  it('recognises an UNAUTHENTICATED error carried by a 200', () => {
+    expect(
+      isUnauthenticated({
+        statusCode: 200,
+        gqlErrors: [{ extensions: { code: 'UNAUTHENTICATED' } }],
+      }),
+    ).toBe(true);
+  });
+
+  it.each([
+    ['a server fault', { statusCode: 500, gqlErrors: [] }],
+    ['no answer at all', { statusCode: undefined, gqlErrors: [] }],
+    ['a forbidden', { statusCode: 200, gqlErrors: [{ extensions: { code: 'FORBIDDEN' } }] }],
+  ])('does not take %s for a signed-out reader', (_label, failure) => {
+    expect(isUnauthenticated(failure)).toBe(false);
+  });
+
+  it('does not take a plain Error or nothing for one', () => {
+    expect(isUnauthenticated(new Error('boom'))).toBe(false);
+    expect(isUnauthenticated(undefined)).toBe(false);
+  });
 });

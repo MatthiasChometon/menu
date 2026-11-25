@@ -49,33 +49,6 @@ export default withNuxt(
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
   },
   {
-    // The domain slices are refactored lot by lot (M6-M10): the last one deletes this
-    // block, so these rules end up on everywhere.
-    files: ['domain/**/*.{ts,vue}'],
-    ignores: [
-      'domain/menu/**',
-      'domain/planner/**',
-      'domain/order/**',
-      'domain/shopping/**',
-      'domain/batch/**',
-      'domain/today/**',
-      'domain/auth/**',
-      'domain/weekShare/**',
-      'domain/onboarding/**',
-      'domain/bugReport/**',
-      'domain/improvementRequest/**',
-      'domain/cooking/**',
-      'domain/customCatalog/**',
-      'domain/legal/**',
-      'domain/progress/**',
-    ],
-    rules: {
-      '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-unnecessary-condition': 'off',
-      'no-console': 'off',
-    },
-  },
-  {
     files: ['infrastructure/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [
@@ -109,25 +82,8 @@ export default withNuxt(
     },
   },
   {
-    // The menu and planner slices have every key literal (see useMenuLabels,
-    // usePlannerLabels); the other slices turn it on as their own lot lands.
-    files: [
-      'domain/menu/**/*.{ts,vue}',
-      'domain/planner/**/*.{ts,vue}',
-      'domain/order/**/*.{ts,vue}',
-      'domain/shopping/**/*.{ts,vue}',
-      'domain/batch/**/*.{ts,vue}',
-      'domain/today/**/*.{ts,vue}',
-      'domain/auth/**/*.{ts,vue}',
-      'domain/weekShare/**/*.{ts,vue}',
-      'domain/onboarding/**/*.{ts,vue}',
-      'domain/bugReport/**/*.{ts,vue}',
-      'domain/improvementRequest/**/*.{ts,vue}',
-      'domain/cooking/**/*.{ts,vue}',
-      'domain/customCatalog/**/*.{ts,vue}',
-      'domain/legal/**/*.{ts,vue}',
-      'domain/progress/**/*.{ts,vue}',
-    ],
+    // Every key is literal in every slice (see useMenuLabels, usePlannerLabels).
+    files: ['domain/**/*.{ts,vue}'],
     rules: { '@intlify/vue-i18n/no-dynamic-keys': 'error' },
   },
 );

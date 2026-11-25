@@ -2,6 +2,7 @@
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
+const { dayLabel, mealLabel } = useMenuLabels();
 const { selectedMenu: currentMenu } = useSelectedWeek();
 const { recipeOf, imageOf } = useRecipes();
 const { variantsOf, portionsOf, weekQuantitiesOf } = useRecipeVariants();
@@ -9,7 +10,12 @@ const { seasoningsOf } = useSeasonings();
 const { nameOf, stepsOf } = useFoodFormat();
 const { macrosOfQuantities } = useNutrition();
 const { isPersonalised, scale } = useMyQuantities();
-const { scale: share, isLoading: isLoadingEaters } = useHouseholdQuantities();
+const {
+  scale: share,
+  isLoading: isLoadingEaters,
+  hasFailed: hasEatersFailed,
+  refresh: refreshEaters,
+} = useHouseholdQuantities();
 
 // The whole week is the default: the point of opening a recipe is to cook it,
 // and everything it is served in gets cooked in one go.
@@ -148,7 +154,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
               color="neutral"
               variant="outline"
             >
-              {{ $t(`menu.day.${serving.day}`) }} · {{ $t(`menu.meal.${serving.slot}`) }}
+              {{ dayLabel(serving.day) }} · {{ mealLabel(serving.slot) }}
             </UBadge>
           </div>
         </div>
@@ -169,6 +175,24 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
           />
         </div>
         <p class="text-sm text-muted">{{ $t('recipe.raw') }}</p>
+        <!-- The recipe is still shown, as written, but the reader must know it is
+             not weighed for them: the quantities below would otherwise pass for
+             their own. -->
+        <UAlert
+          v-if="hasEatersFailed"
+          class="mb-3"
+          role="alert"
+          color="error"
+          variant="subtle"
+          icon="i-lucide-triangle-alert"
+          :title="$t('recipe.portionsFailed')"
+        >
+          <template #actions>
+            <UButton color="error" variant="subtle" @click="() => refreshEaters()">
+              {{ $t('recipe.retry') }}
+            </UButton>
+          </template>
+        </UAlert>
         <UAlert
           v-if="isWeek"
           class="mb-3"

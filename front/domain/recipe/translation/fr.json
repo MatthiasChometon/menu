@@ -31,6 +31,8 @@
       "hint": "Cette recette n'est plus au menu de la semaine."
     },
     "perHundred": "pour 100 g",
+    "portionsFailed": "Tes portions n'ont pas pu être chargées : les quantités sont celles de la recette, pas pesées pour toi.",
+    "retry": "Réessayer",
     "raw": "Les féculents et les viandes se pèsent crus, les conserves égouttées.",
     "micro": {
       "title": "Ce que ça t'apporte",

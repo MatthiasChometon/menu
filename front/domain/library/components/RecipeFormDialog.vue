@@ -62,9 +62,17 @@ const foodItems = computed((): { label: string; value: string }[] =>
     .sort((left, right): number => left.label.localeCompare(right.label)),
 );
 
+// Literal keys, so the translation checker sees every one of them.
+const slotLabels = computed((): Record<RecipeSlot, string> => ({
+  main: t('library.myRecipes.slot.main'),
+  breakfast: t('library.myRecipes.slot.breakfast'),
+  postWorkout: t('library.myRecipes.slot.postWorkout'),
+  snack: t('library.myRecipes.slot.snack'),
+}));
+
 const slotItems = computed((): { label: string; value: RecipeSlot }[] =>
   recipeSlots.map((value): { label: string; value: RecipeSlot } => ({
-    label: t(`library.myRecipes.slot.${value}`),
+    label: slotLabels.value[value],
     value,
   })),
 );
@@ -282,6 +290,7 @@ const submit = async (): Promise<void> => {
 
         <UAlert
           v-if="saveFailed"
+          role="alert"
           color="error"
           variant="subtle"
           icon="i-lucide-triangle-alert"

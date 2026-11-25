@@ -5,6 +5,8 @@ export const useMyRecipes = (): {
   isLoading: ComputedRef<boolean>;
   /** The list could not be loaded: what is shown is not what is stored. */
   hasFailed: ComputedRef<boolean>;
+  /** Asks for the list again: what a retry after a failed load calls. */
+  refresh: () => Promise<void>;
   create: (draft: CustomRecipeDraft) => Promise<void>;
   update: (id: string, draft: CustomRecipeDraft) => Promise<void>;
   remove: (id: string) => Promise<void>;
@@ -31,6 +33,9 @@ export const useMyRecipes = (): {
     recipes: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     hasFailed: computed((): boolean => error.value !== undefined),
+    refresh: async (): Promise<void> => {
+      await refresh();
+    },
     // Reloaded rather than patched in place: the book is ordered by the
     // server, and guessing where a new recipe belongs is how a list starts to
     // disagree with the one behind it.

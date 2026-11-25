@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+afterEach((): void => {
+  vi.useRealTimers();
+});
 
 describe('useSeason', () => {
   it('says a summer vegetable is in season in July', () => {
@@ -24,9 +28,12 @@ describe('useSeason', () => {
     expect(isInSeason('banana', 6)).toBe(false);
   });
 
-  it('reads the current month from the calendar', () => {
-    const { currentMonth } = useSeason();
+  it('reads the current month on the Paris calendar, whatever the zone of the device', () => {
+    // 22:00 on 31 August in Paris: already 1 September in Auckland, the zone the
+    // suite runs in, so a month read on the device clock would say September.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-08-31T20:00:00Z'));
 
-    expect(currentMonth()).toBe(new Date().getMonth() + 1);
+    expect(useSeason().currentMonth()).toBe(8);
   });
 });

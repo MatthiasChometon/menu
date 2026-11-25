@@ -31,6 +31,8 @@
       "hint": "This recipe is no longer on the week's menu."
     },
     "perHundred": "per 100 g",
+    "portionsFailed": "Your portions could not be loaded: the quantities are the recipe as written, not weighed for you.",
+    "retry": "Try again",
     "raw": "Weigh grains and meat raw, tinned pulses drained.",
     "micro": {
       "title": "What this gives you",

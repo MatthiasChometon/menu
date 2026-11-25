@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MicroGap } from '../composables/useMicroGap';
-import type { Menu } from '../../menu/types/menu.type';
+import type { Menu, MicroKey } from '../../menu/types/menu.type';
 
 const { menu } = defineProps<{ menu: Menu | undefined }>();
 
@@ -8,6 +8,19 @@ const { foods } = useFoods();
 const { gapOf } = useMicroGap();
 const { unitOf } = useMicros();
 const { nameOf } = useFoodFormat();
+const { t } = useNuxtApp().$i18n;
+
+// Literal keys, so the translation checker sees every one of them.
+const microNames = computed((): Record<MicroKey, string> => ({
+  iron: t('insights.micro.key.iron'),
+  zinc: t('insights.micro.key.zinc'),
+  magnesium: t('insights.micro.key.magnesium'),
+  calcium: t('insights.micro.key.calcium'),
+  potassium: t('insights.micro.key.potassium'),
+  vitaminC: t('insights.micro.key.vitaminC'),
+  vitaminD: t('insights.micro.key.vitaminD'),
+  omega3: t('insights.micro.key.omega3'),
+}));
 
 const gap = computed((): MicroGap | undefined =>
   menu === undefined ? undefined : gapOf(menu, Object.values(foods)),
@@ -28,7 +41,7 @@ const gap = computed((): MicroGap | undefined =>
     </div>
 
     <div v-else class="rounded-xl bg-default p-4">
-      <p class="text-lg font-semibold">{{ $t(`insights.micro.key.${gap.key}`) }}</p>
+      <p class="text-lg font-semibold">{{ microNames[gap.key] }}</p>
       <p class="mt-1 text-sm text-muted tabular-nums">
         {{ Math.round(gap.averagePercentOfTarget) }}% {{ $t('insights.micro.ofTarget') }}
       </p>

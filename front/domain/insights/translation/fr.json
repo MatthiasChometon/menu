@@ -16,7 +16,9 @@
         "insufficientData": "Pas encore de semaines aux deux profils (haute et basse adhérence) pour comparer.",
         "moreRegularWithAdherence": "Les semaines où tu manges au moins 90 % de tes repas prévus, ton poids progresse plus régulièrement. Une tendance à surveiller, pas une preuve.",
         "noClearLink": "Aucun lien clair pour l'instant entre ton adhérence et ta courbe de poids sur ces semaines."
-      }
+      },
+      "loadFailed": "Ton journal de poids n'a pas pu être chargé.",
+      "retry": "Réessayer"
     },
     "budget": {
       "title": "Efficience du budget",
@@ -58,6 +60,11 @@
       "footer": "menu.mtxlab.xyz",
       "download": "Télécharger",
       "share": "Partager",
+      "loadFailed": "Le bilan n'a pas pu être calculé : tes pesées ne se sont pas chargées.",
+      "retry": "Réessayer",
+      "historyFailed": "Le bilan n'a pas pu être calculé : les semaines enregistrées sur cet appareil n'ont pas pu être lues.",
+      "dismiss": "Repartir de cette semaine",
+      "failed": "Le bilan n'a pas pu être créé. Réessaie dans un instant.",
       "cardAlt": "Carte récapitulative du mois, avec le poids pris, l'adhérence moyenne, le budget et les plats préférés",
       "empty": "Pas encore assez de données ce mois-ci pour un bilan.",
       "ctaWeight": "Ajouter une pesée",

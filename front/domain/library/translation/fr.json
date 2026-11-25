@@ -57,7 +57,9 @@
       "fiber": "Fibres (g)",
       "pricePerKg": "Prix au kg (€)",
       "save": "Enregistrer",
-      "saveFailed": "L'enregistrement a échoué. Réessaie dans un instant."
+      "saveFailed": "L'enregistrement a échoué. Réessaie dans un instant.",
+      "loadFailed": "Tes aliments n'ont pas pu être chargés.",
+      "retry": "Réessayer"
     },
     "myRecipes": {
       "create": "Créer une recette",
@@ -92,7 +94,10 @@
         "breakfast": "Petit-déjeuner",
         "postWorkout": "Après l'entraînement",
         "snack": "Goûter et collation"
-      }
+      },
+      "loadFailed": "Tes recettes n'ont pas pu être chargées : elles manquent peut-être ci-dessous.",
+      "retry": "Réessayer",
+      "removeFailed": "La suppression a échoué. Réessaie dans un instant."
     }
   }
 }

@@ -4,8 +4,10 @@ const emit = defineEmits<{ edit: [id: string] }>();
 
 const localePath = useLocalePath();
 const { nameOf } = useFoodFormat();
+const { macroShortLabel } = useMenuLabels();
 const { imageOf } = useRecipes();
 const { recipes: myRecipes, remove } = useMyRecipes();
+const { hasFailed: hasRemovalFailed, run } = useAttempt();
 
 const isSeasonal = computed((): boolean => entry.seasonalIngredientIds.length > 0);
 
@@ -21,7 +23,7 @@ const isRemoving = ref(false);
 const confirmRemoval = async (): Promise<void> => {
   isRemoving.value = true;
   try {
-    await remove(entry.recipe.id);
+    await run(() => remove(entry.recipe.id));
   } finally {
     isRemoving.value = false;
     isConfirmingRemoval.value = false;
@@ -61,7 +63,7 @@ const confirmRemoval = async (): Promise<void> => {
               :style="{ backgroundColor: `var(--macro-${entry.dominantMacro})` }"
               aria-hidden="true"
             />
-            {{ $t(`menu.macroShort.${entry.dominantMacro}`) }}
+            {{ macroShortLabel(entry.dominantMacro) }}
           </UBadge>
           <UBadge v-if="isSeasonal" color="primary" variant="subtle" size="sm" icon="i-lucide-leaf">
             {{ $t('library.season.badge') }}
@@ -91,6 +93,14 @@ const confirmRemoval = async (): Promise<void> => {
         @click="isConfirmingRemoval = true"
       />
     </div>
+
+    <p
+      v-if="hasRemovalFailed"
+      role="alert"
+      class="absolute inset-x-2 bottom-2 z-10 rounded-lg bg-error/10 px-3 py-2 text-xs text-error"
+    >
+      {{ $t('library.myRecipes.removeFailed') }}
+    </p>
 
     <div
       v-if="isConfirmingRemoval"

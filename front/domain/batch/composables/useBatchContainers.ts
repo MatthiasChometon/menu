@@ -1,5 +1,3 @@
-import { shiftedBy } from '../../planner/composables/usePlannerWeek';
-
 // menu.days is already in the order the week actually runs (see usePlannerWeek),
 // so the day at a given index is exactly that many days after weekOf — no need
 // to know which weekday the menu happens to start on.

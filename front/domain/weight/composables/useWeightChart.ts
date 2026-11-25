@@ -58,10 +58,15 @@ export const useWeightChart = (): {
   // `stroke-dasharray`/`stroke-dashoffset` need to draw the line in on
   // mount without an animation library.
   const lengthOf = (points: ChartPoint[]): number =>
-    points.slice(1).reduce((total, point, index): number => {
-      const previous = points[index]!;
-      return total + Math.hypot(point.x - previous.x, point.y - previous.y);
-    }, 0);
+    points.reduce(
+      (walked, point): { length: number; previous: ChartPoint } => ({
+        length:
+          walked.length + Math.hypot(point.x - walked.previous.x, point.y - walked.previous.y),
+        previous: point,
+      }),
+      // Starting on the first point makes its own segment zero long.
+      { length: 0, previous: points[0] ?? { x: 0, y: 0 } },
+    ).length;
 
   const bandPolygonOf = (top: ChartPoint[], bottom: ChartPoint[]): string => {
     if (top.length < 2 || bottom.length < 2) return '';

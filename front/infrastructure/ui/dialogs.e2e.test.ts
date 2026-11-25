@@ -50,6 +50,32 @@ const WEEK_DAYS = [
   'SUNDAY',
 ] as const;
 
+// What each list the pages read holds when nobody has anything saved yet.
+const EMPTY_READS: Record<string, unknown> = {
+  amIAdmin: false,
+  googleEnabled: false,
+  householdMembers: [],
+  myWeightEntries: [],
+  myCustomFoods: [],
+  myCustomRecipes: [],
+  improvementRequests: [],
+  bugReports: [],
+  myGroceryDevices: [],
+  myGrocerySlotWindows: [],
+  groceryPushKey: null,
+};
+
+// Every read the pages sent that the stub above does not know.
+const unstubbed: string[] = [];
+
+test.beforeEach((): void => {
+  unstubbed.length = 0;
+});
+
+test.afterEach((): void => {
+  expect(unstubbed, 'GraphQL operations nobody stubbed').toEqual([]);
+});
+
 const simuleSession = async (page: import('@playwright/test').Page): Promise<void> => {
   await page.route('**/graphql', async (route): Promise<void> => {
     const corps = route.request().postDataJSON() as {
@@ -77,7 +103,20 @@ const simuleSession = async (page: import('@playwright/test').Page): Promise<voi
         },
       });
 
-    return route.fulfill({ json: { data: {} } });
+    // Every other read answers what the schema promises for "nothing yet": the
+    // app treats a reply without its field as a broken one, so an empty object
+    // would not stand for an empty list.
+    const operation = /query\s+(\w+)/.exec(requete)?.[1] ?? '';
+    if (operation in EMPTY_READS)
+      return route.fulfill({ json: { data: { [operation]: EMPTY_READS[operation] } } });
+
+    // Recorded and failed by the afterEach below: an error answer alone would
+    // only show up as a page that quietly fails to load.
+    unstubbed.push(operation || requete);
+
+    return route.fulfill({
+      json: { errors: [{ message: `Not stubbed by the test: ${operation || requete}` }] },
+    });
   });
 };
 
@@ -185,6 +224,7 @@ test('chaque pop-up dans chaque format', async ({ page }) => {
     await page.goto('/courses');
     await page.getByRole('banner').waitFor();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.locator('main [role="alert"]')).toHaveCount(0);
     // « Tout décocher » n'apparaît qu'une fois quelque chose de coché.
     await page.locator('main button[aria-pressed="false"]').first().click();
     await page.getByRole('button', { name: 'Tout décocher' }).click();
@@ -205,6 +245,7 @@ test('chaque pop-up dans chaque format', async ({ page }) => {
     await page.goto('/profil');
     await page.getByRole('banner').waitFor();
     await expect(page.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 20_000 });
+    await expect(page.locator('main [role="alert"]')).toHaveCount(0);
     await page.getByRole('button', { name: /supprimer mon compte/i }).click();
     await controle('suppression-compte', format.nom);
     await page.keyboard.press('Escape');

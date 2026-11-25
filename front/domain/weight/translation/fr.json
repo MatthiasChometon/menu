@@ -27,7 +27,8 @@
         "date": "Cette date n'est pas valide.",
         "future": "Impossible d'ajouter une pesée dans le futur.",
         "range": "Ce poids semble hors de portée. Vérifie la valeur saisie."
-      }
+      },
+      "removeFailed": "La suppression n'a pas fonctionné. Réessaie."
     },
     "empty": {
       "title": "Aucune pesée pour l'instant",

@@ -3,18 +3,22 @@ import type { MonthlyCardData } from '../composables/useMonthlyRecapCard';
 import type { MonthlyRecap } from '../composables/useMonthlyRecap';
 import type { Menu } from '../../menu/types/menu.type';
 
-const { history } = useAdherence(undefined);
-const { entries } = useWeightLog();
+const { history, hasFailed: hasHistoryFailed, dismissFailure } = useAdherence(undefined);
+const { entries, hasFailed: hasEntriesFailed, refresh: refreshEntries } = useWeightLog();
 const { menuOf } = useMenu();
 const { recapOf } = useMonthlyRecap();
-const { draw, download, shareCard, canShareFiles } = useMonthlyRecapCard();
+const { draw, downloadOrFail, shareOrFail, canShareFiles } = useMonthlyRecapCard();
 const { nameOf } = useFoodFormat();
 const localePath = useLocalePath();
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
+const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas');
 const colorMode = useColorMode();
 const { t, locale } = useNuxtApp().$i18n;
 const isSharing = ref(false);
+
+// A card that could not be drawn or turned into an image is said out loud: a
+// button that does nothing reads as a broken page.
+const { hasFailed, run } = useAttempt('insights.recap.export');
 
 const eatenCountOf = (weekOf: string, menu: Menu, recipeId: string): number =>
   useCookingLog(weekOf).eatenCountOf(menu, recipeId);
@@ -45,28 +49,38 @@ const dataOf = (current: MonthlyRecap): MonthlyCardData => ({
   footer: t('insights.recap.footer'),
 });
 
-const redraw = async (): Promise<void> => {
+const drawCard = async (): Promise<void> => {
   if (canvasRef.value === null || recap.value === undefined) return;
   await draw(canvasRef.value, dataOf(recap.value));
 };
 
+const redraw = (): Promise<void> => run(drawCard);
+
 onMounted(redraw);
 watch([(): string => colorMode.value, locale, recap], redraw);
 
-const filename = (): string => `menu-bilan-${new Date().toISOString().slice(0, 10)}.png`;
+// The day the file is saved, on the Paris calendar: the UTC day would name a
+// card made after midnight in Paris with yesterday's date.
+const filename = (): string => `menu-bilan-${startOf(new Date())}.png`;
 
-const onDownload = async (): Promise<void> => {
-  if (canvasRef.value === null) return;
-  await redraw();
-  await download(canvasRef.value, filename());
-};
+const onDownload = (): Promise<void> =>
+  run(async (): Promise<void> => {
+    if (canvasRef.value === null) return;
+    await drawCard();
+    await downloadOrFail(canvasRef.value, filename());
+  });
 
 const onShare = async (): Promise<void> => {
-  if (canvasRef.value === null) return;
   isSharing.value = true;
-  await redraw();
-  await shareCard(canvasRef.value, filename());
-  isSharing.value = false;
+  try {
+    await run(async (): Promise<void> => {
+      if (canvasRef.value === null) return;
+      await drawCard();
+      await shareOrFail(canvasRef.value, filename());
+    });
+  } finally {
+    isSharing.value = false;
+  }
 };
 </script>
 
@@ -75,8 +89,40 @@ const onShare = async (): Promise<void> => {
     <h2 class="mb-1 text-lg font-semibold">{{ $t('insights.recap.title') }}</h2>
     <p class="mb-4 text-sm text-muted">{{ $t('insights.recap.lead') }}</p>
 
+    <!-- Not the empty invitation: "not enough data" would be wrong to tell
+         somebody whose weigh-ins are merely not loaded. -->
+    <UAlert
+      v-if="hasEntriesFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.recap.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refreshEntries">
+          {{ $t('insights.recap.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="hasHistoryFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.recap.historyFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="dismissFailure">
+          {{ $t('insights.recap.dismiss') }}
+        </UButton>
+      </template>
+    </UAlert>
+
     <div
-      v-if="recap === undefined"
+      v-else-if="recap === undefined"
       class="rounded-xl border border-dashed border-default p-6 text-center"
     >
       <UIcon name="i-lucide-image" class="mx-auto size-8 text-dimmed" aria-hidden="true" />
@@ -93,7 +139,7 @@ const onShare = async (): Promise<void> => {
 
     <div v-else class="flex flex-col items-center gap-4">
       <canvas
-        ref="canvasRef"
+        ref="canvas"
         width="1080"
         height="1350"
         class="w-full max-w-xs rounded-3xl border border-default shadow-sm"
@@ -117,6 +163,10 @@ const onShare = async (): Promise<void> => {
           </UButton>
         </ClientOnly>
       </div>
+
+      <p v-if="hasFailed" role="alert" class="text-center text-sm text-error">
+        {{ $t('insights.recap.failed') }}
+      </p>
     </div>
   </section>
 </template>

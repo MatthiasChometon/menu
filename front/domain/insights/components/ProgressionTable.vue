@@ -5,20 +5,24 @@ import type { ProgressionHint, ProgressionWeek } from '../composables/useProgres
 // time: what got eaten against plan, and what the scale did those same
 // weeks.
 const { history } = useAdherence(undefined);
-const { entries } = useWeightLog();
+const { entries, hasFailed, refresh } = useWeightLog();
 const { weeksOf, hintOf } = useProgressionTable();
-const { locale } = useNuxtApp().$i18n;
+const { dayLabelOf } = useWeightDates();
+const { locale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
 const weeks = computed((): ProgressionWeek[] => weeksOf(history.value, entries.value));
 const hint = computed((): ProgressionHint => hintOf(weeks.value));
+// Literal keys, so the translation checker sees every one of them.
+const hints = computed((): Record<ProgressionHint, string> => ({
+  insufficientData: t('insights.progression.hint.insufficientData'),
+  moreRegularWithAdherence: t('insights.progression.hint.moreRegularWithAdherence'),
+  noClearLink: t('insights.progression.hint.noClearLink'),
+}));
 const isEmpty = computed((): boolean => weeks.value.length === 0);
 
 const dateLabelOf = (weekOf: string): string =>
-  new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
-    day: 'numeric',
-    month: 'short',
-  });
+  dayLabelOf(weekOf, locale.value, { day: 'numeric', month: 'short' });
 
 const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
   week.weightDeltaKg === undefined
@@ -31,7 +35,24 @@ const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
     <h2 class="mb-1 text-lg font-semibold">{{ $t('insights.progression.title') }}</h2>
     <p class="mb-4 text-sm text-muted">{{ $t('insights.progression.lead') }}</p>
 
-    <div v-if="isEmpty" class="rounded-xl border border-dashed border-default p-6 text-center">
+    <!-- Not the empty invitation: "log a weigh-in" would be wrong advice to
+         somebody whose weigh-ins are merely not loaded. -->
+    <UAlert
+      v-if="hasFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.progression.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refresh">
+          {{ $t('insights.progression.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <div v-else-if="isEmpty" class="rounded-xl border border-dashed border-default p-6 text-center">
       <UIcon name="i-lucide-line-chart" class="mx-auto size-8 text-dimmed" aria-hidden="true" />
       <p class="mt-3 text-sm text-muted">{{ $t('insights.progression.empty') }}</p>
       <div class="mt-4 flex flex-wrap justify-center gap-2">
@@ -71,7 +92,7 @@ const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
         </tbody>
       </table>
 
-      <p class="mt-4 text-sm text-muted">{{ $t(`insights.progression.hint.${hint}`) }}</p>
+      <p class="mt-4 text-sm text-muted">{{ hints[hint] }}</p>
     </template>
   </section>
 </template>

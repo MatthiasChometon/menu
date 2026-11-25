@@ -7,8 +7,18 @@ export type GraphqlFailure = {
   gqlErrors: { message?: string; extensions?: { code?: unknown } }[] | undefined;
 };
 
-const hasCode = (failure: GraphqlFailure, code: string): boolean =>
+const hasCode = (failure: Partial<Pick<GraphqlFailure, 'gqlErrors'>>, code: string): boolean =>
   failure.gqlErrors?.some((error): boolean => error.extensions?.code === code) === true;
+
+// The server refused because nobody is signed in. Not a fault for a read that
+// only means something for a signed-in reader: that one answers "nothing yet",
+// while every other failure must stay visible as a failure.
+export const isUnauthenticated = (failure: unknown): boolean => {
+  if (typeof failure !== 'object' || failure === null) return false;
+  const candidate = failure as Partial<GraphqlFailure>;
+
+  return candidate.statusCode === 401 || hasCode(candidate, 'UNAUTHENTICATED');
+};
 
 // Same rules as the REST calls: an ended session is announced, a failure nobody
 // could prevent (no answer at all, a 5xx, an internal error) is reported, and
@@ -17,7 +27,7 @@ export const handleGraphqlFailure = (
   failure: GraphqlFailure,
   { expireSession, report }: FailureHandlers,
 ): void => {
-  if (failure.statusCode === 401 || hasCode(failure, 'UNAUTHENTICATED')) {
+  if (isUnauthenticated(failure)) {
     expireSession();
     return;
   }
