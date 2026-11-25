@@ -7,11 +7,17 @@ import type { ProgressionHint, ProgressionWeek } from '../composables/useProgres
 const { history } = useAdherence(undefined);
 const { entries } = useWeightLog();
 const { weeksOf, hintOf } = useProgressionTable();
-const { locale } = useNuxtApp().$i18n;
+const { locale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
 const weeks = computed((): ProgressionWeek[] => weeksOf(history.value, entries.value));
 const hint = computed((): ProgressionHint => hintOf(weeks.value));
+// Literal keys, so the translation checker sees every one of them.
+const hints = computed((): Record<ProgressionHint, string> => ({
+  insufficientData: t('insights.progression.hint.insufficientData'),
+  moreRegularWithAdherence: t('insights.progression.hint.moreRegularWithAdherence'),
+  noClearLink: t('insights.progression.hint.noClearLink'),
+}));
 const isEmpty = computed((): boolean => weeks.value.length === 0);
 
 const dateLabelOf = (weekOf: string): string =>
@@ -71,7 +77,7 @@ const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
         </tbody>
       </table>
 
-      <p class="mt-4 text-sm text-muted">{{ $t(`insights.progression.hint.${hint}`) }}</p>
+      <p class="mt-4 text-sm text-muted">{{ hints[hint] }}</p>
     </template>
   </section>
 </template>

@@ -50,7 +50,9 @@ const next = async (): Promise<void> => {
   if (isLast.value) return submit();
 
   stepIndex.value += 1;
-  if (isLast.value) await refreshPreview();
+  // Read again rather than through isLast: the guard above has already narrowed
+  // it to false, though the step has moved since.
+  if (stepIndex.value === steps.length - 1) await refreshPreview();
 };
 
 const back = (): void => {

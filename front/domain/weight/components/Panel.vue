@@ -39,7 +39,13 @@ const requestFirstEntry = (): void => {
       <span class="sr-only">{{ $t('accessibility.loading') }}</span>
     </div>
 
-    <WeightSignInPrompt v-else-if="!user" />
+    <AuthSignInOptions
+      v-else-if="!user"
+      icon="i-lucide-scale"
+      :title="$t('weight.signedOut.title')"
+      :hint="$t('weight.signedOut.hint')"
+      :unavailable="$t('weight.signedOut.unavailable')"
+    />
 
     <template v-else>
       <div v-if="isLoadingEntries" class="grid gap-4">

@@ -2,6 +2,7 @@
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
+const { dayLabel, mealLabel } = useMenuLabels();
 const { selectedMenu: currentMenu } = useSelectedWeek();
 const { recipeOf, imageOf } = useRecipes();
 const { variantsOf, portionsOf, weekQuantitiesOf } = useRecipeVariants();
@@ -148,7 +149,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
               color="neutral"
               variant="outline"
             >
-              {{ $t(`menu.day.${serving.day}`) }} · {{ $t(`menu.meal.${serving.slot}`) }}
+              {{ dayLabel(serving.day) }} · {{ mealLabel(serving.slot) }}
             </UBadge>
           </div>
         </div>

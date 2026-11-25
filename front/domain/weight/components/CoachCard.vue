@@ -7,6 +7,7 @@ import type { CoachAdvice, CoachStatus } from '../composables/useWeightCoach';
 const { entries } = useWeightLog();
 const { adviceOf } = useWeightCoach();
 const { hasAnswered, adjustTargets } = useProfile();
+const { t } = useNuxtApp().$i18n;
 
 const advice = computed((): CoachAdvice => adviceOf(entries.value));
 
@@ -47,6 +48,21 @@ const applyAdjustment = async (): Promise<void> => {
   }
 };
 
+// Literal keys, so the translation checker sees every one of them.
+const titles = computed((): Record<CoachStatus, string> => ({
+  notEnoughData: t('weight.coach.notEnoughData.title'),
+  tooSlow: t('weight.coach.tooSlow.title'),
+  onTrack: t('weight.coach.onTrack.title'),
+  tooFast: t('weight.coach.tooFast.title'),
+}));
+
+const descriptions = computed((): Record<CoachStatus, string> => ({
+  notEnoughData: t('weight.coach.notEnoughData.description'),
+  tooSlow: t('weight.coach.tooSlow.description'),
+  onTrack: t('weight.coach.onTrack.description'),
+  tooFast: t('weight.coach.tooFast.description'),
+}));
+
 const icons: Record<CoachStatus, string> = {
   notEnoughData: 'i-lucide-hourglass',
   tooSlow: 'i-lucide-battery-low',
@@ -81,9 +97,9 @@ const rateLabel = computed((): string | undefined => {
       </span>
 
       <div class="min-w-0">
-        <p class="font-semibold">{{ $t(`weight.coach.${advice.status}.title`) }}</p>
+        <p class="font-semibold">{{ titles[advice.status] }}</p>
         <p class="mt-0.5 text-sm text-muted">
-          {{ $t(`weight.coach.${advice.status}.description`) }}
+          {{ descriptions[advice.status] }}
         </p>
 
         <p v-if="rateLabel !== undefined" class="mt-2 text-xs text-dimmed">

@@ -2,6 +2,7 @@
 const { quantities } = defineProps<{ quantities: SharedQuantity[] }>();
 
 const { imageOf } = useFoods();
+const { macroShortLabel } = useMenuLabels();
 const { nameOf, quantityLabel, pieceLabel, round } = useFoodFormat();
 const { substitutesFor, gramsEquivalentTo } = useFoodSubstitutes();
 
@@ -134,7 +135,7 @@ const macroValueLabel = (value: number): string => `${round(value)} g`;
                   :style="{ backgroundColor: `var(--macro-${key})` }"
                   aria-hidden="true"
                 />
-                {{ $t(`menu.macroShort.${key}`) }} {{ macroValueLabel(alt[key]) }}
+                {{ macroShortLabel(key) }} {{ macroValueLabel(alt[key]) }}
               </span>
             </div>
           </li>

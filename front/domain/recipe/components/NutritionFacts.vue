@@ -2,6 +2,7 @@
 const { macros } = defineProps<{ macros: Macros }>();
 
 const { round } = useFoodFormat();
+const { macroLabel } = useMenuLabels();
 const { macroKeys } = useNutrition();
 
 const rows = computed((): { key: keyof Macros; value: number; unit: string }[] =>
@@ -28,7 +29,7 @@ const rows = computed((): { key: keyof Macros; value: number; unit: string }[] =
           :style="{ backgroundColor: `var(--macro-${row.key})` }"
           aria-hidden="true"
         />
-        {{ $t(`menu.macro.${row.key}`) }}
+        {{ macroLabel(row.key) }}
       </dt>
       <dd class="mt-0.5 text-xl font-black tabular-nums">
         {{ round(row.value)

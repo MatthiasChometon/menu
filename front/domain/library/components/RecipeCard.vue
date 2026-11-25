@@ -4,6 +4,7 @@ const emit = defineEmits<{ edit: [id: string] }>();
 
 const localePath = useLocalePath();
 const { nameOf } = useFoodFormat();
+const { macroShortLabel } = useMenuLabels();
 const { imageOf } = useRecipes();
 const { recipes: myRecipes, remove } = useMyRecipes();
 
@@ -61,7 +62,7 @@ const confirmRemoval = async (): Promise<void> => {
               :style="{ backgroundColor: `var(--macro-${entry.dominantMacro})` }"
               aria-hidden="true"
             />
-            {{ $t(`menu.macroShort.${entry.dominantMacro}`) }}
+            {{ macroShortLabel(entry.dominantMacro) }}
           </UBadge>
           <UBadge v-if="isSeasonal" color="primary" variant="subtle" size="sm" icon="i-lucide-leaf">
             {{ $t('library.season.badge') }}

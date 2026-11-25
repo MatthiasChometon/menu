@@ -54,7 +54,13 @@ useSeoMeta({ title: (): string => t('profile.pageTitle') });
         <span class="sr-only">{{ $t('accessibility.loading') }}</span>
       </div>
 
-      <ProfileSignInPrompt v-else-if="!user" />
+      <AuthSignInOptions
+        v-else-if="!user"
+        icon="i-lucide-user-round"
+        :title="$t('profile.signedOut.title')"
+        :hint="$t('profile.signedOut.hint')"
+        :unavailable="$t('profile.signedOut.unavailable')"
+      />
 
       <ProfileForm
         v-else-if="isFillingIn"
