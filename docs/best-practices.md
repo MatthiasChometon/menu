@@ -1,5 +1,7 @@
 # Best practices
 
+Read `docs/lessons-learned.md` too.
+
 One verifiable rule per line, for the whole monorepo (back, front, extension, Docker, CI).
 It is the reference of the `refactor/socle` campaign (`docs/plans/refactor-socle.md`):
 every lot audits its files against this list, and the reviewer checks every PR against it.
@@ -76,6 +78,9 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Large files go through streams (`pipeline` from `node:stream/promises`), never `.pipe()` nor a full `readFile`.
 - [ ] `bootstrap()` failures are caught, logged and exit with a non-zero code.
 - [ ] Long jobs (cron, imports, seeds) are idempotent and can be re-run.
+- [ ] A side effect (mail, push, webhook) never fails the main write nor blocks the response: fire-and-forget with an internal catch and log, and a timeout on the external call.
+- [ ] Errors from an external HTTP service are mapped on purpose: transport errors, 5xx, 408 and 429 mean "retry later" (503); other 4xx are a refusal; anything unexpected is rethrown and logged with its cause.
+- [ ] Production-only behaviour keys on the real runtime signal of the host (Passenger is defined), not on `NODE_ENV`, which the host may leave unset.
 
 ## 5. NestJS
 
@@ -85,6 +90,8 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] The server listens on a configurable `PORT`.
 - [ ] Every REST body and GraphQL argument is a class with class-validator decorators; the global `ValidationPipe` has `whitelist`, `forbidNonWhitelisted` and `transform`; nested inputs use `@ValidateNested` + `@Type`.
 - [ ] Every scalar route param, query param and GraphQL argument with a known format goes through a pipe at the boundary (`ParseUUIDPipe`, `ParseIntPipe`, or a small format pipe for keys and tokens), so a malformed value is a 400 / `BAD_USER_INPUT` before any service or database call.
+- [ ] Every REST `@Body` / `@Query` is a validated DTO and every DTO field carries a validator decorator (the whitelist silently strips undecorated fields); numeric env values are parsed strictly (`/^\d+$/`), never with a bare `Number()` or `parseInt`.
+- [ ] Third-party query parameters (OAuth callbacks) are read by name through a small pipe that refuses arrays, never a whitelisting DTO that would reject their extra parameters; the test sends the real extra parameters.
 - [ ] Controllers and resolvers only translate transport to a service call; business rules live in services; SQL lives in repositories.
 - [ ] Repositories return domain types, never ORM row types leaking to resolvers; mapping is explicit.
 - [ ] Providers are stateless singletons; no `Scope.REQUEST`; the current user comes from a param decorator (`@CurrentUser()`).
@@ -116,6 +123,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] A `@ResolveField` that hits the database on a list type is batched (DataLoader created per request, results in key order) or joined; never N+1.
 - [ ] Every query or mutation on user data is guarded and scoped by the current user id (`where id AND user_id`); never an id or role taken from the input to decide ownership.
 - [ ] Pagination arguments are bounded (max page size).
+- [ ] The depth limit ignores introspection fields (names starting with `__`), and the standard `getIntrospectionQuery()` still passes where introspection is on.
 - [ ] The throttler works in the GraphQL context.
 - [ ] Turning introspection off is not treated as authorization.
 
@@ -135,6 +143,9 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Anti-joins use `not exists`, never `not in`; a left join filters the right table in `ON`.
 - [ ] `jsonb` only for genuinely varied data; filtered fields are columns.
 - [ ] The pool is closed on shutdown.
+- [ ] A state transition guards inside the `UPDATE` (`where status = ...` plus `returning`), so a retry or a double click is idempotent.
+- [ ] Nest runs `onModuleDestroy` before `beforeApplicationShutdown`: a module that ends the pool first awaits pending background work, and a shutdown e2e test proves it.
+- [ ] A `timestamp` to `timestamptz` change is a deliberate migration of its own (existing values are reinterpreted), never slipped into a refactor.
 
 ## 9. Tests (Vitest, Playwright)
 
@@ -147,11 +158,14 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Async failures are asserted with `await expect(...).rejects`; boundary cases are table-driven (`it.each`).
 - [ ] Time is injected (`now()`) rather than faked when possible; fake timers and mocks are restored after each test (`restoreMocks`); tests are order-independent; an env var changed in a test is restored.
 - [ ] The failure path of each external API (timeout, 5xx) has a test.
+- [ ] A bug-fix test is proven to fail first (run before the fix, or on a throwaway branch); a test that is green without the fix is rewritten to discriminate or labelled "regression guard, because ...".
+- [ ] Race tests are deterministic (barrier or held transaction), never a sleep; a guard added to several methods is tested on each of them.
+- [ ] Tests never depend on the machine time zone: pin it explicitly (`Intl.DateTimeFormat` with `timeZone`), never rely on the runner default.
 - [ ] A mock cannot prove SQL: repository behaviour is tested against a real PostgreSQL.
 - [ ] Critical paths are covered: auth, ownership scoping, validation rejections.
 - [ ] Builders (`buildPlant(overrides)`) instead of duplicated literals; no `if` / `for` in tests.
 - [ ] Front: components are tested as a user uses them (`renderSuspended` + Testing Library queries by role, label, text), never `wrapper.vm`; loading, error and empty states are tested.
-- [ ] Visual regression (Playwright `toHaveScreenshot`, mobile / tablet / desktop × light / dark) stays green; baselines are never updated without Matthias validating the change.
+- [ ] Visual regression (Playwright `toHaveScreenshot`, mobile / tablet / desktop × light / dark) stays green; baselines are never updated without the maintainer validating the change.
 
 ## 10. Front (Nuxt, Vue)
 
@@ -161,6 +175,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] No `try/catch` around API calls: errors are read from `error` / `status`.
 - [ ] Cross-cutting HTTP concerns live once, in the `useApi` / GraphQL client interceptors (`onRequest`, `onResponseError`): expired session (401 / `UNAUTHENTICATED`) leads to sign-in, unexpected errors (5xx, network) are reported once, common headers are set there; components never repeat it.
 - [ ] Optimistic updates go through `optimisticUpdate` (snapshot, apply, rollback on error).
+- [ ] Template refs use `useTemplateRef`; an error message block carries an explicit `role="alert"`.
 - [ ] GraphQL types come from codegen (`#gql`), never written by hand; domain types derive from them.
 - [ ] The front reacts to the error `code` (`UNAUTHENTICATED`, `FORBIDDEN`, …), never to the message text.
 - [ ] Global state is minimal: props down, events up; `useState` only for the session user or a genuinely app-wide command.
@@ -186,6 +201,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] `CMD ["node", "dist/main"]` in exec form, never `npm start` / `nest start` (signals reach the process).
 - [ ] `.dockerignore` excludes `node_modules`, `dist`, `.git` and every `.env` file; no secret in `ENV`, `ARG` or an image layer.
 - [ ] Compose: `depends_on` with `condition: service_healthy` and a `pg_isready` healthcheck; services talk by service name; ports bound to `127.0.0.1`; the database port never public; named volumes; no obsolete `version:` key; `restart: unless-stopped`.
+- [ ] Compose ports go through `${BIND_ADDRESS:-127.0.0.1}` so exposure is an explicit choice.
 - [ ] Liveness does not touch the database; readiness does.
 
 ## 12. Security
@@ -209,6 +225,9 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] The process is stateless; files go through the storage abstraction.
 - [ ] The same build runs in every environment; only the environment changes.
 - [ ] CI runs, on every pull request: format check, lint, typecheck, unit tests, e2e tests (back), build — for back, front and extension.
+- [ ] CI workflows declare `permissions: contents: read`, take the pnpm version from `packageManager`, cache every lockfile, and their triggers cover every path the build reads.
+- [ ] Commits follow `type(scope): subject`, in English; a wrong commit is amended rather than left in history. Work happens on a feature branch and a pull request; check its base branch before merging.
+- [ ] A rule or fix deferred to a later step names an owner step and an exit condition in the plan journal.
 
 ## Out of scope (single instance, few users)
 
