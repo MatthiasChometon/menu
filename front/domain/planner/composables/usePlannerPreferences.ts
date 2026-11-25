@@ -49,10 +49,29 @@ export const isEligible = (
 // preference set in one place visible everywhere else in the same tick.
 let sharedPreferences: Ref<PlannerPreferences> | undefined;
 
+const { storedValue, isArrayOf } = useStoredValue();
+
+const isDishKind = (value: unknown): value is DishKind =>
+  value === 'fish' || value === 'meat' || value === 'veggie';
+
+// An optional number is absent (JSON drops undefined) or a real number.
+const isOptionalNumber = (value: unknown): boolean =>
+  value === undefined || (typeof value === 'number' && Number.isFinite(value));
+
+const isPreferences = (value: unknown): value is PlannerPreferences =>
+  typeof value === 'object' &&
+  value !== null &&
+  'excludedKinds' in value &&
+  isArrayOf(isDishKind)(value.excludedKinds) &&
+  (!('maxPrepMinutes' in value) || isOptionalNumber(value.maxPrepMinutes)) &&
+  (!('maxRepeatsPerWeek' in value) || isOptionalNumber(value.maxRepeatsPerWeek)) &&
+  (!('weeklyBudget' in value) || isOptionalNumber(value.weeklyBudget));
+
 const preferencesRef = (): Ref<PlannerPreferences> => {
-  sharedPreferences ??= useLocalStorage<PlannerPreferences>(
+  sharedPreferences ??= storedValue<PlannerPreferences>(
     'planner:preferences',
     DEFAULT_PREFERENCES,
+    isPreferences,
   );
   return sharedPreferences;
 };

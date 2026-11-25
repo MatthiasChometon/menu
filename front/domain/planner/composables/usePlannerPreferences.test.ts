@@ -142,3 +142,23 @@ describe('usePlannerPreferences', () => {
     expect(preferences.value.weeklyBudget).toBeUndefined();
   });
 });
+
+describe('corrupted stored preferences', () => {
+  it('fall back to the defaults instead of breaking the composer', () => {
+    const { preferences } = usePlannerPreferences();
+    const key = 'planner:preferences';
+    const corrupted = JSON.stringify({ excludedKinds: 'fish', maxPrepMinutes: 'soon' });
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(preferences.value).toEqual({
+      excludedKinds: [],
+      maxPrepMinutes: undefined,
+      maxRepeatsPerWeek: undefined,
+      weeklyBudget: undefined,
+    });
+  });
+});
