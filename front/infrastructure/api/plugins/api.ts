@@ -24,6 +24,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     credentials: 'include',
     // The retry ofetch makes by itself (a read, once) gets a jittered wait: every
     // tab that failed together would otherwise come back in the same instant.
+    // Only what the project calls transient: a 500 answers the same again.
+    retryStatusCodes: [...TRANSIENT_STATUS_CODES],
     retryDelay: (): number =>
       backoffDelay(0, { baseDelayMs: 600, maxDelayMs: 2000, random: Math.random }),
     ...interceptors,

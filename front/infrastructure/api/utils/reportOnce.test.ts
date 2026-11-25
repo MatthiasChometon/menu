@@ -13,6 +13,7 @@ const apiAnswering = (answer: () => Promise<Response>): typeof $fetch => {
   return createFetch({ fetch: answer as unknown as typeof fetch }).create({
     baseURL: 'http://api.test',
     retryDelay: 0,
+    retryStatusCodes: [...TRANSIENT_STATUS_CODES],
     ...createApiInterceptors({ expireSession: vi.fn(), report: reportError }),
   }) as typeof $fetch;
 };
@@ -37,6 +38,16 @@ describe('a failure met by the interceptor and by the code that caught it', () =
     await api('/recipes').catch((error: unknown): void => reportError('recipes:load', error));
 
     expect(sentFor('/recipes')).toHaveLength(1);
+  });
+
+  it('does not retry a 500, but retries a 503 once', async () => {
+    const answer = vi.fn(() => Promise.resolve(new Response('{}', { status: 500 })));
+    await apiAnswering(answer)('/recipes').catch((): void => undefined);
+    expect(answer).toHaveBeenCalledTimes(1);
+
+    const busy = vi.fn(() => Promise.resolve(new Response('{}', { status: 503 })));
+    await apiAnswering(busy)('/recipes').catch((): void => undefined);
+    expect(busy).toHaveBeenCalledTimes(2);
   });
 
   it('reaches monitoring once for a network failure', async () => {

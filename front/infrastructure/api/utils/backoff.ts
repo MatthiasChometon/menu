@@ -6,7 +6,8 @@
 
 // What a server answers when it is overloaded or asks to come back later, and
 // nothing else: a 500 is a bug that will answer the same again, a 4xx a refusal.
-const TRANSIENT_STATUSES: ReadonlySet<number> = new Set([408, 429, 502, 503, 504]);
+export const TRANSIENT_STATUS_CODES: readonly number[] = [408, 429, 502, 503, 504];
+const TRANSIENT_STATUSES: ReadonlySet<number> = new Set(TRANSIENT_STATUS_CODES);
 
 export const isTransientStatus = (status: number): boolean => TRANSIENT_STATUSES.has(status);
 

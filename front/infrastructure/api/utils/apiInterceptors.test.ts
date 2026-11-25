@@ -89,6 +89,22 @@ describe('a call that is about to be retried', () => {
     expect(report).not.toHaveBeenCalled();
   });
 
+  it('is reported at once for a 500, which ofetch does not retry', () => {
+    const { onResponseError, report } = setup();
+
+    onResponseError({ request: '/recipes', options: { method: 'GET' }, response: { status: 500 } });
+
+    expect(report).toHaveBeenCalledOnce();
+  });
+
+  it('is reported at once for a network failure, which ofetch does not retry', () => {
+    const { onRequestError, report } = setup();
+
+    onRequestError({ request: '/recipes', options: { method: 'GET' }, error: new TypeError('x') });
+
+    expect(report).toHaveBeenCalledOnce();
+  });
+
   it('is reported when no retry is left', () => {
     const { onResponseError, report } = setup();
 

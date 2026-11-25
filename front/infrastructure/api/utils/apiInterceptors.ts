@@ -29,10 +29,10 @@ export const pathOf = (request: unknown): string => {
   }
 };
 
-// What ofetch retries by itself: a read (never a write) once more, on these
-// statuses or when no answer came (it counts that as a 500). A call about to be
-// retried has not failed yet; only the attempt that does is worth reporting.
-const RETRIED_STATUSES: ReadonlySet<number> = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
+// What ofetch retries by itself: a read (never a write) once more, on the
+// project's transient statuses only (`retryStatusCodes`, see the api plugin). A
+// call about to be retried has not failed yet; only the attempt that does is
+// worth reporting. ofetch counts a missing answer as a 500, which is not transient.
 const PAYLOAD_METHODS: ReadonlySet<string> = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 type CallOptions = { method?: string; retry?: number | false } | undefined;
@@ -47,7 +47,7 @@ export const willBeRetried = (options: CallOptions, status: number | undefined):
         ? 0
         : 1;
 
-  return remaining > 0 && RETRIED_STATUSES.has(status ?? 500);
+  return remaining > 0 && isTransientStatus(status ?? 500);
 };
 
 export const isUnexpectedStatus = (status: number | undefined): boolean =>
