@@ -290,6 +290,7 @@ const submit = async (): Promise<void> => {
 
         <UAlert
           v-if="saveFailed"
+          role="alert"
           color="error"
           variant="subtle"
           icon="i-lucide-triangle-alert"

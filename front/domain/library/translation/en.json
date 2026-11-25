@@ -57,7 +57,9 @@
       "fiber": "Fibre (g)",
       "pricePerKg": "Price per kg",
       "save": "Save",
-      "saveFailed": "The save failed. Try again in a moment."
+      "saveFailed": "The save failed. Try again in a moment.",
+      "loadFailed": "Your foods could not be loaded.",
+      "retry": "Try again"
     },
     "myRecipes": {
       "create": "Create a recipe",
@@ -92,7 +94,10 @@
         "breakfast": "Breakfast",
         "postWorkout": "Post-workout",
         "snack": "Snack"
-      }
+      },
+      "loadFailed": "Your recipes could not be loaded: some may be missing below.",
+      "retry": "Try again",
+      "removeFailed": "Removing failed. Try again in a moment."
     }
   }
 }

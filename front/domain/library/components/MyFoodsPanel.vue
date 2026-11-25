@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { CustomFood } from '../../customCatalog/types/customCatalog.type';
 
-const { foods, remove } = useMyFoods();
+const { foods, hasFailed: hasLoadFailed, refresh, remove } = useMyFoods();
+const { hasFailed, run } = useAttempt();
 const { t } = useNuxtApp().$i18n;
 
 const editing = ref<CustomFood>();
 const isCreateOpen = ref(false);
 const isEditOpen = ref(false);
 const removing = ref<string>();
-const hasFailed = ref(false);
 
 const openEdit = (food: CustomFood): void => {
   editing.value = food;
@@ -17,13 +17,7 @@ const openEdit = (food: CustomFood): void => {
 
 const confirmRemoval = async (id: string): Promise<void> => {
   removing.value = undefined;
-  hasFailed.value = false;
-
-  try {
-    await remove(id);
-  } catch {
-    hasFailed.value = true;
-  }
+  await run(() => remove(id));
 };
 </script>
 
@@ -36,7 +30,26 @@ const confirmRemoval = async (id: string): Promise<void> => {
       </UButton>
     </div>
 
-    <p v-if="foods.length === 0" class="text-sm text-muted">{{ t('library.myFoods.empty') }}</p>
+    <!-- Not the empty message: "no foods" would be a lie about foods that are
+         merely not loaded. -->
+    <UAlert
+      v-if="hasLoadFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="t('library.myFoods.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refresh">
+          {{ t('library.myFoods.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <p v-else-if="foods.length === 0" class="text-sm text-muted">
+      {{ t('library.myFoods.empty') }}
+    </p>
 
     <ul v-else class="grid gap-2 sm:grid-cols-2">
       <li
@@ -92,6 +105,7 @@ const confirmRemoval = async (id: string): Promise<void> => {
 
     <UAlert
       v-if="hasFailed"
+      role="alert"
       color="error"
       variant="subtle"
       icon="i-lucide-triangle-alert"
