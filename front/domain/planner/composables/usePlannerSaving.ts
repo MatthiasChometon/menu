@@ -169,7 +169,7 @@ export const usePlannerSaving = (
     spreadFrom.value = '';
     isDirty.value = false;
     locked.value = {};
-    void loadFromAccount();
+    loadFromAccount().catch((failure: unknown): void => reportError('planner:load', failure));
   };
 
   return { isSaving, savedAt, saveFailed, loadFailed, canSave, save, loadFromAccount, switchWeek };

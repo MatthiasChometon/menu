@@ -16,8 +16,8 @@ watch(thresholdCents, (cents): void => {
   euros.value = cents === undefined ? '' : String(cents / 100);
 });
 
-onMounted((): void => {
-  void refresh();
+onMounted(async (): Promise<void> => {
+  await refresh();
 });
 </script>
 

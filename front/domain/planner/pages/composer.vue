@@ -124,12 +124,12 @@ const onNext = (): void => {
   goNext();
 };
 
-onMounted((): void => {
-  void loadFromAccount();
+onMounted(async (): Promise<void> => {
+  await loadFromAccount();
 });
 
-watch(user, (): void => {
-  void loadFromAccount();
+watch(user, async (): Promise<void> => {
+  await loadFromAccount();
 });
 
 // Watched from the page rather than from the composable: every picker calls

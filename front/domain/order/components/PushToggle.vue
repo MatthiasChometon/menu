@@ -6,8 +6,8 @@ const toggle = async (): Promise<void> => {
   await (isSubscribed.value ? unsubscribe() : subscribe());
 };
 
-onMounted((): void => {
-  void refresh();
+onMounted(async (): Promise<void> => {
+  await refresh();
 });
 </script>
 

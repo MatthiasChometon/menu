@@ -88,8 +88,8 @@ const toggleCookMode = async (): Promise<void> => {
   else await request('screen');
 };
 
-onBeforeUnmount((): void => {
-  if (isActive.value) void release();
+onBeforeUnmount(async (): Promise<void> => {
+  if (isActive.value) await release();
 });
 </script>
 

@@ -32,7 +32,7 @@ export default withNuxt(
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'error',
-      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
       '@typescript-eslint/no-unnecessary-condition': 'error',
       eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-console': 'error',
@@ -55,7 +55,6 @@ export default withNuxt(
     ignores: ['domain/menu/**', 'domain/planner/**'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
       'no-console': 'off',
     },

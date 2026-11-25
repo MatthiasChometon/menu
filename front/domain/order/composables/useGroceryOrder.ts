@@ -19,17 +19,16 @@ export const useGroceryOrder = (): {
   const job = ref<GroceryJob | undefined>();
   const isQueueing = ref(false);
   const error = ref<string | undefined>();
-  const timer = ref<ReturnType<typeof setInterval> | undefined>();
+  const { reportError } = useErrorReporting();
+  const stopPolling = ref<(() => void) | undefined>();
 
   const isRunning = computed(
     (): boolean => job.value?.status === 'PENDING' || job.value?.status === 'RUNNING',
   );
 
   const stopFollowing = (): void => {
-    if (timer.value !== undefined) {
-      clearInterval(timer.value);
-      timer.value = undefined;
-    }
+    stopPolling.value?.();
+    stopPolling.value = undefined;
   };
 
   const refresh = async (jobId: string): Promise<void> => {
@@ -43,9 +42,11 @@ export const useGroceryOrder = (): {
 
   const follow = (jobId: string): void => {
     stopFollowing();
-    timer.value = setInterval((): void => {
-      void refresh(jobId);
-    }, POLL_MS);
+    stopPolling.value = pollWithJitter(
+      (): Promise<void> => refresh(jobId),
+      POLL_MS,
+      (failure: unknown): void => reportError('order:follow', failure),
+    );
   };
 
   const order = async (
