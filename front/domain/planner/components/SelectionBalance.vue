@@ -2,7 +2,7 @@
 const { selectionBalance, budgetStatus } = usePlanner();
 const { wordingOf } = useBalanceWording();
 const { round } = useFoodFormat();
-const { t } = useNuxtApp().$i18n;
+const { macroLongLabel } = useMenuLabels();
 
 const kcal = computed((): MacroGap | undefined =>
   selectionBalance.value.all.find((gap): boolean => gap.macro === 'kcal'),
@@ -16,7 +16,7 @@ const others = computed((): { gap: MacroGap; isInside: boolean; label: string }[
     .map((gap) => ({
       gap,
       isInside: Math.abs(gap.gapPercent) <= selectionBalance.value.toleranceOf(gap.macro),
-      label: t(`menu.macroLong.${gap.macro}`),
+      label: macroLongLabel(gap.macro),
     })),
 );
 </script>
@@ -31,7 +31,7 @@ const others = computed((): { gap: MacroGap; isInside: boolean; label: string }[
         v-if="kcal"
         :gap="kcal"
         :tolerance="selectionBalance.toleranceOf('kcal')"
-        :label="$t('menu.macroLong.kcal')"
+        :label="macroLongLabel('kcal')"
       />
 
       <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">

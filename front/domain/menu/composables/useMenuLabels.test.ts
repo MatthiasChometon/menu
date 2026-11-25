@@ -28,14 +28,24 @@ afterAll(async (): Promise<void> => {
 describe.each(['fr', 'en'] as const)('useMenuLabels in %s', (code) => {
   const labels = async (): Promise<string[]> => {
     await setLocale(code);
-    const { dayLabel, mealLabel, mealTimeLabel, macroShortLabel, weekLabel, weighInReminder } =
-      useMenuLabels();
+    const {
+      dayLabel,
+      mealLabel,
+      mealTimeLabel,
+      macroShortLabel,
+      macroLabel,
+      macroLongLabel,
+      weekLabel,
+      weighInReminder,
+    } = useMenuLabels();
 
     return [
       ...days.map(dayLabel),
       ...slots.map(mealLabel),
       ...slots.map(mealTimeLabel),
       ...macros.map(macroShortLabel),
+      ...macros.map(macroLabel),
+      ...macros.map(macroLongLabel),
       ...weeks.map(weekLabel),
       ...Object.values(Goal).map(weighInReminder),
     ];
@@ -44,7 +54,7 @@ describe.each(['fr', 'en'] as const)('useMenuLabels in %s', (code) => {
   it('resolves every label to real text, never to its key', async () => {
     const resolved = await labels();
 
-    expect(resolved).toHaveLength(7 + 5 + 5 + 5 + 5 + 3);
+    expect(resolved).toHaveLength(7 + 5 + 5 + 5 + 5 + 5 + 5 + 3);
     for (const label of resolved) {
       expect(label).not.toBe('');
       expect(label).not.toMatch(/^menu\./);

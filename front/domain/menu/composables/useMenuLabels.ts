@@ -6,6 +6,8 @@ type MenuLabels = {
   mealLabel: (slot: MealSlot) => string;
   mealTimeLabel: (slot: MealSlot) => string;
   macroShortLabel: (key: keyof Macros) => string;
+  macroLabel: (key: keyof Macros) => string;
+  macroLongLabel: (key: keyof Macros) => string;
   weekLabel: (key: WeekName | WeekStatus) => string;
   weighInReminder: (goal: Goal) => string;
 };
@@ -50,6 +52,22 @@ export const useMenuLabels = (): MenuLabels => {
     fiber: t('menu.macroShort.fiber'),
   }));
 
+  const macros = computed((): Record<keyof Macros, string> => ({
+    kcal: t('menu.macro.kcal'),
+    protein: t('menu.macro.protein'),
+    fat: t('menu.macro.fat'),
+    carbs: t('menu.macro.carbs'),
+    fiber: t('menu.macro.fiber'),
+  }));
+
+  const macrosLong = computed((): Record<keyof Macros, string> => ({
+    kcal: t('menu.macroLong.kcal'),
+    protein: t('menu.macroLong.protein'),
+    fat: t('menu.macroLong.fat'),
+    carbs: t('menu.macroLong.carbs'),
+    fiber: t('menu.macroLong.fiber'),
+  }));
+
   const weeks = computed((): Record<WeekName | WeekStatus, string> => ({
     last: t('menu.week.last'),
     current: t('menu.week.current'),
@@ -69,6 +87,8 @@ export const useMenuLabels = (): MenuLabels => {
     mealLabel: (slot: MealSlot): string => meals.value[slot],
     mealTimeLabel: (slot: MealSlot): string => mealTimes.value[slot],
     macroShortLabel: (key: keyof Macros): string => macrosShort.value[key],
+    macroLabel: (key: keyof Macros): string => macros.value[key],
+    macroLongLabel: (key: keyof Macros): string => macrosLong.value[key],
     weekLabel: (key: WeekName | WeekStatus): string => weeks.value[key],
     weighInReminder: (goal: Goal): string => weighIns.value[goal],
   };

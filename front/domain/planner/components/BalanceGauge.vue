@@ -6,6 +6,7 @@ const { gap, tolerance, label } = defineProps<{
 }>();
 
 const { positionOf, zoneOf } = useGaugePosition();
+const { gaugeSideLabel } = usePlannerLabels();
 
 const cursor = computed((): number => positionOf(gap.gapPercent));
 
@@ -14,6 +15,11 @@ const cursor = computed((): number => positionOf(gap.gapPercent));
 const zone = computed((): { left: number; width: number } => zoneOf(tolerance));
 
 const isInside = computed((): boolean => Math.abs(gap.gapPercent) <= tolerance);
+
+const { t } = useNuxtApp().$i18n;
+const verdict = computed((): string =>
+  isInside.value ? t('planner.gauge.onTarget') : gaugeSideLabel(gap.gapPercent),
+);
 </script>
 
 <template>
@@ -21,18 +27,14 @@ const isInside = computed((): boolean => Math.abs(gap.gapPercent) <= tolerance);
     <div class="flex items-baseline justify-between gap-2">
       <span class="text-sm font-medium">{{ label }}</span>
       <span class="text-xs" :class="isInside ? 'text-primary' : 'text-muted'">
-        {{
-          isInside
-            ? $t('planner.gauge.onTarget')
-            : $t(`planner.gauge.${gap.gapPercent < 0 ? 'under' : 'over'}`)
-        }}
+        {{ verdict }}
       </span>
     </div>
 
     <div
       class="relative mt-1.5 h-2.5 overflow-hidden rounded-full bg-elevated"
       role="img"
-      :aria-label="`${label} — ${isInside ? $t('planner.gauge.onTarget') : $t(`planner.gauge.${gap.gapPercent < 0 ? 'under' : 'over'}`)}`"
+      :aria-label="`${label} — ${verdict}`"
     >
       <span
         class="absolute inset-y-0 rounded-full bg-primary/20"

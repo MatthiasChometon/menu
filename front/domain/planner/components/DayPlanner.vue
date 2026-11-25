@@ -19,6 +19,7 @@ const { recipesFor, chosen, choose, clearDay, applySwap, swapsForMacro, isLocked
   usePlanner();
 const { nameOf, round } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
+const { dayLabel, mealLabel, macroLabel, macroShortLabel } = useMenuLabels();
 
 const itemsFor = (slot: MealSlot): SelectItem[] =>
   recipesFor(slot).map((recipe): SelectItem => ({ label: nameOf(recipe), value: recipe.id }));
@@ -83,7 +84,7 @@ const statusLabel = computed((): string => {
           class="size-5 shrink-0 text-dimmed transition-transform duration-300"
           :class="isOpen && 'rotate-180'"
         />
-        <span class="text-lg font-bold">{{ $t(`menu.day.${day.key}`) }}</span>
+        <span class="text-lg font-bold">{{ dayLabel(day.key) }}</span>
         <!-- Neither the verdict nor the figure breaks across lines: "dans les
              cibles" split over two rows on the longest day name, which made
              Sunday's card taller than the six above it for no reason a reader
@@ -110,7 +111,7 @@ const statusLabel = computed((): string => {
          which is the whole point of collapsing them. -->
     <div v-if="isOpen" :id="`plan-${day.key}`" class="mt-4 grid gap-2">
       <div v-for="slot in mealOrder" :key="slot" class="flex items-center gap-3">
-        <span class="w-28 shrink-0 text-sm text-muted">{{ $t(`menu.meal.${slot}`) }}</span>
+        <span class="w-28 shrink-0 text-sm text-muted">{{ mealLabel(slot) }}</span>
         <USelect
           :model-value="chosen(day.key, slot)"
           :items="itemsFor(slot)"
@@ -119,7 +120,7 @@ const statusLabel = computed((): string => {
           class="min-w-0 flex-1"
           :disabled="isLocked(day.key, slot)"
           :placeholder="$t('planner.choose')"
-          :aria-label="$t(`menu.meal.${slot}`)"
+          :aria-label="mealLabel(slot)"
           @update:model-value="(value: string) => choose(day.key, slot, value)"
         />
         <!-- Pinning is only possible once a dish sits here, and it is the one
@@ -164,7 +165,7 @@ const statusLabel = computed((): string => {
         :aria-expanded="verdict.isWithinTolerance ? undefined : openMacro === verdict.macro"
         @click="verdict.isWithinTolerance ? undefined : askAbout(verdict)"
       >
-        <span>{{ $t(`menu.macroShort.${verdict.macro}`) }}</span>
+        <span>{{ macroShortLabel(verdict.macro) }}</span>
         <span class="tabular-nums">{{ round(verdict.actual) }}</span>
         <span class="opacity-70 tabular-nums">{{ gapLabel(verdict) }}</span>
         <UIcon
@@ -185,7 +186,7 @@ const statusLabel = computed((): string => {
     >
       <p class="text-sm font-semibold">
         {{ $t('planner.fix.title') }}
-        <span class="text-muted">{{ $t(`menu.macro.${openMacro}`) }}</span>
+        <span class="text-muted">{{ macroLabel(openMacro) }}</span>
       </p>
 
       <p v-if="fixes.length === 0" class="mt-2 text-sm text-muted">{{ $t('planner.fix.none') }}</p>
@@ -197,7 +198,7 @@ const statusLabel = computed((): string => {
           class="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg bg-default px-3 py-2"
         >
           <UBadge color="neutral" variant="subtle" size="sm">
-            {{ $t(`menu.meal.${fix.swap.slot}`) }}
+            {{ mealLabel(fix.swap.slot) }}
           </UBadge>
           <span class="min-w-0 flex-1 text-sm font-medium">{{ nameOf(fix.swap.to) }}</span>
           <UBadge color="primary" variant="subtle" size="sm" class="tabular-nums">

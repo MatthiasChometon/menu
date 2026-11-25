@@ -75,6 +75,7 @@ const { isPersonalised } = useMyQuantities();
 const { isLoading: isLoadingProfile } = useProfile();
 const { user } = useAuth();
 const { t, locale } = useNuxtApp().$i18n;
+const { macroShortLabel } = useMenuLabels();
 const localePath = useLocalePath();
 const isMounted = useMounted();
 
@@ -169,7 +170,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       color="neutral"
       variant="subtle"
       icon="i-lucide-scale"
-      :title="`${$t('planner.targets')} ${round(targets.kcal)} ${$t('menu.unit.kcal')} · ${round(targets.protein)} ${$t('menu.unit.gram')} ${$t('menu.macroShort.protein')}`"
+      :title="`${$t('planner.targets')} ${round(targets.kcal)} ${$t('menu.unit.kcal')} · ${round(targets.protein)} ${$t('menu.unit.gram')} ${macroShortLabel('protein')}`"
       :description="isPersonalised ? $t('planner.targetsMine') : $t('planner.targetsDefault')"
     />
 
