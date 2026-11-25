@@ -4,7 +4,9 @@ const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
 const { password, isBusy, submit } = usePasswordReset();
 
-const outcome = ref<'asking' | 'signed-in' | 'expired' | 'missing' | 'refused'>('asking');
+const outcome = ref<'asking' | 'signed-in' | 'expired' | 'missing' | 'refused' | 'unavailable'>(
+  'asking',
+);
 
 // Read once, on arrival: the token belongs to the link, not to the form, and
 // putting it in a field would only invite somebody to change it.
@@ -63,6 +65,9 @@ useHead({ title: (): string => t('auth.reset.pageTitle') });
       />
       <p v-if="outcome === 'refused'" role="alert" class="text-sm text-error">
         {{ $t('auth.reset.tooShort') }}
+      </p>
+      <p v-else-if="outcome === 'unavailable'" role="alert" class="text-sm text-error">
+        {{ $t('auth.reset.unavailable') }}
       </p>
       <UButton type="submit" size="lg" block :loading="isBusy" class="font-semibold">
         {{ $t('auth.reset.submit') }}

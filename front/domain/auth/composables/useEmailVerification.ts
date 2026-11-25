@@ -1,8 +1,10 @@
-export type VerificationOutcome = 'signed-in' | 'expired' | 'missing';
+export type VerificationOutcome = 'signed-in' | 'expired' | 'missing' | 'unavailable';
 
-/** Spends the link from the message and signs the reader in. Everything that
- *  can go wrong here is one of three answers, because the API deliberately
- *  refuses to say whether a token is unknown, used or out of date. */
+/** Spends the link from the message and signs the reader in. A link that does
+ *  not work is one answer, because the API deliberately refuses to say whether
+ *  a token is unknown, used or out of date. A server that could not be reached
+ *  (or answered with an error of its own) is another: the link may still be
+ *  good, and telling the reader it is dead would send them for a new one. */
 export const useEmailVerification = (): {
   verify: (token: string | undefined) => Promise<VerificationOutcome>;
 } => {
@@ -24,7 +26,9 @@ export const useEmailVerification = (): {
       // null in some Nuxt versions, undefined in others: treating only one as
       // success would sign nobody in on the other.
       const raised: unknown = call.error.value;
-      if (raised !== null && raised !== undefined) return 'expired';
+      if (raised !== null && raised !== undefined) {
+        return isTransientFailure(raised) ? 'unavailable' : 'expired';
+      }
 
       await refresh();
       return 'signed-in';

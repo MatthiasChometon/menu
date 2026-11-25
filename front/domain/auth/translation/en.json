@@ -34,7 +34,10 @@
       "failedBody": "It may already have been used, or it expired. Ask for a new one from the sign-in page.",
       "retry": "Back to sign-in",
       "pendingTitle": "Confirming your address",
-      "pageTitle": "Address confirmation"
+      "pageTitle": "Address confirmation",
+      "unavailableTitle": "Could not confirm right now",
+      "unavailableBody": "The server is not answering, but your link may still be good. Try again in a moment.",
+      "tryAgain": "Try again"
     },
     "forgotPassword": "Forgot your password?",
     "sendResetLink": "Send me a link",
@@ -51,7 +54,8 @@
       "toProfile": "Go to my profile",
       "expiredTitle": "This link no longer works",
       "expiredBody": "It may already have been used, or it expired. Ask for a new one from the sign-in page.",
-      "retry": "Back to sign-in"
+      "retry": "Back to sign-in",
+      "unavailable": "The server is not answering. Try again in a moment — your link may still be good."
     },
     "account": "My account",
     "delete": {

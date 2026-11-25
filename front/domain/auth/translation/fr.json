@@ -34,7 +34,10 @@
       "failedBody": "Il a peut-être déjà servi, ou il a expiré. Demande-en un nouveau depuis la page de connexion.",
       "retry": "Retour à la connexion",
       "pendingTitle": "Confirmation en cours",
-      "pageTitle": "Confirmation de l’adresse"
+      "pageTitle": "Confirmation de l’adresse",
+      "unavailableTitle": "Impossible de confirmer pour le moment",
+      "unavailableBody": "Le serveur ne répond pas, mais ton lien est peut-être encore valable. Réessaie dans un instant.",
+      "tryAgain": "Réessayer"
     },
     "forgotPassword": "Mot de passe oublié ?",
     "sendResetLink": "Recevoir un lien",
@@ -51,7 +54,8 @@
       "toProfile": "Aller à mon profil",
       "expiredTitle": "Ce lien ne fonctionne plus",
       "expiredBody": "Il a peut-être déjà servi, ou il a expiré. Demandes-en un nouveau depuis la page de connexion.",
-      "retry": "Retour à la connexion"
+      "retry": "Retour à la connexion",
+      "unavailable": "Le serveur ne répond pas. Réessaie dans un instant — ton lien est peut-être encore valable."
     },
     "account": "Mon compte",
     "delete": {
