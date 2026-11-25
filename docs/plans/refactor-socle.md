@@ -62,6 +62,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 | M11 | `extension/` | 1.7k |
 | M14 | Transverse, runs before M8: no `void` on a promise anywhere (back, front, extension; ESLint `ignoreVoid: false`), one shared retry helper with exponential backoff + full jitter on outbound idempotent calls and polling, back global interceptors (request log, timeout), front `useApi` / GraphQL interceptors (401 to sign-in, report unexpected errors once) | repo-wide |
 | M13 | Dependency upgrades (back, front, extension) until `pnpm audit --prod` is clean, then `pnpm audit --prod` in every CI | — |
+| M15 | Performance: k6 suite on every API operation with failing per-operation budgets chosen from UX rules, full profiles weekly, time budgets in the back e2e tests (median + SQL query count), Playwright screen timings, Vitest timeouts and benches, Lighthouse CI budgets (section "Performance lot") | — |
 | M12 | Final pass: duplicates across slices, dead code / unused dependencies (`knip`), README and docs up to date, final PR to `main` | — |
 
 - [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
@@ -77,8 +78,80 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [ ] M10 — impl · review · ci · ok · merged; also from M14: the sign-in redirect survives the Google OAuth round trip (carried in `state`, tested)
 - [ ] M11 — impl · review · ci · ok · merged; also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
 - [ ] M13 — impl · review · ci · ok · merged
+- [ ] M15 — impl · review · ci · ok · merged (after M13; before M12)
 - [ ] M12 — impl · review · ci · ok · merged; also from M14: mail and push sends retried with an idempotency key, or recorded as not needed (duplicate acceptable)
 - [ ] Final PR `refactor/socle` → `main` opened, left for the maintainer
+
+## Performance lot (M15) — load tests and time budgets that fail
+
+Requested by the maintainer on 2026-11-25: k6, "test as much as possible", and code tests that
+**fail when something is too slow**, not just a smoke run, with budgets chosen from UX rules.
+Model: `devops/load/` and `.github/workflows/load.yml` of the shop site repo (k6 2.3.0, a
+replica on the runner, profiles).
+
+### Budgets come from UX rules, not from what the code does today
+
+A budget is what a person accepts, then split between the network, the API and the rendering.
+A baseline measured on CI only checks that the budget is reachable; **if the code is slower than
+the UX budget, the test is red and that is a bug to fix** (never a budget to raise).
+
+| UX rule (source) | Threshold | Budget it gives |
+| --- | --- | --- |
+| Feels instantaneous (Nielsen 0.1 s; RAIL "response") | 100 ms | visible feedback after a tap or click (pressed state, skeleton, optimistic update) ≤ 100 ms |
+| Interaction to Next Paint, "good" (Core Web Vitals) | 200 ms (p75) | INP ≤ 200 ms on every page; no long task > 50 ms on the main thread during an interaction |
+| Doherty threshold (flow is kept) | 400 ms | a mutation (save, toggle, add) answers in p95 ≤ 400 ms end to end, API p95 ≤ 250 ms |
+| Flow of thought kept (Nielsen 1 s; RAIL "load" ≤ 1 s on a warm navigation) | 1 s | main content of a screen visible ≤ 1 s after a client-side navigation; the API reads that feed it p95 ≤ 300 ms, p99 ≤ 800 ms |
+| Largest Contentful Paint, "good" (Core Web Vitals) | 2.5 s (p75) | LCP ≤ 2.5 s on a cold load (Lighthouse mobile, slow 4G); FCP ≤ 1.8 s; TTFB ≤ 800 ms |
+| Cumulative Layout Shift, "good" | 0.1 | CLS ≤ 0.1; every deferred block reserves its place (skeleton) |
+| Attention limit (Nielsen 10 s) | 10 s | any operation over 1 s shows progress; over 10 s it runs in the background with a notification, never a blocking wait |
+
+Under load (k6 `load` profile, expected peak × 3) the same p95 budgets hold; under `spike` p95
+may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 % everywhere.
+
+
+### Work
+
+1. **k6 suite in `devops/load/`** (TypeScript, own `package.json`, linted and typechecked in CI):
+   one scenario per API operation (every GraphQL query and mutation, the REST routes, the extension endpoints `claim` / `report` / `finish`), with seeded realistic data (several accounts with
+   full data, not an empty database) and per-request `check`s on the status and the body shape.
+   Profiles: `smoke`, `load` (expected peak × 3), `spike`, `stress`, `soak` (30 min, watches
+   memory and pool growth), `breakpoint` (ramping arrival rate until a threshold aborts: the
+   maximum sustainable throughput goes in the job summary).
+2. **Budgets that fail**: one `devops/load/budgets.ts` file, values from the table above, per
+   operation tag: `http_req_duration{op:...}` p95 and p99, `http_req_failed` < 1 %, `checks`
+   > 99 %; `abortOnFail` on the breakpoint run. Tightening is free; loosening needs the
+   maintainer's OK in the PR.
+3. **Realistic constraints**: the API runs on the runner held to the shared host's limits
+   (1 CPU, 512 MB heap, same Node and PostgreSQL major versions, same pool size), PostgreSQL as a
+   service container. **Never load the production host** (a light pass of a few requests at
+   most, under the rate limit).
+4. **CI** (`load.yml`, `permissions: contents: read`): on every PR touching `back/**`, `front/**`
+   or `devops/load/**`: `smoke` + a short `load` (≤ 5 min), red on any threshold breach. Weekly
+   cron (Monday 03:00 UTC) + `workflow_dispatch`: `load`, `spike`, `stress`, `soak`,
+   `breakpoint`, report as an artifact, summary in `$GITHUB_STEP_SUMMARY`.
+5. **Time budgets in the code tests** (they fail when too slow):
+   - back e2e: a shared helper measures each operation over N >= 10 calls on seeded data and
+     asserts the **median** under its UX budget; one budget test per operation;
+   - deterministic proxies wherever they exist: the **number of SQL queries** per request is
+     constant whatever the number of rows (N+1 guard, counted through the Drizzle logger), lists
+     are paginated or bounded, hot queries use their index (`EXPLAIN` asserted on the largest
+     tables);
+   - `pg_stat_statements` on the CI PostgreSQL; the 10 slowest statements of the load run in the
+     job summary;
+   - Vitest: explicit `testTimeout` / `hookTimeout` per config so a hung or slow test fails;
+     `vitest bench` on the hot pure functions with a stored baseline;
+   - front, Playwright on the built app with seeded data and CPU throttling ×4: for each main
+     screen, time from navigation to its main content visible (user timing marks), budget 1 s
+     warm / LCP 2.5 s cold; INP of the main interactions <= 200 ms; skeleton visible <= 100 ms;
+   - front, **Lighthouse CI on the runner only** (never locally: it saturates the dev machine)
+     on the main pages: LCP, CLS, TBT < 200 ms, total JS and image weight budgets, all blocking.
+6. **Anti-flake rules**: no timing assertion on a single sample; CI re-runs a failed timing test
+   once before reporting; a budget that flakes twice in a week is investigated (real slowness or
+   a wrong budget), never silently raised.
+7. The PR lists every operation and screen with its budget, the UX rule behind it and the
+   measured value, plus the breakpoint throughput. Every budget the current code misses is a
+   separate `fix(...)` commit (slow query, missing index, N+1, waterfall of requests, heavy
+   render), with the budget test proven red before the fix.
 
 ## Journal
 

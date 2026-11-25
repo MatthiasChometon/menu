@@ -166,6 +166,9 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Builders (`buildPlant(overrides)`) instead of duplicated literals; no `if` / `for` in tests.
 - [ ] Front: components are tested as a user uses them (`renderSuspended` + Testing Library queries by role, label, text), never `wrapper.vm`; loading, error and empty states are tested.
 - [ ] Visual regression (Playwright `toHaveScreenshot`, mobile / tablet / desktop × light / dark) stays green; baselines are never updated without the maintainer validating the change.
+- [ ] Performance is tested, not assumed: a k6 suite covers every API operation with per-operation p95 / p99 thresholds that fail CI (`devops/load/budgets.ts`), and the full profiles (load, spike, stress, soak, breakpoint) run weekly on a replica held to production limits, never against production.
+- [ ] Time budgets come from UX rules (100 ms feedback, INP 200 ms, 400 ms Doherty for mutations, 1 s main content after navigation, LCP 2.5 s cold, CLS 0.1, progress over 1 s): code slower than its budget is a bug, never a reason to raise the budget.
+- [ ] Code tests fail when too slow: operation median over >= 10 calls under its budget, SQL query count per request constant (N+1 guard), explicit `testTimeout`, screen timings in Playwright with CPU throttling, Lighthouse CI budgets on the CI runner only.
 
 ## 10. Front (Nuxt, Vue)
 
