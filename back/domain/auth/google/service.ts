@@ -53,7 +53,7 @@ export class GoogleOAuth {
 
   // The page the reader came from rides along, so the one check on the way back
   // (against the cookie) covers it too.
-  newState(redirect?: string): string {
+  newState(redirect?: unknown): string {
     return stateCarrying(randomBytes(16).toString('hex'), redirect);
   }
 

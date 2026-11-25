@@ -30,11 +30,23 @@ describe('a redirect that survives the Google round trip', () => {
     'javascript:alert(1)',
     'profil',
     '/with\nnewline',
-    `/${'a'.repeat(600)}`,
+    `/${'a'.repeat(700)}`,
+    `/${'é'.repeat(400)}`,
     undefined,
     ['/a', '/b'],
   ])('refuses %j', (candidate) => {
     expect(safeRedirectPath(candidate)).toBeUndefined();
+  });
+
+  it('keeps the state within what the callback accepts, whatever the path is made of', () => {
+    const widest = `/${'é'.repeat(349)}`; // 699 bytes: the most that is accepted
+
+    expect(stateCarrying('a'.repeat(32), widest).length).toBeLessThanOrEqual(1024);
+    expect(redirectFromState(stateCarrying('a'.repeat(32), widest))).toBe(widest);
+  });
+
+  it('falls back to the plain state for a long non-ASCII path instead of overflowing it', () => {
+    expect(stateCarrying('abc123', `/${'é'.repeat(400)}`)).toBe('abc123');
   });
 
   it('keeps a path of the site, query and all', () => {

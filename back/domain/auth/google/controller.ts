@@ -38,11 +38,12 @@ export class GoogleController {
 
   @Get()
   start(
-    @Query('redirect', plainText(2048)) redirect: string | undefined,
+    @Query('redirect') redirect: unknown,
     @Res() reply: FastifyReply,
   ): void {
-    // A path that is not one of the site's own is dropped rather than refused:
-    // signing in still works, it just lands on the default page.
+    // Whatever is not a short path of the site's own (another site, an array,
+    // an overlong value) is dropped rather than refused: signing in still works,
+    // it just lands on the default page.
     const state = this.google.newState(redirect);
 
     // Round-tripped through a short-lived cookie and compared on return: this

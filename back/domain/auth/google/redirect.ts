@@ -5,13 +5,22 @@
 //
 // Only a path of the front itself is ever followed: "//host", "/\host",
 // "https://host" or "javascript:" would turn the callback into an open redirect.
-export const MAX_REDIRECT_LENGTH = 512;
+//
+// The state carries the UTF-8 bytes of the path in base64url (4 characters for
+// 3 bytes) after a 32-character nonce and a dot, and the callback refuses a state
+// over 1024 characters. 700 bytes give at most 32 + 1 + 934 = 967 characters, so
+// a redirect that fits here always fits there; a longer one is dropped (the reader
+// lands on the default page), never an error after Google has signed them in.
+// Kept in step with front/domain/auth/composables/safeRedirectPath.ts.
+export const MAX_REDIRECT_BYTES = 700;
 
 const ORIGIN = 'http://same-origin.invalid';
 const SEPARATOR = '.';
 
 export const safeRedirectPath = (candidate: unknown): string | undefined => {
-  if (typeof candidate !== 'string' || candidate.length > MAX_REDIRECT_LENGTH) return undefined;
+  if (typeof candidate !== 'string' || Buffer.byteLength(candidate, 'utf8') > MAX_REDIRECT_BYTES) {
+    return undefined;
+  }
   if (!candidate.startsWith('/') || candidate.startsWith('//')) return undefined;
   if (
     candidate.includes('\\') ||
@@ -29,7 +38,7 @@ export const safeRedirectPath = (candidate: unknown): string | undefined => {
 
 // `<nonce>` alone, or `<nonce>.<redirect as base64url>`: the nonce is hex, so the
 // first dot is always the separator, and base64url never contains one.
-export const stateCarrying = (nonce: string, redirect: string | undefined): string => {
+export const stateCarrying = (nonce: string, redirect: unknown): string => {
   const safe = safeRedirectPath(redirect);
 
   return safe === undefined
