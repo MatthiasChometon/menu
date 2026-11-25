@@ -161,4 +161,19 @@ describe('corrupted stored preferences', () => {
       weeklyBudget: undefined,
     });
   });
+
+  it('refuse the whole object when only a number is corrupted', () => {
+    const { preferences, toggleExcluded } = usePlannerPreferences();
+    const key = 'planner:preferences';
+    toggleExcluded('fish');
+    const corrupted = JSON.stringify({ excludedKinds: ['meat'], weeklyBudget: 'cheap' });
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(preferences.value.excludedKinds).toEqual([]);
+    expect(preferences.value.weeklyBudget).toBeUndefined();
+  });
 });
