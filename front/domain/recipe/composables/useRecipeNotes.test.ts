@@ -7,6 +7,20 @@ beforeEach((): void => {
 });
 
 describe('useRecipeNotes', () => {
+  it('reads a note saved by an earlier version of the app, which stored the bare text', () => {
+    localStorage.setItem('recipe-note:legacyNote', 'moitié moins de piment');
+
+    expect(useRecipeNotes('legacyNote').note.value).toBe('moitié moins de piment');
+  });
+
+  it('keeps no more than the editor lets a reader type, whatever was left in storage', () => {
+    localStorage.setItem('recipe-note:oversizedNote', 'x'.repeat(10_000));
+
+    const { note } = useRecipeNotes('oversizedNote');
+
+    expect(note.value).toHaveLength(useRecipeNoteConstraints().maxLength);
+  });
+
   it('starts empty', () => {
     const { note, hasNote } = useRecipeNotes('chiliChicken');
 
