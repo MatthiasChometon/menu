@@ -30,7 +30,10 @@
       "statusNew": "Nouveau",
       "statusPlanned": "Prévu",
       "statusDone": "Fait",
-      "statusDeclined": "Écarté"
+      "statusDeclined": "Écarté",
+      "loadFailed": "Impossible de charger la liste pour le moment.",
+      "retry": "Réessayer",
+      "actionFailed": "L'action n'a pas abouti. Réessaie dans un instant."
     }
   }
 }

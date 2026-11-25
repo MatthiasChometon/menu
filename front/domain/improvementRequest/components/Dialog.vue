@@ -85,7 +85,9 @@ const submit = async (): Promise<void> => {
           </div>
         </fieldset>
 
-        <p v-if="state === 'failed'" class="text-sm text-error">{{ $t('improvement.failed') }}</p>
+        <p v-if="state === 'failed'" role="alert" class="text-sm text-error">
+          {{ $t('improvement.failed') }}
+        </p>
 
         <div class="flex justify-end gap-2">
           <UButton variant="ghost" color="neutral" type="button" @click="close">

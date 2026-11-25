@@ -14,6 +14,7 @@ export const useImprovement = (): {
 } => {
   const isOpen = useState<boolean>('improvement:open', (): boolean => false);
   const state = useState<SuggestionState>('improvement:state', (): SuggestionState => 'writing');
+  const { hasFailed, run } = useAttempt();
   const route = useRoute();
   const { locale } = useNuxtApp().$i18n;
 
@@ -43,14 +44,12 @@ export const useImprovement = (): {
     },
     send: async (importance: ImprovementImportance, message: string): Promise<void> => {
       state.value = 'sending';
-      try {
+      await run(async (): Promise<void> => {
         await GqlRequestImprovement({ input: { importance, message, context: contextNow() } });
-        state.value = 'sent';
-      } catch {
-        // The words are still in the box behind this message: a failed send must
-        // never cost somebody the idea they just wrote.
-        state.value = 'failed';
-      }
+      });
+      // The words are still in the box behind a failure: a failed send must
+      // never cost somebody the idea they just wrote.
+      state.value = hasFailed.value ? 'failed' : 'sent';
     },
   };
 };

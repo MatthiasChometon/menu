@@ -5,20 +5,21 @@ import { BugStatus } from '#gql/default';
 type Report = BugReportsQuery['bugReports'][number];
 
 const { t, locale } = useNuxtApp().$i18n;
-const { isAdmin } = useAdmin();
+const { isAdmin, hasFailed: adminFailed, retry: retryAdmin } = useAdmin();
+const { hasFailed: actionFailed, run } = useAttempt();
 
 useSeoMeta({ title: (): string => t('bugReport.admin.title') });
 // Nothing here belongs in a search result, and the page needs a session to say
 // anything at all.
 useHead({ meta: [{ name: 'robots', content: 'noindex' }] });
 
-const { data, refresh } = useAsyncData(
+const { data, error, refresh } = useAsyncData(
   'bug:reports',
   async (): Promise<Report[]> => {
     if (!isAdmin.value) return [];
 
-    const result = await GqlBugReports().catch((): undefined => undefined);
-    return result?.bugReports ?? [];
+    const result = await GqlBugReports();
+    return result.bugReports;
   },
   { server: false, watch: [isAdmin] },
 );
@@ -45,24 +46,30 @@ const severityColour = (severity: string): 'error' | 'warning' | 'neutral' =>
   severity === 'BLOCKING' ? 'error' : severity === 'ANNOYING' ? 'warning' : 'neutral';
 
 const dateLabel = (iso: string): string =>
-  new Date(iso).toLocaleString(locale.value, {
+  new Intl.DateTimeFormat(locale.value, {
+    // The household's day, not the device's: the same report reads the same everywhere.
+    timeZone: 'Europe/Paris',
     day: 'numeric',
     month: 'long',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  }).format(new Date(iso));
 
 const setStatus = async (id: string, status: BugStatus): Promise<void> => {
-  await GqlSetBugStatus({ input: { id, status } });
-  await refresh();
+  await run(async (): Promise<void> => {
+    await GqlSetBugStatus({ input: { id, status } });
+    await refresh();
+  });
 };
 
 // Acted on from the report you are reading, because that is where a flood shows
 // itself. Reversible on the spot: a judgement nobody dares undo is a judgement
 // nobody dares make.
 const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => {
-  await GqlBlockAccount({ input: { reportId, blocked } });
-  await refresh();
+  await run(async (): Promise<void> => {
+    await GqlBlockAccount({ input: { reportId, blocked } });
+    await refresh();
+  });
 };
 </script>
 
@@ -82,101 +89,117 @@ const setBlocked = async (reportId: string, blocked: boolean): Promise<void> => 
         </div>
       </template>
 
-      <p v-if="!isAdmin" class="mt-8 text-muted">{{ $t('bugReport.admin.forbidden') }}</p>
+      <div v-if="adminFailed || error" role="alert" class="mt-8 flex flex-wrap items-center gap-3">
+        <p class="text-error">{{ $t('bugReport.admin.loadFailed') }}</p>
+        <UButton
+          size="xs"
+          variant="soft"
+          icon="i-lucide-refresh-cw"
+          @click="adminFailed ? retryAdmin() : refresh()"
+        >
+          {{ $t('bugReport.admin.retry') }}
+        </UButton>
+      </div>
+      <p v-else-if="!isAdmin" class="mt-8 text-muted">{{ $t('bugReport.admin.forbidden') }}</p>
       <p v-else-if="reports.length === 0" class="mt-8 text-muted">
         {{ $t('bugReport.admin.empty') }}
       </p>
 
-      <ul v-else class="mt-6 space-y-3">
-        <li v-for="report in reports" :key="report.id">
-          <UCard :ui="{ body: 'space-y-3' }" :class="report.status !== 'NEW' && 'opacity-60'">
-            <div class="flex flex-wrap items-center gap-2">
-              <UBadge :color="severityColour(report.severity)" variant="subtle" size="sm">
-                {{ severityLabel(report.severity) }}
-              </UBadge>
-              <UBadge v-if="report.status !== 'NEW'" color="neutral" variant="subtle" size="sm">
-                {{ statusLabel(report.status) }}
-              </UBadge>
-              <UBadge v-if="report.reporterBlocked" color="error" variant="subtle" size="sm">
-                {{ $t('bugReport.admin.blocked') }}
-              </UBadge>
-              <span class="ml-auto text-xs text-muted tabular-nums">
-                {{ dateLabel(report.createdAt) }}
-              </span>
-            </div>
-
-            <p class="whitespace-pre-wrap">{{ report.message }}</p>
-
-            <dl class="grid gap-x-4 gap-y-1 text-xs text-muted sm:grid-cols-2">
-              <div class="flex gap-2">
-                <dt class="font-medium">{{ $t('bugReport.admin.page') }}</dt>
-                <dd class="truncate">{{ report.context.page }}</dd>
+      <template v-else>
+        <p v-if="actionFailed" role="alert" class="mt-6 text-sm text-error">
+          {{ $t('bugReport.admin.actionFailed') }}
+        </p>
+        <ul class="mt-6 space-y-3">
+          <li v-for="report in reports" :key="report.id">
+            <UCard :ui="{ body: 'space-y-3' }" :class="report.status !== 'NEW' && 'opacity-60'">
+              <div class="flex flex-wrap items-center gap-2">
+                <UBadge :color="severityColour(report.severity)" variant="subtle" size="sm">
+                  {{ severityLabel(report.severity) }}
+                </UBadge>
+                <UBadge v-if="report.status !== 'NEW'" color="neutral" variant="subtle" size="sm">
+                  {{ statusLabel(report.status) }}
+                </UBadge>
+                <UBadge v-if="report.reporterBlocked" color="error" variant="subtle" size="sm">
+                  {{ $t('bugReport.admin.blocked') }}
+                </UBadge>
+                <span class="ml-auto text-xs text-muted tabular-nums">
+                  {{ dateLabel(report.createdAt) }}
+                </span>
               </div>
-              <div class="flex gap-2">
-                <dt class="font-medium">{{ $t('bugReport.admin.screen') }}</dt>
-                <dd>{{ report.context.viewport }}</dd>
-              </div>
-              <div v-if="report.reportedBy !== null" class="flex gap-2">
-                <dt class="font-medium">{{ $t('auth.signedInAs') }}</dt>
-                <dd class="truncate">{{ report.reportedBy }}</dd>
-              </div>
-              <div class="flex gap-2 sm:col-span-2">
-                <dt class="font-medium">{{ $t('bugReport.admin.browser') }}</dt>
-                <dd class="truncate">{{ report.context.userAgent }}</dd>
-              </div>
-            </dl>
 
-            <div class="flex flex-wrap gap-2">
-              <UButton
-                v-if="report.status === 'NEW'"
-                icon="i-lucide-check"
-                size="xs"
-                variant="soft"
-                @click="setStatus(report.id, BugStatus.FIXED)"
-              >
-                {{ $t('bugReport.admin.markFixed') }}
-              </UButton>
-              <UButton
-                v-if="report.status === 'NEW'"
-                icon="i-lucide-archive"
-                size="xs"
-                variant="ghost"
-                color="neutral"
-                @click="setStatus(report.id, BugStatus.DISMISSED)"
-              >
-                {{ $t('bugReport.admin.dismiss') }}
-              </UButton>
-              <UButton
-                v-else
-                icon="i-lucide-undo-2"
-                size="xs"
-                variant="ghost"
-                color="neutral"
-                @click="setStatus(report.id, BugStatus.NEW)"
-              >
-                {{ $t('bugReport.admin.reopen') }}
-              </UButton>
+              <p class="whitespace-pre-wrap">{{ report.message }}</p>
 
-              <UButton
-                v-if="report.reportedBy !== null"
-                :icon="report.reporterBlocked ? 'i-lucide-user-check' : 'i-lucide-user-x'"
-                size="xs"
-                variant="ghost"
-                :color="report.reporterBlocked ? 'neutral' : 'error'"
-                class="ml-auto"
-                :title="report.reporterBlocked ? undefined : $t('bugReport.admin.blockedNote')"
-                @click="setBlocked(report.id, !report.reporterBlocked)"
-              >
-                {{
-                  report.reporterBlocked
-                    ? $t('bugReport.admin.unblock')
-                    : $t('bugReport.admin.block')
-                }}
-              </UButton>
-            </div>
-          </UCard>
-        </li>
-      </ul>
+              <dl class="grid gap-x-4 gap-y-1 text-xs text-muted sm:grid-cols-2">
+                <div class="flex gap-2">
+                  <dt class="font-medium">{{ $t('bugReport.admin.page') }}</dt>
+                  <dd class="truncate">{{ report.context.page }}</dd>
+                </div>
+                <div class="flex gap-2">
+                  <dt class="font-medium">{{ $t('bugReport.admin.screen') }}</dt>
+                  <dd>{{ report.context.viewport }}</dd>
+                </div>
+                <div v-if="report.reportedBy !== null" class="flex gap-2">
+                  <dt class="font-medium">{{ $t('auth.signedInAs') }}</dt>
+                  <dd class="truncate">{{ report.reportedBy }}</dd>
+                </div>
+                <div class="flex gap-2 sm:col-span-2">
+                  <dt class="font-medium">{{ $t('bugReport.admin.browser') }}</dt>
+                  <dd class="truncate">{{ report.context.userAgent }}</dd>
+                </div>
+              </dl>
+
+              <div class="flex flex-wrap gap-2">
+                <UButton
+                  v-if="report.status === 'NEW'"
+                  icon="i-lucide-check"
+                  size="xs"
+                  variant="soft"
+                  @click="setStatus(report.id, BugStatus.FIXED)"
+                >
+                  {{ $t('bugReport.admin.markFixed') }}
+                </UButton>
+                <UButton
+                  v-if="report.status === 'NEW'"
+                  icon="i-lucide-archive"
+                  size="xs"
+                  variant="ghost"
+                  color="neutral"
+                  @click="setStatus(report.id, BugStatus.DISMISSED)"
+                >
+                  {{ $t('bugReport.admin.dismiss') }}
+                </UButton>
+                <UButton
+                  v-else
+                  icon="i-lucide-undo-2"
+                  size="xs"
+                  variant="ghost"
+                  color="neutral"
+                  @click="setStatus(report.id, BugStatus.NEW)"
+                >
+                  {{ $t('bugReport.admin.reopen') }}
+                </UButton>
+
+                <UButton
+                  v-if="report.reportedBy !== null"
+                  :icon="report.reporterBlocked ? 'i-lucide-user-check' : 'i-lucide-user-x'"
+                  size="xs"
+                  variant="ghost"
+                  :color="report.reporterBlocked ? 'neutral' : 'error'"
+                  class="ml-auto"
+                  :title="report.reporterBlocked ? undefined : $t('bugReport.admin.blockedNote')"
+                  @click="setBlocked(report.id, !report.reporterBlocked)"
+                >
+                  {{
+                    report.reporterBlocked
+                      ? $t('bugReport.admin.unblock')
+                      : $t('bugReport.admin.block')
+                  }}
+                </UButton>
+              </div>
+            </UCard>
+          </li>
+        </ul>
+      </template>
     </ClientOnly>
   </UContainer>
 </template>

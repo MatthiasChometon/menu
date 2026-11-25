@@ -30,7 +30,10 @@
       "statusNew": "New",
       "statusPlanned": "Planned",
       "statusDone": "Done",
-      "statusDeclined": "Set aside"
+      "statusDeclined": "Set aside",
+      "loadFailed": "The list could not be loaded right now.",
+      "retry": "Try again",
+      "actionFailed": "That did not go through. Try again in a moment."
     }
   }
 }

@@ -13,6 +13,7 @@ export const useBugReport = (): {
 } => {
   const isOpen = useState<boolean>('bug:open', (): boolean => false);
   const state = useState<ReportState>('bug:state', (): ReportState => 'writing');
+  const { hasFailed, run } = useAttempt();
   const route = useRoute();
   const { locale } = useNuxtApp().$i18n;
 
@@ -44,14 +45,12 @@ export const useBugReport = (): {
     },
     send: async (severity: BugSeverity, message: string): Promise<void> => {
       state.value = 'sending';
-      try {
+      await run(async (): Promise<void> => {
         await GqlReportBug({ input: { severity, message, context: contextNow() } });
-        state.value = 'sent';
-      } catch {
-        // The words are still in the box behind this message: a failed send
-        // must never cost somebody the paragraph they just wrote.
-        state.value = 'failed';
-      }
+      });
+      // The words are still in the box behind a failure: a failed send must
+      // never cost somebody the words they just wrote.
+      state.value = hasFailed.value ? 'failed' : 'sent';
     },
   };
 };
