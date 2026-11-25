@@ -1,9 +1,13 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // The note lives in localStorage, which is shared across tests in a file.
 beforeEach((): void => {
   useRecipeNotes('chiliChicken').clear();
   useRecipeNotes('beefLentilBolognese').clear();
+});
+
+afterEach((): void => {
+  vi.unstubAllGlobals();
 });
 
 describe('useRecipeNotes', () => {
@@ -30,6 +34,15 @@ describe('useRecipeNotes', () => {
     const { note } = useRecipeNotes('emojiNote');
 
     expect(note.value).toBe(`${'x'.repeat(399)}🌶️`);
+  });
+
+  it('still caps the note, by code points, in a browser without Intl.Segmenter', () => {
+    vi.stubGlobal('Intl', { ...Intl, Segmenter: undefined });
+    localStorage.setItem('recipe-note:oldBrowserNote', `${'x'.repeat(399)}🍅🍅`);
+
+    const { note } = useRecipeNotes('oldBrowserNote');
+
+    expect(note.value).toBe(`${'x'.repeat(399)}🍅`);
   });
 
   it('starts empty', () => {

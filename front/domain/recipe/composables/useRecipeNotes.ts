@@ -6,13 +6,20 @@ const MAX_LENGTH = 400;
 
 // What a reader sees as one character, however many code points it takes: a
 // pepper with its variation selector, or a family emoji joined from several, is
-// kept whole or dropped, never left half drawn.
-const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+// kept whole or dropped, never left half drawn. Built on first use, behind a
+// guard: a browser without Intl.Segmenter must not fail when this module is
+// loaded, and then counts code points, which still never cuts a surrogate pair.
+let segmenter: Intl.Segmenter | undefined;
 
-const truncated = (raw: string): string =>
-  Array.from(graphemes.segment(raw), ({ segment }): string => segment)
-    .slice(0, MAX_LENGTH)
-    .join('');
+const charactersOf = (text: string): string[] => {
+  if (typeof Intl.Segmenter !== 'function') return Array.from(text);
+
+  segmenter ??= new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
+  return Array.from(segmenter.segment(text), ({ segment }): string => segment);
+};
+
+const truncated = (raw: string): string => charactersOf(raw).slice(0, MAX_LENGTH).join('');
 
 // Stored as the bare text, not as JSON: that is how every note already saved in
 // a reader's browser was written, and reading it as JSON would lose them all.
