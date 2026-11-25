@@ -11,22 +11,15 @@ const localePath = useLocalePath();
 // nothing explaining it. Loaded here so the card can say so up front rather
 // than leave the reader watching a spinner that will never move.
 const devicesLoaded = ref(false);
-const devicesFailed = ref(false);
-const { reportError } = useErrorReporting();
+const { hasFailed: devicesFailed, run: runDevices } = useAttempt();
 
 // A failed read is not "no browser paired": the reader is told so and can retry,
 // rather than be sent to set up a browser they already have.
-const loadDevices = async (): Promise<void> => {
-  devicesFailed.value = false;
-
-  try {
+const loadDevices = (): Promise<void> =>
+  runDevices(async (): Promise<void> => {
     await refreshDevices();
     devicesLoaded.value = true;
-  } catch (failure) {
-    reportError('order:devices', failure);
-    devicesFailed.value = true;
-  }
-};
+  });
 onMounted(loadDevices);
 const hasBrowser = computed((): boolean => devices.value.length > 0);
 

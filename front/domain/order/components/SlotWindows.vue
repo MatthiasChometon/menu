@@ -10,9 +10,8 @@ const PERIODS = [
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
 
 const { periodLabel, weekdayLabel } = useOrderLabels();
-const { reportError } = useErrorReporting();
-const loadFailed = ref(false);
-const saveFailed = ref(false);
+const { hasFailed: loadFailed, run: runLoad } = useAttempt();
+const { hasFailed: saveFailed, run: runSave } = useAttempt();
 
 const { windows, isSaving, refresh, save } = useSlotWindows();
 
@@ -33,27 +32,9 @@ const toggle = (weekday: number, period: (typeof PERIODS)[number]): void => {
     : [...windows.value, { weekday, startMinute: period.startMinute, endMinute: period.endMinute }];
 };
 
-const submit = async (): Promise<void> => {
-  saveFailed.value = false;
+const submit = (): Promise<void> => runSave((): Promise<void> => save(windows.value));
 
-  try {
-    await save(windows.value);
-  } catch (failure) {
-    reportError('order:slots-save', failure);
-    saveFailed.value = true;
-  }
-};
-
-const load = async (): Promise<void> => {
-  loadFailed.value = false;
-
-  try {
-    await refresh();
-  } catch (failure) {
-    reportError('order:slots-load', failure);
-    loadFailed.value = true;
-  }
-};
+const load = (): Promise<void> => runLoad(refresh);
 
 onMounted(load);
 </script>

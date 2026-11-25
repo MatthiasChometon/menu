@@ -2,7 +2,7 @@ import {
   isAwaitCarrefour,
   isPair,
   isWhereIsExtension,
-} from '../../../front/domain/order/composables/useBridgeMessages';
+} from '../../../front/domain/order/composables/bridgeMessages';
 import type {
   ExtensionHereMessage,
   PairedMessage,

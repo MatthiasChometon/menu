@@ -117,6 +117,17 @@ describe('useTimers', () => {
       expect(board).toEqual([]);
     });
 
+    it.each([
+      ['a negative duration', { durationSeconds: -600, remainingSeconds: 600 }],
+      ['a fractional duration', { durationSeconds: 600.5, remainingSeconds: 600 }],
+      ['a negative remaining time', { durationSeconds: 600, remainingSeconds: -1 }],
+      ['a fractional remaining time', { durationSeconds: 600, remainingSeconds: 12.5 }],
+      ['an end at the epoch', { durationSeconds: 600, remainingSeconds: 600, endAt: 0 }],
+      ['a negative end', { durationSeconds: 600, remainingSeconds: 600, endAt: -5 }],
+    ])('starts from an empty board when a timer has %s', async (_name, fields) => {
+      expect(await freshBoard([{ id: 'a', label: 'Riz', ...fields }])).toEqual([]);
+    });
+
     it('starts from an empty board when the stored value is not a list', async () => {
       expect(await freshBoard({ id: 'a' })).toEqual([]);
     });

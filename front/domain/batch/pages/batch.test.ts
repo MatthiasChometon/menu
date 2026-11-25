@@ -45,10 +45,10 @@ describe('the batch page of a signed-in reader', () => {
     menuFor.mockRejectedValue(new Error('offline'));
 
     await renderSuspended(Page);
-    await screen.findByRole('button', { name: 'Réessayer' });
     // The week is first asked for as the page mounts, then again once today's
     // date is known: let both land so that only the retry is counted.
-    await new Promise((resolve): void => void setTimeout(resolve, 300));
+    await waitFor((): void => expect(menuFor.mock.calls.length).toBeGreaterThanOrEqual(3));
+    await screen.findByRole('button', { name: 'Réessayer' });
     const callsBefore = menuFor.mock.calls.length;
     menuFor.mockResolvedValue(undefined);
     await fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));

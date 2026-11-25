@@ -34,6 +34,28 @@ describe('useDailyChecklist reminders', () => {
     expect(water?.isChecked).toBe(false);
   });
 
+  // Regression guards (startOf was already Paris-based): they pin the midnight edge.
+  it('counts half past midnight in Paris as the new day, even when the device is on UTC', () => {
+    // 22:30 UTC on the 10th is already 00:30 on the 11th in Paris.
+    checklistOn('2026-08-10T22:30:00Z').toggleReminder('creatine');
+
+    const { reminderItems } = checklistOn('2026-08-11T09:00:00+02:00');
+
+    expect(reminderItems.value.find((item): boolean => item.id === 'creatine')?.isChecked).toBe(
+      true,
+    );
+  });
+
+  it('keeps 23:30 in Paris on the day that is ending', () => {
+    checklistOn('2026-08-10T21:30:00Z').toggleReminder('creatine');
+
+    const { reminderItems } = checklistOn('2026-08-10T08:00:00+02:00');
+
+    expect(reminderItems.value.find((item): boolean => item.id === 'creatine')?.isChecked).toBe(
+      true,
+    );
+  });
+
   it('resets to nothing checked on a new day', () => {
     checklistOn('2026-08-10T09:00:00').toggleReminder('creatine');
 
@@ -179,12 +201,15 @@ describe('what an earlier visit left in the browser', () => {
     expect(reminderItems.value.every((item): boolean => !item.isChecked)).toBe(true);
   });
 
-  it.each([[{ '2026-08-10': 'lots' }], [{ '2026-08-10': -2 }], [['4']]])(
-    'drops a glass count that is %j',
-    async (stored) => {
-      const { hydrationGlasses } = await freshChecklist('today:hydration', stored);
+  it.each([
+    [{ '2026-08-10': 'lots' }],
+    [{ '2026-08-10': -2 }],
+    [{ '2026-08-10': 9 }],
+    [{ '2026-08-10': 2.5 }],
+    [['4']],
+  ])('drops a glass count that is %j', async (stored) => {
+    const { hydrationGlasses } = await freshChecklist('today:hydration', stored);
 
-      expect(hydrationGlasses.value).toBe(0);
-    },
-  );
+    expect(hydrationGlasses.value).toBe(0);
+  });
 });

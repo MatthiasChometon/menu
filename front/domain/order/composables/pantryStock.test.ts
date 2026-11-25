@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { keeps, leftover } from './usePantryStock';
+import { keeps, leftover } from './pantryStock';
 import type { Aisle, Food } from '../../menu/types/menu.type';
 
 const food = (id: string, aisle: Aisle): Food => ({

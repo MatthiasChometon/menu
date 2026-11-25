@@ -5,7 +5,8 @@ import Button from './Button.vue';
 
 // The paired-browser list is what the card reacts to; it is set per test rather
 // than fetched, so what is under test is what the card says, not the network.
-const { deviceState, refreshDevices } = vi.hoisted(() => ({
+const { deviceState, refreshDevices, orderState } = vi.hoisted(() => ({
+  orderState: { failed: false },
   deviceState: { list: [] as { id: string }[] },
   refreshDevices: vi.fn(),
 }));
@@ -28,7 +29,7 @@ mockNuxtImport('useGroceryOrder', () => (): OrderApi => ({
   job: ref(undefined),
   isQueueing: ref(false),
   isRunning: computed((): boolean => false),
-  hasFailed: ref(false),
+  hasFailed: ref(orderState.failed),
   order: vi.fn(),
   follow: vi.fn(),
   stopFollowing: vi.fn(),
@@ -45,6 +46,7 @@ const menu = { weekOf: '2026-08-24' } as unknown as Menu;
 
 beforeEach(async (): Promise<void> => {
   refreshDevices.mockReset();
+  orderState.failed = false;
   await useNuxtApp().$i18n.setLocale('fr');
 });
 
@@ -81,5 +83,13 @@ describe('the Carrefour order card', () => {
 
     expect((await screen.findByRole('alert')).textContent).toMatch(/navigateurs appairés/i);
     expect(screen.queryByText(/aucun navigateur appairé/i)).toBeNull();
+  });
+
+  it('says the run did not leave when the order could not be queued', async () => {
+    deviceState.list = [{ id: 'a' }];
+    orderState.failed = true;
+    await renderSuspended(Button, { props: { menu } });
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/la demande n.est pas partie/i);
   });
 });

@@ -6,20 +6,14 @@ const { thresholdCents, isSaving, isSaved, refresh, save } = useGroceryPreferenc
 // browser has parsed it — so the field's value is whichever the last write was,
 // and reading it as a string would throw the moment someone actually typed.
 const euros = ref<string | number>('');
-const { reportError } = useErrorReporting();
-const loadFailed = ref(false);
-const saveFailed = ref(false);
+const { hasFailed: loadFailed, run: runLoad } = useAttempt();
+const { hasFailed: saveFailed, run: runSave } = useAttempt();
 
 const submit = async (): Promise<void> => {
   const typed = String(euros.value).trim();
-  saveFailed.value = false;
-
-  try {
-    await save(typed === '' ? undefined : Math.round(Number(typed) * 100));
-  } catch (failure) {
-    reportError('order:threshold-save', failure);
-    saveFailed.value = true;
-  }
+  await runSave((): Promise<void> =>
+    save(typed === '' ? undefined : Math.round(Number(typed) * 100)),
+  );
 };
 
 watch(thresholdCents, (cents): void => {
@@ -28,16 +22,7 @@ watch(thresholdCents, (cents): void => {
 
 // Without the saved value the field would read as empty, and saving it would
 // wipe the real threshold: the form is not shown until the load works.
-const load = async (): Promise<void> => {
-  loadFailed.value = false;
-
-  try {
-    await refresh();
-  } catch (failure) {
-    reportError('order:threshold-load', failure);
-    loadFailed.value = true;
-  }
-};
+const load = (): Promise<void> => runLoad(refresh);
 
 onMounted(load);
 </script>

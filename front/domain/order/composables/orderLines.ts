@@ -26,13 +26,3 @@ export const orderLine = (
   }
   return { ...base, quantity: needed, kind: 'weight' };
 };
-
-export const describeOrderLine = (line: OrderLine): string => {
-  const need = line.inStock
-    ? `${line.needed} ${line.food.unit}, ${line.inStock} deja en stock`
-    : `${line.needed} ${line.food.unit}`;
-  if (line.kind === 'pack')
-    return `${line.quantity} x ${line.pack} ${line.food.unit} (besoin ${need})`;
-  if (line.kind === 'piece') return `${line.quantity} piece(s) (besoin ${need})`;
-  return `${need} au poids`;
-};

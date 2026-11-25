@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { Food } from '../../menu/types/menu.type';
 import { latestMenu, menuCatalog, needsOf } from '../../menu/scripts/loader';
-import { keeps, leftover } from '../composables/usePantryStock';
+import { keeps, leftover } from '../composables/pantryStock';
 import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
 import { readContent } from '../../../infrastructure/asset/scripts/content';
 

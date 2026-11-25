@@ -19,7 +19,6 @@ export const useGroceryOrder = (): {
   const job = ref<GroceryJob | undefined>();
   const isQueueing = ref(false);
   const hasFailed = ref(false);
-  const { reportError } = useErrorReporting();
   const stopPolling = ref<(() => void) | undefined>();
 
   const isRunning = computed(
@@ -47,7 +46,9 @@ export const useGroceryOrder = (): {
     stopPolling.value = pollWithJitter(
       (): Promise<void> => refresh(jobId),
       POLL_MS,
-      (failure: unknown): void => reportError('order:follow', failure),
+      // A failed poll is already reported by the GraphQL error plugin; the next
+      // round simply tries again.
+      (): void => undefined,
     );
   };
 
@@ -63,8 +64,7 @@ export const useGroceryOrder = (): {
       // The queued job carries no events yet; following it is what fills them in.
       job.value = { ...result.createGroceryJob, events: [] };
       follow(result.createGroceryJob.id);
-    } catch (failure) {
-      reportError('order:queue', failure);
+    } catch {
       hasFailed.value = true;
     } finally {
       isQueueing.value = false;

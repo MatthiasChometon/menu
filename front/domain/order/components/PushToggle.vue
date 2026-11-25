@@ -2,29 +2,13 @@
 const { isSupported, isSubscribed, isBlocked, isWorking, refresh, subscribe, unsubscribe } =
   useGroceryPush();
 
-const { reportError } = useErrorReporting();
-const hasFailed = ref(false);
-
 // Every push step can be refused by the browser or the network: the reader is
 // told, and the button is usable again.
-const attempt = async (action: () => Promise<void>): Promise<void> => {
-  hasFailed.value = false;
+const { hasFailed, run } = useAttempt('order:push');
 
-  try {
-    await action();
-  } catch (failure) {
-    reportError('order:push', failure);
-    hasFailed.value = true;
-  }
-};
+const toggle = (): Promise<void> => run(isSubscribed.value ? unsubscribe : subscribe);
 
-const toggle = async (): Promise<void> => {
-  await attempt(isSubscribed.value ? unsubscribe : subscribe);
-};
-
-onMounted(async (): Promise<void> => {
-  await attempt(refresh);
-});
+onMounted((): Promise<void> => run(refresh));
 </script>
 
 <template>

@@ -7,7 +7,7 @@ const { storedValue, isRecordOf, isArrayOf } = useStoredValue();
 const isReminderId = (value: unknown): value is ReminderId =>
   REMINDER_IDS.some((id): boolean => id === value);
 const isGlassCount = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isFinite(value) && value >= 0;
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_GLASSES;
 
 const REMINDER_ICON: Record<ReminderId, string> = {
   creatine: 'i-lucide-pill',

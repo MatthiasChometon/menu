@@ -27,8 +27,8 @@ const endpoint = computed((): string => `${config.public.apiBase}/graphql`);
 // account), and only a live device on the account can actually fill a basket.
 // So this reads the account, not the extension's word for it.
 const devicesLoaded = ref(false);
-const devicesFailed = ref(false);
-const pairingFailed = ref(false);
+const { hasFailed: devicesFailed, run: runDevices } = useAttempt();
+const { hasFailed: pairingFailed, run: runPairing } = useAttempt();
 const extensionReady = computed((): boolean => devices.value.length > 0);
 
 // Step three's signal, read from the newest report a paired browser sent.
@@ -126,15 +126,10 @@ const pairingSent = ref(false);
 const configure = async (): Promise<void> => {
   if (pairingSent.value) return;
   pairingSent.value = true;
-  pairingFailed.value = false;
-
-  try {
+  await runPairing(async (): Promise<void> => {
     await pair(t('order.device.defaultLabel'));
     if (freshToken.value !== undefined) sendPairing(endpoint.value, freshToken.value);
-  } catch (failure) {
-    reportError('order:pair', failure);
-    pairingFailed.value = true;
-  }
+  });
 };
 // Once the account has a paired browser, everything is in order — and the guard
 // resets, so a later removal can be paired afresh. While it has none and the
@@ -176,17 +171,9 @@ let stopRefreshing: (() => void) | undefined;
 const loadDevices = async (): Promise<void> => {
   await refresh();
   devicesLoaded.value = true;
-  devicesFailed.value = false;
 };
 
-const loadDevicesOrSay = async (): Promise<void> => {
-  try {
-    await loadDevices();
-  } catch (failure) {
-    reportError('order:setup-refresh', failure);
-    devicesFailed.value = true;
-  }
-};
+const loadDevicesOrSay = (): Promise<void> => runDevices(loadDevices);
 
 onMounted(async (): Promise<void> => {
   try {
@@ -198,10 +185,9 @@ onMounted(async (): Promise<void> => {
   // Wait for the first device list before letting the pairing watch decide it is
   // empty — otherwise it would pair on the blank moment before the list arrives.
   await loadDevicesOrSay();
-  stopRefreshing = pollWithJitter(loadDevices, REFRESH_MS, (error: unknown): void => {
-    reportError('order:setup-refresh', error);
-    devicesFailed.value = true;
-  });
+  stopRefreshing = pollWithJitter(loadDevicesOrSay, REFRESH_MS, (error: unknown): void =>
+    reportError('order:setup-refresh', error),
+  );
 
   // Carried back from Carrefour after signing in: confirm it, and drop the flag
   // from the URL so a reload does not repeat the message.

@@ -5,7 +5,7 @@ import {
   isPair,
   isPaired,
   isWhereIsExtension,
-} from './useBridgeMessages';
+} from './bridgeMessages';
 
 describe('bridge message guards', () => {
   it('accepts a well-formed pair message and reads its fields', () => {

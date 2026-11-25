@@ -7,6 +7,11 @@ const isNumber = (value: unknown): value is number =>
 
 // JSON drops an undefined endAt, so a timer that is not running comes back
 // without the key: absent and undefined are the same thing here.
+// The app only ever writes whole seconds, never negative, and an endAt that is a
+// real instant: anything else was not written by it.
+const isSeconds = (value: unknown): value is number =>
+  Number.isInteger(value) && Number(value) >= 0;
+
 const isTimer = (value: unknown): value is Timer =>
   typeof value === 'object' &&
   value !== null &&
@@ -15,10 +20,10 @@ const isTimer = (value: unknown): value is Timer =>
   'label' in value &&
   typeof value.label === 'string' &&
   'durationSeconds' in value &&
-  isNumber(value.durationSeconds) &&
+  isSeconds(value.durationSeconds) &&
   'remainingSeconds' in value &&
-  isNumber(value.remainingSeconds) &&
-  (!('endAt' in value) || value.endAt === undefined || isNumber(value.endAt));
+  isSeconds(value.remainingSeconds) &&
+  (!('endAt' in value) || value.endAt === undefined || (isNumber(value.endAt) && value.endAt > 0));
 
 let timersStore: Ref<Timer[]> | undefined;
 
