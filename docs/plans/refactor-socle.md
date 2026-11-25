@@ -386,8 +386,8 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   **Bugs fixed (own `fix` commits, failing-first):** a refused clipboard left the share button loading for good; an
   unreadable device list made `Setup` auto-pair a stray browser and `Button` claim none was paired.
   **Deferred:** `useWeekStatus` (menu slice) still reads local-time `getDay` / `new Date(weekOf + 'T00:00:00')`, so
-  `isWithin`, `statusOf`, `dayIndexOf` and the demo-menu lookup in `useToday` stay local-time — owner lot: the one that
-  touches `domain/menu` composables (M9), exit: they use the planner Paris helpers. Remaining `null` types: GraphQL
-  boundary values in order and shopping (`!= null`, `number | null` from the API) — owner: the lot that regenerates the
-  front GraphQL types with `undefined` (M9). `SlotWindows`, `PushToggle` and `Setup` failure states have no dedicated
+  `isWithin`, `statusOf`, `dayIndexOf` and the demo-menu lookup in `useToday` stay local-time — owner lot: M12 (final pass,
+  `domain/menu` merged in M6), exit: they use the planner Paris helpers. Remaining `null` types: GraphQL
+  boundary values in order and shopping (`!= null`, `number | null` from the API) — owner: M12, exit: the front
+  GraphQL types are mapped to `undefined` at the API boundary. `SlotWindows`, `PushToggle` and `Setup` failure states have no dedicated
   tests (Threshold, Setup and Button do).
