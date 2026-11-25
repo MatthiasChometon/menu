@@ -1,4 +1,5 @@
-import { fetchWithRetry, jitteredInterval } from '../../infrastructure/retry/retry';
+import { jitteredInterval } from '../../../front/infrastructure/api/utils/backoff';
+import { fetchWithRetry } from '../../infrastructure/retry/retry';
 import type { Cart, CartLine, DeliverySlot, SearchHit, Session, ShopClient } from './type';
 
 type RawCart = {
@@ -222,12 +223,21 @@ export const createCarrefourClient = (): ShopClient => {
 
   // Holding a slot lasts about twenty minutes, so it is taken once the basket
   // is filled and never before.
+  // One attempt only. The shop may restart the slot hold, or answer "already
+  // yours", when the same slot is set a second time, and nothing here proves
+  // otherwise; the caller reports the failure and the run can be started again.
+  // A refusal is a failure: reporting SLOT_BOOKED after a 4xx would be a lie.
   const bookSlot = async (ref: string): Promise<void> => {
-    await fetchWithRetry('/api/cart/slot', {
-      method: 'PUT',
-      headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
-      body: JSON.stringify({ slotRef: ref, origin: 'timeslots', facilityServiceId: serviceId }),
-    });
+    const response = await fetchWithRetry(
+      '/api/cart/slot',
+      {
+        method: 'PUT',
+        headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+        body: JSON.stringify({ slotRef: ref, origin: 'timeslots', facilityServiceId: serviceId }),
+      },
+      { maxAttempts: 1 },
+    );
+    if (!response.ok) throw new Error(`The shop refused the slot: ${response.status}`);
   };
 
   return { session, cart, empty, put, search, slots, bookSlot };

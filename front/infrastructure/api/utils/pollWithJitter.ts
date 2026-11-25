@@ -1,4 +1,4 @@
-import { jitteredInterval } from './jitteredInterval';
+import { jitteredInterval } from './backoff';
 
 // Runs `task` again and again, `intervalMs` (give or take a fifth) after the
 // previous run ended: a slow run is never overlapped by the next one, and a

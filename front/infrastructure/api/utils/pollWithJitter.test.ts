@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { pollWithJitter } from './pollWithJitter';
 
 // The jitter itself is tested on its own; here the waits are exact.
-vi.mock('./jitteredInterval', () => ({ jitteredInterval: (ms: number): number => ms }));
+vi.mock('./backoff', () => ({ jitteredInterval: (ms: number): number => ms }));
 
 beforeEach(() => {
   vi.useFakeTimers();
