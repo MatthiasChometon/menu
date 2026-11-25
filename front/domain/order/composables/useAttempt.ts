@@ -1,7 +1,8 @@
 type Attempt = {
   /** The last run failed: the screen says so and offers a retry. */
   hasFailed: Ref<boolean>;
-  /** Runs the task; a failure sets `hasFailed` instead of escaping. */
+  /** Runs the task; a failure sets `hasFailed` instead of escaping, and only a
+   *  success clears it. */
   run: (task: () => Promise<unknown>) => Promise<void>;
 };
 
@@ -14,10 +15,11 @@ export const useAttempt = (reportContext?: string): Attempt => {
   const hasFailed = ref(false);
 
   const run = async (task: () => Promise<unknown>): Promise<void> => {
-    hasFailed.value = false;
-
     try {
       await task();
+      // Cleared on success only: a poll that keeps failing must not make the
+      // alert blink off at the start of every round.
+      hasFailed.value = false;
     } catch (failure) {
       if (reportContext !== undefined) reportError(reportContext, failure);
       hasFailed.value = true;

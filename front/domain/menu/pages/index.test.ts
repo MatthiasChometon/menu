@@ -1,6 +1,6 @@
 import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime';
 import { fireEvent, screen, waitFor } from '@testing-library/vue';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './index.vue';
 
 // A signed-in reader whose own week has to be fetched: the example week is out of
@@ -24,6 +24,10 @@ mockNuxtImport('useProfile', () => (): object => ({
   save: vi.fn(),
   adjustTargets: vi.fn(),
 }));
+
+afterEach((): void => {
+  vi.useRealTimers();
+});
 
 beforeEach((): void => {
   menuFor.mockReset();
@@ -58,12 +62,14 @@ describe('the home page of a signed-in reader', () => {
   });
 
   it('does not ask for the week over and over while it keeps failing', async () => {
+    // Time moves on its own, so the page can render, and by hand for the wait.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     menuFor.mockRejectedValue(new Error('offline'));
 
     await renderSuspended(Page);
     await screen.findByText('Impossible de charger ta semaine');
     const settled = menuFor.mock.calls.length;
-    await new Promise((resolve): void => void setTimeout(resolve, 500));
+    await vi.advanceTimersByTimeAsync(500);
 
     expect(menuFor.mock.calls.length).toBe(settled);
   });
