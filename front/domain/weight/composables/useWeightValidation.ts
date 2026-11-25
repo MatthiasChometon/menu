@@ -19,7 +19,9 @@ export const useWeightValidation = (): {
 
   const errorOf = (draft: WeightDraft): string | undefined => {
     if (!isValidDate(draft.date)) return t('weight.log.error.date');
-    if (draft.date > today) return t('weight.log.error.future');
+    // Read again at each check, not once at creation: a tab left open past midnight
+    // would otherwise refuse today's weigh-in as one from the future.
+    if (draft.date > todayDate()) return t('weight.log.error.future');
     if (!Number.isFinite(draft.kg) || draft.kg < MIN_KG || draft.kg > MAX_KG)
       return t('weight.log.error.range');
 

@@ -4,6 +4,7 @@
 // in place rather than behind a dialog.
 const { entries, update, remove, errorOf, bounds, todayDate } = useWeightLog();
 const { t, locale } = useNuxtApp().$i18n;
+const { dayLabelOf } = useWeightDates();
 
 type Draft = { date: string; kg: number };
 
@@ -57,11 +58,7 @@ const confirmRemoval = async (id: string): Promise<void> => {
 };
 
 const dateLabelOf = (entry: WeightEntry): string =>
-  new Date(`${entry.date}T00:00:00`).toLocaleDateString(locale.value, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  dayLabelOf(entry.date, locale.value, { day: 'numeric', month: 'long', year: 'numeric' });
 
 type Row = {
   entry: WeightEntry;

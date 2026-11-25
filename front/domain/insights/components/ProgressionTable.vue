@@ -7,6 +7,7 @@ import type { ProgressionHint, ProgressionWeek } from '../composables/useProgres
 const { history } = useAdherence(undefined);
 const { entries } = useWeightLog();
 const { weeksOf, hintOf } = useProgressionTable();
+const { dayLabelOf } = useWeightDates();
 const { locale, t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 
@@ -21,10 +22,7 @@ const hints = computed((): Record<ProgressionHint, string> => ({
 const isEmpty = computed((): boolean => weeks.value.length === 0);
 
 const dateLabelOf = (weekOf: string): string =>
-  new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
-    day: 'numeric',
-    month: 'short',
-  });
+  dayLabelOf(weekOf, locale.value, { day: 'numeric', month: 'short' });
 
 const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
   week.weightDeltaKg === undefined

@@ -1,10 +1,26 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 beforeEach(async () => {
   await useNuxtApp().$i18n.setLocale('fr');
 });
 
+afterEach((): void => {
+  vi.useRealTimers();
+});
+
 describe('useWeightValidation', () => {
+  it('accepts the weigh-in of the day a tab left open has since rolled into', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-08-20T10:00:00Z'));
+    const { errorOf } = useWeightValidation();
+
+    // The next morning, in the same tab: 21 August is today now.
+    vi.setSystemTime(new Date('2026-08-21T10:00:00Z'));
+
+    expect(errorOf({ date: '2026-08-21', kg: 80 })).toBeUndefined();
+    expect(errorOf({ date: '2026-08-22', kg: 80 })).toBeDefined();
+  });
+
   it('rejects a date that has not happened yet', () => {
     const { errorOf, todayDate } = useWeightValidation();
     const { shiftDate } = useWeightDates();

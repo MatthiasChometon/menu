@@ -10,6 +10,7 @@ const { entries } = useWeightLog();
 const { chronological, movingAverageOf, targetBandOf } = useWeightTrend();
 const { viewBox, scaleXOf, rangeOf, scaleYOf, pathOf, lengthOf, bandPolygonOf } = useWeightChart();
 const { t, locale } = useNuxtApp().$i18n;
+const { dayLabelOf } = useWeightDates();
 
 const MARGIN_LEFT = 34;
 const MARGIN_TOP = 10;
@@ -67,7 +68,7 @@ const yTicks = computed((): { y: number; label: string }[] => {
 });
 
 const shortDateOf = (date: string): string =>
-  new Date(`${date}T00:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' });
+  dayLabelOf(date, locale.value, { day: 'numeric', month: 'short' });
 
 type XTick = { x: number; label: string; anchor: 'start' | 'middle' | 'end' };
 
