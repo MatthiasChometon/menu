@@ -63,8 +63,12 @@ export class GroceryService {
     return job === undefined ? undefined : this.withLines(job);
   }
 
-  async claim(userId: string, deviceId: string): Promise<GroceryJob | undefined> {
-    const job = await this.jobs.claimNext(userId, deviceId);
+  async claim(
+    userId: string,
+    deviceId: string,
+    claimKey?: string,
+  ): Promise<GroceryJob | undefined> {
+    const job = await this.jobs.claimNext(userId, deviceId, claimKey);
     if (job === undefined) {
       return undefined;
     }

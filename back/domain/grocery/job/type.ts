@@ -12,6 +12,8 @@ export type JobEventDetails = {
 
 export type ReportedEvent = JobEventDetails & {
   kind: GroceryJobEventKind;
+  /** Chosen by the browser, so a retried report is recognised. */
+  eventId?: string | undefined;
 };
 
 export type JobReport = {

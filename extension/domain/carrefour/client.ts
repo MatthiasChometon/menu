@@ -37,6 +37,19 @@ type RawSlots = { timeslots?: { availableDay?: boolean; cells?: RawCell[] }[] };
 
 const JSON_HEADERS = { accept: 'application/json' };
 
+// The header hydrates after load, so the session is read until a positive
+// signal shows, for a few seconds at most.
+const SESSION_READ_ATTEMPTS = 10;
+const SESSION_READ_INTERVAL_MS = 500;
+
+// An answer that is not a success is not the thing asked for: an error page
+// read as a basket looks like an empty one, and the run would carry on.
+const expectOk = (response: Response, what: string): Response => {
+  if (!response.ok) throw new Error(`The shop refused ${what}: ${response.status}`);
+
+  return response;
+};
+
 // Runs inside a carrefour.fr page. That is not a detail: from the extension's
 // own origin the session cookies are third-party and never sent, so the same
 // calls would come back signed out.
@@ -74,7 +87,10 @@ export const createCarrefourClient = (): ShopClient => {
   // Without this header the site answers with its own HTML and a status that
   // looks like success. Reading that as JSON fails in a way that says nothing.
   const read = async <T>(path: string): Promise<T> => {
-    const response = await fetchWithRetry(path, { headers: JSON_HEADERS });
+    const response = expectOk(
+      await fetchWithRetry(path, { headers: JSON_HEADERS }),
+      `reading ${path}`,
+    );
 
     return (await response.json()) as T;
   };
@@ -133,14 +149,13 @@ export const createCarrefourClient = (): ShopClient => {
   // instant it shows; only if none appears within a few seconds is the page read
   // as signed out.
   const session = async (): Promise<Session> => {
-    const attempts = 10;
-    for (let attempt = 0; attempt < attempts; attempt += 1) {
+    for (let attempt = 0; attempt < SESSION_READ_ATTEMPTS; attempt += 1) {
       const verdict = readSession();
-      if (verdict.signedIn || attempt === attempts - 1) {
+      if (verdict.signedIn || attempt === SESSION_READ_ATTEMPTS - 1) {
         return verdict;
       }
       await new Promise((resolve): void => {
-        setTimeout(resolve, jitteredInterval(500));
+        setTimeout(resolve, jitteredInterval(SESSION_READ_INTERVAL_MS));
       });
     }
 
@@ -151,27 +166,44 @@ export const createCarrefourClient = (): ShopClient => {
 
   const empty = async (): Promise<void> => {
     // Emptying twice leaves the same empty basket, so it can be asked again.
-    await fetchWithRetry('/api/cart', {
-      method: 'DELETE',
-      headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
-      body: JSON.stringify({ subBasketType, serviceId }),
-    });
+    expectOk(
+      await fetchWithRetry('/api/cart', {
+        method: 'DELETE',
+        headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+        body: JSON.stringify({ subBasketType, serviceId }),
+      }),
+      'emptying the cart',
+    );
   };
 
+  // One attempt only: `maxAttempts: 1` keeps the helper's deadline, so a stalled
+  // shop cannot hold the run, without a retry. The shop is a third party: no
+  // idempotency key can be sent for it to check, and the engine itself records
+  // that it cannot tell whether `counter` is an amount or an increment (see
+  // `settle`: it reads the cart back and corrects). If it is an increment, a
+  // retry after a lost answer adds the quantity twice. A failure ends the run as
+  // FAILED, and a new run empties the basket first, so nothing is left behind.
   const put = async (items: { ean: string; counter: number }[]): Promise<Cart> => {
-    const response = await fetch('/api/cart', {
-      method: 'PATCH',
-      headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        trackingRequest: { pageType: 'search', pageId: 'search' },
-        items: items.map((item) => ({
-          basketServiceId: serviceId,
-          counter: item.counter,
-          ean: item.ean,
-          subBasketType,
-        })),
-      }),
-    });
+    const response = expectOk(
+      await fetchWithRetry(
+        '/api/cart',
+        {
+          method: 'PATCH',
+          headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            trackingRequest: { pageType: 'search', pageId: 'search' },
+            items: items.map((item) => ({
+              basketServiceId: serviceId,
+              counter: item.counter,
+              ean: item.ean,
+              subBasketType,
+            })),
+          }),
+        },
+        { maxAttempts: 1 },
+      ),
+      'the quantities',
+    );
 
     return toCart((await response.json()) as RawCart);
   };
@@ -179,7 +211,10 @@ export const createCarrefourClient = (): ShopClient => {
   // The results are rendered by the server, so the page itself is the answer.
   // There is no search endpoint to call.
   const search = async (terms: string): Promise<SearchHit[]> => {
-    const response = await fetchWithRetry(`/s?q=${encodeURIComponent(terms)}`);
+    const response = expectOk(
+      await fetchWithRetry(`/s?q=${encodeURIComponent(terms)}`),
+      'the search',
+    );
     const document = new DOMParser().parseFromString(await response.text(), 'text/html');
 
     return [...document.querySelectorAll('article[data-testId]')]

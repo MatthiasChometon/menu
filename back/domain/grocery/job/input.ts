@@ -1,4 +1,4 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsInt,
   IsISO8601,
+  IsUUID,
   IsOptional,
   IsString,
   MaxLength,
@@ -17,6 +18,15 @@ import { jobConstraints } from './utils';
 
 @InputType({ description: 'What a run reports as it works.' })
 export class GroceryJobEventInput {
+  @Field(() => ID, {
+    nullable: true,
+    description:
+      'Chosen by the browser, one per event. Sending the same one again (a retry after a lost answer) returns the event already recorded instead of adding a second.',
+  })
+  @IsOptional()
+  @IsUUID()
+  eventId?: string;
+
   @Field(() => GroceryJobEventKind)
   @IsEnum(GroceryJobEventKind)
   kind!: GroceryJobEventKind;
