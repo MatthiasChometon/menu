@@ -50,7 +50,7 @@ export default defineConfig(
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
       '@typescript-eslint/no-unsafe-argument': 'error',
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       '@typescript-eslint/no-non-null-assertion': 'error',
