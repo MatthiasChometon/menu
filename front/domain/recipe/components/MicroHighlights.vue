@@ -26,7 +26,6 @@ const reasons = computed((): Record<MicroKey, string> => ({
   omega3: t('recipe.micro.why.omega3'),
 }));
 
-
 const highlights = computed((): MicroHighlight[] => highlightsOf(microsOfQuantities(quantities)));
 
 const format = (highlight: MicroHighlight): string =>
