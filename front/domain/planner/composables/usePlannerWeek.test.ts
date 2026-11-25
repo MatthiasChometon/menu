@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { daysFrom, startOf, weeksBetween, weeksFrom, weekToCompose } from './usePlannerWeek';
+import {
+  daysFrom,
+  startOf,
+  usePlannerWeek,
+  weeksBetween,
+  weeksFrom,
+  weekToCompose,
+} from './usePlannerWeek';
 
 // A Thursday: a window starts on the day itself now, so this is day zero.
 const THURSDAY = new Date('2026-08-20T12:00:00Z');
@@ -56,7 +63,7 @@ describe('the days a window covers', () => {
 // Instants, not local dates: the Paris day must come out the same wherever the
 // tests run, so none of these depends on the zone of the machine.
 describe('the Paris calendar day', () => {
-  it('is still the evening before when Paris is past midnight but the instant is not', () => {
+  it('is already the next day when Paris is past midnight but the instant is not', () => {
     // 23:30 UTC in summer is 01:30 the next day in Paris (UTC+2).
     expect(startOf(new Date('2026-08-20T23:30:00Z'))).toBe('2026-08-21');
   });
@@ -74,8 +81,9 @@ describe('the Paris calendar day', () => {
     expect(weeksBetween('2026-10-01', '2026-11-12')).toBe(6);
   });
 
-  it('names the weekday of a plain date the same in every zone', () => {
-    expect(daysFrom('2026-10-26')[0]).toBe('monday');
-    expect(daysFrom('2026-10-25')[0]).toBe('sunday');
+  it('names a plain date in the reader language, whatever the zone of the device', () => {
+    // A plain date is read as a UTC midnight; formatted in a local zone behind
+    // UTC it would come out as the 25th.
+    expect(usePlannerWeek().dateOf('2026-10-26')).toBe('October 26');
   });
 });

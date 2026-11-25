@@ -65,7 +65,14 @@ const WEEKDAYS: readonly DayKey[] = [
   'saturday',
 ];
 
-const weekdayAt = (index: number): DayKey => WEEKDAYS[index % 7] ?? 'monday';
+const weekdayAt = (index: number): DayKey => {
+  const weekday = WEEKDAYS[index % 7];
+  // Unreachable for a non-negative index; a silent fallback to Monday would
+  // hide a bad one as a plausible wrong day.
+  if (weekday === undefined) throw new RangeError(`No weekday at index ${index}`);
+
+  return weekday;
+};
 
 /** The weekday keys a window covers, in order from the day it starts. A window
  *  beginning on a Friday reads Friday, Saturday, Sunday, Monday… so day zero is
