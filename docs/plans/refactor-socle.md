@@ -268,6 +268,9 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `#brand-tokens` alias (verdure V5 pattern; Tailwind reads `@theme` only in the importing file); the plate
   palette, icon, OG card scripts and their fonts are `domain/menu/scripts/brand/`. Generated icons and OG
   cards are byte-identical (sha256 in the PR body). Left in `infrastructure/seo/public`: the generated brand files (favicon, PWA icons, OG cards), the served root of the seo layer. **Owner M12** (duplicates / dead code, with the infrastructure review): exit condition = `infrastructure/asset` (generic tooling: `generate`, `seed`, `paths`, `content`, workflow) and `infrastructure/seo` audited against the checklist, and the generated files either moved under the menu slice's `public/` or kept with a written reason.
+  **Known visual failure:** `batch page in light` (mobile, tablet) fails locally on stale Windows baselines (taken on
+  "Semaine du 19 septembre"), because `domain/menu/pages/index.visual.test.ts` does not freeze the clock; not caused by this
+  lot. **Owner M8 (batch lot):** exit condition = clock frozen in the visual test and the baselines regenerated in M8.
   **Exempted rules (M5 block) inside the slice:** `no-non-null-assertion` 0, `no-floating-promises` 1 (fixed),
   `no-unnecessary-condition` 1 (fixed), `no-console` 18 in `scripts/check.ts` (allowed by the scripts override).
   The `domain/**` block is therefore not needed for this slice. **Other slices still using dynamic keys**
