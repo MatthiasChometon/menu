@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, type SQL, sql } from 'drizzle-orm';
 import { insertedRow } from '../../../infrastructure/database/rows';
+import { sqlStateOf, UNIQUE_VIOLATION } from '../../../infrastructure/database/sql-state';
 import {
   DATABASE,
   type Database,
@@ -94,26 +95,50 @@ export class GroceryJobRepository {
       return this.toJob(already, []);
     }
 
-    const [record] = await this.database
-      .update(groceryJob)
-      .set({
-        status: GroceryJobStatus.RUNNING,
-        deviceId,
-        startedAt: new Date(),
-        claimKey: claimKey ?? null,
-      })
-      .where(
-        sql`${groceryJob.id} = (
-          select ${groceryJob.id} from ${groceryJob}
-          where ${groceryJob.userId} = ${userId} and ${groceryJob.status} = ${GroceryJobStatus.PENDING}
-          order by ${groceryJob.createdAt}, ${groceryJob.id}
-          limit 1
-          for update skip locked
-        )`,
-      )
-      .returning();
+    try {
+      const [record] = await this.database
+        .update(groceryJob)
+        .set({
+          status: GroceryJobStatus.RUNNING,
+          deviceId,
+          startedAt: new Date(),
+          claimKey: claimKey ?? null,
+        })
+        .where(
+          sql`${groceryJob.id} = (
+            select ${groceryJob.id} from ${groceryJob}
+            where ${groceryJob.userId} = ${userId} and ${groceryJob.status} = ${GroceryJobStatus.PENDING}
+            order by ${groceryJob.createdAt}, ${groceryJob.id}
+            limit 1
+            for update skip locked
+          )`,
+        )
+        .returning();
 
-    return record === undefined ? undefined : this.toJob(record, []);
+      return record === undefined ? undefined : this.toJob(record, []);
+    } catch (error) {
+      return this.claimedBeforeUs(error, deviceId, claimKey);
+    }
+  }
+
+  // A retry that overlaps its still-running original: the original has taken
+  // a run under this key but not committed yet, so the check above saw nothing,
+  // the row it locked was skipped, and the key then met the unique constraint.
+  // That means the run is the original's; hand it back instead of failing.
+  private async claimedBeforeUs(
+    error: unknown,
+    deviceId: string,
+    claimKey: string | undefined,
+  ): Promise<GroceryJob> {
+    const already =
+      sqlStateOf(error) === UNIQUE_VIOLATION
+        ? await this.claimedUnder(deviceId, claimKey)
+        : undefined;
+    if (already === undefined) {
+      throw error;
+    }
+
+    return this.toJob(already, []);
   }
 
   private async claimedUnder(

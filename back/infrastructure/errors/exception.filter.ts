@@ -11,7 +11,7 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { GqlArgumentsHost } from '@nestjs/graphql';
 import { captureException } from '@sentry/nestjs';
 import { GraphQLError } from 'graphql';
-import postgres from 'postgres';
+import { sqlStateOf, UNIQUE_VIOLATION } from '../database/sql-state';
 import { codeOfStatus } from './graphql-error';
 
 const codeOfGraphqlError = (error: GraphQLError): string =>
@@ -22,20 +22,7 @@ const statusOfGraphqlError = (error: GraphQLError): number | undefined => {
   return typeof http?.status === 'number' ? http.status : undefined;
 };
 
-const UNIQUE_VIOLATION = '23505';
 const FOREIGN_KEY_VIOLATION = '23503';
-const MAX_CAUSE_DEPTH = 5;
-
-// The driver error sits under the ORM's own wrapper, as `cause`.
-const sqlStateOf = (error: unknown): string | undefined => {
-  let current = error;
-  for (let depth = 0; depth < MAX_CAUSE_DEPTH && current instanceof Error; depth += 1) {
-    if (current instanceof postgres.PostgresError) return current.code;
-    current = current.cause;
-  }
-  return undefined;
-};
-
 const conflictFrom = (exception: unknown): ConflictException | undefined => {
   const state = sqlStateOf(exception);
   if (state !== UNIQUE_VIOLATION && state !== FOREIGN_KEY_VIOLATION) return undefined;
