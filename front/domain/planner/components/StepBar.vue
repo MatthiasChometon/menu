@@ -18,9 +18,7 @@ const hasWeek = computed((): boolean => days.value.some((day): boolean => day.me
 // The step names, so the bar says what it is walking through rather than just
 // how far along it is.
 const stepLabels = computed((): string[] => [
-  ...steps.map((groups): string =>
-    groups.map(groupLabel).join(' & '),
-  ),
+  ...steps.map((groups): string => groups.map(groupLabel).join(' & ')),
   t('planner.week'),
 ]);
 

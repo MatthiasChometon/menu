@@ -104,11 +104,7 @@ const isEntry = (value: unknown): value is ComposedWeekEntry =>
   isChosen(value.chosen);
 
 const entriesRef = (): Ref<ComposedWeekEntry[]> => {
-  sharedEntries ??= storedValue<ComposedWeekEntry[]>(
-    'planner:history',
-    [],
-    isArrayOf(isEntry),
-  );
+  sharedEntries ??= storedValue<ComposedWeekEntry[]>('planner:history', [], isArrayOf(isEntry));
   return sharedEntries;
 };
 

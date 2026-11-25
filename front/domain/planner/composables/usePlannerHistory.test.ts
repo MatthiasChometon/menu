@@ -182,7 +182,9 @@ describe('corrupted stored history', () => {
   it('falls back to an empty history instead of breaking the composer', () => {
     const { entries } = usePlannerHistory();
 
-    corrupt('planner:history', [{ weekOf: '2026-09-01', composedAt: 12, chosen: { main: 'chili' } }]);
+    corrupt('planner:history', [
+      { weekOf: '2026-09-01', composedAt: 12, chosen: { main: 'chili' } },
+    ]);
 
     expect(entries.value).toEqual([]);
   });
