@@ -25,7 +25,7 @@ afterEach((): void => {
 });
 
 describe('useShoppingShare', () => {
-  it('copies the list and says so where the platform cannot share', async () => {
+  it('copies the list and says so where the platform cannot share (regression guard)', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     withNavigator({ writeText });
     const { shareList } = useShoppingShare();
@@ -54,7 +54,7 @@ describe('useShoppingShare', () => {
     expect(writeText).toHaveBeenCalledTimes(2);
   });
 
-  it('stays quiet when the reader closes the share sheet', async () => {
+  it('stays quiet when the reader closes the share sheet (regression guard)', async () => {
     withNavigator({ share: vi.fn().mockRejectedValue(new DOMException('closed', 'AbortError')) });
     const { shareList } = useShoppingShare();
 

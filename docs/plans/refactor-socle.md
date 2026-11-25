@@ -389,5 +389,19 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   `isWithin`, `statusOf`, `dayIndexOf` and the demo-menu lookup in `useToday` stay local-time — owner lot: M12 (final pass,
   `domain/menu` merged in M6), exit: they use the planner Paris helpers. Remaining `null` types: GraphQL
   boundary values in order and shopping (`!= null`, `number | null` from the API) — owner: M12, exit: the front
-  GraphQL types are mapped to `undefined` at the API boundary. `SlotWindows`, `PushToggle` and `Setup` failure states have no dedicated
-  tests (Threshold, Setup and Button do).
+  GraphQL types are mapped to `undefined` at the API boundary.
+  **Review round 1:** GraphQL operations are no longer reported by the components (`gqlErrors.client.ts` already does, checklist
+  §10): one `useAttempt` composable holds the failed flag, `reportError` stays for non-GraphQL failures (clipboard, push,
+  polling). Every failure state now has a test that fails when the code is removed: `Setup` (3), `Threshold`, `SlotWindows`,
+  `PushToggle`, the order-button queue failure, the `order:follow` poll surviving a failed round. The corrupted-input claim is
+  now true for each store: the `shopping:eaters` copy is covered by `useShoppingEatersStore.test.ts`. Stored-value guards
+  reject what the app cannot write: timers need whole non-negative seconds and a real `endAt`, glass counts are whole numbers
+  up to 8. The Paris midnight-edge tests added to `usePlannerWeek` and `useDailyChecklist` are **regression guards** (those
+  helpers already read Paris in M7, so they pass on the old code); the discriminating test for the M8 change is
+  `featuredSlotOf` in `useToday.test.ts`: 5 tests red on the old `useToday.ts` under `TZ=UTC` and `TZ=LINT-14`, green on the new one. `todayKey` is `daysFrom(startOf(now))[0]`, covered by the `startOf` guards. **Visual suite:** `pnpm test:visual` run once locally on Windows, 154 passed (24 menu visual shots); the clock frozen at 2026-09-19 10:00 +02:00 renders the same as the 15:35 baselines, no baseline touched or regenerated. The M7 line "baselines regenerated in M8" is therefore settled as "not needed": the freeze is the whole fix, and the Linux baselines CI writes stay a person's decision (M11). **Known gaps:** `Button` hides the
+  order button while the device list failed, the retry is the only action offered; `useToday` picks the day on the Paris
+  calendar while `demoMenuForToday` still uses the local `isWithin`, so for a signed-out visitor the two can differ near
+  midnight until M12 moves them. `useTimerChime` swaps its guard for `typeof AudioContext` (unrelated to the slices' rules, untested, noted in
+  the PR). The retry tests wait on the calls made instead of sleeping 300 ms. The files in `domain/order/composables` that
+  export no composable lose the `use` prefix (`orderLines`, `pantryStock`, `bridgeMessages`); `describeOrderLine`, French
+  for the CLI only, lives in `scripts/`.
