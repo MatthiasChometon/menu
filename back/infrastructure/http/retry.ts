@@ -1,3 +1,4 @@
+// Not shared with the front/extension backoff helper on purpose: the back is its own deployable with no shared package, and the copy is ~20 lines.
 export type RetryOptions = {
   /** Attempts in total, the first one included. */
   maxAttempts: number;

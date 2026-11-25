@@ -27,6 +27,16 @@ describe('the request log of the running app', () => {
     );
   });
 
+  it('logs a request a guard refuses, with its route pattern and never its URL', async () => {
+    const warn = vi.spyOn(Logger.prototype, 'warn');
+
+    await api.post('/images/food/not-called-secret?token=query-secret', {});
+
+    const lines = warn.mock.calls.map(([line]): string => String(line));
+    expect(lines).toContainEqual(expect.stringMatching(/^POST \/images\/:kind\/:id 401 \d+ms$/));
+    expect(lines.join(' ')).not.toMatch(/not-called-secret|query-secret/);
+  });
+
   it('logs a GraphQL operation by name, without the query text', async () => {
     const log = vi.spyOn(Logger.prototype, 'log');
 

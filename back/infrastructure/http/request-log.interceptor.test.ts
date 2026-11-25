@@ -3,19 +3,6 @@ import { lastValueFrom, of, throwError } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RequestLogInterceptor } from './request-log.interceptor';
 
-const httpContext = (statusCode = 200): ExecutionContext =>
-  ({
-    getType: (): string => 'http',
-    switchToHttp: () => ({
-      getRequest: () => ({
-        method: 'POST',
-        url: '/auth/reset/secret-token?email=someone@example.com',
-        routeOptions: { url: '/auth/reset/:token' },
-      }),
-      getResponse: () => ({ statusCode }),
-    }),
-  }) as unknown as ExecutionContext;
-
 const graphqlContext = (parentType: string, fieldName: string): ExecutionContext =>
   ({
     getType: (): string => 'graphql',
@@ -41,21 +28,6 @@ afterEach(() => {
 });
 
 describe('the request log', () => {
-  it('logs a REST request by its route pattern, status and duration, never its URL', async () => {
-    const log = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
-
-    await run(
-      httpContext(201),
-      handling(() => of('created')),
-    );
-
-    expect(log).toHaveBeenCalledOnce();
-    const line = String(log.mock.calls[0]?.[0]);
-    expect(line).toMatch(/^POST \/auth\/reset\/:token 201 \d+ms$/);
-    expect(line).not.toContain('secret-token');
-    expect(line).not.toContain('example.com');
-  });
-
   it('logs a GraphQL operation by its name, without its variables', async () => {
     const log = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
 
@@ -97,12 +69,24 @@ describe('the request log', () => {
     const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
 
     await run(
-      httpContext(),
+      graphqlContext('Query', 'bugReports'),
       handling(() => throwError(() => new Error('connection to db at 10.0.0.1 refused'))),
     );
 
     const line = String(warn.mock.calls[0]?.[0]);
-    expect(line).toMatch(/^POST \/auth\/reset\/:token 500 \d+ms$/);
+    expect(line).toMatch(/^Query\.bugReports 500 \d+ms$/);
     expect(line).not.toContain('10.0.0.1');
+  });
+
+  it('leaves a REST request to the response hook', async () => {
+    const log = vi.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const rest = { getType: (): string => 'http' } as unknown as ExecutionContext;
+
+    await run(
+      rest,
+      handling(() => of('ok')),
+    );
+
+    expect(log).not.toHaveBeenCalled();
   });
 });
