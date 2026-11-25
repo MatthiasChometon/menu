@@ -14,8 +14,8 @@
     "typecheck": "wxt prepare && tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"{domain,entrypoints}/**/*.ts\" \"*.mts\" \"*.ts\"",
-    "format:check": "prettier --check \"{domain,entrypoints}/**/*.ts\" \"*.mts\" \"*.ts\"",
+    "format": "prettier --write \"{domain,entrypoints,infrastructure}/**/*.ts\" \"*.mts\" \"*.ts\"",
+    "format:check": "prettier --check \"{domain,entrypoints,infrastructure}/**/*.ts\" \"*.mts\" \"*.ts\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "postinstall": "wxt prepare"

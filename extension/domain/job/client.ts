@@ -1,3 +1,4 @@
+import { fetchWithRetry } from '../../infrastructure/retry/retry';
 import type { ReportedEvent } from '../carrefour/type';
 import type { JobOutcome, QueuedJob } from './type';
 
@@ -46,12 +47,22 @@ export const createMenuClient = (
   finish: (jobId: string, report: JobOutcome) => Promise<void>;
   reportCarrefourSession: (signedIn: boolean) => Promise<void>;
 } => {
-  const send = async <T>(query: string, variables?: object): Promise<T | undefined> => {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-grocery-device-token': deviceToken },
-      body: JSON.stringify({ query, variables }),
-    });
+  // A mutation is asked once, unless the caller says asking twice is harmless:
+  // claiming a job or logging an event done twice is not.
+  const send = async <T>(
+    query: string,
+    variables?: object,
+    { idempotent = false }: { idempotent?: boolean } = {},
+  ): Promise<T | undefined> => {
+    const response = await fetchWithRetry(
+      endpoint,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-grocery-device-token': deviceToken },
+        body: JSON.stringify({ query, variables }),
+      },
+      idempotent ? {} : { maxAttempts: 1 },
+    );
 
     const body = (await response.json()) as GraphqlResponse<T>;
     if (body.errors !== undefined) {
@@ -73,7 +84,8 @@ export const createMenuClient = (
       await send(FINISH, { jobId, input: report });
     },
     reportCarrefourSession: async (signedIn: boolean): Promise<void> => {
-      await send(CARREFOUR_SESSION, { signedIn });
+      // Sets a flag to a value: the same twice leaves the same state.
+      await send(CARREFOUR_SESSION, { signedIn }, { idempotent: true });
     },
   };
 };
