@@ -37,7 +37,7 @@ export const useAccountDeletion = (): {
       await call.execute();
       isBusy.value = false;
 
-      if (call.error.value !== null && call.error.value !== undefined) {
+      if (call.error.value !== undefined) {
         failure.value = statusCodeOf(call.error.value) === 401 ? 'password' : 'unknown';
         return false;
       }

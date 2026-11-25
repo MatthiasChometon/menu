@@ -59,7 +59,11 @@ const sections = computed((): Section[] => {
   const raw = texts.value.sections;
   if (!Array.isArray(raw)) return [];
 
-  return raw.flatMap((entry): Section[] => asSection(entry) ?? []);
+  return raw.flatMap((entry): Section[] => {
+    const section = asSection(entry);
+
+    return section === undefined ? [] : [section];
+  });
 });
 
 const title = computed((): string => texts.value.title);

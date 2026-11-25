@@ -29,7 +29,7 @@ const passwordBox = (): Element | null => currentDialog().querySelector('input[t
 
 const buttonSaying = (words: string): HTMLButtonElement | undefined =>
   [...currentDialog().querySelectorAll('button')].find((candidate): boolean =>
-    (candidate.textContent ?? '').includes(words),
+    candidate.textContent.includes(words),
   );
 
 // The opener lives in the component; only the dialog it opens is teleported.

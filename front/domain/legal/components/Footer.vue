@@ -1,10 +1,11 @@
 <script setup lang="ts">
 const localePath = useLocalePath();
+const { t } = useNuxtApp().$i18n;
 
 const links = computed((): { to: string; label: string }[] => [
-  { to: localePath('/mentions-legales'), label: 'legal.footer.notice' },
-  { to: localePath('/confidentialite'), label: 'legal.footer.privacy' },
-  { to: localePath('/conditions'), label: 'legal.footer.terms' },
+  { to: localePath('/mentions-legales'), label: t('legal.footer.notice') },
+  { to: localePath('/confidentialite'), label: t('legal.footer.privacy') },
+  { to: localePath('/conditions'), label: t('legal.footer.terms') },
 ]);
 </script>
 
@@ -19,7 +20,7 @@ const links = computed((): { to: string; label: string }[] => [
         :to="link.to"
         class="text-sm text-dimmed underline-offset-4 transition-colors hover:text-default hover:underline"
       >
-        {{ $t(link.label) }}
+        {{ link.label }}
       </NuxtLink>
     </nav>
   </footer>

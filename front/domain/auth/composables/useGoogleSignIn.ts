@@ -11,7 +11,7 @@ export const useGoogleSignIn = (): { googleSignInUrl: ComputedRef<string | undef
   const config = useRuntimeConfig();
 
   const googleSignInUrl = computed((): string | undefined => {
-    const apiBase = String(config.public.apiBase ?? '').trim();
+    const apiBase = config.public.apiBase.trim();
     if (apiBase.length === 0) return undefined;
 
     const back = safeRedirectPath(route.query.redirect);

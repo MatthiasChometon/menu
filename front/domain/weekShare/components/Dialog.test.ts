@@ -13,7 +13,7 @@ const openDialog = async (): Promise<void> => {
 
 const buttonNamed = (words: string): HTMLButtonElement | undefined =>
   [...document.querySelectorAll('button')].find((candidate): boolean =>
-    (candidate.textContent ?? '').includes(words),
+    candidate.textContent.includes(words),
   );
 
 describe('the week share dialog', () => {

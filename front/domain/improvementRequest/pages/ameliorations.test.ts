@@ -20,7 +20,7 @@ const report = {
   importance: 'WOULD_HELP',
   message: 'A shopping list.',
   status: 'NEW',
-  reportedBy: undefined,
+  requestedBy: null,
   reporterBlocked: false,
   createdAt: '2026-11-24T23:30:00.000Z',
   context: { page: '/semaine', userAgent: 'UA', viewport: '800x600', locale: 'fr' },

@@ -20,7 +20,7 @@ const report = {
   severity: 'ANNOYING',
   message: 'The button does nothing.',
   status: 'NEW',
-  reportedBy: undefined,
+  reportedBy: null,
   reporterBlocked: false,
   createdAt: '2026-11-24T23:30:00.000Z',
   context: { page: '/semaine', userAgent: 'UA', viewport: '800x600', locale: 'fr' },

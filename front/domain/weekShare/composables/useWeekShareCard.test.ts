@@ -58,6 +58,27 @@ describe('useWeekShareCard', () => {
     await expect(download(canvasNobodyCouldDraw(), 'semaine.png')).resolves.toBeUndefined();
   });
 
+  // The week dialog depends on these two: without them on the facade it would
+  // call undefined instead of showing its failure message.
+  it('refuses, rather than staying silent, to download a card nobody could draw', async () => {
+    const { downloadOrFail } = useWeekShareCard();
+
+    await expect(downloadOrFail(canvasNobodyCouldDraw(), 'semaine.png')).rejects.toThrow();
+  });
+
+  it('refuses, rather than staying silent, to share a card nobody could draw', async () => {
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      share: vi.fn(),
+      canShare: vi.fn(() => true),
+    });
+    const { shareOrFail } = useWeekShareCard();
+
+    await expect(shareOrFail(canvasNobodyCouldDraw(), 'semaine.png')).rejects.toThrow();
+
+    vi.unstubAllGlobals();
+  });
+
   it('declines to share a card nobody could draw', async () => {
     vi.stubGlobal('navigator', {
       ...navigator,
