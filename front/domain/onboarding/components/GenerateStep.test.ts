@@ -62,5 +62,7 @@ describe('the onboarding generate step', () => {
     const wrapper = await mountSuspended(GenerateStep);
 
     expect(wrapper.text()).toContain("n'a pas abouti");
+    // Announced to a screen reader, not only drawn.
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true);
   });
 });

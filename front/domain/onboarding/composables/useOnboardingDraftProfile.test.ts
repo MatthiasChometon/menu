@@ -41,3 +41,40 @@ describe('useOnboardingDraftProfile', () => {
     expect(useOnboardingDraftProfile().draft.value).toBeUndefined();
   });
 });
+
+describe('a corrupted stored draft', () => {
+  const corrupt = (raw: string): void => {
+    const key = 'onboarding:draft-profile';
+    localStorage.setItem(key, raw);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: raw, storageArea: localStorage }),
+    );
+  };
+
+  it('is ignored when it is not an object', () => {
+    const { draft, save } = useOnboardingDraftProfile();
+    save(answers);
+
+    corrupt(JSON.stringify('nonsense'));
+
+    expect(draft.value).toBeUndefined();
+  });
+
+  it('is ignored as a whole when one answer is of the wrong kind', () => {
+    const { draft, save } = useOnboardingDraftProfile();
+    save(answers);
+
+    corrupt(JSON.stringify({ ...answers, weightKg: 'heavy' }));
+
+    expect(draft.value).toBeUndefined();
+  });
+
+  it('is ignored when an answer names a value the API does not know', () => {
+    const { draft, save } = useOnboardingDraftProfile();
+    save(answers);
+
+    corrupt(JSON.stringify({ ...answers, goal: 'CONQUER' }));
+
+    expect(draft.value).toBeUndefined();
+  });
+});
