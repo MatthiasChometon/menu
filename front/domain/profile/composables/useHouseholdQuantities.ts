@@ -57,12 +57,24 @@ export const useHouseholdQuantities = (): {
   eaters: ComputedRef<Eater[]>;
   /** True while the profile or the household are still on their way. */
   isLoading: ComputedRef<boolean>;
+  /** The profile or the household could not be read: what is shown is the recipe as written. */
+  hasFailed: ComputedRef<boolean>;
+  refresh: () => Promise<void>;
   scale: (quantities: FoodQuantity[], menuTargets: Targets | undefined) => SharedQuantity[];
 } => {
   const { profile } = useProfile();
   const { user } = useAuth();
-  const { members, isLoading: isLoadingMembers } = useHousehold();
-  const { isLoading: isLoadingProfile } = useProfile();
+  const {
+    members,
+    isLoading: isLoadingMembers,
+    hasFailed: hasMembersFailed,
+    refresh: refreshMembers,
+  } = useHousehold();
+  const {
+    isLoading: isLoadingProfile,
+    hasFailed: hasProfileFailed,
+    refresh: refreshProfile,
+  } = useProfile();
   const { t } = useNuxtApp().$i18n;
 
   // The account holder first, then everybody they added, in the order the
@@ -92,6 +104,12 @@ export const useHouseholdQuantities = (): {
   return {
     eaters,
     isLoading: computed((): boolean => isLoadingProfile.value || isLoadingMembers.value),
+    hasFailed: computed((): boolean => hasProfileFailed.value || hasMembersFailed.value),
+    // Only what failed is asked again: the other read is already on screen.
+    refresh: async (): Promise<void> => {
+      if (hasProfileFailed.value) await refreshProfile();
+      if (hasMembersFailed.value) await refreshMembers();
+    },
     scale: (quantities, menuTargets): SharedQuantity[] =>
       sharePortions(quantities, menuTargets, eaters.value),
   };
