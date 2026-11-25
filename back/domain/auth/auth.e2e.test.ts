@@ -466,6 +466,60 @@ describe('signing in with Google', () => {
     expect(location).toContain(`state=${state?.value}`);
   });
 
+  it('carries the page the reader came from through Google and back', async () => {
+    const existing = await api.resolve(UserRepository).create(EMAIL, 'a-hash');
+    if (existing === undefined) throw new Error('The account was not created.');
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+
+    const started = await api.get('/auth/google?redirect=%2Fprofil%3Ftab%3Dweight');
+    const state = started.cookies.find((cookie): boolean => cookie.name === 'oauth_state')?.value;
+    expect(String(started.headers.location)).toContain(`state=${state}`);
+
+    const response = await api.get(
+      `/auth/google/callback?code=c&state=${state}`,
+      `oauth_state=${state}`,
+    );
+
+    expect(response.statusCode).toBe(302);
+    expect(String(response.headers.location)).toBe('http://localhost:3777/profil?tab=weight');
+  });
+
+  it('drops a redirect that leads off the site instead of following it', async () => {
+    vi.spyOn(api.resolve(GoogleOAuth), 'profileFromCode').mockResolvedValue({
+      sub: 'google-1',
+      email: EMAIL,
+      email_verified: true,
+    });
+    await api.resolve(UserRepository).create(EMAIL, 'a-hash');
+
+    const started = await api.get('/auth/google?redirect=https%3A%2F%2Fevil.example%2Fx');
+    const state = started.cookies.find((cookie): boolean => cookie.name === 'oauth_state')?.value;
+    const response = await api.get(
+      `/auth/google/callback?code=c&state=${state}`,
+      `oauth_state=${state}`,
+    );
+
+    expect(response.statusCode).toBe(302);
+    expect(String(response.headers.location)).toBe('http://localhost:3777');
+  });
+
+  it('ignores a redirect added to the state by hand, since it no longer matches the cookie', async () => {
+    const started = await api.get('/auth/google?redirect=%2Fprofil');
+    const state = started.cookies.find((cookie): boolean => cookie.name === 'oauth_state')?.value;
+    const forged = `${String(state).split('.')[0]}.${Buffer.from('/elsewhere').toString('base64url')}`;
+
+    const response = await api.get(
+      `/auth/google/callback?code=c&state=${forged}`,
+      `oauth_state=${state}`,
+    );
+
+    expect(response.statusCode).toBe(401);
+  });
+
   it('refuses a callback whose state does not match the one it issued', async () => {
     const started = await api.get('/auth/google');
     const state = started.cookies.find((cookie): boolean => cookie.name === 'oauth_state');

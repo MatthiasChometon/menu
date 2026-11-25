@@ -19,6 +19,7 @@ import { GoogleOAuth } from './service';
 import { frontUrl } from '../front-url';
 import { plainText } from './plain-text.pipe';
 import { landingUrl } from './landing';
+import { redirectFromState } from './redirect';
 import { EmailAllowlist } from '../allowlist.service';
 
 const STATE_COOKIE = 'oauth_state';
@@ -36,8 +37,13 @@ export class GoogleController {
   ) {}
 
   @Get()
-  start(@Res() reply: FastifyReply): void {
-    const state = this.google.newState();
+  start(
+    @Query('redirect', plainText(2048)) redirect: string | undefined,
+    @Res() reply: FastifyReply,
+  ): void {
+    // A path that is not one of the site's own is dropped rather than refused:
+    // signing in still works, it just lands on the default page.
+    const state = this.google.newState(redirect);
 
     // Round-tripped through a short-lived cookie and compared on return: this
     // is what stops someone else's authorisation code being fed to our callback.
@@ -60,7 +66,7 @@ export class GoogleController {
     // Google adds parameters of its own (scope, authuser, prompt, iss...), so
     // only the two that matter are read, each checked to be plain text.
     @Query('code', plainText(2048)) code: string | undefined,
-    @Query('state', plainText(256)) state: string | undefined,
+    @Query('state', plainText(1024)) state: string | undefined,
     @Req() request: FastifyRequest,
     @Res() reply: FastifyReply,
   ): Promise<void> {
@@ -100,6 +106,6 @@ export class GoogleController {
     reply
       .setCookie(this.cookie.name, token, this.cookie.options())
       .status(302)
-      .redirect(landingUrl(frontUrl(this.config), isNew));
+      .redirect(landingUrl(frontUrl(this.config), isNew, redirectFromState(state)));
   }
 }

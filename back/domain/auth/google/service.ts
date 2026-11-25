@@ -17,6 +17,7 @@ import {
   type Transient,
 } from '../../../infrastructure/http/retry';
 import { GoogleProfile, GoogleTokens } from './type';
+import { stateCarrying } from './redirect';
 
 const AUTHORISE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -50,8 +51,10 @@ export class GoogleOAuth {
     private readonly config: ConfigService,
   ) {}
 
-  newState(): string {
-    return randomBytes(16).toString('hex');
+  // The page the reader came from rides along, so the one check on the way back
+  // (against the cookie) covers it too.
+  newState(redirect?: string): string {
+    return stateCarrying(randomBytes(16).toString('hex'), redirect);
   }
 
   // Compared in constant time, like every secret handed back by a browser.
