@@ -60,6 +60,8 @@
       "footer": "menu.mtxlab.xyz",
       "download": "Télécharger",
       "share": "Partager",
+      "loadFailed": "Le bilan n'a pas pu être calculé : tes pesées ne se sont pas chargées.",
+      "retry": "Réessayer",
       "failed": "Le bilan n'a pas pu être créé. Réessaie dans un instant.",
       "cardAlt": "Carte récapitulative du mois, avec le poids pris, l'adhérence moyenne, le budget et les plats préférés",
       "empty": "Pas encore assez de données ce mois-ci pour un bilan.",

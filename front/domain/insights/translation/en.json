@@ -60,6 +60,8 @@
       "footer": "menu.mtxlab.xyz",
       "download": "Download",
       "share": "Share",
+      "loadFailed": "The recap could not be worked out: your weigh-ins did not load.",
+      "retry": "Try again",
       "failed": "The recap could not be created. Try again in a moment.",
       "cardAlt": "Recap card of the month, with weight gained, average adherence, budget and favourite dishes",
       "empty": "Not enough data this month yet for a recap.",

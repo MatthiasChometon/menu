@@ -2,10 +2,9 @@
 import type { MonthlyCardData } from '../composables/useMonthlyRecapCard';
 import type { MonthlyRecap } from '../composables/useMonthlyRecap';
 import type { Menu } from '../../menu/types/menu.type';
-import { startOf } from '../../planner/composables/usePlannerWeek';
 
 const { history } = useAdherence(undefined);
-const { entries } = useWeightLog();
+const { entries, hasFailed: hasEntriesFailed, refresh: refreshEntries } = useWeightLog();
 const { menuOf } = useMenu();
 const { recapOf } = useMonthlyRecap();
 const { draw, downloadOrFail, shareOrFail, canShareFiles } = useMonthlyRecapCard();
@@ -90,8 +89,25 @@ const onShare = async (): Promise<void> => {
     <h2 class="mb-1 text-lg font-semibold">{{ $t('insights.recap.title') }}</h2>
     <p class="mb-4 text-sm text-muted">{{ $t('insights.recap.lead') }}</p>
 
+    <!-- Not the empty invitation: "not enough data" would be wrong to tell
+         somebody whose weigh-ins are merely not loaded. -->
+    <UAlert
+      v-if="hasEntriesFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.recap.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refreshEntries">
+          {{ $t('insights.recap.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
     <div
-      v-if="recap === undefined"
+      v-else-if="recap === undefined"
       class="rounded-xl border border-dashed border-default p-6 text-center"
     >
       <UIcon name="i-lucide-image" class="mx-auto size-8 text-dimmed" aria-hidden="true" />

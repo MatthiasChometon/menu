@@ -5,8 +5,9 @@ import MonthlyRecapCard from './MonthlyRecapCard.vue';
 import type { WeekAdherence } from '../../menu/composables/useAdherence';
 import type { WeightEntry } from '../../weight/types/weight.type';
 
-const { state, card } = vi.hoisted(() => ({
-  state: { history: [] as WeekAdherence[], entries: [] as WeightEntry[] },
+const { state, card, refresh } = vi.hoisted(() => ({
+  state: { history: [] as WeekAdherence[], entries: [] as WeightEntry[], hasFailed: false },
+  refresh: vi.fn(),
   card: {
     draw: vi.fn(),
     downloadOrFail: vi.fn(),
@@ -24,14 +25,21 @@ mockNuxtImport('useMonthlyRecapCard', () => (): typeof card & { canShareFiles: (
 mockNuxtImport('useAdherence', () => (): { history: Ref<WeekAdherence[]> } => ({
   history: ref(state.history),
 }));
-mockNuxtImport('useWeightLog', () => (): { entries: Ref<WeightEntry[]> } => ({
-  entries: ref(state.entries),
-}));
+mockNuxtImport(
+  'useWeightLog',
+  () => (): { entries: Ref<WeightEntry[]>; hasFailed: Ref<boolean>; refresh: () => void } => ({
+    entries: ref(state.entries),
+    hasFailed: ref(state.hasFailed),
+    refresh,
+  }),
+);
 
 beforeEach(async () => {
   await useNuxtApp().$i18n.setLocale('fr');
   state.history = [];
   state.entries = [];
+  state.hasFailed = false;
+  refresh.mockReset();
   card.draw.mockReset().mockResolvedValue(undefined);
   card.downloadOrFail.mockReset().mockResolvedValue(undefined);
   card.shareOrFail.mockReset().mockResolvedValue(true);
@@ -61,6 +69,18 @@ const buttonSaying = (
 };
 
 describe('MonthlyRecapCard', () => {
+  it('says the weigh-ins could not be loaded, and retries, instead of claiming there is no data', async () => {
+    state.hasFailed = true;
+
+    const wrapper = await mountSuspended(MonthlyRecapCard);
+
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas pu être calculé");
+    expect(wrapper.text()).not.toContain('Pas encore assez de données');
+
+    await buttonSaying(wrapper, 'Réessayer').trigger('click');
+    expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
   it('invites to log a weigh-in and view the week with nothing to summarise yet', async () => {
     const wrapper = await mountSuspended(MonthlyRecapCard);
 
