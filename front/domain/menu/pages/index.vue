@@ -74,6 +74,21 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
   <!-- data-hydrated marks the point where date-dependent bits (today, week
        status) are settled, so a test can wait for it instead of racing them. -->
   <div class="mx-auto max-w-5xl px-4 py-6 sm:py-10" :data-hydrated="isMounted ? '' : undefined">
+    <!-- The title and the week picker stay put while the week loads, fails or
+         loads again. The picker reads the same fetch as this page, so mounting
+         it anew each time the page swaps to its skeleton would start that fetch
+         over — for good, when it fails. -->
+    <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
+      <div class="min-w-0">
+        <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+          {{ $t('menu.pageTitle') }}
+        </h1>
+        <p class="mt-1.5 text-muted">{{ $t('menu.pageLead') }}</p>
+      </div>
+
+      <MenuWeekPicker />
+    </div>
+
     <!-- The reader's own week is still coming: hold the space rather than flash
          the "compose one" prompt at somebody who already has a week. -->
     <div v-if="isLoading" class="space-y-4 py-8" aria-hidden="true">
@@ -85,17 +100,6 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
     <template v-else>
       <MenuExampleBanner v-if="isDemo" />
-
-      <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
-        <div class="min-w-0">
-          <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
-            {{ $t('menu.pageTitle') }}
-          </h1>
-          <p class="mt-1.5 text-muted">{{ $t('menu.pageLead') }}</p>
-        </div>
-
-        <MenuWeekPicker v-if="!isDemo" />
-      </div>
 
       <div
         v-if="status === undefined && !isDemo && menu !== undefined"
@@ -190,6 +194,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
            pass it off as an empty week and send the reader to compose another. -->
       <UAlert
         v-else-if="hasFailed"
+        role="alert"
         class="mt-6"
         color="error"
         variant="subtle"
@@ -201,7 +206,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
             label: $t('menu.loadFailed.retry'),
             color: 'error',
             variant: 'outline',
-            onClick: (): Promise<void> => retry(),
+            onClick: retry,
           },
         ]"
       />
