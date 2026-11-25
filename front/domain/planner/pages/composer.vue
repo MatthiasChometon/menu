@@ -67,6 +67,13 @@ watch(savedAt, (at): void => {
   onScopeDispose((): void => clearTimeout(timer));
 });
 
+const saveState = computed((): SaveState => {
+  if (user.value === undefined) return 'signedOut';
+  if (saveFailed.value) return 'failed';
+  if (isDirty.value) return 'pending';
+  return savedAt.value === undefined ? 'nothing' : 'saved';
+});
+
 const hasAnyChoice = computed((): boolean =>
   Object.values(chosenDishes.value).some((picked): boolean => picked.length > 0),
 );
@@ -264,22 +271,12 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
           </div>
         </div>
 
-        <!-- Why the save button is grey, right under it: signed out, nothing
-             changed, or already done — said where the eye already is. -->
-        <div v-if="hasWeek" class="mt-2" aria-live="polite">
-          <p v-if="user === undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.signedOut') }}
-          </p>
-          <p v-else-if="saveFailed" class="text-sm text-error" role="alert">
-            {{ $t('planner.saving.failed') }}
-          </p>
-          <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
-          <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.done') }} {{ savedLabel }} —
-            {{ labelOf(plannerWeek).toLowerCase() }}
-          </p>
-          <p v-else class="text-sm text-muted">{{ $t('planner.saving.nothingToSave') }}</p>
-        </div>
+        <PlannerSaveStatus
+          :has-week="hasWeek"
+          :state="saveState"
+          :saved-label="savedLabel"
+          :week-label="labelOf(plannerWeek).toLowerCase()"
+        />
       </div>
 
       <p v-if="!hasWeek" class="mt-3 text-sm text-muted">{{ $t('planner.spreadBlocked') }}</p>
