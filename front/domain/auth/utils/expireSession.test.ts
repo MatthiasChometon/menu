@@ -61,6 +61,17 @@ describe('when the session ended on the server', () => {
     expect(navigate).not.toHaveBeenCalled();
   });
 
+  it.each(['/profil/', '/profil/?redirect=%2Fx', '/profil/#top'])(
+    'does not navigate when already on the sign-in page as %s',
+    async (here) => {
+      const { expire, navigate } = setup({ currentPath: (): string => here });
+
+      await expire();
+
+      expect(navigate).not.toHaveBeenCalled();
+    },
+  );
+
   it('leaves once when several calls fail together', async () => {
     const { expire, navigate } = setup();
 

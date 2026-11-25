@@ -12,6 +12,9 @@ export type SessionExpiryContext = {
   navigate: (target: string | { path: string; query: { redirect: string } }) => Promise<unknown>;
 };
 
+const withoutTrailingSlash = (path: string): string =>
+  path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
+
 // What the site does when the server says the session ended: forget the user
 // and send them to sign in, bringing them back to where they were. A 401 for
 // somebody who was never signed in, or a second one while already leaving,
@@ -27,7 +30,11 @@ export const createSessionExpiry = (context: SessionExpiryContext): (() => Promi
       await context.clearSession();
 
       const here = context.currentPath();
-      if (here.split(/[?#]/)[0] === context.signInPath()) return;
+      if (
+        withoutTrailingSlash(here.split(/[?#]/)[0] ?? '') ===
+        withoutTrailingSlash(context.signInPath())
+      )
+        return;
 
       const redirect = safeRedirectPath(here);
       await context.navigate(

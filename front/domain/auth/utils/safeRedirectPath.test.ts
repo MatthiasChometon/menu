@@ -16,10 +16,25 @@ describe('the path to come back to after signing in', () => {
     ['a script', 'javascript:alert(1)'],
     ['a relative path', 'profil'],
     ['a control character', '/a\nb'],
+    ['a tab hidden inside the double slash', '/\t/evil.example'],
+    ['a newline hidden inside the double slash', '/\n/evil.example'],
+    ['a tab then a backslash', '/\t\\evil.example'],
+    ['a leading space', ' /profil'],
+    ['an upper-case scheme', 'HTTP://evil.example'],
+    ['a data URL', 'data:text/html,x'],
     ['an empty string', ''],
   ])('drops %s', (_name, path) => {
     expect(safeRedirectPath(path)).toBeUndefined();
   });
+
+  // Percent-encoded characters are not decoded by the browser into a different
+  // host: they stay a literal path of this very site, which is all that matters.
+  it.each(['/%5Cevil.example', '/%2F%2Fevil.example', '/%2F/evil.example', '/../profil'])(
+    'keeps %s as a literal same-site path',
+    (path) => {
+      expect(safeRedirectPath(path)).toBe(path);
+    },
+  );
 
   it.each([undefined, null, 42, ['/a']])('drops a non-string (%j)', (value) => {
     expect(safeRedirectPath(value)).toBeUndefined();
