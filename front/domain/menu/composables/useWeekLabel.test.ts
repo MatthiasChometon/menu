@@ -3,14 +3,14 @@ import { useWeekLabel } from './useWeekLabel';
 
 // Windows are anchored to today now, so the offsets are measured from this day,
 // not from the Monday of its week.
-const TODAY = new Date('2026-08-20T14:00:00');
+const TODAY = new Date('2026-08-20T12:00:00Z');
 
 describe('naming a window the way somebody would say it', () => {
   const { keyOf, offsetOf } = useWeekLabel();
 
   it('calls the window starting today "current"', () => {
     expect(keyOf('2026-08-20', TODAY)).toBe('current');
-    expect(keyOf('2026-08-20', new Date('2026-08-20T00:05:00'))).toBe('current');
+    expect(keyOf('2026-08-20', new Date('2026-08-19T22:05:00Z'))).toBe('current');
   });
 
   it('names the window a week before and a week after', () => {

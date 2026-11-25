@@ -1,15 +1,15 @@
-const pad = (value: number): string => String(value).padStart(2, '0');
+import { shiftedBy, startOf } from '../../planner/composables/usePlannerWeek';
 
-const asWeekOf = (day: Date): string =>
-  `${day.getFullYear()}-${pad(day.getMonth() + 1)}-${pad(day.getDate())}`;
+// 0 for Monday … 6 for Sunday, of a 'YYYY-MM-DD' day. Read on UTC midnight, which
+// has no daylight-saving hour and no device zone to trip over.
+const weekdayOf = (day: string): number => (new Date(`${day}T00:00:00Z`).getUTCDay() + 6) % 7;
 
-// Monday of the week after the one the given day falls in.
-const mondayAfter = (day: Date): Date => {
-  const monday = new Date(day);
-  monday.setHours(0, 0, 0, 0);
-  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) + 7);
+// Monday of the week after the one the given instant falls in, on the Paris
+// calendar: the household eats in France, whatever the zone of the device.
+const mondayAfter = (instant: Date): string => {
+  const today = startOf(instant);
 
-  return monday;
+  return shiftedBy(today, 7 - weekdayOf(today));
 };
 
 // Whether the week to come has a menu yet. Asked of the week to come rather
@@ -28,11 +28,11 @@ export const useNextWeek = (): {
 
   // The build date is not the reader's date, so this waits for the browser.
   const weekOf = computed((): string | undefined =>
-    isMounted.value ? asWeekOf(mondayAfter(new Date())) : undefined,
+    isMounted.value ? mondayAfter(new Date()) : undefined,
   );
 
   return {
-    weekAfter: (day: Date): string => asWeekOf(mondayAfter(day)),
+    weekAfter: (day: Date): string => mondayAfter(day),
     weekOf,
     isPlanned: computed(
       (): boolean =>

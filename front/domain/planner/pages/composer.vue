@@ -52,10 +52,11 @@ const justSaved = ref(false);
 const savedLabel = computed((): string =>
   savedAt.value === undefined
     ? ''
-    : new Date(savedAt.value).toLocaleTimeString(locale.value, {
+    : new Intl.DateTimeFormat(locale.value, {
+        timeZone: 'Europe/Paris',
         hour: '2-digit',
         minute: '2-digit',
-      }),
+      }).format(new Date(savedAt.value)),
 );
 
 watch(savedAt, (at): void => {
