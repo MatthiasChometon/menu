@@ -52,7 +52,7 @@ describe('the request log', () => {
     expect(log).not.toHaveBeenCalled();
   });
 
-  it('logs a refused request with the status it was answered with, and lets the error through', async () => {
+  it('logs nothing for a failure, which the exception filter logs, and lets the error through', async () => {
     const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
     const refusal = new ForbiddenException();
 
@@ -62,20 +62,7 @@ describe('the request log', () => {
     );
 
     expect(outcome).toBe(refusal);
-    expect(String(warn.mock.calls[0]?.[0])).toMatch(/^Query\.bugReports 403 \d+ms$/);
-  });
-
-  it('logs an unexpected failure as a 500', async () => {
-    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
-
-    await run(
-      graphqlContext('Query', 'bugReports'),
-      handling(() => throwError(() => new Error('connection to db at 10.0.0.1 refused'))),
-    );
-
-    const line = String(warn.mock.calls[0]?.[0]);
-    expect(line).toMatch(/^Query\.bugReports 500 \d+ms$/);
-    expect(line).not.toContain('10.0.0.1');
+    expect(warn).not.toHaveBeenCalled();
   });
 
   it('leaves a REST request to the response hook', async () => {

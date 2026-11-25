@@ -1,7 +1,6 @@
 import {
   CallHandler,
   ExecutionContext,
-  HttpException,
   HttpStatus,
   Injectable,
   Logger,
@@ -30,14 +29,10 @@ const labelOf = (context: ExecutionContext): string | undefined => {
     : undefined;
 };
 
-const statusOfFailure = (error: unknown): number =>
-  error instanceof HttpException ? error.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-
-// One line per GraphQL operation: what was asked, how it ended, how long it
-// took. GraphQL answers 200 whatever happens, so a failure is logged with the
-// status it would have been answered with over REST. A guard that refuses runs
-// before this interceptor and leaves no line here. The failure itself (message,
-// stack) is the exception filter's business.
+// One line per GraphQL operation that succeeded: what was asked and how long it
+// took. A refusal or a failure is logged, with its code, by the exception filter
+// (a guard refuses before this interceptor even runs), so each transport has one
+// place that logs it.
 @Injectable()
 export class RequestLogInterceptor implements NestInterceptor {
   private readonly logger = new Logger('Request');
@@ -52,9 +47,6 @@ export class RequestLogInterceptor implements NestInterceptor {
       tap({
         complete: (): void => {
           this.logger.log(this.line(label, HttpStatus.OK, startedAt));
-        },
-        error: (error: unknown): void => {
-          this.logger.warn(this.line(label, statusOfFailure(error), startedAt));
         },
       }),
     );

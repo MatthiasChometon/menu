@@ -46,4 +46,15 @@ describe('the request log of the running app', () => {
       expect.stringMatching(/^Query\.googleEnabled 200 \d+ms$/),
     );
   });
+
+  it('logs a guarded GraphQL operation refused without a session, once, with its code', async () => {
+    const warn = vi.spyOn(Logger.prototype, 'warn');
+
+    await api.graphql('query { bugReports { id } }');
+
+    const lines = warn.mock.calls.map(([line]): string => String(line));
+    expect(lines.filter((line) => line.startsWith('Query.bugReports'))).toEqual([
+      'Query.bugReports 401 UNAUTHENTICATED',
+    ]);
+  });
 });

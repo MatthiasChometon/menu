@@ -8,9 +8,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { GqlArgumentsHost } from '@nestjs/graphql';
 import { captureException } from '@sentry/nestjs';
 import { GraphQLError } from 'graphql';
 import postgres from 'postgres';
+import { codeOfStatus } from './graphql-error';
 
 const UNIQUE_VIOLATION = '23505';
 const FOREIGN_KEY_VIOLATION = '23503';
@@ -59,6 +61,7 @@ const bodyOf = (failure: HttpException): object => {
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
+  private readonly requestLogger = new Logger('Request');
 
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
@@ -70,12 +73,30 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     // GraphQL answers 200 and puts the failure in the body: rethrowing lets
     // the formatter in the GraphQL module give it its stable code.
-    if (host.getType<string>() === 'graphql') throw failure;
+    if (host.getType<string>() === 'graphql') {
+      this.logRefusal(host, failure);
+      throw failure;
+    }
 
     this.httpAdapterHost.httpAdapter.reply(
       host.switchToHttp().getResponse(),
       bodyOf(failure),
       failure.getStatus(),
+    );
+  }
+
+  // The one request-log line of a refused GraphQL operation (a guard refuses
+  // before the request-log interceptor runs): which operation, the status it
+  // maps to and its code. Never the arguments, the query text or a token.
+  private logRefusal(host: ArgumentsHost, failure: HttpException): void {
+    const info = GqlArgumentsHost.create(host).getInfo<{
+      parentType: { name: string };
+      fieldName: string;
+    }>();
+    const status = failure.getStatus();
+
+    this.requestLogger.warn(
+      `${info.parentType.name}.${info.fieldName} ${status} ${codeOfStatus(status)}`,
     );
   }
 
