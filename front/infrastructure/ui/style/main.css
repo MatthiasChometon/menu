@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 @import '@nuxt/ui';
 /* Brand tokens (@theme palette, fonts, canvas, macro colours) from the menu domain;
-   alias set in nuxt.config.ts. Tailwind reads @theme only in the file that imports it. */
+   alias set in nuxt.config.ts. Contract: the tokens file defines --color-forest/sage/turmeric-*,
+   --font-sans/serif, --canvas and --macro-*; this file only reads them. Tailwind reads @theme only in the file that imports it. */
 @import '#brand-tokens';
 
 @source '../../../domain';
