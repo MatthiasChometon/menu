@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
+const { googleSignInUrl } = useGoogleSignIn();
 
 // No API configured means no account to sign into. Offering the button anyway
 // would send the reader to whatever host the setting happens to hold — and a
@@ -17,8 +18,9 @@ const { data: google } = useAsyncData(
 const googleEnabled = computed((): boolean => google.value?.googleEnabled ?? false);
 
 const signInWithGoogle = (): void => {
-  if (!canSignIn.value) return;
-  window.location.href = `${apiBase.value}/auth/google`;
+  const target = googleSignInUrl.value;
+  if (target === undefined) return;
+  window.location.href = target;
 };
 </script>
 

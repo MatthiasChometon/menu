@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
+const { googleSignInUrl } = useGoogleSignIn();
 
 // No API configured means no account to sign into. Offering the button anyway
 // would send the reader to whatever host the setting happens to hold — and a
@@ -23,8 +24,9 @@ const googleEnabled = computed((): boolean => google.value?.googleEnabled ?? fal
 
 // A full page load, not a router navigation: the OAuth dance leaves the app.
 const signInWithGoogle = (): void => {
-  if (!canSignIn.value) return;
-  window.location.href = `${apiBase.value}/auth/google`;
+  const target = googleSignInUrl.value;
+  if (target === undefined) return;
+  window.location.href = target;
 };
 </script>
 
