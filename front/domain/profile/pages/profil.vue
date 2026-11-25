@@ -2,6 +2,7 @@
 import type { MeasurementsInput } from '#gql';
 const { t } = useNuxtApp().$i18n;
 const { user, isLoading: isLoadingUser } = useAuth();
+useSignInRedirect();
 const { profile, isLoading: isLoadingProfile, hasAnswered } = useProfile();
 // Somebody who filled the questions during the walkthrough before signing in
 // gets them back here rather than starting over.
