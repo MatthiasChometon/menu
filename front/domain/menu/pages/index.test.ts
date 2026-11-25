@@ -10,13 +10,13 @@ const { menuFor } = vi.hoisted(() => ({
 }));
 
 mockNuxtImport('useComposedMenu', () => (): { menuFor: typeof menuFor } => ({ menuFor }));
-mockNuxtImport('useAuth', () => () => ({
+mockNuxtImport('useAuth', () => (): object => ({
   user: ref({ id: 'reader' }),
   isLoading: computed((): boolean => false),
   refresh: vi.fn(),
   signOut: vi.fn(),
 }));
-mockNuxtImport('useProfile', () => () => ({
+mockNuxtImport('useProfile', () => (): object => ({
   profile: ref({ targets: { kcal: 3000, protein: 165, fat: 80, carbs: 445, fiber: 30 } }),
   isLoading: computed((): boolean => false),
   hasAnswered: computed((): boolean => true),

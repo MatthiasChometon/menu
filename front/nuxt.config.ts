@@ -1,4 +1,4 @@
-import { buildDynamicLayers } from './infrastructure/ddd/buildDynamicLayers';
+import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
 // Nuxt already turns on noUncheckedIndexedAccess. Left off on purpose:
@@ -18,6 +18,7 @@ const { componentsList, cssList, layerConfigTsGlobList, layerList, typesDirList 
 
 export default defineNuxtConfig({
   extends: layerList,
+  alias: { '#brand-tokens': discoverBrandTokens() },
   compatibilityDate: '2026-07-31',
   devtools: { enabled: process.env.NODE_ENV === 'development' },
   devServer: { port: Number(process.env.PORT) || 3777 },

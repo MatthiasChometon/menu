@@ -8,7 +8,7 @@ import { createCanvas } from '@napi-rs/canvas';
 import sharp from 'sharp';
 import { drawPlate } from './drawPlate';
 import { FAVICON_SVG, PLATE_PALETTE } from './plate';
-import { SEO_PUBLIC } from './paths';
+import { SEO_PUBLIC } from '../../../../infrastructure/asset/scripts/paths';
 
 const SIZES: Record<string, number> = {
   'pwa-192x192.png': 192,
