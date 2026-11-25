@@ -46,7 +46,8 @@
     },
     "share": {
       "button": "Partager",
-      "copied": "Liste copiée dans le presse-papier."
+      "copied": "Liste copiée dans le presse-papier.",
+      "failed": "Impossible de partager la liste."
     },
     "online": {
       "online": "En ligne",

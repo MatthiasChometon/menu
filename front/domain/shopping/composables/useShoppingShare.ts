@@ -8,12 +8,14 @@ export const useShoppingShare = (): {
 } => {
   const { nameOf, quantityLabel } = useFoodFormat();
   const { t } = useNuxtApp().$i18n;
+  const { aisleLabel } = useShoppingAisles();
+  const { reportError } = useErrorReporting();
   const toast = useToast();
   const isSharing = ref(false);
 
   const aisleBlock = (group: ShoppingGroup): string =>
     [
-      `${t(`shopping.aisle.${group.aisle}`)} :`,
+      `${aisleLabel(group.aisle)} :`,
       ...group.lines.map(
         (line): string => `- ${nameOf(line.food)} (${quantityLabel(line.food, line.grams)})`,
       ),
@@ -21,7 +23,7 @@ export const useShoppingShare = (): {
 
   const seasoningBlock = (seasonings: Seasoning[]): string =>
     [
-      `${t('shopping.aisle.seasoning')} :`,
+      `${aisleLabel('seasoning')} :`,
       ...seasonings.map((seasoning): string => `- ${nameOf(seasoning)}`),
     ].join('\n');
 
@@ -33,13 +35,25 @@ export const useShoppingShare = (): {
       ...(seasonings.length > 0 ? [seasoningBlock(seasonings)] : []),
     ].join('\n\n');
 
+  const announce = (title: string, icon: string, color: 'success' | 'error'): void => {
+    toast.add({ title, icon, color });
+  };
+
   const copyToClipboard = async (text: string): Promise<void> => {
     await navigator.clipboard.writeText(text);
-    toast.add({
-      title: t('shopping.share.copied'),
-      icon: 'i-lucide-clipboard-check',
-      color: 'success',
-    });
+    announce(t('shopping.share.copied'), 'i-lucide-clipboard-check', 'success');
+  };
+
+  // The reader closing the platform sheet is an answer, not a failure.
+  const isCancellation = (error: unknown): boolean =>
+    error instanceof DOMException && error.name === 'AbortError';
+
+  const send = async (text: string): Promise<void> => {
+    if (typeof navigator.share === 'function') {
+      await navigator.share({ title: t('shopping.title'), text });
+    } else {
+      await copyToClipboard(text);
+    }
   };
 
   return {
@@ -47,22 +61,16 @@ export const useShoppingShare = (): {
     shareList: async ({ groups, seasonings }): Promise<void> => {
       if (isSharing.value) return;
       isSharing.value = true;
-      const text = shareTextFor(groups, seasonings);
 
-      if (typeof navigator.share === 'function') {
-        try {
-          await navigator.share({ title: t('shopping.title'), text });
-        } catch {
-          // Cancelled from the platform sheet, or unsupported mid-call: the
-          // reader already saw their own share UI, nothing to recover here.
-        } finally {
-          isSharing.value = false;
-        }
-        return;
+      try {
+        await send(shareTextFor(groups, seasonings));
+      } catch (error) {
+        if (isCancellation(error)) return;
+        reportError('shopping:share', error);
+        announce(t('shopping.share.failed'), 'i-lucide-circle-alert', 'error');
+      } finally {
+        isSharing.value = false;
       }
-
-      await copyToClipboard(text);
-      isSharing.value = false;
     },
   };
 };
