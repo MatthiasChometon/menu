@@ -45,7 +45,7 @@ export const useWeekPlanStore = (): {
     days: Object.entries(plan.days)
       .map(([day, slots]) => ({
         day: DAY_TO_API[day as DayKey],
-        meals: Object.entries(slots ?? {}).map(([slot, recipeId]) => ({
+        meals: Object.entries(slots).map(([slot, recipeId]) => ({
           slot: SLOT_TO_API[slot as MealSlot],
           recipeId: String(recipeId),
         })),

@@ -68,7 +68,7 @@ watch(savedAt, (at): void => {
 });
 
 const hasAnyChoice = computed((): boolean =>
-  Object.values(chosenDishes.value).some((picked): boolean => (picked ?? []).length > 0),
+  Object.values(chosenDishes.value).some((picked): boolean => picked.length > 0),
 );
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();

@@ -1,68 +1,18 @@
 import { daysFrom, MAX_LENGTH, MIN_LENGTH } from './usePlannerWeek';
 import type { ComposedWeekEntry } from './usePlannerHistory';
 
-// Which recipes may fill which meal. Lunch and dinner share the savoury dishes,
-// which is exactly how the week is built today: full portion at noon, reduced
-// one in the evening.
-// Which pool fills a meal slot. The two afternoon en-cas draw from the same
-// merged pool now: post-training and the snack were folded into one choice, so
-// a dish tagged either way can land in either slot.
-const SLOT_RECIPES: Record<MealSlot, RecipeSlot> = {
-  breakfast: 'breakfast',
-  postWorkout: 'snack',
-  lunch: 'main',
-  snack: 'snack',
-  dinner: 'main',
-};
+const {
+  macroOrder: MACRO_ORDER,
+  slotRecipes: SLOT_RECIPES,
+  groupSlots: GROUP_SLOTS,
+  groupOrder: GROUP_ORDER,
+  steps: STEPS,
+  limits: GROUP_LIMITS,
+  defaultTolerance: DEFAULT_TOLERANCE,
+  balanceTolerance: BALANCE_TOLERANCE,
+} = usePlannerRules();
 
-const DEFAULT_TOLERANCE: MacroTolerance = { default: 5, kcal: 4, fiber: 12 };
-
-export const MACRO_ORDER = ['kcal', 'protein', 'fat', 'carbs', 'fiber'] as const;
-
-// Below this, the spread will absorb it and saying anything would only send
-// somebody hunting for a dish to fix a gap they do not have.
-const BALANCE_TOLERANCE = 5;
-
-// Which meals a chosen dish fills. The savoury dishes carry both lunch and
-// dinner, which is how the week has always been built: full portion at noon,
-// the rest in the evening. The snack group carries both afternoon en-cas — what
-// used to be post-training and the snack — from one merged list.
-const GROUP_SLOTS: Record<RecipeSlot, MealSlot[]> = {
-  main: ['lunch', 'dinner'],
-  breakfast: ['breakfast'],
-  postWorkout: ['postWorkout'],
-  snack: ['postWorkout', 'snack'],
-};
-
-// postWorkout is a slot a day still has, but never a group the composer walks
-// through on its own: its dishes are chosen inside the snack group.
-const GROUP_ORDER: readonly RecipeSlot[] = ['main', 'breakfast', 'snack'];
-
-// One screen per meal in the composer. The two afternoon en-cas were folded
-// into a single "Goûter et collation" step: one list, two mandatory picks, one
-// per slot when spread. The solver never sees these; it works off GROUP_ORDER.
-const STEPS: readonly (readonly RecipeSlot[])[] = [['main'], ['breakfast'], ['snack']];
 const stepGroups = (index: number): readonly RecipeSlot[] => STEPS[index] ?? [];
-
-// How many dishes a slot needs for the week to hold together, and for the solver
-// to have a fair chance of landing on the targets.
-//
-// The floor on the savoury dishes is two, because lunch and dinner must differ
-// on the same day. Everywhere else it is one — but it is a real one: a day
-// missing a meal forces the remaining ones to be scaled beyond what anyone eats,
-// which is exactly when the solver clamps and the day falls off target.
-//
-// The ceilings keep the week cookable. Fourteen savoury servings split across
-// more than four dishes means cooking single portions, which defeats batch
-// cooking and inflates the shopping list for no variety anyone notices.
-const GROUP_LIMITS: Record<RecipeSlot, { min: number; max: number }> = {
-  main: { min: 2, max: 4 },
-  breakfast: { min: 1, max: 3 },
-  postWorkout: { min: 1, max: 3 },
-  // Two, because the group fills two slots — a morning collation and an
-  // afternoon goûter — and each must have a dish for the day to hold together.
-  snack: { min: 2, max: 4 },
-};
 
 export const usePlanner = (): {
   plan: Ref<PlannedWeek>;
@@ -513,7 +463,7 @@ export const usePlanner = (): {
           ...new Set(
             Object.values(stored.days).flatMap((slots): string[] =>
               GROUP_SLOTS[group]
-                .map((slot): string | undefined => slots?.[slot])
+                .map((slot): string | undefined => slots[slot])
                 .filter((id): id is string => id !== undefined),
             ),
           ),
@@ -981,11 +931,10 @@ export const usePlanner = (): {
       try {
         savedAt.value = await persist({ ...plan.value, weekOf: plannerWeek.value });
         isDirty.value = false;
-      } catch (error: unknown) {
-        // Swallowed before: the button simply went back to how it looked, and
-        // the week appeared saved when nothing had left the browser.
+      } catch {
+        // Surfaced through saveFailed: the button used to go back to how it
+        // looked, and the week appeared saved when nothing had left the browser.
         saveFailed.value = true;
-        console.error('[planner] saving the week failed', error);
       } finally {
         isSaving.value = false;
       }

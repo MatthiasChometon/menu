@@ -1,4 +1,3 @@
-import { MACRO_ORDER } from './usePlanner';
 import type { Eater } from '../../profile/composables/useHouseholdQuantities';
 
 // Wider than the composer's own five percent: portions are rounded to the
@@ -52,7 +51,7 @@ export const useHouseholdBalance = (): {
   return {
     verdictsFor: (days: PlannedDay[], eaters: Eater[], reference: Macros): EaterVerdict[] =>
       eaters.map((eater): EaterVerdict => {
-        const gaps = MACRO_ORDER.map((macro): MacroGap => {
+        const gaps = usePlannerRules().macroOrder.map((macro): MacroGap => {
           const percents = days.map((day): number => {
             const target = eater.targets[macro];
             if (target === 0) return 0;
