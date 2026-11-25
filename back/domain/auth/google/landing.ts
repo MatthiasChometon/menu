@@ -9,12 +9,5 @@
 const PROFILE_PATH = '/profil';
 
 // The front address arrives without a trailing slash (see front-url.ts).
-//
-// A returning reader sent to sign in from a page (their session ended, or they
-// followed a link to a page that needs an account) goes back to that page.
-// `redirect` has already been checked to be a path of the front.
-export const landingUrl = (front: string, isFirstSignIn: boolean, redirect?: string): string => {
-  if (isFirstSignIn) return `${front}${PROFILE_PATH}`;
-
-  return redirect === undefined ? front : `${front}${redirect}`;
-};
+export const landingUrl = (front: string, isFirstSignIn: boolean): string =>
+  isFirstSignIn ? `${front}${PROFILE_PATH}` : front;
