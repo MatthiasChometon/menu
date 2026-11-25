@@ -4,14 +4,23 @@ const noteStores = new Map<string, Ref<string>>();
 
 const MAX_LENGTH = 400;
 
+// What a reader sees as one character, however many code points it takes: a
+// pepper with its variation selector, or a family emoji joined from several, is
+// kept whole or dropped, never left half drawn.
+const graphemes = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
+const truncated = (raw: string): string =>
+  Array.from(graphemes.segment(raw), ({ segment }): string => segment)
+    .slice(0, MAX_LENGTH)
+    .join('');
+
 // Stored as the bare text, not as JSON: that is how every note already saved in
 // a reader's browser was written, and reading it as JSON would lose them all.
-// localStorage is the reader's browser, so what comes back is bounded to what
-// the editor would have let them type: a hand edit or another tab cannot leave
-// a megabyte behind a 400-character field. The count is in characters (code
-// points), like the editor's, so a pair of surrogates is never cut in half.
+// localStorage is the reader's browser, so what comes back is bounded: a hand
+// edit or another tab cannot leave a megabyte behind a 400-character field. The
+// count is in graphemes, so no character a reader sees is ever cut in half.
 const noteSerializer = {
-  read: (raw: string): string => Array.from(raw).slice(0, MAX_LENGTH).join(''),
+  read: (raw: string): string => truncated(raw),
   write: (value: string): string => value,
 };
 

@@ -23,13 +23,13 @@ describe('useRecipeNotes', () => {
     expect(note.value).toHaveLength(400);
   });
 
-  it('counts characters, so an emoji on the boundary is kept whole or dropped, never cut', () => {
+  it('counts graphemes, so an emoji on the boundary is kept whole or dropped, never cut', () => {
+    // The pepper is two code points (the emoji and its variation selector).
     localStorage.setItem('recipe-note:emojiNote', `${'x'.repeat(399)}🌶️🌶️`);
 
     const { note } = useRecipeNotes('emojiNote');
 
-    expect(Array.from(note.value)).toHaveLength(400);
-    expect(note.value.endsWith('x🌶')).toBe(true);
+    expect(note.value).toBe(`${'x'.repeat(399)}🌶️`);
   });
 
   it('starts empty', () => {
