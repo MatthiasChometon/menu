@@ -34,11 +34,14 @@ const languageItems = computed((): SelectItem[] =>
   })),
 );
 
+const { reportError } = useErrorReporting();
+
 const currentLocale = computed({
   get: (): string => locale.value,
   set: (value: string): void => {
     const match = locales.value.find((entry): boolean => entry.code === value);
-    if (match !== undefined) void setLocale(match.code);
+    if (match === undefined) return;
+    setLocale(match.code).catch((failure: unknown): void => reportError('menu:setLocale', failure));
   },
 });
 

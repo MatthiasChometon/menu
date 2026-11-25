@@ -4,6 +4,7 @@ import { BadRequestException, Controller, Param, Post, Req, UseGuards } from '@n
 import type { FastifyRequest } from 'fastify';
 import { AdminGuard } from '../auth/admin/guard';
 import { AuthGuard } from '../auth/currentUser/guard';
+import { SkipTimeout } from '../../infrastructure/http/request-timeout.interceptor';
 import { ImageParams } from './params';
 import { ImageLibraryService } from './service';
 
@@ -13,6 +14,9 @@ import { ImageLibraryService } from './service';
 // AuthGuard first — it is what puts the user on the request for AdminGuard to
 // read. Reversed, the second would find nobody and refuse everyone.
 @Controller('images')
+// The global 30 s answer would not stop the conversion: the caller would resend
+// a photograph the first attempt still commits. The 8 MB limit bounds the work.
+@SkipTimeout()
 @UseGuards(AuthGuard, AdminGuard)
 export class ImageLibraryController {
   constructor(private readonly images: ImageLibraryService) {}

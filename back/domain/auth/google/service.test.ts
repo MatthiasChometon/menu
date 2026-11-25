@@ -104,6 +104,91 @@ describe('when Google does not answer properly', () => {
   });
 });
 
+describe('retrying the profile read', () => {
+  const replied = (status: number, headers: Record<string, string> = {}): AxiosError =>
+    new AxiosError('failed', String(status), undefined, undefined, {
+      status,
+      headers,
+    } as never);
+
+  // The token exchange always works; the profile read fails as many times as told.
+  const readingAfter = (
+    failures: unknown[],
+  ): { oauth: GoogleOAuth; gets: () => number; sleeps: number[] } => {
+    let gets = 0;
+    const sleeps: number[] = [];
+    const http = {
+      post: (): unknown => of({ data: { access_token: 'a-token' } }),
+      get: (): unknown => {
+        const failure = failures[gets];
+        gets += 1;
+        return failure === undefined
+          ? of({ data: { sub: '1', email: 'someone@example.test', email_verified: true } })
+          : throwError(() => failure);
+      },
+    } as unknown as HttpService;
+    const oauth = new GoogleOAuth(http, {
+      getOrThrow: (key: keyof typeof CONFIG): string => CONFIG[key],
+    } as unknown as ConfigService);
+    oauth.retryOptions = {
+      random: () => 0.5,
+      sleep: (ms: number): Promise<void> => {
+        sleeps.push(ms);
+        return Promise.resolve();
+      },
+    };
+
+    return { oauth, gets: (): number => gets, sleeps };
+  };
+
+  it('asks again after a timeout and signs the reader in', async () => {
+    const { oauth, sleeps } = readingAfter([new AxiosError('timeout', 'ECONNABORTED')]);
+
+    await expect(oauth.profileFromCode('a-code')).resolves.toMatchObject({
+      email: 'someone@example.test',
+    });
+    expect(sleeps).toEqual([100]);
+  });
+
+  it('waits what Google asks for through Retry-After', async () => {
+    const { oauth, sleeps } = readingAfter([replied(429, { 'retry-after': '1' })]);
+
+    await oauth.profileFromCode('a-code');
+
+    expect(sleeps).toEqual([1000]);
+  });
+
+  it('gives up after three attempts and reports Google as unavailable', async () => {
+    const { oauth, gets } = readingAfter([replied(503), replied(503), replied(503), replied(503)]);
+
+    await expect(oauth.profileFromCode('a-code')).rejects.toThrow(ServiceUnavailableException);
+    expect(gets()).toBe(3);
+  });
+
+  it.each([400, 401, 403, 500])('does not ask again after a %i', async (status) => {
+    const { oauth, gets } = readingAfter([replied(status), replied(status)]);
+
+    await expect(oauth.profileFromCode('a-code')).rejects.toBeInstanceOf(Error);
+    expect(gets()).toBe(1);
+  });
+
+  it('never asks twice for the single-use code', async () => {
+    let posts = 0;
+    const http = {
+      post: (): unknown => {
+        posts += 1;
+        return throwError(() => new AxiosError('timeout', 'ECONNABORTED'));
+      },
+    } as unknown as HttpService;
+    const oauth = new GoogleOAuth(http, {
+      getOrThrow: (key: keyof typeof CONFIG): string => CONFIG[key],
+    } as unknown as ConfigService);
+
+    await expect(oauth.profileFromCode('a-code')).rejects.toThrow(ServiceUnavailableException);
+    expect(posts).toBe(1);
+  });
+});
+
 describe('the wiring of calls to Google', () => {
   it('caps every call at five seconds', async () => {
     const module = await Test.createTestingModule({ imports: [googleHttpModule] }).compile();

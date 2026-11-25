@@ -252,6 +252,31 @@ describe('refusing an identifier that cannot be one', () => {
 
     expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
+
+  it('turns down a browser name that is empty or far too long, and pairs nothing', async () => {
+    const cookie = await signIn('matthias@example.com');
+
+    const empty = await api.graphql(PAIR_DEVICE, { label: '   ' }, cookie);
+    const long = await api.graphql(PAIR_DEVICE, { label: 'a'.repeat(500) }, cookie);
+    const listed = await api.graphql<{ myGroceryDevices: unknown[] }>(
+      MY_DEVICES,
+      undefined,
+      cookie,
+    );
+
+    expect(empty.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+    expect(long.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+    expect(listed.data?.myGroceryDevices).toEqual([]);
+  });
+
+  it('turns down a push endpoint that is not an https address', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const unsubscribe = `mutation ($endpoint: String!) { unsubscribeFromGroceryPush(endpoint: $endpoint) }`;
+
+    const response = await api.graphql(unsubscribe, { endpoint: 'javascript:alert(1)' }, cookie);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
 });
 
 describe('keeping accounts apart', () => {

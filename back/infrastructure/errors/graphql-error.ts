@@ -13,6 +13,8 @@ const CODE_BY_STATUS: Partial<Record<number, string>> = {
 
 const FALLBACK_CODE = 'INTERNAL_SERVER_ERROR';
 
+export const codeOfStatus = (status: number): string => CODE_BY_STATUS[status] ?? FALLBACK_CODE;
+
 // What reaches here without being an HttpException either carries a code of its
 // own (a malformed query, the rate limiter) or escaped the filter, which guards
 // resolvers only — a failure in the context factory, a plugin. The latter has
@@ -45,7 +47,7 @@ export const formatGraphqlError = (
     message: original.message,
     extensions: {
       ...formatted.extensions,
-      code: CODE_BY_STATUS[original.getStatus()] ?? FALLBACK_CODE,
+      code: codeOfStatus(original.getStatus()),
       // What the exception chose to tell the client, e.g. the list of fields a
       // validation pipe rejected.
       originalError: original.getResponse(),

@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { Logger } from '@nestjs/common';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startTestApp, type TestApp } from '../testing/e2e-app';
 
 const EMAIL = 'matthias@example.com';
@@ -138,6 +139,24 @@ describe('what the API refuses to do', () => {
     }
 
     expect(codes).toContain('TOO_MANY_REQUESTS');
+  });
+
+  it('logs one line for a GraphQL query the limiter refuses, with its operation and code', async () => {
+    const warn = vi.spyOn(Logger.prototype, 'warn');
+    let refused = false;
+    for (let attempt = 0; attempt < 130 && !refused; attempt += 1) {
+      const response = await api.graphql('query { me { id } }');
+      refused = (response.errors ?? []).some(
+        (error) => error.extensions?.code === 'TOO_MANY_REQUESTS',
+      );
+    }
+
+    const lines = warn.mock.calls
+      .map(([line]): string => String(line))
+      .filter((line) => line.includes('TOO_MANY_REQUESTS'));
+    expect(refused).toBe(true);
+    expect(lines).toEqual(['Query.me 429 TOO_MANY_REQUESTS']);
+    warn.mockRestore();
   });
 
   it('drops a field the input never declared instead of trusting it', async () => {

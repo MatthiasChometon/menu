@@ -26,13 +26,12 @@ onScopeDispose((): void => clearTimeout(savedTimer.value));
 
 watch(
   () => focusToken,
-  (): void => {
+  async (): Promise<void> => {
     if (focusToken === 0) return;
 
-    nextTick((): void => {
-      root.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      root.value?.querySelector('input')?.focus();
-    });
+    await nextTick();
+    root.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    root.value?.querySelector('input')?.focus();
   },
 );
 

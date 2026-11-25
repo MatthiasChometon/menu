@@ -32,8 +32,8 @@ const submit = async (): Promise<void> => {
   await save(windows.value);
 };
 
-onMounted((): void => {
-  void refresh();
+onMounted(async (): Promise<void> => {
+  await refresh();
 });
 </script>
 

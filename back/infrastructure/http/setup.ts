@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { FastifyServerOptions } from 'fastify';
+import { logResponses } from './request-log.hook';
 
 // A JSON API for two people: no request has any business being large, and the
 // default megabyte is a free amplification budget for anyone flooding us.
@@ -75,6 +76,8 @@ export const configureApp = async (app: NestFastifyApplication): Promise<void> =
       transform: true,
     }),
   );
+
+  logResponses(app.getHttpAdapter().getInstance());
 
   await app.register(fastifyCookie);
 

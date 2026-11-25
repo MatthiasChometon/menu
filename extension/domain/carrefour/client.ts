@@ -1,3 +1,5 @@
+import { jitteredInterval } from '../../../front/infrastructure/api/utils/backoff';
+import { fetchWithRetry } from '../../infrastructure/retry/retry';
 import type { Cart, CartLine, DeliverySlot, SearchHit, Session, ShopClient } from './type';
 
 type RawCart = {
@@ -72,7 +74,7 @@ export const createCarrefourClient = (): ShopClient => {
   // Without this header the site answers with its own HTML and a status that
   // looks like success. Reading that as JSON fails in a way that says nothing.
   const read = async <T>(path: string): Promise<T> => {
-    const response = await fetch(path, { headers: JSON_HEADERS });
+    const response = await fetchWithRetry(path, { headers: JSON_HEADERS });
 
     return (await response.json()) as T;
   };
@@ -138,7 +140,7 @@ export const createCarrefourClient = (): ShopClient => {
         return verdict;
       }
       await new Promise((resolve): void => {
-        setTimeout(resolve, 500);
+        setTimeout(resolve, jitteredInterval(500));
       });
     }
 
@@ -148,7 +150,8 @@ export const createCarrefourClient = (): ShopClient => {
   const cart = async (): Promise<Cart> => toCart(await read<RawCart>('/api/cart'));
 
   const empty = async (): Promise<void> => {
-    await fetch('/api/cart', {
+    // Emptying twice leaves the same empty basket, so it can be asked again.
+    await fetchWithRetry('/api/cart', {
       method: 'DELETE',
       headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
       body: JSON.stringify({ subBasketType, serviceId }),
@@ -176,7 +179,7 @@ export const createCarrefourClient = (): ShopClient => {
   // The results are rendered by the server, so the page itself is the answer.
   // There is no search endpoint to call.
   const search = async (terms: string): Promise<SearchHit[]> => {
-    const response = await fetch(`/s?q=${encodeURIComponent(terms)}`);
+    const response = await fetchWithRetry(`/s?q=${encodeURIComponent(terms)}`);
     const document = new DOMParser().parseFromString(await response.text(), 'text/html');
 
     return [...document.querySelectorAll('article[data-testId]')]
@@ -220,12 +223,21 @@ export const createCarrefourClient = (): ShopClient => {
 
   // Holding a slot lasts about twenty minutes, so it is taken once the basket
   // is filled and never before.
+  // One attempt only. The shop may restart the slot hold, or answer "already
+  // yours", when the same slot is set a second time, and nothing here proves
+  // otherwise; the caller reports the failure and the run can be started again.
+  // A refusal is a failure: reporting SLOT_BOOKED after a 4xx would be a lie.
   const bookSlot = async (ref: string): Promise<void> => {
-    await fetch('/api/cart/slot', {
-      method: 'PUT',
-      headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
-      body: JSON.stringify({ slotRef: ref, origin: 'timeslots', facilityServiceId: serviceId }),
-    });
+    const response = await fetchWithRetry(
+      '/api/cart/slot',
+      {
+        method: 'PUT',
+        headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+        body: JSON.stringify({ slotRef: ref, origin: 'timeslots', facilityServiceId: serviceId }),
+      },
+      { maxAttempts: 1 },
+    );
+    if (!response.ok) throw new Error(`The shop refused the slot: ${response.status}`);
   };
 
   return { session, cart, empty, put, search, slots, bookSlot };

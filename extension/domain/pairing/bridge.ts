@@ -7,6 +7,7 @@ import type {
   ExtensionHereMessage,
   PairedMessage,
 } from '../../../front/domain/order/types/bridge.type';
+import { logFailure } from '../../infrastructure/logging/failure';
 
 // Runs inside the menu site's page. When the site hands over pairing details —
 // the reader having clicked "pair this browser" there — it saves them, so nothing
@@ -16,7 +17,7 @@ export const startPairingBridge = (): void => {
   // Announce presence, and whether a pairing is already stored: the page pairs
   // this browser silently on first install and never does it a second time.
   const announce = (): void => {
-    void browser.storage.local
+    browser.storage.local
       .get('deviceToken')
       .then((stored: { deviceToken?: unknown }): void => {
         const here: ExtensionHereMessage = {
@@ -24,7 +25,8 @@ export const startPairingBridge = (): void => {
           configured: typeof stored.deviceToken === 'string',
         };
         window.postMessage(here, window.location.origin);
-      });
+      })
+      .catch(logFailure('pairing announce'));
   };
 
   window.addEventListener('message', (event: MessageEvent): void => {
@@ -40,20 +42,23 @@ export const startPairingBridge = (): void => {
     // The page is sending the reader to Carrefour and wants them back here once
     // signed in — remembered so the Carrefour content script can carry them over.
     if (isAwaitCarrefour(event.data)) {
-      void browser.storage.local.set({ returnUrl: event.data.returnUrl });
+      browser.storage.local
+        .set({ returnUrl: event.data.returnUrl })
+        .catch(logFailure('return url save'));
       return;
     }
 
     if (!isPair(event.data)) return;
 
-    void browser.storage.local
+    browser.storage.local
       .set({ endpoint: event.data.endpoint, deviceToken: event.data.token })
       .then((): void => {
         const paired: PairedMessage = { type: 'menu:paired' };
         window.postMessage(paired, window.location.origin);
         // Re-announce as configured, so the page settles on "done" with no reload.
         announce();
-      });
+      })
+      .catch(logFailure('pairing save'));
   });
 
   // Also announce on load, for a page that is already listening.

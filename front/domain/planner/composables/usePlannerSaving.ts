@@ -169,7 +169,9 @@ export const usePlannerSaving = (
     spreadFrom.value = '';
     isDirty.value = false;
     locked.value = {};
-    void loadFromAccount();
+    // A failed read is already reported and flagged by `loadFromAccount`; this
+    // only catches what it did not foresee, and never reports a failure twice.
+    loadFromAccount().catch((failure: unknown): void => reportError('planner:switchWeek', failure));
   };
 
   return { isSaving, savedAt, saveFailed, loadFailed, canSave, save, loadFromAccount, switchWeek };

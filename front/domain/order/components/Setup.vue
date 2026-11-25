@@ -132,21 +132,21 @@ const configure = async (): Promise<void> => {
 // an extension left holding a token for a device that no longer exists.
 watch(
   [extensionHere, (): number => devices.value.length, devicesLoaded],
-  ([here, count, loaded]): void => {
+  async ([here, count, loaded]): Promise<void> => {
     if (count > 0) {
       pairingSent.value = false;
       return;
     }
     if (here && loaded) {
-      void configure();
+      await configure();
     }
   },
   { immediate: true },
 );
 // A manual way out if the silent handshake was missed, kept quiet.
-const retry = (): void => {
+const retry = async (): Promise<void> => {
   pairingSent.value = false;
-  void configure();
+  await configure();
 };
 
 // Before sending the reader to Carrefour, ask the extension to carry them back
@@ -158,7 +158,8 @@ const openCarrefour = (): void => {
 // Kept fresh while the page is open: the extension reports as the reader signs in
 // on the Carrefour tab, and the step should tick over without a reload.
 const REFRESH_MS = 8000;
-let timer: ReturnType<typeof setInterval> | undefined;
+const { reportError } = useErrorReporting();
+let stopRefreshing: (() => void) | undefined;
 
 onMounted(async (): Promise<void> => {
   try {
@@ -171,9 +172,9 @@ onMounted(async (): Promise<void> => {
   // empty — otherwise it would pair on the blank moment before the list arrives.
   await refresh();
   devicesLoaded.value = true;
-  timer = setInterval((): void => {
-    void refresh();
-  }, REFRESH_MS);
+  stopRefreshing = pollWithJitter(refresh, REFRESH_MS, (error: unknown): void =>
+    reportError('order:setup-refresh', error),
+  );
 
   // Carried back from Carrefour after signing in: confirm it, and drop the flag
   // from the URL so a reload does not repeat the message.
@@ -183,12 +184,12 @@ onMounted(async (): Promise<void> => {
       icon: 'i-lucide-party-popper',
       color: 'success',
     });
-    void router.replace({ query: {} });
+    await router.replace({ query: {} });
   }
 });
 
 onScopeDispose((): void => {
-  if (timer !== undefined) clearInterval(timer);
+  stopRefreshing?.();
 });
 </script>
 

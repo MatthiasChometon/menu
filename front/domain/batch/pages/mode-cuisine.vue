@@ -21,8 +21,8 @@ onMounted(async (): Promise<void> => {
   heading.value?.focus();
 });
 
-onBeforeUnmount((): void => {
-  if (isActive.value) void release();
+onBeforeUnmount(async (): Promise<void> => {
+  if (isActive.value) await release();
 });
 
 useSeoMeta({ title: (): string => t('batch.kitchenMode.title') });

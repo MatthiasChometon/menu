@@ -9,6 +9,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { isAxiosError } from 'axios';
 import { firstValueFrom } from 'rxjs';
+import {
+  isTransientStatus,
+  retryAfterMs,
+  retryTransient,
+  type RetryOptions,
+  type Transient,
+} from '../../../infrastructure/http/retry';
 import { GoogleProfile, GoogleTokens } from './type';
 
 const AUTHORISE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -18,12 +25,25 @@ const USERINFO_URL = 'https://openidconnect.googleapis.com/v1/userinfo';
 // Not a refusal of the code: Google asking to come back later.
 const TRY_AGAIN_STATUSES: ReadonlySet<number> = new Set([408, 429]);
 
+// A reply we never got (timeout, connection reset) or one asking to come back
+// later. Not a refusal, so worth asking again.
+const transientOf = (error: unknown): Transient | undefined => {
+  if (!isAxiosError(error)) return undefined;
+  if (error.response === undefined) return {};
+  if (!isTransientStatus(error.response.status)) return undefined;
+
+  return { retryAfterMs: retryAfterMs(error.response.headers['retry-after']) };
+};
+
 // Written against Google directly rather than through Passport: the passport
 // strategies are built around Express and rub against Fastify, for what amounts
 // to two HTTP calls.
 @Injectable()
 export class GoogleOAuth {
   private readonly logger = new Logger(GoogleOAuth.name);
+
+  // Left alone in production; a test pins the jitter and skips the waiting.
+  retryOptions: Partial<RetryOptions> = {};
 
   constructor(
     private readonly http: HttpService,
@@ -94,10 +114,17 @@ export class GoogleOAuth {
 
   private async userinfo(accessToken: string): Promise<GoogleProfile> {
     try {
-      const { data } = await firstValueFrom(
-        this.http.get<GoogleProfile>(USERINFO_URL, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }),
+      // Reading a profile has no effect, so asking again is safe. The code
+      // exchange above is not retried: an authorisation code is single-use.
+      const { data } = await retryTransient(
+        () =>
+          firstValueFrom(
+            this.http.get<GoogleProfile>(USERINFO_URL, {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            }),
+          ),
+        transientOf,
+        this.retryOptions,
       );
       return data;
     } catch (error) {
