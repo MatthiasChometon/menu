@@ -75,7 +75,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M14 — impl · review · ci · ok · merged (PR #14, 0288698)
 - [x] M8 — impl · review · ci · ok · merged (PR #17, 5e5b1ae)
 - [ ] M9 — impl · review · ci · ok · merged
-- [ ] M10 — impl · review · ci · ok · merged; also from M14: the sign-in redirect survives the Google OAuth round trip (carried in `state`, tested)
+- [x] M10 — impl · review · ci · ok · merged (PR #19, d31a3a1); also from M14: the sign-in redirect survives the Google OAuth round trip (carried in `state`, tested)
 - [x] M11 — impl · review · ci · ok · merged (PR #15, 1aa82aa; deploy the back before the extension); also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
 - [ ] M13 — impl · review · ci · ok · merged
 - [ ] M15 — impl · review · ci · ok · merged (after M13; before M12)
