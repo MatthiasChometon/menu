@@ -64,12 +64,12 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 
 ## 4. Node (back, scripts, extension)
 
-- [ ] No floating promise (`no-floating-promises`: error); fire-and-forget is `void` + an internal `catch`.
+- [ ] No floating promise and no `void` on a promise (`no-floating-promises` with `ignoreVoid: false`): a call is awaited, or, when fire-and-forget on purpose, ends with a `.catch()` that logs (back: Nest `Logger`) or reports (front: `useErrorReporting`) with context.
 - [ ] A background task (cron tick, event callback, timer) can never reject unhandled: it catches and logs with context.
 - [ ] One failing item does not abort a batch (`Promise.allSettled`, or a per-item `catch`).
 - [ ] Independent awaits are not sequential in a loop; concurrency over a big list is bounded.
 - [ ] Every outbound HTTP call has a timeout (`AbortSignal.timeout` or the client `timeout`), shorter than our own caller's.
-- [ ] Retries only for transient errors (network, 429, 502/503/504) on idempotent operations, with backoff and a maximum; never on 4xx.
+- [ ] Retries only for transient errors (network, timeout, 408, 429, 502/503/504) on idempotent operations, through one shared helper: exponential backoff with full jitter (`random(0, min(cap, base * 2 ** attempt))`), a maximum number of attempts, a cap on the delay, `Retry-After` honoured; never on other 4xx. Polling loops get the same jitter.
 - [ ] Secrets are never put in a URL string; query parameters go through encoded `params`.
 - [ ] No `*Sync` fs/crypto call in a request path (boot and CLI scripts excepted); CPU-heavy work (scrypt, sharp) uses the async API.
 - [ ] Large files go through streams (`pipeline` from `node:stream/promises`), never `.pipe()` nor a full `readFile`.
@@ -87,6 +87,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Repositories return domain types, never ORM row types leaking to resolvers; mapping is explicit.
 - [ ] Providers are stateless singletons; no `Scope.REQUEST`; the current user comes from a param decorator (`@CurrentUser()`).
 - [ ] Global guards, filters, interceptors and pipes are registered with `APP_*` providers when they need DI.
+- [ ] Cross-cutting request concerns are global interceptors, not repeated in handlers: one request log (route, status, duration) and one request timeout.
 - [ ] Authentication is default-deny where possible (`@Public()` marks the open routes), and the auth guard runs before any role check.
 - [ ] `@Global()` only for config, database and logger modules; `forwardRef` is removed by extracting what both sides need.
 - [ ] Non-class injection tokens are `Symbol`s.
@@ -156,6 +157,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] No `utils/` folder in the app: reusable logic is a composable (`useX`) whose helpers are closures inside it and which returns a named API (build-only scripts excepted, as already arranged in menu).
 - [ ] REST calls go through the custom `useApi` (custom `useFetch`), never a bare `$fetch`; GraphQL through `useQuery` / `useMutation` (lazy `useAsyncData`, `immediate: false`, first fetch started explicitly).
 - [ ] No `try/catch` around API calls: errors are read from `error` / `status`.
+- [ ] Cross-cutting HTTP concerns live once, in the `useApi` / GraphQL client interceptors (`onRequest`, `onResponseError`): expired session (401 / `UNAUTHENTICATED`) leads to sign-in, unexpected errors (5xx, network) are reported once, common headers are set there; components never repeat it.
 - [ ] Optimistic updates go through `optimisticUpdate` (snapshot, apply, rollback on error).
 - [ ] GraphQL types come from codegen (`#gql`), never written by hand; domain types derive from them.
 - [ ] The front reacts to the error `code` (`UNAUTHENTICATED`, `FORBIDDEN`, …), never to the message text.
