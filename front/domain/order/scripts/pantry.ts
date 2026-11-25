@@ -1,7 +1,7 @@
 // Works out what is left in the pantry after the week and deducts it from the
 // next order: whole packs are bought but only the need is used, so the surplus
 // carries over. Needs come from the menu domain, keep/leftover from
-// domain/order/utils; this runner reads carrefour-products.json and prints.
+// domain/order/composables; this runner reads carrefour-products.json and prints.
 //
 // Usage:
 //   pnpm --dir front pantry --preview   # what will be left, writing nothing
@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import type { Food } from '../../menu/types/menu.type';
 import { latestMenu, menuCatalog, needsOf } from '../../menu/scripts/loader';
-import { keeps, leftover } from '../utils/pantry';
+import { keeps, leftover } from '../composables/usePantryStock';
 import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
 import { readContent } from '../../../infrastructure/asset/scripts/content';
 

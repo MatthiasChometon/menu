@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeOrderLine, orderLine } from './order';
+import { describeOrderLine, orderLine } from './useOrderLines';
 import type { Food } from '../../menu/types/menu.type';
 
 const food = (overrides: Partial<Food>): Food => ({

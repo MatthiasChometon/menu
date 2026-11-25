@@ -1,14 +1,5 @@
 import type { Food } from '../../menu/types/menu.type';
-
-export type OrderLine = {
-  food: Food;
-  needed: number;
-  inStock: number;
-  quantity: number;
-  kind: 'pack' | 'piece' | 'weight';
-  pack?: number;
-  price: number;
-};
+import type { OrderLine } from '../types/order.type';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 

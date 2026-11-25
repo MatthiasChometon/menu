@@ -1,6 +1,6 @@
 // Turns the week's needs into a real drive order: not 960 g of rice but one 1 kg
 // bag, aisle-sorted, minus what the pantry still holds. Needs come from the menu
-// domain (buildMenu) and the rounding from domain/order/utils; this runner reads
+// domain (buildMenu) and the rounding from domain/order/composables; this runner reads
 // the files, keeps the order log, and prints.
 //
 // Usage:
@@ -14,7 +14,8 @@ import { parseArgs } from 'node:util';
 import { useCatalogBuilder } from '../../menu/composables/useCatalogBuilder';
 import type { Aisle, Menu } from '../../menu/types/menu.type';
 import { latestMenu } from '../../menu/scripts/loader';
-import { describeOrderLine, orderLine, type OrderLine } from '../utils/order';
+import { describeOrderLine, orderLine } from '../composables/useOrderLines';
+import type { OrderLine } from '../types/order.type';
 import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
 import { readContent } from '../../../infrastructure/asset/scripts/content';
 

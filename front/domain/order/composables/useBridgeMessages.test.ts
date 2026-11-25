@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isAwaitCarrefour, isExtensionHere, isPair, isPaired, isWhereIsExtension } from './bridge';
+import { isAwaitCarrefour, isExtensionHere, isPair, isPaired, isWhereIsExtension } from './useBridgeMessages';
 
 describe('bridge message guards', () => {
   it('accepts a well-formed pair message and reads its fields', () => {
