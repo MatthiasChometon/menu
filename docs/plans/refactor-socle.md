@@ -282,3 +282,23 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   `version`. **Deletion candidates:** none.
 - 2026-11-25 — M6 merged (PR #12, fded7a9): 3 review rounds (11 + 7 findings + nits). Local: lint, typecheck,
   vitest 109/601, build green. Next: M7.
+- 2026-11-25 — M7 (front `domain/planner`), PR on `refactor/socle-m7`. **Turned on:** `domain/planner` leaves the M5
+  exemption block of `eslint.config.ts` (planner errors 6 -> 0: 4 `no-unnecessary-condition`, 1 `no-console`,
+  1 `no-non-null-assertion`, `no-floating-promises` was already 0; `domain/menu` stays at 0) and joins `domain/menu`
+  under `@intlify/vue-i18n/no-dynamic-keys`. **Done:** every planner label goes through literal keys
+  (`usePlannerLabels`, plus `macroLabel`/`macroLongLabel` added to `useMenuLabels`); `usePlannerHistory` and
+  `usePlannerPreferences` read persisted values through the M6 `useStoredValue` guards, one corrupted-input test
+  each; week days are Europe/Paris calendar days (`usePlannerWeek` helpers, tests use explicit UTC instants, no
+  zone pinned); constants of `usePlanner` moved to `usePlannerRules` (it no longer exports `MACRO_ORDER`); the
+  failed save no longer logs (`saveFailed` is the signal); new `SaveStatus.vue` keeps a persistent `role="status"`
+  region and an explicit `role="alert"` on failure, each with a test. `usePlanner.test.ts` (12 tests) pins the
+  facade before the changes. **Deferred:** (1) `exactOptionalPropertyTypes` in planner (`PreferencesPanel.vue`
+  `USelect` handlers and others, not counted) -> M10, exit: flag turned on with `nuxt typecheck` at 0.
+  (2) `usePlanner.ts` is still ~1000 lines (days / persistence / swaps still share one closure; the facade is
+  mocked by components and tests) -> M10, exit: split into three composables behind the same return type.
+  (3) Local-time `Date` helpers in other slices (`menu/useNextWeek`, `menu/useWeekLabel`, `menu/DayCard`,
+  `batch/useBatchContainers`, `weight/useWeightDates`, `today`) -> M8 for batch, the owning slice lot for the
+  others, exit: they use the Paris helpers of `usePlannerWeek`. (4) `useWeekPlanStore` coerces an unknown API
+  enum to Monday/lunch and swallows a load failure on purpose (offline fallback) -> M10, exit: a `loadFailed`
+  state with `role="alert"` and a retry. **Deletion candidates (unverified):** `DEFAULT_LENGTH`, `weekToCompose`,
+  `useGenerateFirstWeek`, `ApiPlannedDay`, `usePlannerHistory.entries`/`varietyWindowWeeks`.
