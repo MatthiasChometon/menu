@@ -9,6 +9,7 @@
     "share": "Partager",
     "close": "Fermer",
     "cardAlt": "Carte récapitulative de la semaine, avec les apports moyens et le budget",
-    "empty": "Aucune semaine à partager pour l'instant."
+    "empty": "Aucune semaine à partager pour l'instant.",
+    "failed": "L'image n'a pas pu être créée. Réessaie dans un instant."
   }
 }
