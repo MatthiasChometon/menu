@@ -2,6 +2,15 @@
 const { items, streak } = defineProps<{ items: ReminderItem[]; streak: number }>();
 
 defineEmits<{ toggle: [id: ReminderId] }>();
+
+const { t } = useNuxtApp().$i18n;
+
+// Literal keys, so the translation checker sees every one of them.
+const labels = computed((): Record<ReminderId, string> => ({
+  creatine: t('today.reminders.item.creatine'),
+  water: t('today.reminders.item.water'),
+  vitaminD: t('today.reminders.item.vitaminD'),
+}));
 </script>
 
 <template>
@@ -34,7 +43,7 @@ defineEmits<{ toggle: [id: ReminderId] }>();
             <UIcon :name="item.isChecked ? 'i-lucide-check' : item.icon" class="size-4" />
           </span>
           <span class="flex-1 font-medium" :class="item.isChecked && 'text-muted line-through'">
-            {{ $t(`today.reminders.item.${item.id}`) }}
+            {{ labels[item.id] }}
           </span>
           <span class="sr-only">
             {{ item.isChecked ? $t('today.reminders.markUndone') : $t('today.reminders.markDone') }}

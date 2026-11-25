@@ -6,19 +6,25 @@ const { thresholdCents, isSaving, isSaved, refresh, save } = useGroceryPreferenc
 // browser has parsed it — so the field's value is whichever the last write was,
 // and reading it as a string would throw the moment someone actually typed.
 const euros = ref<string | number>('');
+const { hasFailed: loadFailed, run: runLoad } = useAttempt();
+const { hasFailed: saveFailed, run: runSave } = useAttempt();
 
 const submit = async (): Promise<void> => {
   const typed = String(euros.value).trim();
-  await save(typed === '' ? undefined : Math.round(Number(typed) * 100));
+  await runSave((): Promise<void> =>
+    save(typed === '' ? undefined : Math.round(Number(typed) * 100)),
+  );
 };
 
 watch(thresholdCents, (cents): void => {
   euros.value = cents === undefined ? '' : String(cents / 100);
 });
 
-onMounted(async (): Promise<void> => {
-  await refresh();
-});
+// Without the saved value the field would read as empty, and saving it would
+// wipe the real threshold: the form is not shown until the load works.
+const load = (): Promise<void> => runLoad(refresh);
+
+onMounted(load);
 </script>
 
 <template>
@@ -26,7 +32,9 @@ onMounted(async (): Promise<void> => {
     <h2 class="font-bold">{{ $t('order.cost.threshold') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.cost.thresholdHint') }}</p>
 
-    <form class="mt-3 flex items-center gap-2" @submit.prevent="submit">
+    <OrderLoadFailed v-if="loadFailed" :message="$t('order.loadFailed.threshold')" @retry="load" />
+
+    <form v-else class="mt-3 flex items-center gap-2" @submit.prevent="submit">
       <label class="sr-only" for="threshold">{{ $t('order.cost.threshold') }}</label>
       <input
         id="threshold"
@@ -47,6 +55,9 @@ onMounted(async (): Promise<void> => {
       </button>
     </form>
 
+    <p v-if="saveFailed" class="mt-2 text-sm text-error" role="alert">
+      {{ $t('order.saveFailed') }}
+    </p>
     <p v-if="isSaved" class="mt-2 text-sm text-muted" role="status">{{ $t('order.cost.saved') }}</p>
   </section>
 </template>

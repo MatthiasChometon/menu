@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { describeOrderLine, orderLine } from './order';
+import { orderLine } from './orderLines';
 import type { Food } from '../../menu/types/menu.type';
 
 const food = (overrides: Partial<Food>): Food => ({
@@ -64,13 +64,5 @@ describe('orderLine', () => {
     const line = orderLine(food({ id: 'salmon', pricePerKg: 22 }), 240, {}, {});
 
     expect(line?.price).toBeCloseTo(5.28);
-  });
-});
-
-describe('describeOrderLine', () => {
-  it('reads a pack line with its need', () => {
-    const line = orderLine(food({ id: 'rice' }), 960, {}, { rice: 1000 });
-
-    expect(describeOrderLine(line!)).toBe('1 x 1000 g (besoin 960 g)');
   });
 });

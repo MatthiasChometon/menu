@@ -5,9 +5,13 @@ const PERIODS = [
   { key: 'morning', startMinute: 8 * 60, endMinute: 12 * 60 },
   { key: 'afternoon', startMinute: 12 * 60, endMinute: 18 * 60 },
   { key: 'evening', startMinute: 18 * 60, endMinute: 21 * 60 },
-];
+] as const;
 
-const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7];
+const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
+
+const { periodLabel, weekdayLabel } = useOrderLabels();
+const { hasFailed: loadFailed, run: runLoad } = useAttempt();
+const { hasFailed: saveFailed, run: runSave } = useAttempt();
 
 const { windows, isSaving, refresh, save } = useSlotWindows();
 
@@ -28,13 +32,11 @@ const toggle = (weekday: number, period: (typeof PERIODS)[number]): void => {
     : [...windows.value, { weekday, startMinute: period.startMinute, endMinute: period.endMinute }];
 };
 
-const submit = async (): Promise<void> => {
-  await save(windows.value);
-};
+const submit = (): Promise<void> => runSave((): Promise<void> => save(windows.value));
 
-onMounted(async (): Promise<void> => {
-  await refresh();
-});
+const load = (): Promise<void> => runLoad(refresh);
+
+onMounted(load);
 </script>
 
 <template>
@@ -42,46 +44,55 @@ onMounted(async (): Promise<void> => {
     <h2 class="font-bold">{{ $t('order.slots.title') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.slots.lead') }}</p>
 
-    <div class="mt-3 overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr>
-            <th class="sr-only">{{ $t('order.slots.title') }}</th>
-            <th v-for="period in PERIODS" :key="period.key" class="px-2 pb-1 font-medium">
-              {{ $t(`order.slots.${period.key}`) }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="weekday in WEEKDAYS" :key="weekday">
-            <th scope="row" class="py-1 pr-2 text-left font-normal">
-              {{ $t(`order.weekday.${weekday}`) }}
-            </th>
-            <td v-for="period in PERIODS" :key="period.key" class="px-2 py-1 text-center">
-              <input
-                type="checkbox"
-                class="size-5"
-                :checked="isTicked(weekday, period)"
-                :aria-label="`${$t(`order.weekday.${weekday}`)} ${$t(`order.slots.${period.key}`)}`"
-                @change="toggle(weekday, period)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <!-- Without what is saved, the form would read as empty and saving it would
+         wipe the real choice: it is not shown until the load works. -->
+    <OrderLoadFailed v-if="loadFailed" :message="$t('order.loadFailed.slots')" @retry="load" />
 
-    <p v-if="windows.length === 0" class="mt-2 text-sm text-muted">
-      {{ $t('order.slots.none') }}
-    </p>
+    <template v-else>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr>
+              <th class="sr-only">{{ $t('order.slots.title') }}</th>
+              <th v-for="period in PERIODS" :key="period.key" class="px-2 pb-1 font-medium">
+                {{ periodLabel(period.key) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="weekday in WEEKDAYS" :key="weekday">
+              <th scope="row" class="py-1 pr-2 text-left font-normal">
+                {{ weekdayLabel(weekday) }}
+              </th>
+              <td v-for="period in PERIODS" :key="period.key" class="px-2 py-1 text-center">
+                <input
+                  type="checkbox"
+                  class="size-5"
+                  :checked="isTicked(weekday, period)"
+                  :aria-label="`${weekdayLabel(weekday)} ${periodLabel(period.key)}`"
+                  @change="toggle(weekday, period)"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <button
-      type="button"
-      class="mt-3 w-full rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
-      :disabled="isSaving"
-      @click="submit"
-    >
-      {{ isSaving ? $t('order.slots.saving') : $t('order.slots.save') }}
-    </button>
+      <p v-if="windows.length === 0" class="mt-2 text-sm text-muted">
+        {{ $t('order.slots.none') }}
+      </p>
+
+      <button
+        type="button"
+        class="mt-3 w-full rounded-lg bg-primary px-4 py-2 font-semibold text-inverted disabled:opacity-60"
+        :disabled="isSaving"
+        @click="submit"
+      >
+        {{ isSaving ? $t('order.slots.saving') : $t('order.slots.save') }}
+      </button>
+      <p v-if="saveFailed" class="mt-2 text-sm text-error" role="alert">
+        {{ $t('order.saveFailed') }}
+      </p>
+    </template>
   </section>
 </template>

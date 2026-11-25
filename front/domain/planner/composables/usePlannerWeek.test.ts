@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   daysFrom,
+  parisMinutesOf,
+  shiftedBy,
   startOf,
   usePlannerWeek,
   weeksBetween,
@@ -33,6 +35,42 @@ describe('the windows open to composing', () => {
 
   it('opens on the next window once today is planned', () => {
     expect(weekToCompose(THURSDAY, ['2026-08-20'])).toBe('2026-08-27');
+  });
+});
+
+// Regression guards: startOf and parisMinutesOf already read Paris before M8, so
+// these pass on the old code too. What they pin is the midnight boundary.
+describe('the Paris clock, whatever the zone of the device', () => {
+  it('puts 22:30 UTC on the next Paris day, half past midnight', () => {
+    const instant = new Date('2026-08-10T22:30:00Z');
+
+    expect(startOf(instant)).toBe('2026-08-11');
+    expect(parisMinutesOf(instant)).toBe(30);
+  });
+
+  it('does the same in winter, one hour from UTC instead of two', () => {
+    const instant = new Date('2026-01-12T23:30:00Z');
+
+    expect(startOf(instant)).toBe('2026-01-13');
+    expect(parisMinutesOf(instant)).toBe(30);
+  });
+
+  it('keeps 23:59 Paris on the day it belongs to', () => {
+    const instant = new Date('2026-08-10T21:59:00Z');
+
+    expect(startOf(instant)).toBe('2026-08-10');
+    expect(parisMinutesOf(instant)).toBe(23 * 60 + 59);
+  });
+
+  // Regression guard, because moving a calendar day by whole days was already
+  // right on local time: it pins the daylight-saving nights of the Paris year.
+  it.each([
+    ['2026-10-24', 1, '2026-10-25'],
+    ['2026-10-25', 1, '2026-10-26'],
+    ['2026-03-28', 2, '2026-03-30'],
+    ['2026-10-26', -2, '2026-10-24'],
+  ])('moves %s by %i day(s) to %s across the clock changes', (day, days, expected) => {
+    expect(shiftedBy(day, days)).toBe(expected);
   });
 });
 

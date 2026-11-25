@@ -17,9 +17,11 @@ export const useGroceryDevices = (): {
   // hash, so nobody can hand it back a second time.
   const freshToken = ref<string | undefined>();
 
+  // A failure is the caller's to handle: an empty list stands for "no browser
+  // paired", and a failed read must never pass for that.
   const refresh = async (): Promise<void> => {
-    const result = await GqlMyGroceryDevices().catch((): undefined => undefined);
-    devices.value = result?.myGroceryDevices ?? [];
+    const result = await GqlMyGroceryDevices();
+    devices.value = result.myGroceryDevices;
   };
 
   const pair = async (label: string): Promise<void> => {

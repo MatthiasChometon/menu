@@ -11,15 +11,14 @@ export const useGroceryOrder = (): {
   job: Ref<GroceryJob | undefined>;
   isQueueing: Ref<boolean>;
   isRunning: ComputedRef<boolean>;
-  error: Ref<string | undefined>;
+  hasFailed: Ref<boolean>;
   order: (weekOf: string, needs: { foodId: string; grams: number }[]) => Promise<void>;
   follow: (jobId: string) => void;
   stopFollowing: () => void;
 } => {
   const job = ref<GroceryJob | undefined>();
   const isQueueing = ref(false);
-  const error = ref<string | undefined>();
-  const { reportError } = useErrorReporting();
+  const hasFailed = ref(false);
   const stopPolling = ref<(() => void) | undefined>();
 
   const isRunning = computed(
@@ -32,8 +31,10 @@ export const useGroceryOrder = (): {
   };
 
   const refresh = async (jobId: string): Promise<void> => {
-    const result = await GqlGroceryJob({ jobId }).catch((): undefined => undefined);
-    job.value = result?.groceryJob ?? job.value;
+    // A failed poll is reported by the poller and tried again next round; the
+    // last known state stays on screen meanwhile.
+    const result = await GqlGroceryJob({ jobId });
+    job.value = result.groceryJob ?? job.value;
 
     if (!isRunning.value) {
       stopFollowing();
@@ -45,7 +46,9 @@ export const useGroceryOrder = (): {
     stopPolling.value = pollWithJitter(
       (): Promise<void> => refresh(jobId),
       POLL_MS,
-      (failure: unknown): void => reportError('order:follow', failure),
+      // A failed poll is already reported by the GraphQL error plugin; the next
+      // round simply tries again.
+      (): void => undefined,
     );
   };
 
@@ -54,7 +57,7 @@ export const useGroceryOrder = (): {
     needs: { foodId: string; grams: number }[],
   ): Promise<void> => {
     isQueueing.value = true;
-    error.value = undefined;
+    hasFailed.value = false;
 
     try {
       const result = await GqlCreateGroceryJob({ input: { weekOf, needs } });
@@ -62,7 +65,7 @@ export const useGroceryOrder = (): {
       job.value = { ...result.createGroceryJob, events: [] };
       follow(result.createGroceryJob.id);
     } catch {
-      error.value = 'order.error.queue';
+      hasFailed.value = true;
     } finally {
       isQueueing.value = false;
     }
@@ -70,5 +73,5 @@ export const useGroceryOrder = (): {
 
   onScopeDispose(stopFollowing);
 
-  return { job, isQueueing, isRunning, error, order, follow, stopFollowing };
+  return { job, isQueueing, isRunning, hasFailed, order, follow, stopFollowing };
 };

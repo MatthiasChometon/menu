@@ -46,7 +46,8 @@
     },
     "share": {
       "button": "Share",
-      "copied": "List copied to the clipboard."
+      "copied": "List copied to the clipboard.",
+      "failed": "The list could not be shared."
     },
     "online": {
       "online": "Online",

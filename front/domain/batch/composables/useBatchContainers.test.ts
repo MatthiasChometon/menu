@@ -41,17 +41,34 @@ describe('useBatchContainers', () => {
     }
   });
 
-  it('dates every box on or after the week it is cooked for', () => {
-    const menu = menuOf();
-    const weekStart = new Date(`${menu.weekOf}T00:00:00`).getTime();
+  it('dates each box on the calendar day it is eaten, across the clock change', () => {
+    const menu = { ...menuOf(), weekOf: '2026-10-24' };
+    const { tasks } = useBatchPlan().planOf(menu);
+    const week = [
+      '2026-10-24',
+      '2026-10-25',
+      '2026-10-26',
+      '2026-10-27',
+      '2026-10-28',
+      '2026-10-29',
+      '2026-10-30',
+    ];
+    const labels = useBatchContainers()
+      .groupsOf(menu, tasks)
+      .flatMap((group): ContainerLabel[] => group.labels);
 
-    for (const group of groupsOf()) {
-      for (const label of group.labels) {
-        expect(new Date(`${label.bestBefore}T00:00:00`).getTime()).toBeGreaterThanOrEqual(
-          weekStart,
-        );
-      }
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) {
+      const dayIndex = menu.days.findIndex((day): boolean => day.key === label.day);
+      expect(label.bestBefore, label.id).toBe(week[dayIndex]);
     }
+  });
+
+  it('prints a calendar day as itself, whatever the zone of the device', () => {
+    const { dateLabelOf } = useBatchContainers();
+
+    expect(dateLabelOf('2026-10-25')).toContain('25');
+    expect(dateLabelOf('2026-10-25')).not.toContain('24');
   });
 
   it('never mixes another dish into a group', () => {

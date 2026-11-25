@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/vue';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Threshold from './Threshold.vue';
 
-const { save } = vi.hoisted(() => ({ save: vi.fn() }));
+const { save, refresh } = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn() }));
 
 type PreferenceApi = ReturnType<
   typeof import('../composables/useGroceryPreference').useGroceryPreference
@@ -13,12 +13,13 @@ mockNuxtImport('useGroceryPreference', () => (): PreferenceApi => ({
   thresholdCents: ref(undefined),
   isSaving: ref(false),
   isSaved: ref(false),
-  refresh: vi.fn(),
+  refresh,
   save,
 }));
 
 beforeEach(async (): Promise<void> => {
-  save.mockClear();
+  save.mockReset();
+  refresh.mockReset();
   await useNuxtApp().$i18n.setLocale('fr');
 });
 
@@ -43,5 +44,24 @@ describe('the grocery alert threshold', () => {
     await fireEvent.submit(field.closest('form') as HTMLFormElement);
 
     expect(save).toHaveBeenCalledWith(undefined);
+  });
+
+  it('says the threshold could not be loaded, and hides the form so saving cannot wipe it', async () => {
+    refresh.mockRejectedValue(new Error('network down'));
+    await renderSuspended(Threshold);
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/seuil/i);
+    expect(screen.queryByLabelText(/m’alerter/i)).toBeNull();
+  });
+
+  it('says so when saving fails', async () => {
+    save.mockRejectedValue(new Error('refused'));
+    await renderSuspended(Threshold);
+
+    const field = screen.getByLabelText(/m’alerter/i);
+    await fireEvent.update(field, '30');
+    await fireEvent.submit(field.closest('form') as HTMLFormElement);
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/enregistrement/i);
   });
 });

@@ -3,6 +3,7 @@ const { groups } = defineProps<{ groups: ContainerGroup[] }>();
 
 const { nameOf } = useFoodFormat();
 const { dateLabelOf } = useBatchContainers();
+const { dayLabel, mealLabel } = useMenuLabels();
 
 const totalContainers = computed((): number =>
   groups.reduce((total, group): number => total + group.labels.length, 0),
@@ -42,7 +43,7 @@ const totalContainers = computed((): number =>
             class="inline-flex items-center gap-1.5 rounded-full border border-default bg-elevated/40 py-1 pr-2.5 pl-1"
           >
             <span class="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-              {{ $t(`menu.day.${label.day}`) }} · {{ $t(`menu.meal.${label.slot}`) }}
+              {{ dayLabel(label.day) }} · {{ mealLabel(label.slot) }}
             </span>
             <span class="text-xs text-muted">
               {{ $t('batch.containers.bestBefore') }} {{ dateLabelOf(label.bestBefore) }}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { selectedWeek, selectedMenu: currentMenu, isLoading } = useSelectedWeek();
+const { selectedWeek, selectedMenu: currentMenu, isLoading, hasFailed, retry } = useSelectedWeek();
 const { planOf } = useBatchPlan();
 const { nameOf } = useFoodFormat();
 const { t } = useNuxtApp().$i18n;
@@ -93,6 +93,8 @@ useSeoMeta({ title: (): string => t('batch.title') });
       <USkeleton class="h-40 rounded-2xl" />
     </div>
     <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
+
+    <MenuWeekLoadFailed v-else-if="hasFailed" @retry="retry" />
 
     <div
       v-else-if="plan === undefined || plan.tasks.length === 0"

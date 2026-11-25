@@ -9,6 +9,8 @@ const {
   index?: number;
 }>();
 
+const { aisleLabel } = useShoppingAisles();
+
 const emit = defineEmits<{ toggle: [foodId: string]; pantry: [foodId: string] }>();
 
 const pickedCount = computed(
@@ -19,7 +21,7 @@ const pickedCount = computed(
 <template>
   <section class="rise" :style="{ animationDelay: `${Math.min(index, 6) * 70}ms` }">
     <div class="mb-2 flex items-baseline justify-between gap-3 px-1">
-      <h2 class="font-bold">{{ $t(`shopping.aisle.${group.aisle}`) }}</h2>
+      <h2 class="font-bold">{{ aisleLabel(group.aisle) }}</h2>
       <span class="text-sm tabular-nums text-muted">
         {{ pickedCount }} / {{ group.lines.length }}
       </span>

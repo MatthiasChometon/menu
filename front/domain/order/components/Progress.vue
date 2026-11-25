@@ -3,6 +3,8 @@ import type { GroceryJob } from '../composables/useGroceryOrder';
 
 const { job } = defineProps<{ job: GroceryJob }>();
 
+const { statusLabel } = useOrderLabels();
+
 const total = computed((): number => job.lines.length);
 const added = computed(
   (): number => job.events.filter((event): boolean => event.kind === 'LINE_ADDED').length,
@@ -64,7 +66,7 @@ const showBar = computed((): boolean => isRunning.value || isDone.value || added
           isRunning && 'animate-spin',
         ]"
       />
-      <p class="text-sm font-semibold">{{ $t(`order.status.${job.status}`) }}</p>
+      <p class="text-sm font-semibold">{{ statusLabel(job.status) }}</p>
       <span
         v-if="showBar"
         class="ml-auto text-sm font-semibold tabular-nums"

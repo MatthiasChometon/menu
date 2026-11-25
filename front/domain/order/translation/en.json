@@ -28,7 +28,8 @@
         "title": "Sign in to Carrefour",
         "desc": "Open Carrefour and sign in if needed. The extension checks your session and ticks the step."
       },
-      "ready": "All set! Compose your week, then “Fill my basket” from Shopping."
+      "ready": "All set! Compose your week, then “Fill my basket” from Shopping.",
+      "pairFailed": "Pairing did not go through. Try again."
     },
     "status": {
       "PENDING": "Waiting for a browser",
@@ -103,7 +104,15 @@
       "lead": "A notification when the basket is ready, or when the run stopped.",
       "on": "Turn notifications on",
       "off": "Stop telling me here",
-      "blocked": "Notifications are blocked for this site in the browser settings."
-    }
+      "blocked": "Notifications are blocked for this site in the browser settings.",
+      "failed": "Notifications could not be changed. Try again."
+    },
+    "retry": "Try again",
+    "loadFailed": {
+      "devices": "Your paired browsers could not be loaded.",
+      "slots": "Your delivery times could not be loaded.",
+      "threshold": "Your alert threshold could not be loaded."
+    },
+    "saveFailed": "Saving failed. Try again in a moment."
   }
 }

@@ -1,6 +1,13 @@
-import { startOf } from '../../planner/composables/usePlannerWeek';
+import { shiftedBy, startOf } from '../../planner/composables/usePlannerWeek';
 
 const REMINDER_IDS: readonly ReminderId[] = ['creatine', 'water', 'vitaminD'];
+
+const { storedValue, isRecordOf, isArrayOf } = useStoredValue();
+
+const isReminderId = (value: unknown): value is ReminderId =>
+  REMINDER_IDS.some((id): boolean => id === value);
+const isGlassCount = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_GLASSES;
 
 const REMINDER_ICON: Record<ReminderId, string> = {
   creatine: 'i-lucide-pill',
@@ -22,13 +29,21 @@ const MAX_GLASSES = 8;
 // other's writes within one tab.
 let reminderStore: Ref<Record<string, ReminderId[]>> | undefined;
 const reminderStateRef = (): Ref<Record<string, ReminderId[]>> => {
-  reminderStore ??= useLocalStorage<Record<string, ReminderId[]>>('today:reminders', {});
+  reminderStore ??= storedValue<Record<string, ReminderId[]>>(
+    'today:reminders',
+    {},
+    isRecordOf(isArrayOf(isReminderId)),
+  );
   return reminderStore;
 };
 
 let hydrationStore: Ref<Record<string, number>> | undefined;
 const hydrationStateRef = (): Ref<Record<string, number>> => {
-  hydrationStore ??= useLocalStorage<Record<string, number>>('today:hydration', {});
+  hydrationStore ??= storedValue<Record<string, number>>(
+    'today:hydration',
+    {},
+    isRecordOf(isGlassCount),
+  );
   return hydrationStore;
 };
 
@@ -37,15 +52,15 @@ const isDayComplete = (records: Record<string, ReminderId[]>, dateKey: string): 
 
 // Counts backward from today, or from yesterday when today is not finished
 // yet — an unfinished today must not erase a streak already earned — until a
-// day breaks the chain.
-const streakEndingAt = (records: Record<string, ReminderId[]>, today: Date): number => {
-  const cursor = new Date(today);
-  if (!isDayComplete(records, startOf(cursor))) cursor.setDate(cursor.getDate() - 1);
+// day breaks the chain. Days are Paris 'YYYY-MM-DD' strings, so stepping back a
+// day never meets a daylight-saving hour.
+const streakEndingAt = (records: Record<string, ReminderId[]>, todayKey: string): number => {
+  let cursor = isDayComplete(records, todayKey) ? todayKey : shiftedBy(todayKey, -1);
 
   let streak = 0;
-  while (isDayComplete(records, startOf(cursor))) {
+  while (isDayComplete(records, cursor)) {
     streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
+    cursor = shiftedBy(cursor, -1);
   }
 
   return streak;
@@ -99,7 +114,7 @@ export const useDailyChecklist = (
       })),
     ),
     reminderStreak: computed((): number =>
-      today.value === undefined ? 0 : streakEndingAt(reminderStateRef().value, today.value),
+      dateKey.value === undefined ? 0 : streakEndingAt(reminderStateRef().value, dateKey.value),
     ),
     toggleReminder: (id: ReminderId): void => {
       const key = dateKey.value;

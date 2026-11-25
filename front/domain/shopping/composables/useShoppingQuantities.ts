@@ -4,7 +4,20 @@ import type { Eater } from '../../profile/composables/useHouseholdQuantities';
 // over the network, and this list is needed in a shop with no signal: without a
 // copy, the quantities would silently fall back to one person exactly where
 // they are read out loud.
-const cachedEaters = (): Ref<Eater[]> => useLocalStorage<Eater[]>('shopping:eaters', []);
+const { storedValue, isArrayOf } = useStoredValue();
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isEater = (value: unknown): value is Eater =>
+  isObject(value) &&
+  typeof value.id === 'string' &&
+  typeof value.name === 'string' &&
+  isObject(value.targets) &&
+  typeof value.targets.kcal === 'number';
+
+const cachedEaters = (): Ref<Eater[]> =>
+  storedValue<Eater[]>('shopping:eaters', [], isArrayOf(isEater));
 
 // What to buy, for everyone who eats it. The recipe page already serves each
 // person their share of the pan; the list has to fill the pan in the first

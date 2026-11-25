@@ -10,8 +10,8 @@ export const useSlotWindows = (): {
   const isSaving = ref(false);
 
   const refresh = async (): Promise<void> => {
-    const result = await GqlMyGrocerySlotWindows().catch((): undefined => undefined);
-    windows.value = result?.myGrocerySlotWindows ?? [];
+    const result = await GqlMyGrocerySlotWindows();
+    windows.value = result.myGrocerySlotWindows;
   };
 
   const save = async (next: SlotWindow[]): Promise<void> => {

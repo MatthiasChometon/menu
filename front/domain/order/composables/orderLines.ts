@@ -1,14 +1,5 @@
 import type { Food } from '../../menu/types/menu.type';
-
-export type OrderLine = {
-  food: Food;
-  needed: number;
-  inStock: number;
-  quantity: number;
-  kind: 'pack' | 'piece' | 'weight';
-  pack?: number;
-  price: number;
-};
+import type { OrderLine } from '../types/order.type';
 
 const round2 = (value: number): number => Math.round(value * 100) / 100;
 
@@ -34,14 +25,4 @@ export const orderLine = (
     return { ...base, quantity: Math.ceil(needed / food.pieceWeight), kind: 'piece' };
   }
   return { ...base, quantity: needed, kind: 'weight' };
-};
-
-export const describeOrderLine = (line: OrderLine): string => {
-  const need = line.inStock
-    ? `${line.needed} ${line.food.unit}, ${line.inStock} deja en stock`
-    : `${line.needed} ${line.food.unit}`;
-  if (line.kind === 'pack')
-    return `${line.quantity} x ${line.pack} ${line.food.unit} (besoin ${need})`;
-  if (line.kind === 'piece') return `${line.quantity} piece(s) (besoin ${need})`;
-  return `${need} au poids`;
 };

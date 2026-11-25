@@ -2,13 +2,13 @@
 const { isSupported, isSubscribed, isBlocked, isWorking, refresh, subscribe, unsubscribe } =
   useGroceryPush();
 
-const toggle = async (): Promise<void> => {
-  await (isSubscribed.value ? unsubscribe() : subscribe());
-};
+// Every push step can be refused by the browser or the network: the reader is
+// told, and the button is usable again.
+const { hasFailed, run } = useAttempt('order:push');
 
-onMounted(async (): Promise<void> => {
-  await refresh();
-});
+const toggle = (): Promise<void> => run(isSubscribed.value ? unsubscribe : subscribe);
+
+onMounted((): Promise<void> => run(refresh));
 </script>
 
 <template>
@@ -27,5 +27,8 @@ onMounted(async (): Promise<void> => {
     >
       {{ isSubscribed ? $t('order.push.off') : $t('order.push.on') }}
     </button>
+    <p v-if="hasFailed" class="mt-2 text-sm text-error" role="alert">
+      {{ $t('order.push.failed') }}
+    </p>
   </section>
 </template>

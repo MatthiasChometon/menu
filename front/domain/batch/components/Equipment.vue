@@ -4,6 +4,7 @@ const { items } = defineProps<{ items: EquipmentItem[] }>();
 // A photo of the tool when the host has one, the lucide pictogram otherwise —
 // the same graceful fallback the dishes and ingredients use.
 const { equipmentImage } = useImages();
+const { labelOf } = useEquipmentList();
 
 // Gathering the kit is a one-off ritual before the session starts, not a state
 // worth remembering after: ticked here, forgotten once the plan itself
@@ -68,7 +69,7 @@ const isChecked = (id: string): boolean => checked.value.has(id);
             class="min-w-0 flex-1 text-sm font-medium"
             :class="isChecked(item.id) && 'text-dimmed line-through'"
           >
-            {{ $t(`batch.equipment.items.${item.id}`) }}
+            {{ labelOf(item.id) }}
           </span>
           <span
             v-if="item.count !== undefined"

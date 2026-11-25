@@ -1,10 +1,14 @@
 // What is already at home, kept on the device rather than the account: it is
 // a quick "I have this" flag, not a real stock count, so it stays local and
 // shared by every week rather than reset when a new menu arrives.
+const { storedValue, isArrayOf } = useStoredValue();
+const isString = (value: unknown): value is string => typeof value === 'string';
+
 let stock: Ref<string[]> | undefined;
 
 const pantryStock = (): Ref<string[]> => {
-  if (stock === undefined) stock = useLocalStorage<string[]>('shopping:pantry', []);
+  if (stock === undefined)
+    stock = storedValue<string[]>('shopping:pantry', [], isArrayOf(isString));
   return stock;
 };
 

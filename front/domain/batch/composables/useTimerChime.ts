@@ -4,7 +4,7 @@
 // anyway. Every call to play() is itself the direct result of a click.
 export const useTimerChime = (): { play: () => void } => ({
   play: (): void => {
-    if (typeof window === 'undefined' || window.AudioContext === undefined) return;
+    if (typeof AudioContext === 'undefined') return;
 
     const context = new AudioContext();
     const beepAt = (startAt: number): void => {

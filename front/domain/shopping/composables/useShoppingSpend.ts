@@ -2,6 +2,12 @@
 // menu's own estimate. Kept on the device per week, like the cart and the
 // leftovers — a private note this browser holds, not account data shared with
 // the household.
+const { storedValue } = useStoredValue();
+
+// Nothing entered yet (null), or an amount actually paid.
+const isSpend = (value: unknown): value is number | null =>
+  value === null || (typeof value === 'number' && Number.isFinite(value) && value > 0);
+
 const stores = new Map<string, Ref<number | null>>();
 
 // Null, not undefined, is what "nothing entered yet" round-trips as through
@@ -11,7 +17,7 @@ const spendFor = (weekOf: string): Ref<number | null> => {
   const existing = stores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<number | null>(`shoppingSpend:${weekOf}`, null);
+  const created = storedValue<number | null>(`shoppingSpend:${weekOf}`, null, isSpend);
   stores.set(weekOf, created);
   return created;
 };
