@@ -1,4 +1,4 @@
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { mockNuxtImport, mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
 import { describe, expect, it, vi } from 'vitest';
 import DeleteAccount from './DeleteAccount.vue';
 
@@ -72,5 +72,28 @@ describe('deleting an account from the profile', () => {
     // The refusal happens before the request. Sending it would spend one of the
     // ten attempts the rate limiter allows, on a call that cannot succeed.
     expect(buttonSaying('Supprimer définitivement')?.disabled).toBe(true);
+  });
+
+  it('announces a refused deletion as an alert', async () => {
+    registerEndpoint('/auth/delete-account', {
+      method: 'POST',
+      handler: () => {
+        throw createError({ statusCode: 500, statusMessage: 'Down.' });
+      },
+    });
+    await openDialogFor(true);
+
+    const box = passwordBox();
+    if (!(box instanceof HTMLInputElement)) throw new Error('The password box is missing.');
+    box.value = 'a-password';
+    box.dispatchEvent(new Event('input'));
+    await nextTick();
+    buttonSaying('Supprimer définitivement')?.click();
+
+    await vi.waitFor((): void => {
+      expect(currentDialog().querySelector('[role="alert"]')?.textContent).toContain(
+        'La suppression a échoué',
+      );
+    });
   });
 });

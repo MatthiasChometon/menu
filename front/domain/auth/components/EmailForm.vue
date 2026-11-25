@@ -34,9 +34,15 @@ const resend = async (): Promise<void> => {
   hasResent.value = true;
 };
 
-const errorMessage = computed((): string | undefined =>
-  failure.value === undefined ? undefined : t(`auth.error.${failure.value}`),
-);
+// Keys spelled out one by one so they stay greppable and the unused-key check
+// can see them.
+const errorMessage = computed((): string | undefined => {
+  if (failure.value === 'credentials') return t('auth.error.credentials');
+  if (failure.value === 'taken') return t('auth.error.taken');
+  if (failure.value === 'unknown') return t('auth.error.unknown');
+
+  return undefined;
+});
 
 const submitLabel = computed((): string => {
   if (mode.value === 'register') return t('auth.createAccount');

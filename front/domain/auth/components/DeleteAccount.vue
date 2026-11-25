@@ -57,10 +57,10 @@ const confirm = async (): Promise<void> => {
             />
           </UFormField>
 
-          <p v-if="failure === 'password'" class="text-sm text-error">
+          <p v-if="failure === 'password'" role="alert" class="text-sm text-error">
             {{ $t('auth.delete.wrongPassword') }}
           </p>
-          <p v-else-if="failure === 'unknown'" class="text-sm text-error">
+          <p v-else-if="failure === 'unknown'" role="alert" class="text-sm text-error">
             {{ $t('auth.delete.failed') }}
           </p>
 
