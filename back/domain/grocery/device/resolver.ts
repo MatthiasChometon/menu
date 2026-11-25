@@ -5,6 +5,7 @@ import { AuthGuard } from '../../auth/currentUser/guard';
 import { User } from '../../user/model';
 import { CurrentDevice } from './current-device';
 import { GroceryDeviceGuard } from './guard';
+import { deviceLabelPipe } from './label.pipe';
 import { GroceryDevice, PairedGroceryDevice } from './model';
 import { GroceryDeviceRepository } from './repository';
 import { DeviceTokenService } from './token.service';
@@ -29,7 +30,7 @@ export class GroceryDeviceResolver {
   @UseGuards(AuthGuard)
   async pairGroceryDevice(
     @CurrentUser() user: User,
-    @Args('label') label: string,
+    @Args('label', deviceLabelPipe) label: string,
   ): Promise<PairedGroceryDevice> {
     const token = this.tokens.issue();
     const device = await this.devices.pair(user.id, label, this.tokens.fingerprint(token));

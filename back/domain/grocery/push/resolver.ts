@@ -5,6 +5,7 @@ import { CurrentUser } from '../../auth/currentUser/current-user';
 import { AuthGuard } from '../../auth/currentUser/guard';
 import { User } from '../../user/model';
 import { PushSubscriptionInput } from './input';
+import { pushEndpointPipe } from './endpoint.pipe';
 import { GroceryPushRepository } from './repository';
 
 @Resolver()
@@ -41,7 +42,7 @@ export class GroceryPushResolver {
   @UseGuards(AuthGuard)
   async unsubscribeFromGroceryPush(
     @CurrentUser() user: User,
-    @Args('endpoint') endpoint: string,
+    @Args('endpoint', pushEndpointPipe) endpoint: string,
   ): Promise<boolean> {
     return this.subscriptions.unsubscribe(user.id, endpoint);
   }
