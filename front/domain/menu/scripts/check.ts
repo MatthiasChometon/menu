@@ -6,11 +6,15 @@
 //   pnpm --dir front check domain/menu/content/menus/2026-08-03.json
 //   pnpm --dir front check domain/menu/content/menus/2026-08-03.json --courses --detail
 import { parseArgs } from 'node:util';
-import { aisleOrder } from '../utils/catalog';
-import { macroKeys, sumMacros } from '../utils/nutrition';
-import { toleranceFor, verdict, type Verdict } from '../utils/target';
-import type { Aisle, Day, Macros, Menu } from '../types/menu.type';
+import { useCatalogBuilder } from '../composables/useCatalogBuilder';
+import { useNutrition } from '../composables/useNutrition';
+import { useTarget } from '../composables/useTarget';
+import type { Aisle, Day, Macros, Menu, Verdict } from '../types/menu.type';
 import { buildMenuAt } from './loader';
+
+const { aisleOrder } = useCatalogBuilder();
+const { macroKeys, sumMacros } = useNutrition();
+const { toleranceFor, verdict } = useTarget();
 
 const LABELS: Record<keyof Macros, string> = {
   kcal: 'kcal',

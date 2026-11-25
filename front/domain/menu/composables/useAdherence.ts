@@ -8,13 +8,31 @@ export type WeekAdherence = {
 
 const HISTORY_LENGTH = 4;
 
+const { storedValue, isArrayOf } = useStoredValue();
+
+const isWeekAdherence = (value: unknown): value is WeekAdherence =>
+  typeof value === 'object' &&
+  value !== null &&
+  'weekOf' in value &&
+  typeof value.weekOf === 'string' &&
+  'eatenCount' in value &&
+  typeof value.eatenCount === 'number' &&
+  'totalCount' in value &&
+  typeof value.totalCount === 'number' &&
+  'rate' in value &&
+  typeof value.rate === 'number';
+
 let historyStore: Ref<WeekAdherence[]> | undefined;
 
 // One store for every week ever looked at, not one per week: unlike the cooking
 // diary, the trend needs to compare weeks against each other, so they live
 // together under a single key.
 const historyOf = (): Ref<WeekAdherence[]> => {
-  historyStore ??= useLocalStorage<WeekAdherence[]>('adherence:history', []);
+  historyStore ??= storedValue<WeekAdherence[]>(
+    'adherence:history',
+    [],
+    isArrayOf(isWeekAdherence),
+  );
   return historyStore;
 };
 

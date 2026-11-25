@@ -8,6 +8,7 @@ const { macros, size = 148 } = defineProps<{
 }>();
 
 const { round } = useFoodFormat();
+const { macroShortLabel } = useMenuLabels();
 
 type EnergyKey = 'protein' | 'carbs' | 'fat';
 const keys: readonly EnergyKey[] = ['protein', 'carbs', 'fat'];
@@ -20,15 +21,14 @@ const energy = computed((): Record<EnergyKey, number> & { total: number } => {
   return { protein, carbs, fat, total: total === 0 ? 1 : total };
 });
 
-const RADIUS = 52;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const { radius, circumference } = useRing();
 
 type Wedge = { key: EnergyKey; length: number; offset: number; delayMs: number };
 
 const wedges = computed((): Wedge[] => {
   let start = 0;
   return keys.map((key, index): Wedge => {
-    const length = (energy.value[key] / energy.value.total) * CIRCUMFERENCE;
+    const length = (energy.value[key] / energy.value.total) * circumference;
     const wedge: Wedge = { key, length, offset: start, delayMs: index * 140 };
     start += length;
     return wedge;
@@ -49,21 +49,21 @@ const shareOf = (key: EnergyKey): number =>
         :height="size"
         aria-hidden="true"
       >
-        <circle cx="60" cy="60" :r="RADIUS" fill="none" class="stroke-elevated" stroke-width="15" />
+        <circle cx="60" cy="60" :r="radius" fill="none" class="stroke-elevated" stroke-width="15" />
         <circle
           v-for="wedge in wedges"
           :key="wedge.key"
           class="plate-wedge"
           cx="60"
           cy="60"
-          :r="RADIUS"
+          :r="radius"
           fill="none"
           stroke-width="15"
           :stroke="`var(--macro-${wedge.key})`"
           :stroke-dashoffset="-wedge.offset"
           :style="{
             '--len': `${wedge.length}px`,
-            '--rest': `${CIRCUMFERENCE - wedge.length}px`,
+            '--rest': `${circumference - wedge.length}px`,
             animationDelay: `${wedge.delayMs}ms`,
           }"
         />
@@ -83,7 +83,7 @@ const shareOf = (key: EnergyKey): number =>
           :style="{ backgroundColor: `var(--macro-${key})` }"
           aria-hidden="true"
         />
-        <dt class="text-sm text-muted">{{ $t(`menu.macroShort.${key}`) }}</dt>
+        <dt class="text-sm text-muted">{{ macroShortLabel(key) }}</dt>
         <dd class="ml-auto text-sm font-semibold tabular-nums">{{ shareOf(key) }}%</dd>
       </div>
     </dl>

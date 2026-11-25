@@ -92,4 +92,10 @@ export default withNuxt(
       },
     },
   },
+  {
+    // The menu slice is the first one with every key literal (see useMenuLabels); the
+    // other slices turn it on as their own lot lands.
+    files: ['domain/menu/**/*.{ts,vue}'],
+    rules: { '@intlify/vue-i18n/no-dynamic-keys': 'error' },
+  },
 );

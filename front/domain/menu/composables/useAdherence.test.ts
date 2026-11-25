@@ -112,3 +112,18 @@ describe('useAdherence', () => {
     expect(items.map((text): string | undefined => text?.split(' ')[0])).toEqual(weeks.slice(-4));
   });
 });
+
+describe('a corrupted adherence history', () => {
+  it('falls back to an empty history instead of breaking the page', () => {
+    const { history } = useAdherence(menuOf());
+    const key = 'adherence:history';
+    const corrupted = JSON.stringify([{ weekOf: '2090-01-01', eatenCount: 'many' }]);
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(history.value).toEqual([]);
+  });
+});

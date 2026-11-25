@@ -60,3 +60,18 @@ describe('useMealSwap', () => {
     expect(sourceOf('monday', 'breakfast')).toEqual({ day: 'monday', slot: 'breakfast' });
   });
 });
+
+describe('corrupted stored swaps', () => {
+  it('fall back to the plan when one pointer is malformed', () => {
+    const week = '2090-02-05';
+    localStorage.setItem(
+      `mealSwap:${week}`,
+      JSON.stringify({ 'monday:lunch': { day: 'tuesday', slot: 'lunch' }, 'monday:dinner': 7 }),
+    );
+
+    const { sourceOf, isSwapped } = useMealSwap(week);
+
+    expect(sourceOf('monday', 'lunch')).toEqual({ day: 'monday', slot: 'lunch' });
+    expect(isSwapped('monday', 'lunch')).toBe(false);
+  });
+});

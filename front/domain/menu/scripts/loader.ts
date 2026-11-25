@@ -1,15 +1,14 @@
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-  buildFoodCatalog,
-  buildRecipeCatalog,
-  buildSeasoningCatalog,
-  freshSeasonings,
-} from '../utils/catalog';
-import { buildMenu, type MenuCatalog } from '../utils/menu';
-import type { Menu } from '../types/menu.type';
+import { useCatalogBuilder } from '../composables/useCatalogBuilder';
+import { useMenuBuilder } from '../composables/useMenuBuilder';
+import type { Menu, MenuCatalog } from '../types/menu.type';
 import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
 import { readContent, readJsonAt } from '../../../infrastructure/asset/scripts/content';
+
+const { buildFoodCatalog, buildRecipeCatalog, buildSeasoningCatalog, freshSeasonings } =
+  useCatalogBuilder();
+const { buildMenu } = useMenuBuilder();
 
 export const menuCatalog = (): MenuCatalog => {
   const foods = buildFoodCatalog(readContent('foods.json'));

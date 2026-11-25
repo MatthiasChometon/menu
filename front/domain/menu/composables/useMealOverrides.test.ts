@@ -83,3 +83,15 @@ describe('useMealOverrides', () => {
     expect(kindOf('monday', 'dinner')).toBeUndefined();
   });
 });
+
+describe('corrupted stored overrides', () => {
+  it('fall back to no override when one kind is unknown', () => {
+    const week = '2090-02-05';
+    localStorage.setItem(
+      `mealOverrides:${week}`,
+      JSON.stringify({ 'monday:lunch': 'eatingOut', 'monday:dinner': 'feast' }),
+    );
+
+    expect(useMealOverrides(week).kindOf('monday', 'lunch')).toBeUndefined();
+  });
+});

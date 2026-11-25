@@ -1,7 +1,7 @@
 import seasoningData from '~~/domain/menu/content/seasonings.json';
-import { buildSeasoningCatalog, freshSeasonings } from '../utils/catalog';
 import type { Recipe, Seasoning } from '../types/menu.type';
 
+const { buildSeasoningCatalog, freshSeasonings } = useCatalogBuilder();
 const catalog = buildSeasoningCatalog(seasoningData);
 
 export const useSeasonings = (): {

@@ -18,5 +18,7 @@ describe('FAVICON_SVG', () => {
   it('is a self-contained svg carrying the forest gradient', () => {
     expect(FAVICON_SVG).toContain('<svg');
     expect(FAVICON_SVG).toContain(PLATE_PALETTE.top);
+    expect(FAVICON_SVG).toContain(PLATE_PALETTE.bottom);
+    for (const colour of PLATE_PALETTE.wedges) expect(FAVICON_SVG).toContain(colour);
   });
 });

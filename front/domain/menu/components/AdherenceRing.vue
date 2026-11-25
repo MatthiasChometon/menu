@@ -14,11 +14,10 @@ const {
   size?: number;
 }>();
 
-const RADIUS = 52;
-const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const { radius, circumference } = useRing();
 
 const percent = computed((): number => Math.round(rate * 100));
-const arcLength = computed((): number => rate * CIRCUMFERENCE);
+const arcLength = computed((): number => rate * circumference);
 </script>
 
 <template>
@@ -34,7 +33,7 @@ const arcLength = computed((): number => rate * CIRCUMFERENCE);
         <circle
           cx="60"
           cy="60"
-          :r="RADIUS"
+          :r="radius"
           fill="none"
           stroke="var(--ui-bg-elevated)"
           stroke-width="15"
@@ -42,14 +41,14 @@ const arcLength = computed((): number => rate * CIRCUMFERENCE);
         <circle
           cx="60"
           cy="60"
-          :r="RADIUS"
+          :r="radius"
           fill="none"
           class="adherence-arc"
           stroke="var(--ui-primary)"
           stroke-width="15"
           :style="{
             '--len': `${arcLength}px`,
-            '--rest': `${CIRCUMFERENCE - arcLength}px`,
+            '--rest': `${circumference - arcLength}px`,
           }"
         />
       </svg>

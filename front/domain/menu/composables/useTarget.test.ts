@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { toleranceFor, verdict } from './target';
+
+const { toleranceFor, verdict } = useTarget();
 
 const tolerance = { default: 5, kcal: 4, fiber: 12 };
 

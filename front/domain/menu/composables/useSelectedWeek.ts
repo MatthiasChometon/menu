@@ -19,6 +19,10 @@ export const useSelectedWeek = (): {
   isDemo: ComputedRef<boolean>;
   /** The reader's own week is still being fetched. */
   isLoading: ComputedRef<boolean>;
+  /** Fetching the reader's own week failed. */
+  hasFailed: ComputedRef<boolean>;
+  /** Fetch the week again after a failure. */
+  retry: () => Promise<void>;
   isThisWeek: ComputedRef<boolean>;
   statusOfSelected: ComputedRef<WeekStatus | undefined>;
 } => {
@@ -56,7 +60,12 @@ export const useSelectedWeek = (): {
   // On the server the reader is always anonymous, so this resolves to the
   // example and the page prerenders with it. On the client, once auth settles,
   // a signed-in reader's own week takes its place.
-  const { data: selectedMenu, pending: isLoading } = useAsyncData<Menu | undefined>(
+  const {
+    data: selectedMenu,
+    pending: isLoading,
+    error,
+    refresh,
+  } = useAsyncData<Menu | undefined>(
     'menu:shown',
     async (): Promise<Menu | undefined> => {
       if (user.value === undefined) return demoMenu.value;
@@ -73,6 +82,8 @@ export const useSelectedWeek = (): {
     selectedMenu,
     isDemo: computed((): boolean => user.value === undefined && selectedMenu.value !== undefined),
     isLoading: computed((): boolean => isLoading.value),
+    hasFailed: computed((): boolean => error.value !== undefined),
+    retry: refresh,
     isThisWeek: computed(
       (): boolean =>
         now.value !== undefined &&

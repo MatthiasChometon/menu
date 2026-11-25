@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { gramsEquivalentTo, substitutesFor } from './substitute';
 import type { Food } from '../types/menu.type';
+
+const { gramsEquivalentTo, substitutesFor } = useFoodSubstitutes();
 
 const food = (partial: Partial<Food> & Pick<Food, 'id' | 'aisle'>): Food => ({
   name: { fr: partial.id, en: partial.id },

@@ -10,7 +10,7 @@ import sharp from 'sharp';
 import { drawPlate } from './drawPlate';
 import { PLATE_PALETTE } from './plate';
 import { wrap } from './wrapText';
-import { FRONT, SEO_PUBLIC } from './paths';
+import { FRONT, SEO_PUBLIC } from '../../../../infrastructure/asset/scripts/paths';
 
 const TRANSLATION_DIR = join(FRONT, 'domain', 'menu', 'translation');
 const WIDTH = 1200;
@@ -26,7 +26,7 @@ const LEAD_COLOUR = '#d6ebd9';
 // The app's own faces, bundled so the card renders the same on a Linux CI as it
 // does here: Instrument Serif for the title (the display face every page heads
 // with), Instrument Sans for the rest. System fonts stay as the last resort.
-const FONT_DIR = join(FRONT, 'infrastructure', 'asset', 'fonts');
+const FONT_DIR = join(FRONT, 'domain', 'menu', 'scripts', 'brand', 'fonts');
 const FONT_CANDIDATES: Record<string, string[]> = {
   serif: [
     join(FONT_DIR, 'InstrumentSerif-Regular.ttf'),

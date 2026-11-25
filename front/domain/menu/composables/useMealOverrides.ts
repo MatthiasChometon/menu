@@ -1,3 +1,8 @@
+const { storedValue, isRecordOf } = useStoredValue();
+
+const isOverrideKind = (value: unknown): value is MealOverrideKind =>
+  value === 'eatingOut' || value === 'cheatMeal';
+
 const mealKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 
 // One store per week, like the cooking diary: an override belongs to a
@@ -9,7 +14,11 @@ const overridesFor = (weekOf: string): Ref<Record<string, MealOverrideKind>> => 
   const existing = overrideStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<Record<string, MealOverrideKind>>(`mealOverrides:${weekOf}`, {});
+  const created = storedValue<Record<string, MealOverrideKind>>(
+    `mealOverrides:${weekOf}`,
+    {},
+    isRecordOf(isOverrideKind),
+  );
   overrideStores.set(weekOf, created);
   return created;
 };

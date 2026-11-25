@@ -3,7 +3,9 @@
 A precision instrument, kept warm. The app weighs food to the gram, so the
 **number is the hero**; a deep chard green and a turmeric signal keep it from
 ever reading like a lab. Everything here is driven by tokens in
-[`style/main.css`](./style/main.css) and the Nuxt UI colour map in
+[`domain/menu/style/tokens.css`](../../domain/menu/style/tokens.css) (palette, fonts, canvas and
+macro colours; imported by [`style/main.css`](./style/main.css) through the `#brand-tokens` alias,
+which only reads them) and the Nuxt UI colour map in
 [`app.config.ts`](../../app.config.ts) — change those two and the whole app
 follows.
 

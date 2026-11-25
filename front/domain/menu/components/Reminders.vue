@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { Goal } from '#gql/default';
+
 const { t } = useNuxtApp().$i18n;
 const { profile } = useProfile();
+const { weighInReminder } = useMenuLabels();
 
 const reminders = computed((): { icon: string; text: string }[] => [
   { icon: 'i-lucide-pill', text: t('menu.reminder.creatine') },
@@ -11,7 +14,7 @@ const reminders = computed((): { icon: string; text: string }[] => [
     // The one habit that is not the same for everyone: which way the scale is
     // meant to move follows the goal. On the example (no profile) it reads as a
     // bulk, which is what the sample week is.
-    text: t(`menu.reminder.weighIn.${profile.value?.goal ?? 'GAIN_MUSCLE'}`),
+    text: weighInReminder(profile.value?.goal ?? Goal.GAIN_MUSCLE),
   },
 ]);
 </script>
@@ -26,7 +29,7 @@ const reminders = computed((): { icon: string; text: string }[] => [
       {{ $t('menu.reminder.title') }}
     </h2>
     <ul class="space-y-2">
-      <li v-for="reminder in reminders" :key="reminder.text" class="flex items-start gap-2.5">
+      <li v-for="reminder in reminders" :key="reminder.icon" class="flex items-start gap-2.5">
         <UIcon :name="reminder.icon" class="mt-0.5 size-4 shrink-0 text-primary" />
         <span class="text-sm text-muted">{{ reminder.text }}</span>
       </li>

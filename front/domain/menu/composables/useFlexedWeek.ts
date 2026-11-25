@@ -1,6 +1,3 @@
-import { buildShoppingList } from '../utils/menu';
-import { sumMacros } from '../utils/nutrition';
-
 const mealAt = (days: Day[], day: DayKey, slot: MealSlot): Meal | undefined =>
   days
     .find((entry): boolean => entry.key === day)
@@ -24,6 +21,8 @@ export const useFlexedWeek = (
    *  never turns into a second purchase. */
   shoppingMenu: ComputedRef<Menu | undefined>;
 } => {
+  const { buildShoppingList } = useMenuBuilder();
+  const { sumMacros } = useNutrition();
   const weekOf = computed((): string => toValue(menu)?.weekOf ?? '');
   const { kindOf } = useMealOverrides(weekOf);
   const { sourceOf } = useMealSwap(weekOf);

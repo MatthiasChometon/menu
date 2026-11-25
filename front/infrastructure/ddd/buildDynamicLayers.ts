@@ -38,8 +38,27 @@ const discoverLayers = (): string[] => globSync(LAYER_CONFIG_GLOBS).map(dirname)
 
 const prependParentDir = (glob: string): string => `../${glob}`;
 
+// Entry stylesheets: infrastructure's, which holds the `@import 'tailwindcss'`. A domain
+// `@theme` block only works inside that root file, so the brand tokens are imported by it
+// through the `#brand-tokens` alias (see `discoverBrandTokens`), not listed here.
 const discoverLayerStyles = (): string[] =>
-  globSync(['domain/**/style/*.css', 'infrastructure/**/style/*.css']).map(buildRootAlias);
+  globSync('infrastructure/**/style/*.css').map(buildRootAlias);
+
+// The one domain stylesheet the Tailwind root imports: `domain/<slice>/style/tokens.css`.
+// Zero or several matches would silently pick the wrong brand, so both throw.
+export const pickBrandTokens = (files: string[]): string => {
+  const [tokens, ...others] = files;
+  if (!tokens) throw new Error('No domain/**/style/tokens.css found: brand tokens are missing.');
+  if (others.length > 0) {
+    throw new Error(
+      `Expected one domain/**/style/tokens.css, found ${files.length}: ${files.join(', ')}`,
+    );
+  }
+  return resolve(tokens);
+};
+
+export const discoverBrandTokens = (): string =>
+  pickBrandTokens(globSync('domain/**/style/tokens.css'));
 
 const buildRootAlias = (file: string): string => `~~/${file.replaceAll(sep, '/')}`;
 

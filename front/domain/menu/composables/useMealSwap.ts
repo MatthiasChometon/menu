@@ -1,4 +1,5 @@
-type MealPointer = { day: DayKey; slot: MealSlot };
+const { storedValue, isRecordOf } = useStoredValue();
+const { isMealPointer } = useMealPointer();
 
 const pointerKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 
@@ -10,7 +11,11 @@ const swapsFor = (weekOf: string): Ref<Record<string, MealPointer>> => {
   const existing = swapStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<Record<string, MealPointer>>(`mealSwap:${weekOf}`, {});
+  const created = storedValue<Record<string, MealPointer>>(
+    `mealSwap:${weekOf}`,
+    {},
+    isRecordOf(isMealPointer),
+  );
   swapStores.set(weekOf, created);
   return created;
 };

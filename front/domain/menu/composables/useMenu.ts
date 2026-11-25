@@ -1,9 +1,10 @@
-import { buildMenu, dayOrder, mealOrder, type MenuCatalog, type RawMenu } from '../utils/menu';
-import type { DayKey, MealSlot, Menu } from '../types/menu.type';
+import type { DayKey, MealSlot, Menu, MenuCatalog, RawMenu } from '../types/menu.type';
 
 const menuModules = import.meta.glob<{ default: RawMenu }>('../content/menus/*.json', {
   eager: true,
 });
+
+const { buildMenu, dayOrder, mealOrder } = useMenuBuilder();
 
 const catalog = (): MenuCatalog => {
   const { foodOf } = useFoods();

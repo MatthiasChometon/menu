@@ -2,6 +2,9 @@
  *  somewhere else, or a treat that was never going to be weighed either way. */
 export type MealOverrideKind = 'eatingOut' | 'cheatMeal';
 
+/** A slot of the week: one dish's place on the board. */
+export type MealPointer = { day: DayKey; slot: MealSlot };
+
 /** A leftover suggestion still waiting on a decision: what yesterday's pot
  *  would put here instead of the planned dish. */
 export type LeftoverSuggestion = Meal;

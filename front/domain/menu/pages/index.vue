@@ -2,12 +2,11 @@
 const { menus, dayOrder } = useMenu();
 const isMounted = useMounted();
 const { t, locale } = useNuxtApp().$i18n;
-const { round } = useFoodFormat();
 const localePath = useLocalePath();
 
 // Shared with the shopping list, the cooking session and the recipes: choosing
 // a week here has to move the whole app with it.
-const { selectedMenu: menu, isLoading, isDemo } = useSelectedWeek();
+const { selectedMenu: menu, isLoading, isDemo, hasFailed, retry } = useSelectedWeek();
 
 // What actually happened this week, layered onto the plan: a meal eaten out or
 // a cheat day drops out of the macros and the adherence tally rather than
@@ -33,25 +32,8 @@ const hasLaterWeek = computed((): boolean =>
   menus.some((other): boolean => other.weekOf > (menu.value?.weekOf ?? '')),
 );
 
-const averageMacros = computed((): Macros | undefined => {
-  if (flexedDays.value.length === 0) return undefined;
-
-  const { sumMacros } = useNutrition();
-  const total = sumMacros(flexedDays.value.map((day): Macros => day.macros));
-  const count = flexedDays.value.length;
-
-  return {
-    kcal: total.kcal / count,
-    protein: total.protein / count,
-    fat: total.fat / count,
-    carbs: total.carbs / count,
-    fiber: total.fiber / count,
-  };
-});
-
 const { hasAnswered } = useProfile();
 const { statusOf, dayIndexOf, isWithin } = useWeekStatus();
-const { isDismissed: isOnboardingDismissed } = useOnboardingStatus();
 
 // Everything date-related waits for the client: a prerendered page would freeze
 // whatever day it was built on.
@@ -92,6 +74,21 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
   <!-- data-hydrated marks the point where date-dependent bits (today, week
        status) are settled, so a test can wait for it instead of racing them. -->
   <div class="mx-auto max-w-5xl px-4 py-6 sm:py-10" :data-hydrated="isMounted ? '' : undefined">
+    <!-- The title and the week picker stay put while the week loads, fails or
+         loads again. The picker reads the same fetch as this page, so mounting
+         it anew each time the page swaps to its skeleton would start that fetch
+         over — for good, when it fails. -->
+    <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
+      <div class="min-w-0">
+        <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
+          {{ $t('menu.pageTitle') }}
+        </h1>
+        <p class="mt-1.5 text-muted">{{ $t('menu.pageLead') }}</p>
+      </div>
+
+      <MenuWeekPicker />
+    </div>
+
     <!-- The reader's own week is still coming: hold the space rather than flash
          the "compose one" prompt at somebody who already has a week. -->
     <div v-if="isLoading" class="space-y-4 py-8" aria-hidden="true">
@@ -102,54 +99,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
     <span v-if="isLoading" class="sr-only">{{ $t('accessibility.loading') }}</span>
 
     <template v-else>
-      <!-- Nobody signed in: this is the shop window. A real week, fully weighed,
-           under a line that says it is an example and a button to make it real. -->
-      <div
-        v-if="isDemo"
-        class="rise mb-6 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-5 sm:p-6"
-      >
-        <UBadge color="primary" variant="subtle" size="sm" class="mb-2">
-          {{ $t('menu.example.badge') }}
-        </UBadge>
-        <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
-          {{ $t('menu.example.title') }}
-        </h1>
-        <p class="mt-2 max-w-xl text-muted">{{ $t('menu.example.lead') }}</p>
-        <div class="mt-4 flex flex-wrap items-center gap-3">
-          <UButton
-            :to="localePath('/composer')"
-            color="primary"
-            size="xl"
-            icon="i-lucide-square-pen"
-            class="font-semibold text-white"
-          >
-            {{ $t('menu.example.cta') }}
-          </UButton>
-          <!-- Proposed, never imposed: a first-time visitor sees it once, and
-               it never reappears once the walkthrough has been offered — the
-               page itself still works with no account and no answers. -->
-          <UButton
-            v-if="isMounted && !isOnboardingDismissed"
-            :to="localePath('/bienvenue')"
-            variant="ghost"
-            color="neutral"
-            icon="i-lucide-compass"
-          >
-            {{ $t('menu.example.discover') }}
-          </UButton>
-        </div>
-      </div>
-
-      <div v-if="!isDemo" class="rise flex flex-wrap items-end justify-between gap-4">
-        <div class="min-w-0">
-          <h1 class="font-serif text-4xl leading-[1.05] tracking-tight sm:text-5xl">
-            {{ $t('menu.pageTitle') }}
-          </h1>
-          <p class="mt-1.5 text-muted">{{ $t('menu.pageLead') }}</p>
-        </div>
-
-        <MenuWeekPicker v-if="!isDemo" />
-      </div>
+      <MenuExampleBanner v-if="isDemo" />
 
       <div
         v-if="status === undefined && !isDemo && menu !== undefined"
@@ -196,36 +146,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
       <MenuPlanNextWeek v-if="!isDemo && menu !== undefined" class="mt-5" />
 
       <template v-if="menu !== undefined">
-        <section
-          class="rise mt-6"
-          style="animation-delay: 80ms"
-          :aria-label="$t('menu.weekSummary')"
-        >
-          <div class="grid gap-4 sm:grid-cols-3">
-            <UCard class="sm:col-span-2">
-              <p class="mb-4 text-sm font-semibold text-muted">{{ $t('menu.averagePerDay') }}</p>
-              <div class="grid gap-5 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8">
-                <MenuMacroPlate v-if="averageMacros !== undefined" :macros="averageMacros" />
-                <MenuMacroBar
-                  v-if="averageMacros !== undefined"
-                  :macros="averageMacros"
-                  :targets="menu.targets"
-                />
-              </div>
-            </UCard>
-
-            <div class="grid grid-cols-2 gap-4 sm:grid-cols-1">
-              <UCard>
-                <p class="text-sm text-muted">{{ $t('menu.budget') }}</p>
-                <p class="mt-1 text-2xl font-black tabular-nums">{{ round(menu.totalPrice) }} €</p>
-              </UCard>
-              <UCard>
-                <p class="text-sm text-muted">{{ $t('menu.recipeCount') }}</p>
-                <p class="mt-1 text-2xl font-black tabular-nums">{{ menu.recipes.length }}</p>
-              </UCard>
-            </div>
-          </div>
-        </section>
+        <MenuWeekSummary :menu="menu" :days="flexedDays" />
 
         <MenuAdherenceCard :adherence-menu="adherenceMenu" />
 
@@ -268,6 +189,27 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
 
         <MenuReminders />
       </template>
+
+      <!-- The week could not be fetched: say so and offer the retry, rather than
+           pass it off as an empty week and send the reader to compose another. -->
+      <UAlert
+        v-else-if="hasFailed"
+        role="alert"
+        class="mt-6"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-circle-alert"
+        :title="$t('menu.loadFailed.title')"
+        :description="$t('menu.loadFailed.hint')"
+        :actions="[
+          {
+            label: $t('menu.loadFailed.retry'),
+            color: 'error',
+            variant: 'outline',
+            onClick: retry,
+          },
+        ]"
+      />
 
       <!-- Signed in, this week not composed yet. No profile is a different
            answer from an empty week: one needs the questionnaire, the other the

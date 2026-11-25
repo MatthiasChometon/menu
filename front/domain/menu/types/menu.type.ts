@@ -91,6 +91,9 @@ export type MacroTolerance = Partial<Record<keyof Macros, number>> & { default: 
 
 export type WeekStatus = 'upcoming' | 'current' | 'past';
 
+// A week close to today has a name of its own.
+export type WeekName = 'last' | 'current' | 'next';
+
 export type Menu = {
   weekOf: string;
   deliveryAt?: string;
@@ -111,4 +114,23 @@ export type ShoppingGroup = {
   aisle: Aisle;
   lines: ShoppingLine[];
   price: number;
+};
+
+export type Verdict = 'ok' | 'low' | 'high';
+
+export type RawMeal = { recipe: string; foods: Record<string, number> };
+
+export type RawMenu = {
+  weekOf: string;
+  deliveryAt?: string;
+  targets: Macros & { tolerancePct?: MacroTolerance };
+  days: Record<string, Record<string, RawMeal>>;
+};
+
+// The lookups a raw week needs to become a full Menu. The app fills them from its
+// content composables; a script fills them from the same files read off disk.
+export type MenuCatalog = {
+  foodOf: (id: string) => Food | undefined;
+  recipeOf: (id: string) => Recipe | undefined;
+  freshOf: (recipes: Recipe[]) => Seasoning[];
 };

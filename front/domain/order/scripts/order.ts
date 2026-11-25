@@ -11,13 +11,14 @@
 import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
-import { aisleOrder } from '../../menu/utils/catalog';
+import { useCatalogBuilder } from '../../menu/composables/useCatalogBuilder';
 import type { Aisle, Menu } from '../../menu/types/menu.type';
 import { latestMenu } from '../../menu/scripts/loader';
 import { describeOrderLine, orderLine, type OrderLine } from '../utils/order';
 import { CONTENT } from '../../../infrastructure/asset/scripts/paths';
 import { readContent } from '../../../infrastructure/asset/scripts/content';
 
+const { aisleOrder } = useCatalogBuilder();
 const ORDERS = join(CONTENT, 'orders.json');
 const DEFAULT_STORE = 'e-leclerc-lyon-9eme';
 
