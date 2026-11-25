@@ -190,26 +190,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <MenuReminders />
       </template>
 
-      <!-- The week could not be fetched: say so and offer the retry, rather than
-           pass it off as an empty week and send the reader to compose another. -->
-      <UAlert
-        v-else-if="hasFailed"
-        role="alert"
-        class="mt-6"
-        color="error"
-        variant="subtle"
-        icon="i-lucide-circle-alert"
-        :title="$t('menu.loadFailed.title')"
-        :description="$t('menu.loadFailed.hint')"
-        :actions="[
-          {
-            label: $t('menu.loadFailed.retry'),
-            color: 'error',
-            variant: 'outline',
-            onClick: retry,
-          },
-        ]"
-      />
+      <MenuWeekLoadFailed v-else-if="hasFailed" class="mt-6" @retry="retry" />
 
       <!-- Signed in, this week not composed yet. No profile is a different
            answer from an empty week: one needs the questionnaire, the other the
