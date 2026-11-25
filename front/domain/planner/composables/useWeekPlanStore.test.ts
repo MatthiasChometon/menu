@@ -27,4 +27,15 @@ describe('turning a week into what the API stores', () => {
 
     expect(plan).toEqual({ weekOf: '2026-09-07', days: { friday: { postWorkout: 'a' } } });
   });
+
+  // Coercing to Monday or lunch would quietly rearrange the week a reader planned.
+  it('refuses a stored day it does not know instead of calling it Monday', () => {
+    expect(() => fromApi('2026-09-07', [{ day: 'FUNDAY', meals: [] }])).toThrow('Unknown day');
+  });
+
+  it('refuses a stored meal slot it does not know instead of calling it lunch', () => {
+    expect(() =>
+      fromApi('2026-09-07', [{ day: 'FRIDAY', meals: [{ slot: 'BRUNCH', recipeId: 'a' }] }]),
+    ).toThrow('Unknown meal slot');
+  });
 });
