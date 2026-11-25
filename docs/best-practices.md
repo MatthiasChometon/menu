@@ -83,6 +83,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Environment variables are validated at boot (fail fast) and read through `ConfigService` (`getOrThrow` for required ones), never `process.env` in application code. `.env.example` lists every variable.
 - [ ] The server listens on a configurable `PORT`.
 - [ ] Every REST body and GraphQL argument is a class with class-validator decorators; the global `ValidationPipe` has `whitelist`, `forbidNonWhitelisted` and `transform`; nested inputs use `@ValidateNested` + `@Type`.
+- [ ] Every scalar route param, query param and GraphQL argument with a known format goes through a pipe at the boundary (`ParseUUIDPipe`, `ParseIntPipe`, or a small format pipe for keys and tokens), so a malformed value is a 400 / `BAD_USER_INPUT` before any service or database call.
 - [ ] Controllers and resolvers only translate transport to a service call; business rules live in services; SQL lives in repositories.
 - [ ] Repositories return domain types, never ORM row types leaking to resolvers; mapping is explicit.
 - [ ] Providers are stateless singletons; no `Scope.REQUEST`; the current user comes from a param decorator (`@CurrentUser()`).
