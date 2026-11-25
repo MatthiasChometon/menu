@@ -23,7 +23,8 @@ const isTimer = (value: unknown): value is Timer =>
 let timersStore: Ref<Timer[]> | undefined;
 
 const timersRef = (): Ref<Timer[]> => {
-  if (timersStore === undefined) timersStore = storedValue<Timer[]>('batch:timers', [], isArrayOf(isTimer));
+  if (timersStore === undefined)
+    timersStore = storedValue<Timer[]>('batch:timers', [], isArrayOf(isTimer));
 
   return timersStore;
 };
