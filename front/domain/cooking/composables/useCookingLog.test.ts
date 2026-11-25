@@ -131,3 +131,19 @@ describe('useCookingLog', () => {
     expect(statusOf('teriyakiSalmonBowl')).toBe('todo');
   });
 });
+
+describe('a corrupted diary', () => {
+  it('forgets statuses when one of them is not a known status', () => {
+    const week = '2090-03-05';
+    localStorage.setItem(`cooking:${week}`, JSON.stringify({ a: 'done', b: 'burnt' }));
+
+    expect(useCookingLog(week).statusOf('a')).toBe('todo');
+  });
+
+  it('forgets the eaten meals when the list holds something else than meals', () => {
+    const week = '2090-04-05';
+    localStorage.setItem(`eaten:${week}`, JSON.stringify(['monday:lunch', 42]));
+
+    expect(useCookingLog(week).isEaten('monday', 'lunch')).toBe(false);
+  });
+});
