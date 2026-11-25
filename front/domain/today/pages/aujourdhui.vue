@@ -10,7 +10,8 @@ const localePath = useLocalePath();
 const { user } = useAuth();
 const { hasAnswered } = useProfile();
 
-const { isLoading, hasMenuToday, isFeaturedCurrent, featuredMeal, upcomingMeal } = useToday();
+const { isLoading, hasFailed, retry, hasMenuToday, isFeaturedCurrent, featuredMeal, upcomingMeal } =
+  useToday();
 
 const {
   reminderItems,
@@ -53,6 +54,8 @@ useSeoMeta({ title: (): string => t('today.pageTitle') });
         :upcoming-meal="upcomingMeal"
         :is-current="isFeaturedCurrent"
       />
+
+      <MenuWeekLoadFailed v-else-if="hasFailed" class="rise mt-6" @retry="retry" />
 
       <div
         v-else

@@ -1,4 +1,4 @@
-import { startOf } from '../../planner/composables/usePlannerWeek';
+import { daysFrom, parisMinutesOf, startOf } from '../../planner/composables/usePlannerWeek';
 
 // When each slot's window opens. The recipe schedule the meals are written for
 // (see menu.mealTime in the menu translation): from a slot's own start until
@@ -10,8 +10,6 @@ const SLOT_START_MINUTES: Record<MealSlot, number> = {
   snack: 16 * 60 + 30,
   dinner: 20 * 60 + 30,
 };
-
-const minutesSinceMidnight = (date: Date): number => date.getHours() * 60 + date.getMinutes();
 
 // The last slot whose window has already opened: with the day's meals kept in
 // their natural order, that slot is the one running right now.
@@ -33,7 +31,7 @@ export const featuredSlotOf = (
 ): { index: number; isCurrent: boolean } | undefined => {
   if (meals.length === 0) return undefined;
 
-  const minutes = minutesSinceMidnight(now);
+  const minutes = parisMinutesOf(now);
   const started = lastStartedIndex(meals, minutes);
 
   return started === undefined
@@ -46,6 +44,8 @@ export const featuredSlotOf = (
 // meal that matters at the moment somebody opens the app.
 export const useToday = (): {
   isLoading: ComputedRef<boolean>;
+  hasFailed: ComputedRef<boolean>;
+  retry: () => Promise<void>;
   hasMenuToday: ComputedRef<boolean>;
   isFeaturedCurrent: ComputedRef<boolean>;
   featuredMeal: ComputedRef<TodayMeal | undefined>;
@@ -56,11 +56,11 @@ export const useToday = (): {
   // freeze on whatever moment it was built at.
   const now = computed((): Date | undefined => (isMounted.value ? new Date() : undefined));
 
-  const { menus, dayOrder } = useMenu();
+  const { menus } = useMenu();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { menuFor } = useComposedMenu();
-  const { isWithin, dayIndexOf } = useWeekStatus();
+  const { isWithin } = useWeekStatus();
 
   // The app's own definition of "the current week": the rolling seven-day
   // window that starts today (see usePlannerWeek) — the same one a signed-in
@@ -74,7 +74,12 @@ export const useToday = (): {
   const demoMenuForToday = (reference: Date): Menu | undefined =>
     menus.find((menu): boolean => isWithin(menu.weekOf, reference));
 
-  const { data: menuToday, status } = useAsyncData<Menu | undefined>(
+  const {
+    data: menuToday,
+    status,
+    error,
+    refresh,
+  } = useAsyncData<Menu | undefined>(
     'today:menu',
     async (): Promise<Menu | undefined> => {
       if (now.value === undefined || weekOfToday.value === undefined) return undefined;
@@ -87,7 +92,7 @@ export const useToday = (): {
   );
 
   const todayKey = computed((): DayKey | undefined =>
-    now.value === undefined ? undefined : dayOrder[dayIndexOf(now.value)],
+    now.value === undefined ? undefined : daysFrom(startOf(now.value))[0],
   );
 
   const todayMeals = computed(
@@ -111,6 +116,8 @@ export const useToday = (): {
 
   return {
     isLoading: computed((): boolean => !isMounted.value || status.value === 'pending'),
+    hasFailed: computed((): boolean => error.value !== undefined),
+    retry: refresh,
     hasMenuToday: computed((): boolean => todayMeals.value.length > 0),
     isFeaturedCurrent: computed((): boolean => featured.value?.isCurrent ?? false),
     featuredMeal: computed((): TodayMeal | undefined => mealAt(0)),

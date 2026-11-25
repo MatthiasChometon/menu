@@ -23,9 +23,25 @@ const PARIS_DAY = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
+const PARIS_CLOCK = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Europe/Paris',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
 const utcMidnightOf = (day: string): number => Date.parse(`${day}T00:00:00Z`);
 
 const parisDayOf = (instant: Date): string => PARIS_DAY.format(instant);
+
+/** Minutes elapsed since midnight on the Paris clock, whatever the zone of the device. */
+export const parisMinutesOf = (instant: Date): number => {
+  const parts = PARIS_CLOCK.formatToParts(instant);
+  const part = (type: string): number =>
+    Number(parts.find((entry): boolean => entry.type === type)?.value);
+
+  return part('hour') * 60 + part('minute');
+};
 
 /** A 'YYYY-MM-DD' day moved by whole days, on the Paris calendar: no device-zone
  *  or daylight-saving hour is ever involved. */

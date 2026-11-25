@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const checklistOn = (dateIso: string): ReturnType<typeof useDailyChecklist> =>
   useDailyChecklist(new Date(dateIso));
@@ -132,4 +132,59 @@ describe('useDailyChecklist hydration', () => {
 
     expect(hydrationGlasses.value).toBe(0);
   });
+});
+
+describe('useDailyChecklist streak across the end of summer time', () => {
+  it('counts the 25 October night, which lasts 25 hours, as one day', () => {
+    for (const day of ['2026-10-24', '2026-10-25']) {
+      const { toggleReminder } = checklistOn(`${day}T12:00:00+01:00`);
+      toggleReminder('creatine');
+      toggleReminder('water');
+      toggleReminder('vitaminD');
+    }
+
+    const { reminderStreak } = checklistOn('2026-10-26T08:00:00+01:00');
+
+    expect(reminderStreak.value).toBe(2);
+  });
+});
+
+describe('what an earlier visit left in the browser', () => {
+  const freshChecklist = async (
+    key: string,
+    stored: unknown,
+  ): Promise<ReturnType<typeof useDailyChecklist>> => {
+    localStorage.setItem(key, JSON.stringify(stored));
+    vi.resetModules();
+    const { useDailyChecklist: useFresh } = await import('./useDailyChecklist');
+
+    return useFresh(new Date('2026-08-10T09:00:00+02:00'));
+  };
+
+  it('keeps well formed reminders and glasses', async () => {
+    const reminders = await freshChecklist('today:reminders', { '2026-08-10': ['water'] });
+    expect(
+      reminders.reminderItems.value.find((item): boolean => item.id === 'water')?.isChecked,
+    ).toBe(true);
+
+    const hydration = await freshChecklist('today:hydration', { '2026-08-10': 4 });
+    expect(hydration.hydrationGlasses.value).toBe(4);
+  });
+
+  it('starts the day over when a reminder is not one we know', async () => {
+    const { reminderItems } = await freshChecklist('today:reminders', {
+      '2026-08-10': ['water', 'magnesium'],
+    });
+
+    expect(reminderItems.value.every((item): boolean => !item.isChecked)).toBe(true);
+  });
+
+  it.each([[{ '2026-08-10': 'lots' }], [{ '2026-08-10': -2 }], [['4']]])(
+    'drops a glass count that is %j',
+    async (stored) => {
+      const { hydrationGlasses } = await freshChecklist('today:hydration', stored);
+
+      expect(hydrationGlasses.value).toBe(0);
+    },
+  );
 });

@@ -7,6 +7,7 @@ const { featuredMeal, upcomingMeal, isCurrent } = defineProps<{
 
 const { imageOf } = useRecipes();
 const { nameOf, round } = useFoodFormat();
+const { mealLabel, mealTimeLabel } = useMenuLabels();
 const localePath = useLocalePath();
 </script>
 
@@ -29,9 +30,9 @@ const localePath = useLocalePath();
         <div class="min-w-0 flex-1">
           <p class="flex flex-wrap items-center gap-x-2 text-sm text-muted">
             <span class="font-medium text-primary">
-              {{ $t(`menu.meal.${featuredMeal.meal.slot}`) }}
+              {{ mealLabel(featuredMeal.meal.slot) }}
             </span>
-            <span class="text-dimmed">{{ $t(`menu.mealTime.${featuredMeal.meal.slot}`) }}</span>
+            <span class="text-dimmed">{{ mealTimeLabel(featuredMeal.meal.slot) }}</span>
           </p>
           <NuxtLink
             :to="localePath(`/recette/${featuredMeal.meal.recipe.id}`)"
@@ -67,8 +68,8 @@ const localePath = useLocalePath();
       <div class="min-w-0 flex-1">
         <p class="flex flex-wrap items-center gap-x-2 text-xs text-muted">
           <span class="font-medium text-primary">{{ $t('today.now.upcoming') }}</span>
-          <span class="text-dimmed">{{ $t(`menu.meal.${upcomingMeal.meal.slot}`) }}</span>
-          <span class="text-dimmed">{{ $t(`menu.mealTime.${upcomingMeal.meal.slot}`) }}</span>
+          <span class="text-dimmed">{{ mealLabel(upcomingMeal.meal.slot) }}</span>
+          <span class="text-dimmed">{{ mealTimeLabel(upcomingMeal.meal.slot) }}</span>
         </p>
         <p class="truncate text-sm font-medium">{{ nameOf(upcomingMeal.meal.recipe) }}</p>
       </div>
