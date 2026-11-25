@@ -11,9 +11,10 @@ export class MailService {
     private readonly config: ConfigService,
   ) {}
 
-  // Sending is awaited rather than fired and forgotten: a verification link
-  // that never left the building must fail the request that asked for it,
-  // otherwise the reader is told to check an inbox nothing is coming to.
+  // Resolves when the server has accepted the message and rejects when it has
+  // not (or stays silent past the transport timeouts). Callers on a request that
+  // an anonymous visitor can make run it through BackgroundTasks, so that a
+  // refusal is logged and a slow server cannot show in the response time.
   async send(message: MailMessage): Promise<void> {
     if (this.transport === null) {
       // A local checkout with no mail server still has to be usable, and the

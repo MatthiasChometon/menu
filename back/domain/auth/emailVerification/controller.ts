@@ -41,7 +41,7 @@ export class EmailVerificationController {
   // unknown address would make this the cheapest way to enumerate accounts.
   @Post('resend-verification')
   @HttpCode(204)
-  async resend(@Body() { email }: ResendVerificationInput): Promise<void> {
-    await this.verification.resend(email);
+  resend(@Body() { email }: ResendVerificationInput): void {
+    this.verification.resend(email);
   }
 }
