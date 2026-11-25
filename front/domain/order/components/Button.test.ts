@@ -5,13 +5,16 @@ import Button from './Button.vue';
 
 // The paired-browser list is what the card reacts to; it is set per test rather
 // than fetched, so what is under test is what the card says, not the network.
-const { deviceState } = vi.hoisted(() => ({ deviceState: { list: [] as { id: string }[] } }));
+const { deviceState, refreshDevices } = vi.hoisted(() => ({
+  deviceState: { list: [] as { id: string }[] },
+  refreshDevices: vi.fn(),
+}));
 
 type DevicesApi = ReturnType<typeof import('../composables/useGroceryDevices').useGroceryDevices>;
 
 mockNuxtImport('useGroceryDevices', () => (): DevicesApi => ({
   devices: ref(deviceState.list) as DevicesApi['devices'],
-  refresh: vi.fn(),
+  refresh: refreshDevices,
   isPairing: ref(false),
   freshToken: ref(undefined),
   pair: vi.fn(),
@@ -25,7 +28,7 @@ mockNuxtImport('useGroceryOrder', () => (): OrderApi => ({
   job: ref(undefined),
   isQueueing: ref(false),
   isRunning: computed((): boolean => false),
-  error: ref(undefined),
+  hasFailed: ref(false),
   order: vi.fn(),
   follow: vi.fn(),
   stopFollowing: vi.fn(),
@@ -41,6 +44,7 @@ mockNuxtImport(
 const menu = { weekOf: '2026-08-24' } as unknown as Menu;
 
 beforeEach(async (): Promise<void> => {
+  refreshDevices.mockReset();
   await useNuxtApp().$i18n.setLocale('fr');
 });
 
@@ -67,6 +71,15 @@ describe('the Carrefour order card', () => {
     await renderSuspended(Button, { props: { menu } });
     await nextTick();
 
+    expect(screen.queryByText(/aucun navigateur appairé/i)).toBeNull();
+  });
+
+  it('says the browsers could not be loaded, rather than claiming none is paired', async () => {
+    deviceState.list = [];
+    refreshDevices.mockRejectedValue(new Error('network down'));
+    await renderSuspended(Button, { props: { menu } });
+
+    expect((await screen.findByRole('alert')).textContent).toMatch(/navigateurs appairés/i);
     expect(screen.queryByText(/aucun navigateur appairé/i)).toBeNull();
   });
 });

@@ -2,7 +2,7 @@
 const { menu } = defineProps<{ menu: Menu }>();
 
 const { needsOf } = useBasketNeeds();
-const { job, isQueueing, isRunning, error, order } = useGroceryOrder();
+const { job, isQueueing, isRunning, hasFailed, order } = useGroceryOrder();
 const { devices, refresh: refreshDevices } = useGroceryDevices();
 const localePath = useLocalePath();
 
@@ -11,10 +11,23 @@ const localePath = useLocalePath();
 // nothing explaining it. Loaded here so the card can say so up front rather
 // than leave the reader watching a spinner that will never move.
 const devicesLoaded = ref(false);
-onMounted(async (): Promise<void> => {
-  await refreshDevices();
-  devicesLoaded.value = true;
-});
+const devicesFailed = ref(false);
+const { reportError } = useErrorReporting();
+
+// A failed read is not "no browser paired": the reader is told so and can retry,
+// rather than be sent to set up a browser they already have.
+const loadDevices = async (): Promise<void> => {
+  devicesFailed.value = false;
+
+  try {
+    await refreshDevices();
+    devicesLoaded.value = true;
+  } catch (failure) {
+    reportError('order:devices', failure);
+    devicesFailed.value = true;
+  }
+};
+onMounted(loadDevices);
 const hasBrowser = computed((): boolean => devices.value.length > 0);
 
 const send = async (): Promise<void> => {
@@ -31,8 +44,14 @@ const send = async (): Promise<void> => {
       </NuxtLink>
     </div>
 
+    <OrderLoadFailed
+      v-if="devicesFailed"
+      :message="$t('order.loadFailed.devices')"
+      @retry="loadDevices"
+    />
+
     <!-- No paired browser: one line, then the way to fix it — no run to start. -->
-    <template v-if="devicesLoaded && !hasBrowser">
+    <template v-else-if="devicesLoaded && !hasBrowser">
       <p class="mt-2 text-sm text-muted">{{ $t('order.noBrowser') }}</p>
       <NuxtLink
         :to="localePath('/courses-auto')"
@@ -52,7 +71,9 @@ const send = async (): Promise<void> => {
       >
         {{ isQueueing || isRunning ? $t('order.working') : $t('order.action') }}
       </button>
-      <p v-if="error" class="mt-2 text-sm text-error" role="alert">{{ $t(error) }}</p>
+      <p v-if="hasFailed" class="mt-2 text-sm text-error" role="alert">
+        {{ $t('order.error.queue') }}
+      </p>
       <OrderProgress v-if="job" :job="job" class="mt-4" />
     </template>
 

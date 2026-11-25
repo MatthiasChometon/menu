@@ -3,6 +3,7 @@
 // asks anything of the reader: install the extension, and sign in to Carrefour.
 // Pairing is plumbing — it happens on its own the moment the extension is seen,
 // with no button and no token ever shown.
+const { reportError } = useErrorReporting();
 const { extensionHere, justPaired, sendPairing, armCarrefourReturn } = useExtensionBridge();
 const { devices, freshToken, refresh, pair, unpair } = useGroceryDevices();
 const config = useRuntimeConfig();
@@ -26,6 +27,8 @@ const endpoint = computed((): string => `${config.public.apiBase}/graphql`);
 // account), and only a live device on the account can actually fill a basket.
 // So this reads the account, not the extension's word for it.
 const devicesLoaded = ref(false);
+const devicesFailed = ref(false);
+const pairingFailed = ref(false);
 const extensionReady = computed((): boolean => devices.value.length > 0);
 
 // Step three's signal, read from the newest report a paired browser sent.
@@ -123,8 +126,15 @@ const pairingSent = ref(false);
 const configure = async (): Promise<void> => {
   if (pairingSent.value) return;
   pairingSent.value = true;
-  await pair(t('order.device.defaultLabel'));
-  if (freshToken.value !== undefined) sendPairing(endpoint.value, freshToken.value);
+  pairingFailed.value = false;
+
+  try {
+    await pair(t('order.device.defaultLabel'));
+    if (freshToken.value !== undefined) sendPairing(endpoint.value, freshToken.value);
+  } catch (failure) {
+    reportError('order:pair', failure);
+    pairingFailed.value = true;
+  }
 };
 // Once the account has a paired browser, everything is in order — and the guard
 // resets, so a later removal can be paired afresh. While it has none and the
@@ -158,8 +168,25 @@ const openCarrefour = (): void => {
 // Kept fresh while the page is open: the extension reports as the reader signs in
 // on the Carrefour tab, and the step should tick over without a reload.
 const REFRESH_MS = 8000;
-const { reportError } = useErrorReporting();
 let stopRefreshing: (() => void) | undefined;
+
+// The pairing watch may only decide the account has no browser once a list has
+// really come back: a failed read says nothing, and pairing on it would add a
+// stray device for every hiccup. Each later success clears the failure.
+const loadDevices = async (): Promise<void> => {
+  await refresh();
+  devicesLoaded.value = true;
+  devicesFailed.value = false;
+};
+
+const loadDevicesOrSay = async (): Promise<void> => {
+  try {
+    await loadDevices();
+  } catch (failure) {
+    reportError('order:setup-refresh', failure);
+    devicesFailed.value = true;
+  }
+};
 
 onMounted(async (): Promise<void> => {
   try {
@@ -170,11 +197,11 @@ onMounted(async (): Promise<void> => {
 
   // Wait for the first device list before letting the pairing watch decide it is
   // empty — otherwise it would pair on the blank moment before the list arrives.
-  await refresh();
-  devicesLoaded.value = true;
-  stopRefreshing = pollWithJitter(refresh, REFRESH_MS, (error: unknown): void =>
-    reportError('order:setup-refresh', error),
-  );
+  await loadDevicesOrSay();
+  stopRefreshing = pollWithJitter(loadDevices, REFRESH_MS, (error: unknown): void => {
+    reportError('order:setup-refresh', error);
+    devicesFailed.value = true;
+  });
 
   // Carried back from Carrefour after signing in: confirm it, and drop the flag
   // from the URL so a reload does not repeat the message.
@@ -197,6 +224,12 @@ onScopeDispose((): void => {
   <section class="rounded-2xl border border-default p-4 sm:p-5">
     <h2 class="text-lg font-bold">{{ $t('order.setup.title') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.setup.intro') }}</p>
+
+    <OrderLoadFailed
+      v-if="devicesFailed"
+      :message="$t('order.loadFailed.devices')"
+      @retry="loadDevicesOrSay"
+    />
 
     <ol class="mt-4 space-y-3">
       <!-- ① Install (and pair, silently) -->
@@ -257,6 +290,9 @@ onScopeDispose((): void => {
               <button type="button" class="text-xs underline" @click="retry">
                 {{ $t('order.setup.retry') }}
               </button>
+            </p>
+            <p v-if="pairingFailed" class="mt-2 text-sm text-error" role="alert">
+              {{ $t('order.setup.pairFailed') }}
             </p>
             <p v-if="justPaired && extensionReady" class="mt-2 text-xs text-success">
               {{ $t('order.device.autoPaired') }}
