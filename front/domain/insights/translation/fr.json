@@ -16,7 +16,9 @@
         "insufficientData": "Pas encore de semaines aux deux profils (haute et basse adhérence) pour comparer.",
         "moreRegularWithAdherence": "Les semaines où tu manges au moins 90 % de tes repas prévus, ton poids progresse plus régulièrement. Une tendance à surveiller, pas une preuve.",
         "noClearLink": "Aucun lien clair pour l'instant entre ton adhérence et ta courbe de poids sur ces semaines."
-      }
+      },
+      "loadFailed": "Ton journal de poids n'a pas pu être chargé.",
+      "retry": "Réessayer"
     },
     "budget": {
       "title": "Efficience du budget",

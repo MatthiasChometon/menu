@@ -5,7 +5,7 @@ import type { ProgressionHint, ProgressionWeek } from '../composables/useProgres
 // time: what got eaten against plan, and what the scale did those same
 // weeks.
 const { history } = useAdherence(undefined);
-const { entries } = useWeightLog();
+const { entries, hasFailed, refresh } = useWeightLog();
 const { weeksOf, hintOf } = useProgressionTable();
 const { dayLabelOf } = useWeightDates();
 const { locale, t } = useNuxtApp().$i18n;
@@ -35,7 +35,24 @@ const weightChangeLabelOf = (week: ProgressionWeek): string | undefined =>
     <h2 class="mb-1 text-lg font-semibold">{{ $t('insights.progression.title') }}</h2>
     <p class="mb-4 text-sm text-muted">{{ $t('insights.progression.lead') }}</p>
 
-    <div v-if="isEmpty" class="rounded-xl border border-dashed border-default p-6 text-center">
+    <!-- Not the empty invitation: "log a weigh-in" would be wrong advice to
+         somebody whose weigh-ins are merely not loaded. -->
+    <UAlert
+      v-if="hasFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.progression.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refresh">
+          {{ $t('insights.progression.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <div v-else-if="isEmpty" class="rounded-xl border border-dashed border-default p-6 text-center">
       <UIcon name="i-lucide-line-chart" class="mx-auto size-8 text-dimmed" aria-hidden="true" />
       <p class="mt-3 text-sm text-muted">{{ $t('insights.progression.empty') }}</p>
       <div class="mt-4 flex flex-wrap justify-center gap-2">
