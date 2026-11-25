@@ -8,9 +8,10 @@ const MAX_LENGTH = 400;
 // a reader's browser was written, and reading it as JSON would lose them all.
 // localStorage is the reader's browser, so what comes back is bounded to what
 // the editor would have let them type: a hand edit or another tab cannot leave
-// a megabyte behind a 400-character field.
+// a megabyte behind a 400-character field. The count is in characters (code
+// points), like the editor's, so a pair of surrogates is never cut in half.
 const noteSerializer = {
-  read: (raw: string): string => raw.slice(0, MAX_LENGTH),
+  read: (raw: string): string => Array.from(raw).slice(0, MAX_LENGTH).join(''),
   write: (value: string): string => value,
 };
 

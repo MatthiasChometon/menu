@@ -7,6 +7,8 @@ beforeEach((): void => {
 });
 
 describe('useRecipeNotes', () => {
+  // Regression guard, because the bare text was already read as is before the
+  // serializer: it pins that the bound did not break the notes already saved.
   it('reads a note saved by an earlier version of the app, which stored the bare text', () => {
     localStorage.setItem('recipe-note:legacyNote', 'moitié moins de piment');
 
@@ -18,7 +20,16 @@ describe('useRecipeNotes', () => {
 
     const { note } = useRecipeNotes('oversizedNote');
 
-    expect(note.value).toHaveLength(useRecipeNoteConstraints().maxLength);
+    expect(note.value).toHaveLength(400);
+  });
+
+  it('counts characters, so an emoji on the boundary is kept whole or dropped, never cut', () => {
+    localStorage.setItem('recipe-note:emojiNote', `${'x'.repeat(399)}🌶️🌶️`);
+
+    const { note } = useRecipeNotes('emojiNote');
+
+    expect(Array.from(note.value)).toHaveLength(400);
+    expect(note.value.endsWith('x🌶')).toBe(true);
   });
 
   it('starts empty', () => {
