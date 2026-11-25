@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const AT = 1_000_000;
 
@@ -86,5 +86,39 @@ describe('useTimers', () => {
     remove(id);
 
     expect(timersAt(AT)).toHaveLength(0);
+  });
+
+  // The board is a singleton read from localStorage once: a fresh module is the
+  // only way to see what it makes of what a previous visit left behind.
+  describe('what an earlier visit left in the browser', () => {
+    const freshBoard = async (stored: unknown): Promise<TimerView[]> => {
+      localStorage.setItem('batch:timers', JSON.stringify(stored));
+      vi.resetModules();
+      const { useTimers: useFreshTimers } = await import('./useTimers');
+
+      return useFreshTimers().timersAt(AT);
+    };
+
+    it('keeps timers that are well formed, running or not', async () => {
+      const board = await freshBoard([
+        { id: 'a', label: 'Riz', durationSeconds: 600, remainingSeconds: 600 },
+        { id: 'b', label: 'Pâtes', durationSeconds: 600, remainingSeconds: 600, endAt: AT + 5000 },
+      ]);
+
+      expect(board.map((timer): string => timer.status)).toEqual(['idle', 'running']);
+    });
+
+    it('starts from an empty board when an entry is not a timer', async () => {
+      const board = await freshBoard([
+        { id: 'a', label: 'Riz', durationSeconds: 600, remainingSeconds: 600 },
+        { id: 'b', label: 'Pâtes', durationSeconds: 'soon', remainingSeconds: 600 },
+      ]);
+
+      expect(board).toEqual([]);
+    });
+
+    it('starts from an empty board when the stored value is not a list', async () => {
+      expect(await freshBoard({ id: 'a' })).toEqual([]);
+    });
   });
 });

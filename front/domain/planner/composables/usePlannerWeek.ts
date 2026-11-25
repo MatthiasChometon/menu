@@ -27,7 +27,9 @@ const utcMidnightOf = (day: string): number => Date.parse(`${day}T00:00:00Z`);
 
 const parisDayOf = (instant: Date): string => PARIS_DAY.format(instant);
 
-const shiftedBy = (day: string, days: number): string =>
+/** A 'YYYY-MM-DD' day moved by whole days, on the Paris calendar: no device-zone
+ *  or daylight-saving hour is ever involved. */
+export const shiftedBy = (day: string, days: number): string =>
   new Date(utcMidnightOf(day) + days * DAY_MS).toISOString().slice(0, 10);
 
 /** Whole weeks from one 'YYYY-MM-DD' day to another, rounded. */

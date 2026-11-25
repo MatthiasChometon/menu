@@ -1,9 +1,29 @@
 // One board for the whole session: timers started from the plan page are still
 // running if the cook opens kitchen mode, because both read the same store.
+const { storedValue, isArrayOf } = useStoredValue();
+
+const isNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
+// JSON drops an undefined endAt, so a timer that is not running comes back
+// without the key: absent and undefined are the same thing here.
+const isTimer = (value: unknown): value is Timer =>
+  typeof value === 'object' &&
+  value !== null &&
+  'id' in value &&
+  typeof value.id === 'string' &&
+  'label' in value &&
+  typeof value.label === 'string' &&
+  'durationSeconds' in value &&
+  isNumber(value.durationSeconds) &&
+  'remainingSeconds' in value &&
+  isNumber(value.remainingSeconds) &&
+  (!('endAt' in value) || value.endAt === undefined || isNumber(value.endAt));
+
 let timersStore: Ref<Timer[]> | undefined;
 
 const timersRef = (): Ref<Timer[]> => {
-  if (timersStore === undefined) timersStore = useLocalStorage<Timer[]>('batch:timers', []);
+  if (timersStore === undefined) timersStore = storedValue<Timer[]>('batch:timers', [], isArrayOf(isTimer));
 
   return timersStore;
 };
