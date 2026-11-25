@@ -160,7 +160,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] The failure path of each external API (timeout, 5xx) has a test.
 - [ ] A bug-fix test is proven to fail first (run before the fix, or on a throwaway branch); a test that is green without the fix is rewritten to discriminate or labelled "regression guard, because ...".
 - [ ] Race tests are deterministic (barrier or held transaction), never a sleep; a guard added to several methods is tested on each of them.
-- [ ] Tests never depend on the machine time zone: pin it explicitly (`Intl.DateTimeFormat` with `timeZone`), never rely on the runner default.
+- [ ] Tests never depend on the machine time zone: code pins its zone explicitly (`Intl.DateTimeFormat` with `timeZone`), and the test runner sets `TZ` to a zone that is neither Paris nor UTC (`Pacific/Auckland` in `front/vitest.config.ts`), so a hidden dependency on the local zone fails on every machine.
 - [ ] A mock cannot prove SQL: repository behaviour is tested against a real PostgreSQL.
 - [ ] Critical paths are covered: auth, ownership scoping, validation rejections.
 - [ ] Builders (`buildPlant(overrides)`) instead of duplicated literals; no `if` / `for` in tests.
