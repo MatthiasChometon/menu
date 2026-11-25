@@ -26,7 +26,10 @@ export const useHousehold = (): {
     'household-members',
     async (): Promise<Member[]> => {
       try {
-        return (await GqlHouseholdMembers()).householdMembers;
+        // An answer without the list (a partial reply) is an empty household.
+        const result: Partial<HouseholdMembersQuery> = await GqlHouseholdMembers();
+
+        return result.householdMembers ?? [];
       } catch (failure) {
         if (isUnauthenticated(failure)) return [];
         throw failure;
