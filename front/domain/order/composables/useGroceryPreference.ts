@@ -10,8 +10,8 @@ export const useGroceryPreference = (): {
   const isSaved = ref(false);
 
   const refresh = async (): Promise<void> => {
-    const result = await GqlMyGroceryPreference().catch((): undefined => undefined);
-    thresholdCents.value = result?.myGroceryPreference.alertThresholdCents ?? undefined;
+    const result = await GqlMyGroceryPreference();
+    thresholdCents.value = result.myGroceryPreference.alertThresholdCents ?? undefined;
   };
 
   const save = async (cents: number | undefined): Promise<void> => {

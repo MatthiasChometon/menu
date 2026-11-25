@@ -52,7 +52,7 @@ export default withNuxt(
     // The domain slices are refactored lot by lot (M6-M10): the last one deletes this
     // block, so these rules end up on everywhere.
     files: ['domain/**/*.{ts,vue}'],
-    ignores: ['domain/menu/**', 'domain/planner/**'],
+    ignores: ['domain/menu/**', 'domain/planner/**', 'domain/order/**', 'domain/shopping/**', 'domain/batch/**', 'domain/today/**'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
@@ -95,7 +95,14 @@ export default withNuxt(
   {
     // The menu and planner slices have every key literal (see useMenuLabels,
     // usePlannerLabels); the other slices turn it on as their own lot lands.
-    files: ['domain/menu/**/*.{ts,vue}', 'domain/planner/**/*.{ts,vue}'],
+    files: [
+      'domain/menu/**/*.{ts,vue}',
+      'domain/planner/**/*.{ts,vue}',
+      'domain/order/**/*.{ts,vue}',
+      'domain/shopping/**/*.{ts,vue}',
+      'domain/batch/**/*.{ts,vue}',
+      'domain/today/**/*.{ts,vue}',
+    ],
     rules: { '@intlify/vue-i18n/no-dynamic-keys': 'error' },
   },
 );

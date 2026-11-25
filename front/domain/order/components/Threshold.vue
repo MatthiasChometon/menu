@@ -6,19 +6,40 @@ const { thresholdCents, isSaving, isSaved, refresh, save } = useGroceryPreferenc
 // browser has parsed it — so the field's value is whichever the last write was,
 // and reading it as a string would throw the moment someone actually typed.
 const euros = ref<string | number>('');
+const { reportError } = useErrorReporting();
+const loadFailed = ref(false);
+const saveFailed = ref(false);
 
 const submit = async (): Promise<void> => {
   const typed = String(euros.value).trim();
-  await save(typed === '' ? undefined : Math.round(Number(typed) * 100));
+  saveFailed.value = false;
+
+  try {
+    await save(typed === '' ? undefined : Math.round(Number(typed) * 100));
+  } catch (failure) {
+    reportError('order:threshold-save', failure);
+    saveFailed.value = true;
+  }
 };
 
 watch(thresholdCents, (cents): void => {
   euros.value = cents === undefined ? '' : String(cents / 100);
 });
 
-onMounted(async (): Promise<void> => {
-  await refresh();
-});
+// Without the saved value the field would read as empty, and saving it would
+// wipe the real threshold: the form is not shown until the load works.
+const load = async (): Promise<void> => {
+  loadFailed.value = false;
+
+  try {
+    await refresh();
+  } catch (failure) {
+    reportError('order:threshold-load', failure);
+    loadFailed.value = true;
+  }
+};
+
+onMounted(load);
 </script>
 
 <template>
@@ -26,7 +47,9 @@ onMounted(async (): Promise<void> => {
     <h2 class="font-bold">{{ $t('order.cost.threshold') }}</h2>
     <p class="mt-1 text-sm text-muted">{{ $t('order.cost.thresholdHint') }}</p>
 
-    <form class="mt-3 flex items-center gap-2" @submit.prevent="submit">
+    <OrderLoadFailed v-if="loadFailed" :message="$t('order.loadFailed.threshold')" @retry="load" />
+
+    <form v-else class="mt-3 flex items-center gap-2" @submit.prevent="submit">
       <label class="sr-only" for="threshold">{{ $t('order.cost.threshold') }}</label>
       <input
         id="threshold"
@@ -47,6 +70,9 @@ onMounted(async (): Promise<void> => {
       </button>
     </form>
 
+    <p v-if="saveFailed" class="mt-2 text-sm text-error" role="alert">
+      {{ $t('order.saveFailed') }}
+    </p>
     <p v-if="isSaved" class="mt-2 text-sm text-muted" role="status">{{ $t('order.cost.saved') }}</p>
   </section>
 </template>
