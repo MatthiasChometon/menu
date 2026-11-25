@@ -33,7 +33,10 @@
       "blocked": "Account blocked",
       "block": "Block this account",
       "unblock": "Unblock",
-      "blockedNote": "This account can no longer sign in. Its data and its reports stay where they are."
+      "blockedNote": "This account can no longer sign in. Its data and its reports stay where they are.",
+      "loadFailed": "The list could not be loaded right now.",
+      "retry": "Try again",
+      "actionFailed": "That did not go through. Try again in a moment."
     }
   }
 }

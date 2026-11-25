@@ -24,13 +24,57 @@ const SLOT_TO_API: Record<MealSlot, PlannedMealSlot> = {
   dinner: PlannedMealSlot.DINNER,
 };
 
-const DAY_FROM_API = Object.fromEntries(
-  Object.entries(DAY_TO_API).map(([key, value]): [string, DayKey] => [value, key as DayKey]),
-) as Record<string, DayKey>;
+const isDayEntry = (entry: [string, PlannedDayKey]): entry is [DayKey, PlannedDayKey] =>
+  Object.hasOwn(DAY_TO_API, entry[0]);
 
-const SLOT_FROM_API = Object.fromEntries(
-  Object.entries(SLOT_TO_API).map(([key, value]): [string, MealSlot] => [value, key as MealSlot]),
-) as Record<string, MealSlot>;
+const isSlotEntry = (entry: [string, PlannedMealSlot]): entry is [MealSlot, PlannedMealSlot] =>
+  Object.hasOwn(SLOT_TO_API, entry[0]);
+
+const DAY_FROM_API = new Map<string, DayKey>(
+  Object.entries(DAY_TO_API)
+    .filter(isDayEntry)
+    .map(([key, value]): [string, DayKey] => [value, key]),
+);
+
+const SLOT_FROM_API = new Map<string, MealSlot>(
+  Object.entries(SLOT_TO_API)
+    .filter(isSlotEntry)
+    .map(([key, value]): [string, MealSlot] => [value, key]),
+);
+
+const API_DAYS = new Map<string, PlannedDayKey>(Object.entries(DAY_TO_API));
+const API_SLOTS = new Map<string, PlannedMealSlot>(Object.entries(SLOT_TO_API));
+
+const apiDayOf = (day: string): PlannedDayKey => {
+  const found = API_DAYS.get(day);
+  if (found === undefined) throw new Error(`Unknown day in a plan to save: ${day}`);
+
+  return found;
+};
+
+const apiSlotOf = (slot: string): PlannedMealSlot => {
+  const found = API_SLOTS.get(slot);
+  if (found === undefined) throw new Error(`Unknown meal slot in a plan to save: ${slot}`);
+
+  return found;
+};
+
+// An unknown value is refused rather than coerced to Monday or lunch: a plan the
+// site cannot read must surface as a failed load (and its retry), not as a week
+// quietly rearranged.
+const dayFromApi = (value: string): DayKey => {
+  const day = DAY_FROM_API.get(value);
+  if (day === undefined) throw new Error(`Unknown day in a stored plan: ${value}`);
+
+  return day;
+};
+
+const slotFromApi = (value: string): MealSlot => {
+  const slot = SLOT_FROM_API.get(value);
+  if (slot === undefined) throw new Error(`Unknown meal slot in a stored plan: ${value}`);
+
+  return slot;
+};
 
 export const useWeekPlanStore = (): {
   toInput: (plan: PlannedWeek) => WeekPlanInput;
@@ -44,9 +88,9 @@ export const useWeekPlanStore = (): {
     weekOf: plan.weekOf,
     days: Object.entries(plan.days)
       .map(([day, slots]) => ({
-        day: DAY_TO_API[day as DayKey],
+        day: apiDayOf(day),
         meals: Object.entries(slots).map(([slot, recipeId]) => ({
-          slot: SLOT_TO_API[slot as MealSlot],
+          slot: apiSlotOf(slot),
           recipeId: String(recipeId),
         })),
       }))
@@ -57,12 +101,9 @@ export const useWeekPlanStore = (): {
     weekOf,
     days: Object.fromEntries(
       days.map((entry): [DayKey, Partial<Record<MealSlot, string>>] => [
-        DAY_FROM_API[entry.day] ?? 'monday',
+        dayFromApi(entry.day),
         Object.fromEntries(
-          entry.meals.map((meal): [MealSlot, string] => [
-            SLOT_FROM_API[meal.slot] ?? 'lunch',
-            meal.recipeId,
-          ]),
+          entry.meals.map((meal): [MealSlot, string] => [slotFromApi(meal.slot), meal.recipeId]),
         ),
       ]),
     ),

@@ -33,7 +33,10 @@
       "blocked": "Compte bloqué",
       "block": "Bloquer ce compte",
       "unblock": "Débloquer",
-      "blockedNote": "Ce compte ne pourra plus se connecter au site. Ses données et ses signalements restent en place."
+      "blockedNote": "Ce compte ne pourra plus se connecter au site. Ses données et ses signalements restent en place.",
+      "loadFailed": "Impossible de charger la liste pour le moment.",
+      "retry": "Réessayer",
+      "actionFailed": "L'action n'a pas abouti. Réessaie dans un instant."
     }
   }
 }

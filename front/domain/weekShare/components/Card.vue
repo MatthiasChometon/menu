@@ -4,11 +4,11 @@
 // so what leaves the app always matches what is on screen.
 const { menu } = defineProps<{ menu: Menu }>();
 
-const canvasRef = ref<HTMLCanvasElement | null>(null);
+const canvasRef = useTemplateRef<HTMLCanvasElement>('canvas');
 const colorMode = useColorMode();
 const { t, locale } = useNuxtApp().$i18n;
 const { sumMacros } = useNutrition();
-const { draw, download, shareCard } = useWeekShareCard();
+const { draw, downloadOrFail, shareOrFail } = useWeekShareCard();
 
 const averageMacros = computed((): Macros => {
   if (menu.days.length === 0) return { kcal: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 };
@@ -64,19 +64,19 @@ defineExpose({
   download: async (): Promise<void> => {
     if (canvasRef.value === null) return;
     await redraw();
-    await download(canvasRef.value, filename());
+    await downloadOrFail(canvasRef.value, filename());
   },
   shareCard: async (): Promise<boolean> => {
     if (canvasRef.value === null) return false;
     await redraw();
-    return shareCard(canvasRef.value, filename());
+    return shareOrFail(canvasRef.value, filename());
   },
 });
 </script>
 
 <template>
   <canvas
-    ref="canvasRef"
+    ref="canvas"
     width="1080"
     height="1350"
     class="w-full max-w-xs rounded-3xl border border-default shadow-sm"

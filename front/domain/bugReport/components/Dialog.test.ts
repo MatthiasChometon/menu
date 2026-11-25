@@ -16,7 +16,7 @@ const textarea = (): HTMLTextAreaElement | null => document.querySelector('texta
 
 const sendButton = (): HTMLButtonElement | undefined =>
   [...document.querySelectorAll('button')].find((candidate): boolean =>
-    (candidate.textContent ?? '').includes('Envoyer'),
+    candidate.textContent.includes('Envoyer'),
   );
 
 const type = async (words: string): Promise<void> => {

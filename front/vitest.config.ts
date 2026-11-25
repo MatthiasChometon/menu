@@ -6,6 +6,12 @@ import { defineVitestConfig } from '@nuxt/test-utils/config';
 // on a request nobody will ever reply to.
 process.env.NUXT_PUBLIC_API_BASE = '';
 
+// A zone that is neither Paris nor UTC (the CI default), so the tests of dates
+// read on the Paris calendar fail on any machine when the code falls back to the
+// device zone, instead of passing by luck on a machine that sits in Paris. The
+// code itself never reads this variable: it names Europe/Paris explicitly.
+process.env.TZ = 'Pacific/Auckland';
+
 export default defineVitestConfig({
   test: {
     environment: 'nuxt',

@@ -101,21 +101,43 @@ const toPngBlob = (canvas: HTMLCanvasElement): Promise<Blob | undefined> =>
     canvas.toBlob((blob): void => resolve(blob ?? undefined), 'image/png');
   });
 
+const saveBlob = (blob: Blob, filename: string): void => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+// A reader closing the native share sheet throws AbortError: not a failure,
+// just a change of mind.
+const isCancellation = (failure: unknown): boolean =>
+  failure instanceof DOMException && failure.name === 'AbortError';
+
 export const useCardCanvas = (): {
   download: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
   shareCard: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
+  downloadOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
+  shareOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
   canShareFiles: () => boolean;
 } => {
+  // The two variants below say nothing when the card could not be captured or
+  // the share failed. Kept for the callers that have no failure state yet.
   const download = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
     const blob = await toPngBlob(canvas);
     if (blob === undefined) return;
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
+    saveBlob(blob, filename);
+  };
+
+  // The same, but a card that could not be captured raises, so the caller can
+  // say so instead of leaving the reader with a button that did nothing.
+  const downloadOrFail = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
+    const blob = await toPngBlob(canvas);
+    if (blob === undefined) throw new Error('The card could not be turned into an image.');
+
+    saveBlob(blob, filename);
   };
 
   const canShareFiles = (): boolean =>
@@ -142,5 +164,25 @@ export const useCardCanvas = (): {
     }
   };
 
-  return { download, shareCard, canShareFiles };
+  // False when sharing is unavailable or the reader cancelled; a share that
+  // genuinely failed raises.
+  const shareOrFail = async (canvas: HTMLCanvasElement, filename: string): Promise<boolean> => {
+    if (!canShareFiles()) return false;
+
+    const blob = await toPngBlob(canvas);
+    if (blob === undefined) throw new Error('The card could not be turned into an image.');
+
+    const file = new File([blob], filename, { type: 'image/png' });
+    if (!navigator.canShare({ files: [file] })) return false;
+
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return true;
+    } catch (failure) {
+      if (isCancellation(failure)) return false;
+      throw failure;
+    }
+  };
+
+  return { download, shareCard, downloadOrFail, shareOrFail, canShareFiles };
 };

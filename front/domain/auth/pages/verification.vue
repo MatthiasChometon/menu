@@ -4,21 +4,26 @@ const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
 const { verify } = useEmailVerification();
 
-const outcome = ref<'pending' | 'signed-in' | 'expired' | 'missing'>('pending');
+const outcome = ref<'pending' | 'signed-in' | 'expired' | 'missing' | 'unavailable'>('pending');
 const hasSucceeded = computed((): boolean => outcome.value === 'signed-in');
+const isUnavailable = computed((): boolean => outcome.value === 'unavailable');
+
+const follow = async (): Promise<void> => {
+  outcome.value = 'pending';
+  const token = route.query.token;
+  outcome.value = await verify(typeof token === 'string' ? token : undefined);
+};
 
 // The link is followed once, on arrival: there is nothing to decide here, and a
 // button to press would only stand between the reader and their account.
-onMounted(async (): Promise<void> => {
-  const token = route.query.token;
-  outcome.value = await verify(typeof token === 'string' ? token : undefined);
-});
+onMounted(follow);
 
 // One heading, always, whatever the page is doing. Rendering it only once the
 // answer arrives leaves the page with no title while it waits, which is exactly
 // when somebody using a screen reader is trying to work out where they landed.
 const heading = computed((): string => {
   if (outcome.value === 'pending') return t('auth.verification.pendingTitle');
+  if (isUnavailable.value) return t('auth.verification.unavailableTitle');
 
   return hasSucceeded.value ? t('auth.verification.doneTitle') : t('auth.verification.failedTitle');
 });
@@ -47,10 +52,22 @@ useHead({ title: (): string => t('auth.verification.pageTitle') });
     <p v-else-if="hasSucceeded" class="text-muted">{{ $t('auth.verification.doneBody') }}</p>
     <!-- Unknown, spent and expired all land here, because the API refuses to
          tell them apart — saying which would help only someone guessing. -->
+    <p v-else-if="isUnavailable" role="alert" class="text-muted">
+      {{ $t('auth.verification.unavailableBody') }}
+    </p>
     <p v-else class="text-muted">{{ $t('auth.verification.failedBody') }}</p>
 
     <UButton
-      v-if="outcome !== 'pending'"
+      v-if="isUnavailable"
+      variant="subtle"
+      size="lg"
+      class="mt-2 font-semibold"
+      @click="follow"
+    >
+      {{ $t('auth.verification.tryAgain') }}
+    </UButton>
+    <UButton
+      v-else-if="outcome !== 'pending'"
       :to="localePath('/profil')"
       :variant="hasSucceeded ? 'solid' : 'subtle'"
       size="lg"

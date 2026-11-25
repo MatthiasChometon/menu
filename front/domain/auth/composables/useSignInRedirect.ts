@@ -6,7 +6,7 @@ export const useSignInRedirect = (): void => {
 
   watch(user, async (signedIn): Promise<void> => {
     const back = safeRedirectPath(route.query.redirect);
-    if (signedIn !== undefined && signedIn !== null && back !== undefined) {
+    if (signedIn !== undefined && back !== undefined) {
       await navigateTo(back);
     }
   });

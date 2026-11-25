@@ -23,6 +23,8 @@ describe('the path to come back to after signing in', () => {
     ['an upper-case scheme', 'HTTP://evil.example'],
     ['a data URL', 'data:text/html,x'],
     ['an empty string', ''],
+    ['a path longer than the API carries', `/${'a'.repeat(700)}`],
+    ['a long non-ASCII path', `/${'é'.repeat(400)}`],
   ])('drops %s', (_name, path) => {
     expect(safeRedirectPath(path)).toBeUndefined();
   });

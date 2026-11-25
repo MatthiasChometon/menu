@@ -52,14 +52,6 @@ export const useEmailAuth = (): {
     return 'unknown';
   };
 
-  // Read structurally rather than through Nuxt's error type: useFetch reports
-  // "nothing went wrong" as null in some versions and undefined in others, and
-  // a composable that only handles one of them fails silently on the other.
-  const statusOf = (error: unknown): number | undefined =>
-    typeof error === 'object' && error !== null && 'statusCode' in error
-      ? (error as { statusCode?: number }).statusCode
-      : undefined;
-
   const run = async <T>(
     call: { execute: () => Promise<unknown>; error: { value: unknown } },
     onSuccess: T,
@@ -70,9 +62,9 @@ export const useEmailAuth = (): {
     isBusy.value = false;
 
     const raised = call.error.value;
-    if (raised === null || raised === undefined) return onSuccess;
+    if (raised === undefined) return onSuccess;
 
-    failure.value = failureFrom(statusOf(raised));
+    failure.value = failureFrom(statusCodeOf(raised));
     return undefined;
   };
 

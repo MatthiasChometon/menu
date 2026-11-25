@@ -30,6 +30,7 @@ const { isGenerating, hasFailed, generate } = useGenerateFirstWeek();
 
     <UAlert
       v-if="hasFailed"
+      role="alert"
       class="mt-2 w-full"
       color="error"
       variant="subtle"

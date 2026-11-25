@@ -1,4 +1,4 @@
-export type ResetOutcome = 'signed-in' | 'expired' | 'missing' | 'refused';
+export type ResetOutcome = 'signed-in' | 'expired' | 'missing' | 'refused' | 'unavailable';
 
 /** Sets a new password from the link in the message, and signs the reader in.
  *  Unknown, spent and expired links all come back as one answer, because the
@@ -31,22 +31,18 @@ export const usePasswordReset = (): {
       await call.execute();
       isBusy.value = false;
 
-      // null in some Nuxt versions, undefined in others: treating only one as
-      // success would leave the reader stuck on a page that worked.
       const raised: unknown = call.error.value;
-      if (raised === null || raised === undefined) {
+      if (raised === undefined) {
         await refresh();
         return 'signed-in';
       }
 
-      // 400 is the password the server would not take — too short. Anything
-      // else means the link itself is done for, and a new one is needed.
-      const status =
-        typeof raised === 'object' && raised !== null && 'statusCode' in raised
-          ? (raised as { statusCode?: number }).statusCode
-          : undefined;
+      // 400 is the password the server would not take — too short. A server
+      // that could not be reached says nothing about the link, which may still
+      // be good. Any other refusal means the link itself is done for.
+      if (isTransientFailure(raised)) return 'unavailable';
 
-      return status === 400 ? 'refused' : 'expired';
+      return statusCodeOf(raised) === 400 ? 'refused' : 'expired';
     },
   };
 };

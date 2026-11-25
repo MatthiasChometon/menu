@@ -13,4 +13,12 @@ describe('where a sign-in lands', () => {
     // every sign-in.
     expect(landingUrl(FRONT, false)).toBe(FRONT);
   });
+
+  it('sends a returning reader back to the page they were on', () => {
+    expect(landingUrl(FRONT, false, '/profil?tab=weight')).toBe(`${FRONT}/profil?tab=weight`);
+  });
+
+  it('still opens the profile first for somebody arriving for the first time', () => {
+    expect(landingUrl(FRONT, true, '/semaine')).toBe(`${FRONT}/profil`);
+  });
 });

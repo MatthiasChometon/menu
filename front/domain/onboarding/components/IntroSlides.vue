@@ -24,7 +24,7 @@ const slides = computed((): Slide[] => [
 
 const index = ref(0);
 const isLast = computed((): boolean => index.value === slides.value.length - 1);
-const currentSlide = computed((): Slide => slides.value[index.value] ?? slides.value[0]!);
+const currentSlide = computed((): Slide | undefined => slides.value[index.value]);
 
 const next = (): void => {
   if (isLast.value) {
@@ -51,6 +51,7 @@ const back = (): void => {
     </div>
 
     <section
+      v-if="currentSlide"
       :key="index"
       class="rise flex flex-col items-center gap-4 py-6 text-center"
       aria-live="polite"

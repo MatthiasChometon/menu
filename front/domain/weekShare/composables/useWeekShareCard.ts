@@ -170,6 +170,8 @@ export const useWeekShareCard = (): {
   draw: (canvas: HTMLCanvasElement, data: WeekShareData) => Promise<void>;
   download: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
   shareCard: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
+  downloadOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
+  shareOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
   canShareFiles: () => boolean;
 } => {
   const draw = async (canvas: HTMLCanvasElement, data: WeekShareData): Promise<void> => {

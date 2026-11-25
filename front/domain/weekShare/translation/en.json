@@ -9,6 +9,7 @@
     "share": "Share",
     "close": "Close",
     "cardAlt": "Recap card for the week, with the average intake and the budget",
-    "empty": "No week to share yet."
+    "empty": "No week to share yet.",
+    "failed": "The image could not be created. Try again in a moment."
   }
 }

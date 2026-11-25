@@ -7,7 +7,13 @@ const STORAGE_KEY = 'onboarding:dismissed';
 let sharedIsDismissed: Ref<boolean> | undefined;
 
 const isDismissedRef = (): Ref<boolean> => {
-  sharedIsDismissed ??= useLocalStorage(STORAGE_KEY, false);
+  // A flag a hand edit or an older version left as something else is read as
+  // "not dismissed yet": offering the walkthrough once more costs nothing.
+  sharedIsDismissed ??= useStoredValue().storedValue(
+    STORAGE_KEY,
+    false,
+    (value): value is boolean => typeof value === 'boolean',
+  );
   return sharedIsDismissed;
 };
 

@@ -1,3 +1,10 @@
+const { storedValue, isRecordOf, isArrayOf } = useStoredValue();
+
+const isDishStatus = (value: unknown): value is DishStatus =>
+  value === 'todo' || value === 'done' || value === 'skipped';
+
+const isText = (value: unknown): value is string => typeof value === 'string';
+
 const mealKey = (day: DayKey, slot: MealSlot): string => `${day}:${slot}`;
 
 // One store per week, kept for the life of the app. The week can change under
@@ -10,7 +17,11 @@ const statusesFor = (weekOf: string): Ref<Record<string, DishStatus>> => {
   const existing = statusStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<Record<string, DishStatus>>(`cooking:${weekOf}`, {});
+  const created = storedValue<Record<string, DishStatus>>(
+    `cooking:${weekOf}`,
+    {},
+    isRecordOf(isDishStatus),
+  );
   statusStores.set(weekOf, created);
   return created;
 };
@@ -19,7 +30,7 @@ const eatenFor = (weekOf: string): Ref<string[]> => {
   const existing = eatenStores.get(weekOf);
   if (existing !== undefined) return existing;
 
-  const created = useLocalStorage<string[]>(`eaten:${weekOf}`, []);
+  const created = storedValue<string[]>(`eaten:${weekOf}`, [], isArrayOf(isText));
   eatenStores.set(weekOf, created);
   return created;
 };

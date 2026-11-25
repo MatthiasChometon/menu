@@ -26,3 +26,19 @@ describe('useOnboardingStatus', () => {
     expect(useOnboardingStatus().isDismissed.value).toBe(false);
   });
 });
+
+describe('a corrupted stored flag', () => {
+  it('reads as not dismissed, so the walkthrough is offered again', () => {
+    const { isDismissed, dismiss } = useOnboardingStatus();
+    dismiss();
+    const key = 'onboarding:dismissed';
+    const corrupted = JSON.stringify('yes');
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(isDismissed.value).toBe(false);
+  });
+});

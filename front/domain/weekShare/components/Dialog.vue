@@ -3,22 +3,28 @@ const { isOpen, close } = useWeekShare();
 const { selectedMenu: menu } = useSelectedWeek();
 const { t } = useNuxtApp().$i18n;
 
-const cardRef = ref<WeekShareCardHandle | null>(null);
+const card = useTemplateRef<WeekShareCardHandle>('card');
+const { canShareFiles } = useWeekShareCard();
 const isSharing = ref(false);
 
-const canShareFiles = (): boolean => {
-  const { canShareFiles: supported } = useWeekShareCard();
-  return supported();
-};
+// A card that could not be turned into an image, or a share that failed, is
+// said out loud: a button that does nothing reads as a broken page.
+const { hasFailed, run } = useAttempt('weekShare.export');
 
-const onDownload = async (): Promise<void> => {
-  await cardRef.value?.download();
-};
+const onDownload = (): Promise<void> =>
+  run(async (): Promise<void> => {
+    await card.value?.download();
+  });
 
 const onShare = async (): Promise<void> => {
   isSharing.value = true;
-  await cardRef.value?.shareCard();
-  isSharing.value = false;
+  try {
+    await run(async (): Promise<void> => {
+      await card.value?.shareCard();
+    });
+  } finally {
+    isSharing.value = false;
+  }
 };
 </script>
 
@@ -28,7 +34,7 @@ const onShare = async (): Promise<void> => {
       <div v-if="menu !== undefined" class="flex flex-col items-center gap-4">
         <p class="text-center text-sm text-muted">{{ t('weekShare.lead') }}</p>
 
-        <WeekShareCard ref="cardRef" :menu="menu" />
+        <WeekShareCard ref="card" :menu="menu" />
 
         <div class="flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
           <UButton icon="i-lucide-download" variant="outline" color="neutral" @click="onDownload">
@@ -46,6 +52,10 @@ const onShare = async (): Promise<void> => {
             </UButton>
           </ClientOnly>
         </div>
+
+        <p v-if="hasFailed" role="alert" class="text-center text-sm text-error">
+          {{ t('weekShare.failed') }}
+        </p>
       </div>
 
       <p v-else class="text-sm text-muted">{{ t('weekShare.empty') }}</p>

@@ -25,13 +25,6 @@ export const useAccountDeletion = (): {
     key: 'auth-delete-account',
   });
 
-  // Read structurally rather than through Nuxt's error type: useFetch reports
-  // "nothing went wrong" as null in some versions and undefined in others.
-  const statusOf = (error: unknown): number | undefined =>
-    typeof error === 'object' && error !== null && 'statusCode' in error
-      ? (error as { statusCode?: number }).statusCode
-      : undefined;
-
   return {
     password,
     isBusy,
@@ -44,8 +37,8 @@ export const useAccountDeletion = (): {
       await call.execute();
       isBusy.value = false;
 
-      if (call.error.value !== null && call.error.value !== undefined) {
-        failure.value = statusOf(call.error.value) === 401 ? 'password' : 'unknown';
+      if (call.error.value !== undefined) {
+        failure.value = statusCodeOf(call.error.value) === 401 ? 'password' : 'unknown';
         return false;
       }
 

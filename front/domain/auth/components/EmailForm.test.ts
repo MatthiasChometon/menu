@@ -1,5 +1,5 @@
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import EmailForm from './EmailForm.vue';
 
 const fillIn = async (wrapper: Awaited<ReturnType<typeof mountSuspended>>): Promise<void> => {
@@ -108,5 +108,21 @@ describe('AuthEmailForm', () => {
     // that will help them is another link.
     expect(wrapper.text()).not.toContain('incorrect');
     expect(wrapper.text()).toContain('Renvoyer le lien');
+  });
+
+  it('announces a failed sign-in as an alert', async () => {
+    registerEndpoint('/auth/login', {
+      method: 'POST',
+      handler: () => {
+        throw createError({ statusCode: 401, statusMessage: 'Wrong.' });
+      },
+    });
+    const wrapper = await mountSuspended(EmailForm);
+
+    await fillIn(wrapper);
+    await wrapper.find('form').trigger('submit');
+    await vi.waitFor((): void => {
+      expect(wrapper.find('[role="alert"]').text()).toContain('Adresse ou mot de passe incorrect');
+    });
   });
 });
