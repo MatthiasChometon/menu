@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import SaveStatus from './SaveStatus.vue';
 import type { SaveState } from '../types/planner.type';
 
-const propsFor = (state: SaveState, hasWeek = true): Record<string, unknown> => ({
+const propsFor = (
+  state: SaveState,
+  hasWeek = true,
+): { hasWeek: boolean; state: SaveState; savedLabel: string; weekLabel: string } => ({
   hasWeek,
   state,
   savedLabel: '10:00',
