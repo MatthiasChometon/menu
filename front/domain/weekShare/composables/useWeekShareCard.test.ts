@@ -52,12 +52,6 @@ describe('useWeekShareCard', () => {
     vi.unstubAllGlobals();
   });
 
-  it('never throws asking to download a card nobody could draw', async () => {
-    const { download } = useWeekShareCard();
-
-    await expect(download(canvasNobodyCouldDraw(), 'semaine.png')).resolves.toBeUndefined();
-  });
-
   // The week dialog depends on these two: without them on the facade it would
   // call undefined instead of showing its failure message.
   it('refuses, rather than staying silent, to download a card nobody could draw', async () => {
@@ -77,62 +71,5 @@ describe('useWeekShareCard', () => {
     await expect(shareOrFail(canvasNobodyCouldDraw(), 'semaine.png')).rejects.toThrow();
 
     vi.unstubAllGlobals();
-  });
-
-  it('declines to share a card nobody could draw', async () => {
-    vi.stubGlobal('navigator', {
-      ...navigator,
-      share: vi.fn(),
-      canShare: vi.fn(() => true),
-    });
-
-    const { shareCard } = useWeekShareCard();
-
-    await expect(shareCard(canvasNobodyCouldDraw(), 'semaine.png')).resolves.toBe(false);
-
-    vi.unstubAllGlobals();
-  });
-
-  describe('canvas.toBlob is available', () => {
-    beforeEach(() => {
-      HTMLCanvasElement.prototype.toBlob = function toBlob(
-        callback: (blob: Blob | null) => void,
-      ): void {
-        callback(new Blob(['fake'], { type: 'image/png' }));
-      };
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
-    it('shares the drawn card when the browser can', async () => {
-      const share = vi.fn().mockResolvedValue(undefined);
-      vi.stubGlobal('navigator', {
-        ...navigator,
-        share,
-        canShare: vi.fn(() => true),
-      });
-
-      const { shareCard } = useWeekShareCard();
-      const canvas = document.createElement('canvas');
-
-      await expect(shareCard(canvas, 'semaine.png')).resolves.toBe(true);
-      expect(share).toHaveBeenCalledTimes(1);
-    });
-
-    it('reports a cancelled share sheet as a decline, not a crash', async () => {
-      const share = vi.fn().mockRejectedValue(new DOMException('cancelled', 'AbortError'));
-      vi.stubGlobal('navigator', {
-        ...navigator,
-        share,
-        canShare: vi.fn(() => true),
-      });
-
-      const { shareCard } = useWeekShareCard();
-      const canvas = document.createElement('canvas');
-
-      await expect(shareCard(canvas, 'semaine.png')).resolves.toBe(false);
-    });
   });
 });

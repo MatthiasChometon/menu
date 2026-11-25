@@ -116,23 +116,12 @@ const isCancellation = (failure: unknown): boolean =>
   failure instanceof DOMException && failure.name === 'AbortError';
 
 export const useCardCanvas = (): {
-  download: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
-  shareCard: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
   downloadOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<void>;
   shareOrFail: (canvas: HTMLCanvasElement, filename: string) => Promise<boolean>;
   canShareFiles: () => boolean;
 } => {
-  // The two variants below say nothing when the card could not be captured or
-  // the share failed. Kept for the callers that have no failure state yet.
-  const download = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
-    const blob = await toPngBlob(canvas);
-    if (blob === undefined) return;
-
-    saveBlob(blob, filename);
-  };
-
-  // The same, but a card that could not be captured raises, so the caller can
-  // say so instead of leaving the reader with a button that did nothing.
+  // A card that could not be captured raises, so the caller can say so instead
+  // of leaving the reader with a button that did nothing.
   const downloadOrFail = async (canvas: HTMLCanvasElement, filename: string): Promise<void> => {
     const blob = await toPngBlob(canvas);
     if (blob === undefined) throw new Error('The card could not be turned into an image.');
@@ -144,25 +133,6 @@ export const useCardCanvas = (): {
     typeof navigator !== 'undefined' &&
     typeof navigator.share === 'function' &&
     typeof navigator.canShare === 'function';
-
-  const shareCard = async (canvas: HTMLCanvasElement, filename: string): Promise<boolean> => {
-    if (!canShareFiles()) return false;
-
-    const blob = await toPngBlob(canvas);
-    if (blob === undefined) return false;
-
-    const file = new File([blob], filename, { type: 'image/png' });
-    if (!navigator.canShare({ files: [file] })) return false;
-
-    // A reader closing the native share sheet throws AbortError: not a
-    // failure, just a change of mind, so it is swallowed rather than reported.
-    try {
-      await navigator.share({ files: [file], title: filename });
-      return true;
-    } catch {
-      return false;
-    }
-  };
 
   // False when sharing is unavailable or the reader cancelled; a share that
   // genuinely failed raises.
@@ -184,5 +154,5 @@ export const useCardCanvas = (): {
     }
   };
 
-  return { download, shareCard, downloadOrFail, shareOrFail, canShareFiles };
+  return { downloadOrFail, shareOrFail, canShareFiles };
 };
