@@ -4,12 +4,8 @@ name: CI front
 # generated from. The deploy workflow (deploy-front.yml) only runs on main and gates itself
 # on lint + tests; this one is the full gate before the merge.
 #
-# Not run here, on purpose:
-#  - the visual regression suite (`pnpm test:visual`): its baselines are rendered on
-#    Windows (`*-win32.png`); a Linux runner has no baseline and its font rendering would
-#    differ from them anyway, so it stays a local check (never `--update-snapshots`).
-#  - the Playwright behaviour suites (`*.e2e.test.ts`): they drive a browser against the
-#    generated site, which needs Chromium and a preview server; they stay local for now.
+# Not run here, on purpose: the visual regression and Playwright behaviour suites,
+# which need Chromium and a preview server. They have their own workflow (ci-e2e.yml).
 on:
   pull_request:
     paths:
