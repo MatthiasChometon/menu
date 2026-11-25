@@ -7,6 +7,7 @@ export const useProfile = (): {
   profile: Ref<Profile | undefined>;
   isLoading: ComputedRef<boolean>;
   hasAnswered: ComputedRef<boolean>;
+  hasFailed: ComputedRef<boolean>;
   refresh: () => Promise<void>;
   save: (input: MeasurementsInput) => Promise<Profile | undefined>;
   /** Nudges the stored daily kcal target — what the weight coach's "adjust my
@@ -15,11 +16,17 @@ export const useProfile = (): {
 } => {
   // Same reasoning as the session: browser-only, so the prerender never calls
   // the API, and one shared request across the components that read it.
-  const { data, status, refresh } = useAsyncData(
+  const { data, status, error, refresh } = useAsyncData(
     'my-profile',
     async (): Promise<Profile | undefined> => {
-      const result = await GqlMyProfile().catch((): undefined => undefined);
-      return result?.myProfile ?? undefined;
+      try {
+        return (await GqlMyProfile()).myProfile ?? undefined;
+      } catch (failure) {
+        // Signed out is "no answers yet"; any other failure must not look like
+        // it, or the form would offer to overwrite answers it merely failed to read.
+        if (isUnauthenticated(failure)) return undefined;
+        throw failure;
+      }
     },
     { server: false, dedupe: 'defer' },
   );
@@ -42,6 +49,7 @@ export const useProfile = (): {
     profile: data,
     isLoading: computed((): boolean => status.value === 'pending'),
     hasAnswered: computed((): boolean => data.value !== undefined),
+    hasFailed: computed((): boolean => error.value !== undefined),
     refresh: async (): Promise<void> => {
       await refresh();
     },

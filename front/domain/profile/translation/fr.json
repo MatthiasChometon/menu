@@ -84,7 +84,8 @@
       "carbs": "Glucides",
       "fiber": "Fibres",
       "perDay": "par jour",
-      "goal": "Objectif"
+      "goal": "Objectif",
+      "previewFailed": "Tes repères n'ont pas pu être calculés."
     },
     "settings": {
       "title": "Mes réponses",
@@ -118,7 +119,10 @@
       "answersFor": "Les réponses de {name}",
       "kcalPerDay": "{kcal} kcal par jour",
       "full": "Ton foyer est complet.",
-      "error": "Ça n'a pas fonctionné. Réessayez."
-    }
+      "error": "Ça n'a pas fonctionné. Réessayez.",
+      "loadFailed": "Ton foyer n'a pas pu être chargé."
+    },
+    "loadFailed": "Tes réponses n'ont pas pu être chargées.",
+    "retry": "Réessayer"
   }
 }

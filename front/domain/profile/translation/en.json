@@ -84,7 +84,8 @@
       "carbs": "Carbs",
       "fiber": "Fibre",
       "perDay": "per day",
-      "goal": "Goal"
+      "goal": "Goal",
+      "previewFailed": "Your marks could not be worked out."
     },
     "settings": {
       "title": "My answers",
@@ -118,7 +119,10 @@
       "answersFor": "{name}’s answers",
       "kcalPerDay": "{kcal} kcal a day",
       "full": "Your household is full.",
-      "error": "That did not work. Try again."
-    }
+      "error": "That did not work. Try again.",
+      "loadFailed": "Your household could not be loaded."
+    },
+    "loadFailed": "Your answers could not be loaded.",
+    "retry": "Try again"
   }
 }

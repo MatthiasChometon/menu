@@ -13,6 +13,7 @@ const emit = defineEmits<{ saved: [] }>();
 const { t } = useNuxtApp().$i18n;
 const { goals, sexes, activities, trainingTypes, starchQualities, appetites } = useProfileChoices();
 const { save: saveMyProfile } = useProfile();
+const { hasFailed, run } = useAttempt();
 
 // Sensible middle-of-the-road answers, so nobody faces an empty form.
 const answers = reactive<MeasurementsInput>(
@@ -37,14 +38,17 @@ const currentStep = computed((): string => steps[stepIndex.value] ?? 'goal');
 
 // Previewed live from the answers so far, which is what makes the last step
 // feel like a result rather than a form submission.
-const { data: preview, refresh: refreshPreview } = useAsyncData(
+const {
+  data: preview,
+  error: previewError,
+  refresh: refreshPreview,
+} = useAsyncData(
   'targets-preview',
   async () => (await GqlNutritionTargets({ input: { ...answers } })).nutritionTargets,
   { server: false, immediate: false },
 );
 
 const isSaving = ref(false);
-const hasFailed = ref(false);
 
 const next = async (): Promise<void> => {
   if (isLast.value) return submit();
@@ -63,18 +67,13 @@ const back = (): void => {
 // without returning anything is still a destination that saved.
 const submit = async (): Promise<void> => {
   isSaving.value = true;
-  hasFailed.value = false;
-
   try {
-    await (saveAnswers ?? saveMyProfile)({ ...answers });
-  } catch {
-    hasFailed.value = true;
-    return;
+    await run(() => (saveAnswers ?? saveMyProfile)({ ...answers }));
   } finally {
     isSaving.value = false;
   }
 
-  emit('saved');
+  if (!hasFailed.value) emit('saved');
 };
 
 const summaryRows = computed((): { label: string; value: string }[] =>
@@ -217,12 +216,27 @@ const summaryRows = computed((): { label: string; value: string }[] =>
           <dd class="text-lg font-bold tabular-nums">{{ row.value }}</dd>
         </div>
       </dl>
+      <UAlert
+        v-else-if="previewError !== undefined"
+        role="alert"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="$t('profile.summary.previewFailed')"
+      >
+        <template #actions>
+          <UButton color="error" variant="subtle" @click="() => refreshPreview()">
+            {{ $t('profile.retry') }}
+          </UButton>
+        </template>
+      </UAlert>
       <div v-else class="grid gap-2">
         <USkeleton v-for="row in 5" :key="row" class="h-12 rounded-xl" />
       </div>
 
       <UAlert
         v-if="hasFailed"
+        role="alert"
         class="mt-4"
         color="error"
         variant="subtle"

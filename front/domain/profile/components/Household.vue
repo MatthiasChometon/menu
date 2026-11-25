@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import type { MeasurementsInput } from '#gql';
 
-const { members, isLoading, add, update, remove } = useHousehold();
+const {
+  members,
+  isLoading,
+  hasFailed: hasLoadFailed,
+  refresh,
+  add,
+  update,
+  remove,
+} = useHousehold();
+const { hasFailed, run } = useAttempt();
 
 // The same ceiling the API enforces. Repeated here so the button disappears
 // before somebody fills a form they are not allowed to save, not to be the
@@ -13,18 +22,15 @@ type Draft = { id?: string; name: string; answers?: MeasurementsInput };
 const draft = ref<Draft>();
 const isNaming = ref(true);
 const removing = ref<string>();
-const hasFailed = ref(false);
 
 const startAdding = (): void => {
   draft.value = { name: '' };
   isNaming.value = true;
-  hasFailed.value = false;
 };
 
 const startEditing = (member: Member): void => {
   draft.value = { id: member.id, name: member.name, answers: answersOfMember(member) };
   isNaming.value = true;
-  hasFailed.value = false;
 };
 
 const close = (): void => {
@@ -46,13 +52,7 @@ const saveAnswers = async (answers: MeasurementsInput): Promise<void> => {
 
 const confirmRemoval = async (id: string): Promise<void> => {
   removing.value = undefined;
-  hasFailed.value = false;
-
-  try {
-    await remove(id);
-  } catch {
-    hasFailed.value = true;
-  }
+  await run(() => remove(id));
 };
 </script>
 
@@ -65,6 +65,23 @@ const confirmRemoval = async (id: string): Promise<void> => {
       <USkeleton v-for="row in 2" :key="row" class="h-16 rounded-2xl" />
       <span class="sr-only">{{ $t('accessibility.loading') }}</span>
     </div>
+
+    <!-- Not an empty list: "you cook for yourself" would be a lie about people
+         who are merely not loaded, and adding one would look like the first. -->
+    <UAlert
+      v-else-if="hasLoadFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('profile.household.loadFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="refresh">
+          {{ $t('profile.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
 
     <!-- Filling somebody in takes over the section: the list underneath would
          only be a reminder of what is not being edited. -->
@@ -161,6 +178,7 @@ const confirmRemoval = async (id: string): Promise<void> => {
 
       <UAlert
         v-if="hasFailed"
+        role="alert"
         class="mb-4"
         color="error"
         variant="subtle"
