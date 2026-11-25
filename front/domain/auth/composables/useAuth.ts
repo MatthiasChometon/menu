@@ -20,16 +20,21 @@ export const useAuth = (): {
   const { data, status, refresh } = useAsyncData(
     'auth-me',
     async (): Promise<SignedInUser | undefined> => {
-      const answered = await Promise.race([
-        GqlMe().catch((): undefined => undefined),
-        new Promise<undefined>((resolve): void => {
-          setTimeout((): void => {
-            resolve(undefined);
-          }, timeoutMs);
-        }),
-      ]);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const deadline = new Promise<undefined>((resolve): void => {
+        timer = setTimeout((): void => {
+          resolve(undefined);
+        }, timeoutMs);
+      });
 
-      return answered?.me;
+      try {
+        const answered = await Promise.race([GqlMe().catch((): undefined => undefined), deadline]);
+
+        return answered?.me;
+      } finally {
+        // Answered in time: the deadline has nothing left to do.
+        clearTimeout(timer);
+      }
     },
     { server: false, dedupe: 'defer' },
   );
