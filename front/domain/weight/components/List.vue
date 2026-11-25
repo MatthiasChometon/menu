@@ -5,6 +5,7 @@
 const { entries, update, remove, errorOf, bounds, todayDate } = useWeightLog();
 const { t, locale } = useNuxtApp().$i18n;
 const { dayLabelOf } = useWeightDates();
+const { hasFailed: hasRemovalFailed, run: runRemoval } = useAttempt();
 
 type Draft = { date: string; kg: number };
 
@@ -51,7 +52,7 @@ const confirmRemoval = async (id: string): Promise<void> => {
   removingId.value = undefined;
   isRemoving.value = true;
   try {
-    await remove(id);
+    await runRemoval(() => remove(id));
   } finally {
     isRemoving.value = false;
   }
@@ -92,6 +93,15 @@ const rows = computed((): Row[] =>
 
 <template>
   <ul class="grid gap-2">
+    <li v-if="hasRemovalFailed">
+      <UAlert
+        role="alert"
+        color="error"
+        variant="subtle"
+        icon="i-lucide-triangle-alert"
+        :title="$t('weight.log.removeFailed')"
+      />
+    </li>
     <li
       v-for="row in rows"
       :key="row.entry.id"
@@ -129,6 +139,7 @@ const rows = computed((): Row[] =>
 
         <UAlert
           v-if="editError"
+          role="alert"
           class="sm:col-span-4"
           color="error"
           variant="subtle"

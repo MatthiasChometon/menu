@@ -16,7 +16,7 @@ const date = ref(todayDate);
 const kg = ref<number | undefined>(defaultKg);
 const error = ref<string>();
 const isSaving = ref(false);
-const saveFailed = ref(false);
+const { hasFailed: saveFailed, run } = useAttempt();
 const justSaved = ref(false);
 const root = useTemplateRef<HTMLElement>('root');
 
@@ -42,15 +42,12 @@ const submit = async (): Promise<void> => {
   if (validation !== undefined) return;
 
   isSaving.value = true;
-  saveFailed.value = false;
   try {
-    await add(draft);
-  } catch {
-    saveFailed.value = true;
-    return;
+    await run(() => add(draft));
   } finally {
     isSaving.value = false;
   }
+  if (saveFailed.value) return;
 
   date.value = todayDate;
 
@@ -113,6 +110,7 @@ const submit = async (): Promise<void> => {
     />
     <UAlert
       v-if="saveFailed"
+      role="alert"
       class="mt-4"
       color="error"
       variant="subtle"

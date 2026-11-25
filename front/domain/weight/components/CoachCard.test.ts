@@ -139,6 +139,6 @@ describe('the coach card', () => {
     const wrapper = await mountSuspended(CoachCard);
     await wrapper.find('button').trigger('click');
 
-    expect(wrapper.text()).toContain("n'a pas fonctionné");
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas fonctionné");
   });
 });

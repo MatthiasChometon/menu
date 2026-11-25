@@ -24,7 +24,16 @@ export const useWeightLog = (): {
   // from "nothing logged yet" instead of the two looking identical.
   const { data, status, error, refresh } = useAsyncData(
     'weight-entries',
-    async (): Promise<WeightEntry[]> => (await GqlMyWeightEntries()).myWeightEntries,
+    async (): Promise<WeightEntry[]> => {
+      try {
+        return (await GqlMyWeightEntries()).myWeightEntries;
+      } catch (failure) {
+        // Signed out means no diary yet, not a broken one; anything else stays
+        // an error so it is never read as an empty diary.
+        if (isUnauthenticated(failure)) return [];
+        throw failure;
+      }
+    },
     { server: false, dedupe: 'defer', default: (): WeightEntry[] => [] },
   );
 

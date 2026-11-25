@@ -18,7 +18,7 @@ const canAdjust = computed(
 );
 
 const isAdjusting = ref(false);
-const adjustFailed = ref(false);
+const { hasFailed: adjustFailed, run } = useAttempt();
 const justAdjusted = ref(false);
 
 // Never applied silently: this only ever runs from the explicit click below,
@@ -28,7 +28,6 @@ watch(
   (): CoachStatus => advice.value.status,
   (): void => {
     justAdjusted.value = false;
-    adjustFailed.value = false;
   },
 );
 
@@ -37,12 +36,9 @@ const applyAdjustment = async (): Promise<void> => {
   if (delta === undefined) return;
 
   isAdjusting.value = true;
-  adjustFailed.value = false;
   try {
-    await adjustTargets(delta);
-    justAdjusted.value = true;
-  } catch {
-    adjustFailed.value = true;
+    await run(() => adjustTargets(delta));
+    justAdjusted.value = !adjustFailed.value;
   } finally {
     isAdjusting.value = false;
   }

@@ -1,4 +1,5 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Form from './Form.vue';
 
@@ -22,12 +23,24 @@ mockNuxtImport(
 
 beforeEach(async () => {
   await useNuxtApp().$i18n.setLocale('fr');
-  add.mockClear();
+  add.mockReset();
   errorOf.mockClear();
   errorOf.mockReturnValue(undefined);
 });
 
 describe('the weigh-in form', () => {
+  it('says so, in an alert, when the weigh-in could not be saved', async () => {
+    add.mockRejectedValue(new Error('offline'));
+
+    const wrapper = await mountSuspended(Form);
+    await wrapper.find('input[type="number"]').setValue(82.4);
+    await wrapper.find('button').trigger('click');
+    await flushPromises();
+
+    expect(wrapper.find('[role="alert"]').text()).toContain("n'a pas fonctionné");
+    expect(wrapper.emitted('saved')).toBeUndefined();
+  });
+
   it('defaults the date to today and the weight to the value handed to it', async () => {
     const wrapper = await mountSuspended(Form, { props: { defaultKg: 78.5 } });
 

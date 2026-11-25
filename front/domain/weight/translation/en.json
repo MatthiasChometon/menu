@@ -27,7 +27,8 @@
         "date": "That date is not valid.",
         "future": "A weigh-in cannot be logged in the future.",
         "range": "That weight looks out of range. Check the value you typed."
-      }
+      },
+      "removeFailed": "Removing did not work. Please try again."
     },
     "empty": {
       "title": "No weigh-in yet",
