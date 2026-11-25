@@ -24,6 +24,11 @@ const PHOTO_STUB = Buffer.from(
   'base64',
 );
 
+// The rolling week starts today, so every page reads differently each day it is
+// captured. The baselines were taken on the 19th of September 2026: the clock is
+// held there, and the screenshots stop ageing with the calendar.
+const FROZEN_NOW = new Date('2026-09-19T10:00:00+02:00');
+
 for (const { name, path } of PAGES) {
   for (const colorScheme of ['light', 'dark'] as const) {
     test(`${name} page in ${colorScheme}`, async ({ page }) => {
@@ -34,6 +39,7 @@ for (const { name, path } of PAGES) {
         }
         return route.continue();
       });
+      await page.clock.setFixedTime(FROZEN_NOW);
       await page.goto(path);
 
       // The week view opens the current day client-side; waiting on a heading
@@ -47,6 +53,7 @@ for (const { name, path } of PAGES) {
       // Fonts are self-hosted, so this settles at once; it keeps type from being
       // captured mid-swap now that we no longer wait on the network as a whole.
       await page.evaluate(() => document.fonts.ready);
+      await page.waitForLoadState('networkidle');
 
       // Photographs are masked out rather than waited for (they are stubbed
       // above): what this suite is for is the layout around them, which holds.
