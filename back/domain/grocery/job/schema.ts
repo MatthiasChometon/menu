@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { index, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, integer, jsonb, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { groceryDevice } from '../device/schema';
 import { user } from '../../user/schema';
 import { GroceryJobEventKind, GroceryJobStatus } from '../enum';
@@ -21,6 +21,11 @@ export const groceryJob = pgTable(
     // profile answers already are.
     status: text('status').$type<GroceryJobStatus>().notNull(),
     deviceId: uuid('device_id').references(() => groceryDevice.id, { onDelete: 'set null' }),
+    // The key the browser sent when it claimed the run: asking again with the
+    // same key (a retry after a lost answer) gives back this run instead of
+    // taking the next one. Unique per browser, so two racing retries cannot
+    // both take a run under one key.
+    claimKey: uuid('claim_key'),
     // Copied from the preferences when the job is created: what the run was told
     // to warn above, not what the account happens to want today.
     alertThresholdCents: integer('alert_threshold_cents'),
@@ -39,6 +44,7 @@ export const groceryJob = pgTable(
     // The claim and the history both start from one account's runs.
     index('grocery_job_user_status_created_idx').on(table.userId, table.status, table.createdAt),
     index('grocery_job_device_idx').on(table.deviceId),
+    unique('grocery_job_device_claim_key_unique').on(table.deviceId, table.claimKey),
   ],
 );
 

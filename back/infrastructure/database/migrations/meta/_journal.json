@@ -120,6 +120,13 @@
       "when": 1795542970179,
       "tag": "0016_previous_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795614541878,
+      "tag": "0017_magenta_gideon",
+      "breakpoints": true
     }
   ]
 }

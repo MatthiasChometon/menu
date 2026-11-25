@@ -275,6 +275,11 @@ type GroceryJobEvent {
 """What a run reports as it works."""
 input GroceryJobEventInput {
   detail: String
+
+  """
+  Chosen by the browser, one per event. Sending the same one again (a retry after a lost answer) returns the event already recorded instead of adding a second.
+  """
+  eventId: ID
   foodId: String
   kind: GroceryJobEventKind!
   label: String
@@ -483,7 +488,12 @@ type Mutation {
   """
   Takes the oldest waiting run of the account this browser is paired with.
   """
-  claimGroceryJob: GroceryJob
+  claimGroceryJob(
+    """
+    Chosen by the browser, one per attempt. Asking again with the same key (a retry after a lost answer) returns the run already taken instead of taking the next one.
+    """
+    claimKey: ID
+  ): GroceryJob
   createCustomFood(input: CustomFoodInput!): CustomFood!
   createCustomRecipe(input: CustomRecipeInput!): CustomRecipe!
 

@@ -52,8 +52,19 @@ export class GroceryJobResolver {
   @UseGuards(GroceryDeviceGuard)
   async claimGroceryJob(
     @CurrentDevice() device: AuthenticatedDevice,
+    @Args(
+      'claimKey',
+      {
+        type: () => ID,
+        nullable: true,
+        description:
+          'Chosen by the browser, one per attempt. Asking again with the same key (a retry after a lost answer) returns the run already taken instead of taking the next one.',
+      },
+      new ParseUUIDPipe({ optional: true }),
+    )
+    claimKey?: string | null,
   ): Promise<GroceryJob | undefined> {
-    return this.grocery.claim(device.userId, device.id);
+    return this.grocery.claim(device.userId, device.id, claimKey ?? undefined);
   }
 
   @Mutation(() => GroceryJobEvent, { description: 'Reports progress on a run being worked on.' })

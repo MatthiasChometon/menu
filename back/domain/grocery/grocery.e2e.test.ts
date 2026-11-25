@@ -1234,3 +1234,210 @@ describe('refusing a list of foods that cannot be one', () => {
     expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
   });
 });
+
+describe('retrying a call whose answer was lost', () => {
+  const CLAIM_WITH_KEY = `
+    mutation ($claimKey: ID) {
+      claimGroceryJob(claimKey: $claimKey) { id status }
+    }
+  `;
+
+  const REPORT_WITH_ID = `
+    mutation ($jobId: ID!, $input: GroceryJobEventInput!) {
+      reportGroceryJobEvent(jobId: $jobId, input: $input) { id kind }
+    }
+  `;
+
+  const claimWith = (
+    token: string,
+    claimKey: string,
+  ): Promise<
+    GraphqlResponse<{
+      claimGroceryJob: { id: string; status: string } | null;
+    }>
+  > =>
+    api.graphql<{ claimGroceryJob: { id: string; status: string } | null }>(
+      CLAIM_WITH_KEY,
+      { claimKey },
+      undefined,
+      asDevice(token),
+    );
+
+  const reportWith = (
+    token: string,
+    jobId: string,
+    eventId: string,
+  ): Promise<GraphqlResponse<{ reportGroceryJobEvent: { id: string; kind: string } }>> =>
+    api.graphql<{ reportGroceryJobEvent: { id: string; kind: string } }>(
+      REPORT_WITH_ID,
+      { jobId, input: { kind: 'LINE_ADDED', foodId: 'brownRice', eventId } },
+      undefined,
+      asDevice(token),
+    );
+
+  const eventsOf = async (cookie: string, jobId: string): Promise<unknown[]> => {
+    const followed = await api.graphql<{ groceryJob: { events: unknown[] } }>(
+      JOB,
+      { jobId },
+      cookie,
+    );
+
+    return expectPresent(followed.data, 'the run').groceryJob.events;
+  };
+
+  const startRun = async (cookie: string): Promise<{ token: string; jobId: string }> => {
+    const token = await pair(cookie, 'Desktop');
+    const queued = await queueJob(cookie);
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    return { token, jobId: queued.id };
+  };
+
+  const KEY = '8d3b0f0e-6a53-4a39-9a61-1f7f6f0f6a01';
+  const OTHER_KEY = '8d3b0f0e-6a53-4a39-9a61-1f7f6f0f6a02';
+
+  it('hands back the run already taken when a claim is asked again with the same key', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const first = await queueJob(cookie, undefined, '2026-08-24');
+    await queueJob(cookie, undefined, '2026-08-31');
+
+    const claimed = await claimWith(token, KEY);
+    const retried = await claimWith(token, KEY);
+
+    expect(claimed.data?.claimGroceryJob?.id).toBe(first.id);
+    expect(retried.data?.claimGroceryJob).toEqual({ id: first.id, status: 'RUNNING' });
+  });
+
+  it('takes the next run when the key is a new one', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+    const first = await queueJob(cookie, undefined, '2026-08-24');
+    const second = await queueJob(cookie, undefined, '2026-08-31');
+
+    await claimWith(token, KEY);
+    const next = await claimWith(token, OTHER_KEY);
+
+    expect(next.data?.claimGroceryJob?.id).toBe(second.id);
+    expect(next.data?.claimGroceryJob?.id).not.toBe(first.id);
+  });
+
+  it('never hands a run to a browser that did not take it, whatever key it sends', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const mine = await pair(cookie, 'Desktop');
+    const other = await pair(cookie, 'Laptop');
+    await queueJob(cookie);
+    await claimWith(mine, KEY);
+
+    const stolen = await claimWith(other, KEY);
+
+    expect(stolen.data?.claimGroceryJob).toBeNull();
+  });
+
+  it('records one event when a report is asked again with the same event id', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b01';
+
+    const first = await reportWith(token, jobId, eventId);
+    const retried = await reportWith(token, jobId, eventId);
+
+    expect(retried.data?.reportGroceryJobEvent).toEqual(first.data?.reportGroceryJobEvent);
+    expect(await eventsOf(cookie, jobId)).toHaveLength(1);
+  });
+
+  it('answers a retried report with the recorded event even when the run has closed since', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b02';
+    const first = await reportWith(token, jobId, eventId);
+    await api.graphql(
+      FINISH_JOB,
+      { jobId, input: { outcome: 'SUCCEEDED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    const retried = await reportWith(token, jobId, eventId);
+
+    expect(retried.errors).toBeUndefined();
+    expect(retried.data?.reportGroceryJobEvent).toEqual(first.data?.reportGroceryJobEvent);
+  });
+
+  it('refuses a new event once the run is closed, key or no key', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    await api.graphql(
+      FINISH_JOB,
+      { jobId, input: { outcome: 'SUCCEEDED' } },
+      undefined,
+      asDevice(token),
+    );
+
+    const late = await reportWith(token, jobId, '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b03');
+
+    expect(late.errors?.[0]?.extensions?.code).toBe('NOT_FOUND');
+  });
+
+  it('does not let an event id recorded on one run answer for another run', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b04';
+    await reportWith(token, jobId, eventId);
+    await api.graphql(
+      FINISH_JOB,
+      { jobId, input: { outcome: 'SUCCEEDED' } },
+      undefined,
+      asDevice(token),
+    );
+    const second = await queueJob(cookie, undefined, '2026-08-31');
+    await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
+
+    const reused = await reportWith(token, second.id, eventId);
+
+    expect(reused.errors?.[0]?.extensions?.code).toBe('NOT_FOUND');
+    expect(await eventsOf(cookie, second.id)).toHaveLength(0);
+  });
+
+  it.each([
+    ['a claim key', (token: string): Promise<GraphqlResponse<unknown>> => claimWith(token, 'nope')],
+    [
+      'an event id',
+      (token: string): Promise<GraphqlResponse<unknown>> =>
+        reportWith(token, '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b05', 'nope'),
+    ],
+  ])('turns down %s that is not a UUID before touching the database', async (_name, send) => {
+    const cookie = await signIn('matthias@example.com');
+    const token = await pair(cookie, 'Desktop');
+
+    const response = await send(token);
+
+    expect(response.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
+  });
+
+  it('closes a run once when the close is asked again after a lost answer', async () => {
+    const cookie = await signIn('matthias@example.com');
+    const { token, jobId } = await startRun(cookie);
+    const close = (): Promise<GraphqlResponse<{ finishGroceryJob: { status: string } }>> =>
+      api.graphql<{ finishGroceryJob: { status: string } }>(
+        FINISH_JOB,
+        { jobId, input: { outcome: 'SUCCEEDED', productsCents: 8450 } },
+        undefined,
+        asDevice(token),
+      );
+
+    await close();
+    const retried = await close();
+    await api.settled();
+
+    expect(retried.data?.finishGroceryJob).toMatchObject({ status: 'SUCCEEDED' });
+    expect(
+      api
+        .mails()
+        .filter(
+          (mail): boolean =>
+            mail.to === 'matthias@example.com' && !/token=[a-f0-9]{64}/.test(mail.text),
+        ),
+    ).toHaveLength(1);
+  });
+});
