@@ -13,7 +13,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const { reportError } = useErrorReporting();
 
   const interceptors = createApiInterceptors({
-    report: reportError,
+    report: (context, error, source): void => reportError(context, error, source),
     expireSession: (): void => announceSessionExpiry(nuxtApp, reportError),
   });
 
@@ -22,6 +22,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   const api = $fetch.create({
     baseURL: config.public.apiBase,
     credentials: 'include',
+    // The retry ofetch makes by itself (a read, once) gets a jittered wait: every
+    // tab that failed together would otherwise come back in the same instant.
+    retryDelay: (): number =>
+      backoffDelay(0, { baseDelayMs: 600, maxDelayMs: 2000, random: Math.random }),
     ...interceptors,
   });
 

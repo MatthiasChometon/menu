@@ -68,7 +68,7 @@ describe('a failed REST call', () => {
 
     onRequestError({ request: '/grocery/jobs', error: cause });
 
-    expect(report).toHaveBeenCalledExactlyOnceWith('api:network /grocery/jobs', cause);
+    expect(report).toHaveBeenCalledExactlyOnceWith('api:network /grocery/jobs', cause, cause);
   });
 
   it('does not report a request the reader cancelled', () => {
@@ -77,5 +77,39 @@ describe('a failed REST call', () => {
     onRequestError({ request: '/grocery/jobs', error: new DOMException('stop', 'AbortError') });
 
     expect(report).not.toHaveBeenCalled();
+  });
+});
+
+describe('a call that is about to be retried', () => {
+  it('is not reported yet: only the attempt that fails for good is', () => {
+    const { onResponseError, report } = setup();
+
+    onResponseError({ request: '/recipes', options: { method: 'GET' }, response: { status: 503 } });
+
+    expect(report).not.toHaveBeenCalled();
+  });
+
+  it('is reported when no retry is left', () => {
+    const { onResponseError, report } = setup();
+
+    onResponseError({
+      request: '/recipes',
+      options: { method: 'GET', retry: 0 },
+      response: { status: 503 },
+    });
+
+    expect(report).toHaveBeenCalledOnce();
+  });
+
+  it('is reported at once for a write, which is never retried', () => {
+    const { onResponseError, report } = setup();
+
+    onResponseError({
+      request: '/recipes',
+      options: { method: 'POST' },
+      response: { status: 503 },
+    });
+
+    expect(report).toHaveBeenCalledOnce();
   });
 });

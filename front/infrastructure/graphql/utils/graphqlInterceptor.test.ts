@@ -40,7 +40,7 @@ describe('a failed GraphQL operation', () => {
   it('reports a call that got no answer, once, under the operation name', () => {
     const { report, expireSession, full } = handle({});
 
-    expect(report).toHaveBeenCalledExactlyOnceWith('graphql:MyGroceryDevices', full);
+    expect(report).toHaveBeenCalledExactlyOnceWith('graphql:MyGroceryDevices', full, full);
     expect(expireSession).not.toHaveBeenCalled();
   });
 

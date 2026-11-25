@@ -28,6 +28,6 @@ export const handleGraphqlFailure = (
     hasCode(failure, 'INTERNAL_SERVER_ERROR');
 
   if (hasNoAnswer || isServerFault) {
-    report(`graphql:${failure.operationName}`, failure);
+    report(`graphql:${failure.operationName}`, failure, failure);
   }
 };
