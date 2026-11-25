@@ -37,10 +37,7 @@ export class GoogleController {
   ) {}
 
   @Get()
-  start(
-    @Query('redirect') redirect: unknown,
-    @Res() reply: FastifyReply,
-  ): void {
+  start(@Query('redirect') redirect: unknown, @Res() reply: FastifyReply): void {
     // Whatever is not a short path of the site's own (another site, an array,
     // an overlong value) is dropped rather than refused: signing in still works,
     // it just lands on the default page.
