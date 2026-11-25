@@ -67,9 +67,11 @@ export const usePlannerSaving = (
   );
 
   // Only what belongs to an account can be stored on one, and only a week that
-  // changed is worth writing.
+  // changed is worth writing. Never while the stored week could not be read:
+  // what is on screen would overwrite one nobody has seen.
   const canSave = computed(
-    (): boolean => user.value !== undefined && plannerWeek.value !== '' && isDirty.value,
+    (): boolean =>
+      user.value !== undefined && plannerWeek.value !== '' && isDirty.value && !loadFailed.value,
   );
 
   const save = async (): Promise<void> => {

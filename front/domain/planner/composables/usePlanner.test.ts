@@ -234,6 +234,20 @@ describe('reading a week back from the account', () => {
     expect(reportError).toHaveBeenCalledWith('planner:load', cause);
   });
 
+  it('does not save while the week could not be read', async () => {
+    load.mockRejectedValue(new Error('offline'));
+    persist.mockResolvedValue('2026-09-07T10:00:00Z');
+    selectEveryGroup();
+    const { spread, loadFromAccount, canSave, save } = usePlanner();
+    spread();
+
+    await loadFromAccount();
+    await save();
+
+    expect(canSave.value).toBe(false);
+    expect(persist).not.toHaveBeenCalled();
+  });
+
   it('reads the week on a retry and clears the failure', async () => {
     load.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(stored());
     const { loadFromAccount, loadFailed, plan } = usePlanner();
