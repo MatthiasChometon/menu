@@ -50,6 +50,19 @@ const WEEK_DAYS = [
   'SUNDAY',
 ] as const;
 
+// What each list the pages read holds when nobody has anything saved yet.
+const EMPTY_READS: Record<string, unknown> = {
+  householdMembers: [],
+  myWeightEntries: [],
+  myCustomFoods: [],
+  myCustomRecipes: [],
+  improvementRequests: [],
+  bugReports: [],
+  myGroceryDevices: [],
+  myGrocerySlotWindows: [],
+  groceryPushKey: null,
+};
+
 const simuleSession = async (page: import('@playwright/test').Page): Promise<void> => {
   await page.route('**/graphql', async (route): Promise<void> => {
     const corps = route.request().postDataJSON() as {
@@ -77,7 +90,16 @@ const simuleSession = async (page: import('@playwright/test').Page): Promise<voi
         },
       });
 
-    return route.fulfill({ json: { data: {} } });
+    // Every other read answers what the schema promises for "nothing yet": the
+    // app treats a reply without its field as a broken one, so an empty object
+    // would not stand for an empty list.
+    const operation = /querys+(w+)/.exec(requete)?.[1] ?? '';
+    if (operation in EMPTY_READS)
+      return route.fulfill({ json: { data: { [operation]: EMPTY_READS[operation] } } });
+
+    return route.fulfill({
+      json: { errors: [{ message: `Not stubbed by the test: ${operation || requete}` }] },
+    });
   });
 };
 

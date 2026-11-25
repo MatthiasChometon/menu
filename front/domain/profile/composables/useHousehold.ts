@@ -26,10 +26,15 @@ export const useHousehold = (): {
     'household-members',
     async (): Promise<Member[]> => {
       try {
-        // An answer without the list (a partial reply) is an empty household.
-        const result: Partial<HouseholdMembersQuery> = await GqlHouseholdMembers();
+        const { householdMembers } = await GqlHouseholdMembers();
 
-        return result.householdMembers ?? [];
+        // The schema promises a list. A reply without one is a broken answer, and
+        // reading it as an empty household would hide that.
+        if (!Array.isArray(householdMembers)) {
+          throw new TypeError('The household reply carries no member list.');
+        }
+
+        return householdMembers;
       } catch (failure) {
         if (isUnauthenticated(failure)) return [];
         throw failure;

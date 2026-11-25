@@ -34,12 +34,12 @@ describe('useHousehold', () => {
     expect(hasFailed.value).toBe(true);
   });
 
-  it('treats a reply without the list as an empty household, regression guard, because the e2e API stub answers "data: {}" and the page crashed on undefined.map', async () => {
+  it('says the household could not be loaded when the reply carries no list, instead of reading it as empty', async () => {
     householdMembers.mockResolvedValue({});
     const { members, hasFailed } = useHousehold();
     await settle();
 
     expect(members.value).toEqual([]);
-    expect(hasFailed.value).toBe(false);
+    expect(hasFailed.value).toBe(true);
   });
 });
