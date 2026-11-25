@@ -19,7 +19,7 @@ export const useComposedMenu = (): {
 } => {
   const { load } = useWeekPlanStore();
   const { recipeOf } = useRecipes();
-  const { foodOf } = useFoods();
+  const { quantitiesOf } = useRecipeQuantities();
   const { macrosOfQuantities } = useNutrition();
   const { summarizeDays } = useMenuBuilder();
   const { solve } = useMacroSolver();
@@ -33,12 +33,7 @@ export const useComposedMenu = (): {
     const recipe = recipeOf(recipeId);
     if (recipe === undefined) return [];
 
-    return Object.entries(recipe.ingredients)
-      .map(([id, grams]): FoodQuantity | undefined => {
-        const food = foodOf(id);
-        return food === undefined ? undefined : { food, grams };
-      })
-      .filter((quantity): quantity is FoodQuantity => quantity !== undefined);
+    return quantitiesOf(recipe);
   };
 
   // One day of a composition, solved across all its meals at once: the targets
