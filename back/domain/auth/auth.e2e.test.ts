@@ -507,7 +507,7 @@ describe('signing in with Google', () => {
     expect(String(response.headers.location)).toBe('http://localhost:3777');
   });
 
-  it('ignores a redirect added to the state by hand, since it no longer matches the cookie', async () => {
+  it('guard: refuses a redirect added to the state by hand, since it no longer matches the cookie (the unit test in redirect.test.ts is the proof of the property)', async () => {
     const started = await api.get('/auth/google?redirect=%2Fprofil');
     const state = started.cookies.find((cookie): boolean => cookie.name === 'oauth_state')?.value;
     const forged = `${String(state).split('.')[0]}.${Buffer.from('/elsewhere').toString('base64url')}`;

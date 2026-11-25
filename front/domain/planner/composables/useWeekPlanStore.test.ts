@@ -16,6 +16,18 @@ describe('turning a week into what the API stores', () => {
     ]);
   });
 
+  it('refuses to save a day it does not know instead of sending it as another one', () => {
+    const days: Record<string, Record<string, string>> = { funday: { lunch: 'a' } };
+
+    expect(() => toInput({ weekOf: '2026-09-07', days })).toThrow('Unknown day');
+  });
+
+  it('refuses to save a meal slot it does not know instead of sending it as another one', () => {
+    const days: Record<string, Record<string, string>> = { monday: { brunch: 'a' } };
+
+    expect(() => toInput({ weekOf: '2026-09-07', days })).toThrow('Unknown meal slot');
+  });
+
   it('sends nothing for a week with no day at all', () => {
     expect(toInput({ weekOf: '2026-09-07', days: {} }).days).toEqual([]);
   });
