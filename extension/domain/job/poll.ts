@@ -4,7 +4,9 @@ export const POLL_MINUTES = 5;
 // Browsers installed together would claim in step, so each run starts a little
 // after its alarm. The alarm itself stays one periodic alarm: it cannot be lost
 // by a failing run, which a chain of one-shot alarms would.
-export const POLL_JITTER_MS = 20_000;
+// Kept to a few seconds: an MV3 service worker is stopped after ~30 s idle, and a
+// long sleep inside the run could be cut off before the work starts.
+export const POLL_JITTER_MS = 5_000;
 
 type Alarms = {
   get: (name: string) => Promise<unknown>;
