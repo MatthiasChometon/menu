@@ -9,9 +9,8 @@ name: CI e2e
 # updated during the refactor campaign. A Linux runner has none, so the first runs use
 # `--update-snapshots=missing`: a screenshot without a baseline is written (Playwright
 # still reports it as failed, so the visual step does not gate), one that has a baseline
-# is compared. The written `*-linux.png` files
-# are uploaded as the `linux-baselines` artifact, to be reviewed by eye and committed by
-# a person. Until they are, the visual part of this run only proves that every page
+# is compared. The written `*-linux.png` files are uploaded as the `linux-baselines`
+# artifact, to be reviewed by eye and committed by a person. Until they are, the visual part of this run only proves that every page
 # renders; the behaviour tests are real assertions from the first run.
 #
 # Pages that show a date (the batch page) must not depend on the clock to be stable on

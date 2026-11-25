@@ -70,7 +70,7 @@ describe('reporting an event', () => {
   it('names the event, and keeps the name across a retry', async () => {
     const client = clientOn([503]);
 
-    await client.report('job-1', { kind: 'LINE_ADDED', foodId: 'rice' } as never);
+    await client.report('job-1', { kind: 'LINE_ADDED', foodId: 'rice' });
 
     const names = client.sent.map(
       (call): unknown => (call.variables.input as { eventId: unknown }).eventId,

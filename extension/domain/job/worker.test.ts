@@ -15,7 +15,7 @@ const FILLED: FillResult = {
   shortOfMinimum: 0,
   missing: [],
   sightings: [],
-} as never;
+};
 
 const NO_WAIT = { sleep: (): Promise<void> => Promise.resolve() };
 

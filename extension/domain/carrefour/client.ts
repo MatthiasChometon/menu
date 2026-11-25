@@ -176,27 +176,32 @@ export const createCarrefourClient = (): ShopClient => {
     );
   };
 
-  // One attempt only, and not through the retry helper. The shop is a third
-  // party: no idempotency key can be sent for it to check, and the engine itself
-  // records that it cannot tell whether `counter` is an amount or an increment
-  // (see `settle`: it reads the cart back and corrects). If it is an increment,
-  // a retry after a lost answer adds the quantity twice. A failure ends the run
-  // as FAILED, and a new run empties the basket first, so nothing is left behind.
+  // One attempt only: `maxAttempts: 1` keeps the helper's deadline, so a stalled
+  // shop cannot hold the run, without a retry. The shop is a third party: no
+  // idempotency key can be sent for it to check, and the engine itself records
+  // that it cannot tell whether `counter` is an amount or an increment (see
+  // `settle`: it reads the cart back and corrects). If it is an increment, a
+  // retry after a lost answer adds the quantity twice. A failure ends the run as
+  // FAILED, and a new run empties the basket first, so nothing is left behind.
   const put = async (items: { ean: string; counter: number }[]): Promise<Cart> => {
     const response = expectOk(
-      await fetch('/api/cart', {
-        method: 'PATCH',
-        headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
-        body: JSON.stringify({
-          trackingRequest: { pageType: 'search', pageId: 'search' },
-          items: items.map((item) => ({
-            basketServiceId: serviceId,
-            counter: item.counter,
-            ean: item.ean,
-            subBasketType,
-          })),
-        }),
-      }),
+      await fetchWithRetry(
+        '/api/cart',
+        {
+          method: 'PATCH',
+          headers: { ...JSON_HEADERS, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            trackingRequest: { pageType: 'search', pageId: 'search' },
+            items: items.map((item) => ({
+              basketServiceId: serviceId,
+              counter: item.counter,
+              ean: item.ean,
+              subBasketType,
+            })),
+          }),
+        },
+        { maxAttempts: 1 },
+      ),
       'the quantities',
     );
 

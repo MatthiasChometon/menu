@@ -4,9 +4,6 @@ import { logFailure } from '../../infrastructure/logging/failure';
 import { createMenuClient, type MenuClient } from './client';
 import type { JobOutcome, QueuedJob } from './type';
 
-// The background's job cycle, revealed as two operations over a private closure:
-// claim-and-fill on a schedule, and relay the Carrefour session state. Everything
-// else — the shop tab, the notification wording, the progress relay — stays inside.
 type Progress = { kind: 'progress'; event: ReportedEvent };
 
 const isProgress = (message: unknown): message is Progress =>
@@ -16,6 +13,9 @@ const isProgress = (message: unknown): message is Progress =>
   message.kind === 'progress' &&
   'event' in message;
 
+// The background's job cycle, revealed as two operations over a private closure:
+// claim-and-fill on a schedule, and relay the Carrefour session state. Everything
+// else — the shop tab, the notification wording, the progress relay — stays inside.
 export const createGroceryWorker = (
   retry: Partial<RetryOptions> = {},
 ): {
