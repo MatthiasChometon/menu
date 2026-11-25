@@ -11,12 +11,12 @@ Started 2026-11-24. Re-read this file before every step; tick a box only once it
 
 - **D1 — Branches.** Campaign branch `refactor/socle` (from `main` 2a479ca). Every lot is a
   branch `refactor/socle-<lot>` and a PR into `refactor/socle`, squash-merged after review.
-  The final PR `refactor/socle` → `main` stays **open for Matthias**: merging into `main`
-  deploys (back cron on o2switch, front via `deploy-front.yml`).
+  The final PR `refactor/socle` → `main` stays **open for the maintainer**: merging into `main`
+  deploys (back cron on the shared host, front via `deploy-front.yml`).
 - **D2 — Behaviour.** Refactor only. The GraphQL contract (`schema.gql`) changes only when a
   rule requires it (error codes, bounded arguments), and the front is updated in the same lot.
   Visual baselines are **never** updated: a visual diff is a regression to fix, or a question
-  written in the journal for Matthias.
+  written in the journal for the maintainer.
 - **D3 — Review loop.** Implementer (one agent, its lot only) → picky reviewer (separate
   agent, comments on the PR with numbered findings) → implementer fixes → reviewer re-reviews
   until LGTM → I read the diff, check CI and run the checks, then merge.
@@ -38,7 +38,7 @@ Started 2026-11-24. Re-read this file before every step; tick a box only once it
 - **D11 — `timestamp` → `timestamptz`** is not done inside slice lots: a generated
   `SET DATA TYPE timestamptz` has no `USING ... AT TIME ZONE 'UTC'` and would shift production
   data by the server time zone. Slice lots list their timestamp columns in the journal; one
-  dedicated migration (generated, then checked against prod data with Matthias) does them all.
+  dedicated migration (generated, then checked against prod data with the maintainer) does them all.
 
 ## Lots
 
@@ -78,7 +78,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [ ] M11 — impl · review · ci · ok · merged; also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
 - [ ] M13 — impl · review · ci · ok · merged
 - [ ] M12 — impl · review · ci · ok · merged; also from M14: mail and push sends retried with an idempotency key, or recorded as not needed (duplicate acceptable)
-- [ ] Final PR `refactor/socle` → `main` opened, left for Matthias
+- [ ] Final PR `refactor/socle` → `main` opened, left for the maintainer
 
 ## Journal
 
@@ -95,7 +95,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   repositories), `exactOptionalPropertyTypes` (10 errors),
   `@typescript-eslint/no-unnecessary-condition` (~35 errors), `no-non-null-assertion` (7),
   `consistent-type-definitions` (fastify module augmentation in domain needs `interface`).
-  Candidate for deletion, not touched (prod is o2switch): `back/render.yaml`.
+  Candidate for deletion, not touched (prod is the shared host): `back/render.yaml`.
   M1 review: `pnpm audit --prod` reports 56 vulnerabilities (27 high, mostly transitive through
   fastify and apollo), so it is not wired into CI yet: needs a dependency-upgrade lot first. The
   prod image keeps the full `node_modules` on purpose: `drizzle-kit` (a dev dependency) runs the
@@ -103,7 +103,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   deletion candidate with `back/render.yaml`. `ops/deploy.sh` does not poll `/health` after the
   restart: the cron has no public API origin to poll and a new curl step must not be able to break it.
 - 2026-11-24 — M1 merged (PR #2): 3 review rounds, 19 findings (4 blockers: env snapshot broke e2e,
-  exponential fragment depth, Fastify 4xx turned into 500, proxy chain). Open for Matthias after the
+  exponential fragment depth, Fastify 4xx turned into 500, proxy chain). Open for the maintainer after the
   final merge: check on the real server that a spoofed `X-Forwarded-For` does not change the rate-limit
   bucket. Added lot M13 (dependency upgrades + `pnpm audit` in CI), run before M12.
 - 2026-11-24 — M2 (back `domain/grocery`). Done: every `noUncheckedIndexedAccess` site of the slice
@@ -161,7 +161,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   an address squatted by a password sign-up keeps the squatter's password if the real owner confirms
   through the e-mail link (confirming signs them in and leaves the hash); mitigation is forgot-password,
   which replaces the password and retires every session (covered by an HTTP-level test). Linking Google
-  to an unconfirmed address does drop that password. **For Matthias, no slice lot owns it:** e-mail
+  to an unconfirmed address does drop that password. **For the maintainer, no slice lot owns it:** e-mail
   case-insensitivity (case variants bypass the unique key and the conflict handling): needs a prod data
   check for case duplicates (`select lower(email), count(*) from "user" group by 1 having count(*) > 1`)
   before a unique `lower(email)` index. Awaited mail sends (forgot-password / resend / register timing
@@ -173,7 +173,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   failure, blocked account modified before the check, made-up reset token costing a hash, Google 4xx/408/429 mapping.
   Regression guards (not red on a probe, labelled in the PR body): two holders of one link, Google extra params → 302,
   Passenger-keyed checks, malformed UUID, constant-time state. Residual risk and e-mail case-insensitivity: see the
-  M3 implementer entry above (case-insensitivity needs Matthias for the prod data check).
+  M3 implementer entry above (case-insensitivity needs the maintainer for the prod data check).
 - 2026-11-24 — M4 (back `domain/bugReport`, `improvementRequest`, `customFood`, `customRecipe`,
   `weekPlan`, `weight`, `imageLibrary`; last back slice lot). **Strictness turned on, one commit each:**
   `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, ESLint `no-unnecessary-condition`,
@@ -296,6 +296,6 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   region and an explicit `role="alert"` on failure, each with a test. `usePlanner.test.ts` (12 tests) pins the
   facade before the changes. **Review round 1:** `usePlanner.ts` split into a ~90-line facade plus `usePlannerDays/Selection/Spread/Scoring/Swaps/Generation/Saving` behind the same return type (`usePlanner.test.ts` now 39 tests, written before the split); `loadFailed` state with `role="alert"` and a retry in `composer.vue` (`LoadFailed.vue`); `useWeekPlanStore.load` throws instead of swallowing; a failed save keeps its cause and goes to Sentry through the new `useErrorReporting`; `useComposedMenu` reports an unreadable week instead of hiding it; failure shown inside the persistent status region, no nested alert; `saveStateOf` plus one test per state; one shared `useRecipeQuantities`; Paris-day tests proven under `UTC`, `LINT-14`, `PST8PDT` and red under UTC with the old local-time `startOf`. **Deferred:** (1) `exactOptionalPropertyTypes`: 13 planner errors (`PreferencesPanel.vue` 6, `usePlanner.ts` 2, `SaveStatus.test.ts` 1, `DishPicker`/`DishDetail`/`DayPlanner`/`AutoCompose` 1 each; 57 in the front, 14 in generated `.nuxt/gql`) -> M10, exit: flag on in `strictnessFlags` with `nuxt typecheck` at 0. (2) Local-time `Date` helpers in other slices -> M8 for `batch/useBatchContainers`, `order`, `shopping`, `today`; M9 for `weight/useWeightDates`, `insights`, `recipe`, `profile`, `library`; M10 for `menu/useNextWeek`, `menu/useWeekLabel`, `menu/DayCard`; exit in each: they use the Paris helpers of `usePlannerWeek`. (3) `composer.vue` `toLocaleTimeString` for the saved-at time still uses the device zone -> M10, exit: formatted with `timeZone: 'Europe/Paris'`. (4) `useWeekPlanStore` coerces an unknown API enum to Monday/lunch -> M10, exit: unknown value rejected like the stored-value guards. **Deletion candidates checked by grep:** `useGenerateFirstWeek` (menu `ComposePrompt`, onboarding `GenerateStep`) and `varietyWindowWeeks` are used (kept); `DEFAULT_LENGTH` and `weekToCompose` are used inside `usePlannerWeek` (kept); `ApiPlannedDay` (used by `useWeekPlanStore`) and `usePlannerHistory.entries` (used by its tests) are live: nothing to delete.
 - 2026-11-25 — M7 merged (PR #13, c6734e4): 3 review rounds (12 + 3 findings). Round 2 caught a data-loss path (save allowed after a failed week read), fixed with a failing-first test. Local: lint, typecheck, build, vitest 117/674 green. Next: M8 (freezes the clock in the batch visual test).
-- 2026-11-25 — Checklist gap found by Matthias: §4 allowed `void` + internal catch, the retry line had no jitter, nothing on interceptors. Checklist updated (§4 no `void`, retries with full jitter through one helper; §5 global request log + timeout interceptors; §10 client interceptors for 401 and error reporting). Lot M14 applies it repo-wide before M8, so M8-M11 start from the rule. `unwrapRef`: no occurrence in the repo or its history.
+- 2026-11-25 — Checklist gap found by the maintainer: §4 allowed `void` + internal catch, the retry line had no jitter, nothing on interceptors. Checklist updated (§4 no `void`, retries with full jitter through one helper; §5 global request log + timeout interceptors; §10 client interceptors for 401 and error reporting). Lot M14 applies it repo-wide before M8, so M8-M11 start from the rule. `unwrapRef`: no occurrence in the repo or its history.
 - 2026-11-25 — M14 (back, front, extension), PR #14 on `refactor/socle-m14`, review round 1 applied. **Turned on:** `@typescript-eslint/no-floating-promises` with `ignoreVoid: false` in back, front and extension; every `void promise` became an `await` or a `.catch` that reports. **Retries:** full-jitter backoff in one module shared by front and extension (`front/infrastructure/api/utils/backoff.ts`, imported by the extension); the back keeps its own twin `retryTransient` (another deployable, no shared package, ~20 lines), used for the Google `userinfo` read only. Extension shop reads/search go through `fetchWithRetry` (the caller's abort signal is kept); `bookSlot` is a single attempt, since idempotency of the shop PUT is unproven. The extension poll is ONE periodic alarm, recreated at worker start if missing, with the jitter as a random sleep (max 5 s, an MV3 worker can be stopped after ~30 s idle) inside the run; a failing run still gets the next tick. The front also jitters ofetch's own read retry and restricts it to the transient statuses 408/429/502/503/504: front auto-retry covers transient statuses only; a network failure is reported at once (ofetch cannot tell it from a 500). **Back:** request log moved to a Fastify `onResponse` hook (so guard/throttler refusals 401/403/429/404 are logged: method, route pattern, status, duration, never token, cookie, body or query; tested); GraphQL: the interceptor logs successful operations, and the exception filter logs every refusal or failure as `Type.field <status> <CODE>` (so a guard refusal is logged once, with its code, never arguments or tokens). 30 s timeout interceptor does not cancel the handler, and exempts the image upload route (`@SkipTimeout`) and subscriptions. New pipes: `deviceLabelPipe` (device pairing) and `pushEndpointPipe` (https URL, length cap), each with a test giving BAD_USER_INPUT before the service runs. **Front:** 401/UNAUTHENTICATED goes to `/profil?redirect=<safe path>`, 5xx and network failures are reported once (WeakSet keyed by the response/cause the interceptor saw; a call about to be retried is not reported yet); tested with the real ofetch chain. `safeRedirectPath` covers encoded, tab/newline and scheme variants; `expireSession` ignores a trailing slash on the sign-in page. **Deferred (owner, exit condition):** (1) mail (nodemailer) and push (web-push) sends are not retried -> M12; exit: the send carries an idempotency key and goes through `retryTransient`, or M12 records it as not needed because a duplicate message is acceptable. (2) Menu `claim`/`report`/`finish` calls and the carrefour `put` PATCH stay at one attempt -> M11; exit: the server side dedupes each call by an idempotency key sent by the extension and they go through `fetchWithRetry`, or M11 records why not. (3) The sign-in redirect is lost on the Google OAuth round trip -> M10; exit: the redirect travels in the OAuth `state` and a test lands back on it. **Deletion candidates:** the per-component `void refresh()` copies are gone.
 - 2026-11-25 — M14 merged (PR #14, 0288698): 4 review rounds (3 major, 8 minor, 7 nits). Local: back lint/typecheck/build/test 211, extension 62, front lint/typecheck + vitest 124 files / 774 tests; local front `pnpm build` stalls at Nitro under memory pressure (1 GB free, other sessions), CI front build green is the authority. Deferrals copied into the M10, M11 and M12 boxes. Checklist: front auto-retry covers transient statuses only. Next: M8.

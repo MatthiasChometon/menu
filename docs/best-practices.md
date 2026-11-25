@@ -10,7 +10,7 @@ Sources: the back checklist written on 2026-11-01 (verdure PR #3), the revision 
 (TypeScript, Node, Jest, NestJS, GraphQL, Docker, PostgreSQL, back fundamentals) and the
 house conventions (architecture, TypeScript, Vue, tests, front, security).
 
-**Context that decides what applies**: one API instance on o2switch (Passenger), one
+**Context that decides what applies**: one API instance on a shared host (Passenger), one
 PostgreSQL, a static or SSR Nuxt front on Netlify, a handful of users. Rules written for
 several pods (shared Redis counters, PubSub, outbox, replicas, circuit breakers) are listed
 under "Out of scope" at the end, with the reason, instead of being applied for nothing.
