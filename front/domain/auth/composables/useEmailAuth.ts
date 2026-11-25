@@ -62,7 +62,7 @@ export const useEmailAuth = (): {
     isBusy.value = false;
 
     const raised = call.error.value;
-    if (raised === null || raised === undefined) return onSuccess;
+    if (raised === undefined) return onSuccess;
 
     failure.value = failureFrom(statusCodeOf(raised));
     return undefined;

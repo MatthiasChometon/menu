@@ -57,7 +57,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 | M6 | Front `domain/menu` | 5.5k |
 | M7 | Front `domain/planner` | 4.8k |
 | M8 | Front `domain/order`, `shopping`, `batch`, `today` | 5.6k |
-| M9 | Front `domain/weight`, `insights`, `recipe`, `profile`, `library` | 7.6k |
+| M9 | Front `domain/weight`, `insights`, `recipe`, `profile`, `library` (also: show an alert when `useMyFoods().hasFailed` / `useMyRecipes().hasFailed` is true in the library panels, with a test; handed over by M10) | 7.6k |
 | M10 | Front `domain/auth`, `weekShare`, `onboarding`, `bugReport`, `improvementRequest`, `cooking`, `customCatalog`, `legal`, `progress` | 3.4k |
 | M11 | `extension/` | 1.7k |
 | M14 | Transverse, runs before M8: no `void` on a promise anywhere (back, front, extension; ESLint `ignoreVoid: false`), one shared retry helper with exponential backoff + full jitter on outbound idempotent calls and polling, back global interceptors (request log, timeout), front `useApi` / GraphQL interceptors (401 to sign-in, report unexpected errors once) | repo-wide |

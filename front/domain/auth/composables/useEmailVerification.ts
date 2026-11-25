@@ -23,10 +23,8 @@ export const useEmailVerification = (): {
 
       token.value = candidate;
       await call.execute();
-      // null in some Nuxt versions, undefined in others: treating only one as
-      // success would sign nobody in on the other.
       const raised: unknown = call.error.value;
-      if (raised !== null && raised !== undefined) {
+      if (raised !== undefined) {
         return isTransientFailure(raised) ? 'unavailable' : 'expired';
       }
 

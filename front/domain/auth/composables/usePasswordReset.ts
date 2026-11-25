@@ -31,10 +31,8 @@ export const usePasswordReset = (): {
       await call.execute();
       isBusy.value = false;
 
-      // null in some Nuxt versions, undefined in others: treating only one as
-      // success would leave the reader stuck on a page that worked.
       const raised: unknown = call.error.value;
-      if (raised === null || raised === undefined) {
+      if (raised === undefined) {
         await refresh();
         return 'signed-in';
       }
