@@ -1,6 +1,7 @@
 import { createBasketFiller } from './fill';
 import { createCarrefourClient } from './client';
 import type { FillResult, PlannedLine, ReportedEvent, SlotWindow } from './type';
+import { logFailure } from '../../infrastructure/logging/failure';
 
 type FillRequest = { kind: 'fill'; lines: PlannedLine[]; windows: SlotWindow[] };
 type ProgressMessage = { kind: 'progress'; event: ReportedEvent };
@@ -31,7 +32,7 @@ export const startCarrefourContent = (): void => {
   // in, so the order page can show the state without the reader opening the shop.
   // And when the reader came here from the menu site's "open Carrefour", carry
   // them back once signed in, so the site can confirm the shop is wired up.
-  void createCarrefourClient()
+  createCarrefourClient()
     .session()
     .then(async (session): Promise<void> => {
       await browser.runtime.sendMessage({ kind: 'carrefour-session', signedIn: session.signedIn });
@@ -43,7 +44,7 @@ export const startCarrefourContent = (): void => {
         location.assign(stored.returnUrl);
       }
     })
-    .catch((): void => {});
+    .catch(logFailure('carrefour session read'));
 
   browser.runtime.onMessage.addListener(
     (request: FillRequest, _sender, respond: (result: FillResult) => void): boolean => {

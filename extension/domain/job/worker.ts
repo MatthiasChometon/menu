@@ -1,4 +1,5 @@
 import type { FillResult, PlannedLine, ReportedEvent, SlotWindow } from '../carrefour/type';
+import { logFailure } from '../../infrastructure/logging/failure';
 import { createMenuClient, type MenuClient } from './client';
 
 // The background's job cycle, revealed as two operations over a private closure:
@@ -24,7 +25,9 @@ export const createGroceryWorker = (): {
   const forwardProgress = (client: MenuClient, jobId: string): void => {
     browser.runtime.onMessage.addListener(
       (message: { kind: string; event: ReportedEvent }): void => {
-        if (message.kind === 'progress') void client.report(jobId, message.event);
+        if (message.kind === 'progress') {
+          client.report(jobId, message.event).catch(logFailure('progress report'));
+        }
       },
     );
   };
@@ -104,7 +107,7 @@ export const createGroceryWorker = (): {
 
     await createMenuClient(endpoint, deviceToken)
       .reportCarrefourSession(signedIn)
-      .catch((): void => {});
+      .catch(logFailure('carrefour session report'));
   };
 
   return { runOnce, reportCarrefourSession };

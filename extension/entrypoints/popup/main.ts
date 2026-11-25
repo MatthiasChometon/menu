@@ -1,6 +1,8 @@
 // Pairing is automatic on the menu site now, so the popup asks for nothing. It
 // just says whether this browser is wired up, and offers the one useful action:
 // open the menu, where everything is set up and the basket is filled.
+import { logFailure } from '../../infrastructure/logging/failure';
+
 const MENU_URL = 'https://menu.mtxlab.xyz/courses-auto';
 
 const statusLine = document.querySelector<HTMLParagraphElement>('#status');
@@ -19,8 +21,8 @@ const render = async (): Promise<void> => {
 
 document.querySelector('#open')?.addEventListener('click', (event: Event): void => {
   event.preventDefault();
-  void browser.tabs.create({ url: MENU_URL });
+  browser.tabs.create({ url: MENU_URL }).catch(logFailure('open menu'));
   window.close();
 });
 
-void render();
+render().catch(logFailure('popup render'));

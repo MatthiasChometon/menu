@@ -51,7 +51,7 @@ export default defineConfig(
   },
   {
     rules: {
-      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
       '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
       'func-style': ['error', 'expression'],
       'prefer-arrow-callback': 'error',
