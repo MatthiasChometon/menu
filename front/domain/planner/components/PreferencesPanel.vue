@@ -7,6 +7,7 @@ const { preferences, toggleExcluded, setMaxPrepMinutes, setMaxRepeatsPerWeek, se
   usePlannerPreferences();
 const { varietyWindowWeeksSetting, setVarietyWindowWeeks } = usePlannerHistory();
 const { t } = useNuxtApp().$i18n;
+const { filterLabel } = usePlannerLabels();
 
 // A free amount, not a preset: unlike prep time or repeats, a budget is a
 // number the reader already has in mind, not one they are picking from a
@@ -87,7 +88,7 @@ const windowItems = computed((): Option[] => [
               :aria-pressed="isExcluded(kind)"
               @click="toggleExcluded(kind)"
             >
-              {{ $t(`planner.filter.${kind}`) }}
+              {{ filterLabel(kind) }}
             </UButton>
           </div>
         </fieldset>

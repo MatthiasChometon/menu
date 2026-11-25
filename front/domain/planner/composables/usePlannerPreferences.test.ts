@@ -142,3 +142,38 @@ describe('usePlannerPreferences', () => {
     expect(preferences.value.weeklyBudget).toBeUndefined();
   });
 });
+
+describe('corrupted stored preferences', () => {
+  it('fall back to the defaults instead of breaking the composer', () => {
+    const { preferences } = usePlannerPreferences();
+    const key = 'planner:preferences';
+    const corrupted = JSON.stringify({ excludedKinds: 'fish', maxPrepMinutes: 'soon' });
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(preferences.value).toEqual({
+      excludedKinds: [],
+      maxPrepMinutes: undefined,
+      maxRepeatsPerWeek: undefined,
+      weeklyBudget: undefined,
+    });
+  });
+
+  it('refuse the whole object when only a number is corrupted', () => {
+    const { preferences, toggleExcluded } = usePlannerPreferences();
+    const key = 'planner:preferences';
+    toggleExcluded('fish');
+    const corrupted = JSON.stringify({ excludedKinds: ['meat'], weeklyBudget: 'cheap' });
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+
+    expect(preferences.value.excludedKinds).toEqual([]);
+    expect(preferences.value.weeklyBudget).toBeUndefined();
+  });
+});

@@ -11,15 +11,14 @@ const {
   spread,
 } = usePlanner();
 const { t } = useNuxtApp().$i18n;
+const { groupLabel } = usePlannerLabels();
 
 const hasWeek = computed((): boolean => days.value.some((day): boolean => day.meals.length > 0));
 
 // The step names, so the bar says what it is walking through rather than just
 // how far along it is.
 const stepLabels = computed((): string[] => [
-  ...steps.map((groups): string =>
-    groups.map((group): string => t(`planner.group.${group}`)).join(' & '),
-  ),
+  ...steps.map((groups): string => groups.map(groupLabel).join(' & ')),
   t('planner.week'),
 ]);
 

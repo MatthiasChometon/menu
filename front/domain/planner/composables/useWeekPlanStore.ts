@@ -45,7 +45,7 @@ export const useWeekPlanStore = (): {
     days: Object.entries(plan.days)
       .map(([day, slots]) => ({
         day: DAY_TO_API[day as DayKey],
-        meals: Object.entries(slots ?? {}).map(([slot, recipeId]) => ({
+        meals: Object.entries(slots).map(([slot, recipeId]) => ({
           slot: SLOT_TO_API[slot as MealSlot],
           recipeId: String(recipeId),
         })),
@@ -71,11 +71,12 @@ export const useWeekPlanStore = (): {
   return {
     toInput,
     fromApi,
-    // Signed out, or the API asleep: the screen keeps working on what the tab
-    // holds rather than blanking out.
+    // Undefined means nothing is stored for this week. A failed read throws:
+    // "the API did not answer" is not "there is nothing", and callers need to
+    // tell the two apart to offer a retry instead of a blank week.
     load: async (weekOf: string): Promise<PlannedWeek | undefined> => {
-      const result = await GqlMyWeekPlan({ weekOf }).catch((): undefined => undefined);
-      const plan = result?.myWeekPlan;
+      const result = await GqlMyWeekPlan({ weekOf });
+      const plan = result.myWeekPlan;
 
       return plan === undefined || plan === null ? undefined : fromApi(plan.weekOf, plan.days);
     },

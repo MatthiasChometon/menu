@@ -23,6 +23,7 @@ const {
   canSave,
   isDirty,
   saveFailed,
+  loadFailed,
   savedAt,
   save,
   loadFromAccount,
@@ -67,14 +68,24 @@ watch(savedAt, (at): void => {
   onScopeDispose((): void => clearTimeout(timer));
 });
 
+const saveState = computed((): SaveState =>
+  saveStateOf({
+    isSignedIn: user.value !== undefined,
+    failed: saveFailed.value,
+    isDirty: isDirty.value,
+    savedAt: savedAt.value,
+  }),
+);
+
 const hasAnyChoice = computed((): boolean =>
-  Object.values(chosenDishes.value).some((picked): boolean => (picked ?? []).length > 0),
+  Object.values(chosenDishes.value).some((picked): boolean => picked.length > 0),
 );
 const { round } = useFoodFormat();
 const { isPersonalised } = useMyQuantities();
 const { isLoading: isLoadingProfile } = useProfile();
 const { user } = useAuth();
 const { t, locale } = useNuxtApp().$i18n;
+const { macroShortLabel } = useMenuLabels();
 const localePath = useLocalePath();
 const isMounted = useMounted();
 
@@ -169,7 +180,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       color="neutral"
       variant="subtle"
       icon="i-lucide-scale"
-      :title="`${$t('planner.targets')} ${round(targets.kcal)} ${$t('menu.unit.kcal')} · ${round(targets.protein)} ${$t('menu.unit.gram')} ${$t('menu.macroShort.protein')}`"
+      :title="`${$t('planner.targets')} ${round(targets.kcal)} ${$t('menu.unit.kcal')} · ${round(targets.protein)} ${$t('menu.unit.gram')} ${macroShortLabel('protein')}`"
       :description="isPersonalised ? $t('planner.targetsMine') : $t('planner.targetsDefault')"
     />
 
@@ -263,22 +274,14 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
           </div>
         </div>
 
-        <!-- Why the save button is grey, right under it: signed out, nothing
-             changed, or already done — said where the eye already is. -->
-        <div v-if="hasWeek" class="mt-2" aria-live="polite">
-          <p v-if="user === undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.signedOut') }}
-          </p>
-          <p v-else-if="saveFailed" class="text-sm text-error" role="alert">
-            {{ $t('planner.saving.failed') }}
-          </p>
-          <p v-else-if="isDirty" class="text-sm text-muted">{{ $t('planner.saving.pending') }}</p>
-          <p v-else-if="savedAt !== undefined" class="text-sm text-muted">
-            {{ $t('planner.saving.done') }} {{ savedLabel }} —
-            {{ labelOf(plannerWeek).toLowerCase() }}
-          </p>
-          <p v-else class="text-sm text-muted">{{ $t('planner.saving.nothingToSave') }}</p>
-        </div>
+        <PlannerLoadFailed v-if="loadFailed" @retry="loadFromAccount" />
+
+        <PlannerSaveStatus
+          :has-week="hasWeek"
+          :state="saveState"
+          :saved-label="savedLabel"
+          :week-label="labelOf(plannerWeek).toLowerCase()"
+        />
       </div>
 
       <p v-if="!hasWeek" class="mt-3 text-sm text-muted">{{ $t('planner.spreadBlocked') }}</p>

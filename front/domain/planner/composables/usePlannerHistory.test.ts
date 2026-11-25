@@ -169,3 +169,31 @@ describe('usePlannerHistory', () => {
     expect(repeatPenalty('2026-09-01', 'somethingElse')).toBe(0);
   });
 });
+
+describe('corrupted stored history', () => {
+  const corrupt = (key: string, value: unknown): void => {
+    const corrupted = JSON.stringify(value);
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+  };
+
+  it('falls back to an empty history instead of breaking the composer', () => {
+    const { entries } = usePlannerHistory();
+
+    corrupt('planner:history', [
+      { weekOf: '2026-09-01', composedAt: 12, chosen: { main: 'chili' } },
+    ]);
+
+    expect(entries.value).toEqual([]);
+  });
+
+  it('falls back to the default variety window when the setting is not a number', () => {
+    const { varietyWindowWeeks } = usePlannerHistory();
+
+    corrupt('planner:historySettings', { varietyWindowWeeks: 'many' });
+
+    expect(varietyWindowWeeks.value).toBe(DEFAULT_VARIETY_WINDOW_WEEKS);
+  });
+});

@@ -1,3 +1,5 @@
+import { weeksBetween } from './usePlannerWeek';
+
 /** A week as it stood the last time it was spread across its days — kept on
  *  the device so the composer can look back without an account. */
 export type ComposedWeekEntry = {
@@ -27,15 +29,6 @@ const byMostRecent = (left: ComposedWeekEntry, right: ComposedWeekEntry): number
  *  windows besides the one being worked on. Undefined for a dish that never
  *  appeared inside the window at all. Pure so it is testable without
  *  touching localStorage. */
-// Whole weeks from one week-start to another. Both are stored as Monday-anchored
-// 'YYYY-MM-DD' dates, so the gap is a clean multiple of seven days give or take
-// a daylight-saving hour, which the rounding absorbs.
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const weeksBetween = (from: string, to: string): number =>
-  Math.round(
-    (new Date(`${to}T00:00:00`).getTime() - new Date(`${from}T00:00:00`).getTime()) / WEEK_MS,
-  );
-
 export const weeksAgoOf = (
   entries: ComposedWeekEntry[],
   excludingWeek: string,
@@ -48,7 +41,7 @@ export const weeksAgoOf = (
   const weeksAgo = entries
     .filter((entry): boolean => entry.weekOf !== excludingWeek)
     .filter((entry): boolean =>
-      Object.values(entry.chosen).some((ids): boolean => (ids ?? []).includes(recipeId)),
+      Object.values(entry.chosen).some((ids): boolean => ids.includes(recipeId)),
     )
     .map((entry): number => weeksBetween(entry.weekOf, excludingWeek) - 1)
     .filter((distance): boolean => distance >= 0 && distance < windowWeeks);
@@ -90,8 +83,28 @@ export const withEntryUpserted = (
 // the same request for past weeks.
 let sharedEntries: Ref<ComposedWeekEntry[]> | undefined;
 
+const { storedValue, isArrayOf } = useStoredValue();
+
+const isString = (value: unknown): value is string => typeof value === 'string';
+
+const isChosen = (value: unknown): value is ComposedWeekEntry['chosen'] =>
+  typeof value === 'object' &&
+  value !== null &&
+  !Array.isArray(value) &&
+  Object.values(value).every(isArrayOf(isString));
+
+const isEntry = (value: unknown): value is ComposedWeekEntry =>
+  typeof value === 'object' &&
+  value !== null &&
+  'weekOf' in value &&
+  isString(value.weekOf) &&
+  'composedAt' in value &&
+  isString(value.composedAt) &&
+  'chosen' in value &&
+  isChosen(value.chosen);
+
 const entriesRef = (): Ref<ComposedWeekEntry[]> => {
-  sharedEntries ??= useLocalStorage<ComposedWeekEntry[]>('planner:history', []);
+  sharedEntries ??= storedValue<ComposedWeekEntry[]>('planner:history', [], isArrayOf(isEntry));
   return sharedEntries;
 };
 
@@ -105,10 +118,19 @@ const DEFAULT_HISTORY_SETTINGS: HistorySettings = { varietyWindowWeeks: undefine
 
 let sharedSettings: Ref<HistorySettings> | undefined;
 
+const isHistorySettings = (value: unknown): value is HistorySettings =>
+  typeof value === 'object' &&
+  value !== null &&
+  !Array.isArray(value) &&
+  (!('varietyWindowWeeks' in value) ||
+    value.varietyWindowWeeks === undefined ||
+    (typeof value.varietyWindowWeeks === 'number' && Number.isFinite(value.varietyWindowWeeks)));
+
 const settingsRef = (): Ref<HistorySettings> => {
-  sharedSettings ??= useLocalStorage<HistorySettings>(
+  sharedSettings ??= storedValue<HistorySettings>(
     'planner:historySettings',
     DEFAULT_HISTORY_SETTINGS,
+    isHistorySettings,
   );
   return sharedSettings;
 };

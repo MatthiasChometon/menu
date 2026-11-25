@@ -101,3 +101,6 @@ export type BudgetStatus = {
   budget: number | undefined;
   isOverBudget: boolean;
 };
+
+/** What the line under the save button has to say. */
+export type SaveState = 'signedOut' | 'failed' | 'pending' | 'saved' | 'nothing';

@@ -16,17 +16,17 @@ const {
   fillsIn,
 } = usePlanner();
 const { t } = useNuxtApp().$i18n;
+const { macroLongLabel } = useMenuLabels();
+const { groupLabel, groupHint, filterLabel } = usePlannerLabels();
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
-
-type Filter = 'all' | DishKind | 'quick';
 
 // Only the savoury dishes are numerous enough to need narrowing, and only they
 // come in fish, meat and vegetable. Offering the same chips on a list of skyr
 // bowls would be noise.
-const FILTERS: Filter[] = ['all', 'fish', 'meat', 'veggie', 'quick'];
+const FILTERS: DishFilter[] = ['all', 'fish', 'meat', 'veggie', 'quick'];
 
-const filter = ref<Filter>('all');
+const filter = ref<DishFilter>('all');
 
 watch(
   (): RecipeSlot => group,
@@ -69,7 +69,7 @@ const markOf = (recipeId: string): string => {
 
   return macro === undefined
     ? t('planner.balance.mark')
-    : `${t('planner.balance.richIn')} ${t(`menu.macroLong.${macro}`).toLowerCase()}`;
+    : `${t('planner.balance.richIn')} ${macroLongLabel(macro).toLowerCase()}`;
 };
 
 const preview = ref<Recipe | undefined>(undefined);
@@ -92,8 +92,8 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
   <section>
     <div class="flex flex-wrap items-center gap-3">
       <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-black tracking-tight">{{ $t(`planner.group.${group}`) }}</h2>
-        <p class="mt-1 text-sm text-muted">{{ $t(`planner.groupHint.${group}`) }}</p>
+        <h2 class="text-2xl font-black tracking-tight">{{ groupLabel(group) }}</h2>
+        <p class="mt-1 text-sm text-muted">{{ groupHint(group) }}</p>
       </div>
       <UButton
         icon="i-lucide-shuffle"
@@ -117,7 +117,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
         :class="filter === entry && 'text-white'"
         @click="filter = entry"
       >
-        {{ $t(`planner.filter.${entry}`) }}
+        {{ filterLabel(entry) }}
       </UButton>
     </div>
 
