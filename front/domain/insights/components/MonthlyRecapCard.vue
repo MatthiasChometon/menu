@@ -3,7 +3,7 @@ import type { MonthlyCardData } from '../composables/useMonthlyRecapCard';
 import type { MonthlyRecap } from '../composables/useMonthlyRecap';
 import type { Menu } from '../../menu/types/menu.type';
 
-const { history } = useAdherence(undefined);
+const { history, hasFailed: hasHistoryFailed, dismissFailure } = useAdherence(undefined);
 const { entries, hasFailed: hasEntriesFailed, refresh: refreshEntries } = useWeightLog();
 const { menuOf } = useMenu();
 const { recapOf } = useMonthlyRecap();
@@ -102,6 +102,21 @@ const onShare = async (): Promise<void> => {
       <template #actions>
         <UButton color="error" variant="subtle" @click="refreshEntries">
           {{ $t('insights.recap.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="hasHistoryFailed"
+      role="alert"
+      color="error"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+      :title="$t('insights.recap.historyFailed')"
+    >
+      <template #actions>
+        <UButton color="error" variant="subtle" @click="dismissFailure">
+          {{ $t('insights.recap.dismiss') }}
         </UButton>
       </template>
     </UAlert>

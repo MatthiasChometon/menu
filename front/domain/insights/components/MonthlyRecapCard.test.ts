@@ -5,9 +5,15 @@ import MonthlyRecapCard from './MonthlyRecapCard.vue';
 import type { WeekAdherence } from '../../menu/composables/useAdherence';
 import type { WeightEntry } from '../../weight/types/weight.type';
 
-const { state, card, refresh } = vi.hoisted(() => ({
-  state: { history: [] as WeekAdherence[], entries: [] as WeightEntry[], hasFailed: false },
+const { state, card, refresh, dismissFailure } = vi.hoisted(() => ({
+  state: {
+    history: [] as WeekAdherence[],
+    entries: [] as WeightEntry[],
+    hasFailed: false,
+    hasHistoryFailed: false,
+  },
   refresh: vi.fn(),
+  dismissFailure: vi.fn(),
   card: {
     draw: vi.fn(),
     downloadOrFail: vi.fn(),
@@ -22,9 +28,19 @@ mockNuxtImport('useMonthlyRecapCard', () => (): typeof card & { canShareFiles: (
   canShareFiles: (): boolean => true,
 }));
 
-mockNuxtImport('useAdherence', () => (): { history: Ref<WeekAdherence[]> } => ({
-  history: ref(state.history),
-}));
+mockNuxtImport(
+  'useAdherence',
+  () =>
+    (): {
+      history: Ref<WeekAdherence[]>;
+      hasFailed: Ref<boolean>;
+      dismissFailure: () => void;
+    } => ({
+      history: ref(state.history),
+      hasFailed: ref(state.hasHistoryFailed),
+      dismissFailure,
+    }),
+);
 mockNuxtImport(
   'useWeightLog',
   () => (): { entries: Ref<WeightEntry[]>; hasFailed: Ref<boolean>; refresh: () => void } => ({
@@ -39,7 +55,9 @@ beforeEach(async () => {
   state.history = [];
   state.entries = [];
   state.hasFailed = false;
+  state.hasHistoryFailed = false;
   refresh.mockReset();
+  dismissFailure.mockReset();
   card.draw.mockReset().mockResolvedValue(undefined);
   card.downloadOrFail.mockReset().mockResolvedValue(undefined);
   card.shareOrFail.mockReset().mockResolvedValue(true);
@@ -79,6 +97,18 @@ describe('MonthlyRecapCard', () => {
 
     await buttonSaying(wrapper, 'Réessayer').trigger('click');
     expect(refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('says the saved weeks could not be read, and lets the trend start again, instead of claiming there is no data', async () => {
+    state.hasHistoryFailed = true;
+
+    const wrapper = await mountSuspended(MonthlyRecapCard);
+
+    expect(wrapper.find('[role="alert"]').text()).toContain('semaines enregistrées');
+    expect(wrapper.text()).not.toContain('Pas encore assez de données');
+
+    await buttonSaying(wrapper, 'Repartir de cette semaine').trigger('click');
+    expect(dismissFailure).toHaveBeenCalledTimes(1);
   });
 
   it('invites to log a weigh-in and view the week with nothing to summarise yet', async () => {

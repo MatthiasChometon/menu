@@ -126,4 +126,19 @@ describe('a corrupted adherence history', () => {
 
     expect(history.value).toEqual([]);
   });
+
+  it('says so instead of showing a short history, until the failure is acknowledged', () => {
+    const { hasFailed, dismissFailure } = useAdherence(menuOf());
+    const key = 'adherence:history';
+    const corrupted = '{not json';
+
+    localStorage.setItem(key, corrupted);
+    window.dispatchEvent(
+      new StorageEvent('storage', { key, newValue: corrupted, storageArea: localStorage }),
+    );
+    expect(hasFailed.value).toBe(true);
+
+    dismissFailure();
+    expect(hasFailed.value).toBe(false);
+  });
 });

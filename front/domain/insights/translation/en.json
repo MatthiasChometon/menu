@@ -62,6 +62,8 @@
       "share": "Share",
       "loadFailed": "The recap could not be worked out: your weigh-ins did not load.",
       "retry": "Try again",
+      "historyFailed": "The recap could not be worked out: the weeks saved on this device could not be read.",
+      "dismiss": "Start again from this week",
       "failed": "The recap could not be created. Try again in a moment.",
       "cardAlt": "Recap card of the month, with weight gained, average adherence, budget and favourite dishes",
       "empty": "Not enough data this month yet for a recap.",

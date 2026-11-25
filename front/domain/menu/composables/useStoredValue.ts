@@ -1,7 +1,7 @@
 type Guard<T> = (value: unknown) => value is T;
 
 type StoredValue = {
-  storedValue: <T>(key: string, fallback: T, isValid: Guard<T>) => Ref<T>;
+  storedValue: <T>(key: string, fallback: T, isValid: Guard<T>, onRejected?: () => void) => Ref<T>;
   isRecordOf: <T>(isValid: Guard<T>) => Guard<Record<string, T>>;
   isArrayOf: <T>(isValid: Guard<T>) => Guard<T[]>;
 };
@@ -11,17 +11,28 @@ type StoredValue = {
 // trusted only once it passes its guard; otherwise the fallback stands in.
 // All or nothing, on purpose: one bad entry drops the whole stored value (a
 // four-week history, a week of swaps) rather than keeping a half-trusted rest.
+// A caller that must not lose it silently passes onRejected, told whenever a
+// stored value was there but could not be trusted.
 export const useStoredValue = (): StoredValue => {
   const isObject = (value: unknown): value is object => typeof value === 'object' && value !== null;
 
-  const storedValue = <T>(key: string, fallback: T, isValid: Guard<T>): Ref<T> =>
+  const storedValue = <T>(
+    key: string,
+    fallback: T,
+    isValid: Guard<T>,
+    onRejected?: () => void,
+  ): Ref<T> =>
     useLocalStorage<T>(key, fallback, {
       serializer: {
         read: (raw: string): T => {
           try {
             const parsed: unknown = JSON.parse(raw);
-            return isValid(parsed) ? parsed : fallback;
+            if (isValid(parsed)) return parsed;
+
+            onRejected?.();
+            return fallback;
           } catch {
+            onRejected?.();
             return fallback;
           }
         },
