@@ -1,8 +1,17 @@
-import type { UseFetchOptions } from 'nuxt/app';
+import type { AnyServerRouteMethod, KeysOf, UseFetchOptions } from 'nuxt/app';
 
 export const useApi = <DataT>(
   url: string | (() => string),
-  options: UseFetchOptions<DataT> = {},
+  // Nuxt types `method` from the server routes it knows and defaults to GET only;
+  // these calls go to an external API, so every method is accepted.
+  options: UseFetchOptions<
+    DataT,
+    DataT,
+    KeysOf<DataT>,
+    undefined,
+    string,
+    AnyServerRouteMethod
+  > = {},
 ): ReturnType<typeof useFetch<DataT>> => {
   const { $api } = useNuxtApp();
 
