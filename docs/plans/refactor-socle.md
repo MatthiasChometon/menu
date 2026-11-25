@@ -68,7 +68,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M3 — impl · review · ci · ok · merged (PR #5, a10a9ee)
 - [x] M4 — impl · review · ci · ok · merged (PR #9, f76b490)
 - [x] M5 — impl · review · ci · ok · merged (PR #11, 3175bbc)
-- [ ] M6 — impl · review · ci · ok · merged
+- [x] M6 — impl · review · ci · ok · merged (PR #12, fded7a9)
 - [ ] M7 — impl · review · ci · ok · merged
 - [ ] M8 — impl · review · ci · ok · merged
 - [ ] M9 — impl · review · ci · ok · merged
@@ -280,3 +280,5 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
   on the slice, lint green).
   Observation: `infrastructure/images/nuxt.config.ts` `isImageManifest` rejects a manifest carrying a numeric
   `version`. **Deletion candidates:** none.
+- 2026-11-25 — M6 merged (PR #12, fded7a9): 3 review rounds (11 + 7 findings + nits). Local: lint, typecheck,
+  vitest 109/601, build green. Next: M7.
