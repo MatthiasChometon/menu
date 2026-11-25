@@ -70,6 +70,7 @@ more complexity than it removes (YAGNI, no interface + factory for a single impl
 - [ ] Independent awaits are not sequential in a loop; concurrency over a big list is bounded.
 - [ ] Every outbound HTTP call has a timeout (`AbortSignal.timeout` or the client `timeout`), shorter than our own caller's.
 - [ ] Retries only for transient errors (network, timeout, 408, 429, 502/503/504) on idempotent operations, through one shared helper: exponential backoff with full jitter (`random(0, min(cap, base * 2 ** attempt))`), a maximum number of attempts, a cap on the delay, `Retry-After` honoured; never on other 4xx. Polling loops get the same jitter.
+- [ ] Front automatic retry (ofetch `retry`) covers reads and transient statuses only (408, 429, 502, 503, 504); a network failure is reported at once, because ofetch cannot tell it from a 500 and retrying a real server bug hides it.
 - [ ] Secrets are never put in a URL string; query parameters go through encoded `params`.
 - [ ] No `*Sync` fs/crypto call in a request path (boot and CLI scripts excepted); CPU-heavy work (scrypt, sharp) uses the async API.
 - [ ] Large files go through streams (`pipeline` from `node:stream/promises`), never `.pipe()` nor a full `readFile`.
