@@ -1,6 +1,9 @@
 // One basket per week, kept for the life of the app: the week can change under
 // the caller when planning ahead, so the storage is resolved on every read
 // rather than bound once.
+const { storedValue, isArrayOf } = useStoredValue();
+const isString = (value: unknown): value is string => typeof value === 'string';
+
 const baskets = new Map<string, Ref<string[]>>();
 
 const basketFor = (weekOf: string): Ref<string[]> => {
@@ -9,7 +12,7 @@ const basketFor = (weekOf: string): Ref<string[]> => {
 
   // Keyed by week so a new menu starts with an empty basket without the old
   // ticks bleeding in.
-  const created = useLocalStorage<string[]>(`shopping:${weekOf}`, []);
+  const created = storedValue<string[]>(`shopping:${weekOf}`, [], isArrayOf(isString));
   baskets.set(weekOf, created);
   return created;
 };
