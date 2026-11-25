@@ -56,6 +56,11 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      - name: Audit production dependencies
+        # Blocking on purpose, low included: a known advisory is fixed or recorded
+        # in docs/plans/refactor-socle.md, never waved through.
+        run: pnpm audit --prod --audit-level=low
+
       - name: Lint
         # The lint script has no --fix, so it is already read-only for CI.
         run: pnpm lint
