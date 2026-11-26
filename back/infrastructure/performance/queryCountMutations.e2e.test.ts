@@ -113,11 +113,18 @@ describe('a list nobody bounds is refused', () => {
     const mutation = LIST_MUTATIONS.find((candidate): boolean => candidate.name === name);
     if (mutation === undefined) throw new Error(`No list mutation called ${name}.`);
     const variables = mutation.variables(HUGE) as { i: Record<string, unknown> };
-    // A recipe's ingredients are a food each: past the stocked ones they repeat.
+    // A food appears once per ingredient or need: past the stocked ones the foods repeat.
     if (Array.isArray(variables.i['ingredients'])) {
       variables.i['ingredients'] = Array.from({ length: HUGE }, (_, index) => ({
         foodId: FOODS[index % FOODS.length],
         grams: 100,
+      }));
+    }
+    if (Array.isArray(variables.i['needs'])) {
+      variables.i['needs'] = Array.from({ length: HUGE }, (_, index) => ({
+        foodId: FOODS[index % FOODS.length],
+        grams: 960,
+        label: FOODS[index % FOODS.length],
       }));
     }
 
