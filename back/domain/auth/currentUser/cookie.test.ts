@@ -21,7 +21,7 @@ describe('the session cookie', () => {
   it('switches to None once the front lives on another host', () => {
     const options = cookieFor({
       FRONT_URL: 'https://menu-semaine-887.netlify.app',
-      BACK_URL: 'https://menu-api-chometon.onrender.com',
+      BACK_URL: 'https://api.example.test',
       NODE_ENV: 'production',
     }).options();
 
@@ -68,7 +68,7 @@ describe('the session cookie', () => {
   it('clears with the same attributes it was set with', () => {
     const cookie = cookieFor({
       FRONT_URL: 'https://menu-semaine-887.netlify.app',
-      BACK_URL: 'https://menu-api-chometon.onrender.com',
+      BACK_URL: 'https://api.example.test',
     });
 
     // A cookie is only replaced when the attributes match; a mismatch leaves
