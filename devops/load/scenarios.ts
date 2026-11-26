@@ -72,6 +72,13 @@ const SUBSCRIBE = `mutation ($i: PushSubscriptionInput!) { subscribeToGroceryPus
 const uuid = (): string =>
   `${exec.vu.idInTest}-${exec.scenario.iterationInInstance}-${Date.now()}-${unique()}`;
 
+const hex = (length: number): string =>
+  Array.from({ length }, (): string => Math.floor(Math.random() * 16).toString(16)).join('');
+
+// A version 4 identifier, for the fields the API validates as one.
+const uuidV4 = (): string =>
+  `${hex(8)}-${hex(4)}-4${hex(3)}-${['8', '9', 'a', 'b'][Math.floor(Math.random() * 4)] ?? '8'}${hex(3)}-${hex(12)}`;
+
 const subscriptionInput = (endpoint: string): object => ({
   endpoint,
   p256dh: 'p256dh-key',
@@ -181,7 +188,7 @@ export const SCENARIOS: Record<OperationName, Scenario> = {
     discard(data, `mutation ($id: ID!) { removeHouseholdMember(id: $id) }`, { id });
   },
   addWeightEntry: (data): void => {
-    const input = { date: dayOfIndex(2000 + unique()), kg: 79.5 };
+    const input = { date: dayOfIndex(unique() % 3000), kg: 79.5 };
     const id = idOf(
       gql('addWeightEntry', 'reader', data.reader, ADD_WEIGHT, { i: input }),
       'addWeightEntry',
@@ -269,7 +276,7 @@ export const SCENARIOS: Record<OperationName, Scenario> = {
   },
   deleteWeightEntry: (data): void => {
     const id = prepare(data, ADD_WEIGHT, 'addWeightEntry', {
-      date: dayOfIndex(5000 + unique()),
+      date: dayOfIndex(unique() % 3000),
       kg: 79,
     });
     call(data, 'deleteWeightEntry', `mutation ($id: ID!) { deleteWeightEntry(id: $id) }`, { id });
@@ -327,7 +334,7 @@ export const SCENARIOS: Record<OperationName, Scenario> = {
       `mutation ($jobId: ID!, $i: GroceryJobEventInput!) { reportGroceryJobEvent(jobId: $jobId, input: $i) { id kind } }`,
       {
         jobId: data.ids.reporterJob,
-        i: { eventId: uuid(), kind: 'LINE_ADDED', foodId: 'brownRice', label: 'Brown rice' },
+        i: { eventId: uuidV4(), kind: 'LINE_ADDED', foodId: 'brownRice', label: 'Brown rice' },
       },
     );
   },
@@ -514,7 +521,7 @@ export const SCENARIOS: Record<OperationName, Scenario> = {
     });
   },
   uploadImage: (data): void => {
-    rest('uploadImage', 'POST', `/images/recipe/load${uuid()}`, [201], {
+    rest('uploadImage', 'POST', `/images/recipe/load${unique()}x${Date.now()}`, [201], {
       who: 'admin',
       session: data.admin,
       form: true,
