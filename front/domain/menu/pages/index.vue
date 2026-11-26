@@ -173,9 +173,12 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         </section>
 
         <section class="mt-8 space-y-4">
-          <MenuDayCard
+          <!-- Drawn on the server like the rest, interactive once it is on screen:
+               a week's seven cards are most of the page's hydration work. -->
+          <LazyMenuDayCard
             v-for="(day, index) in flexedDays"
             :key="day.key"
+            hydrate-on-visible
             :day="day"
             :targets="menu.targets"
             :date="dateOf(index)"
