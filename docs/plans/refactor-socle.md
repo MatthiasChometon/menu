@@ -79,7 +79,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M11 — impl · review · ci · ok · merged (PR #15, 1aa82aa; deploy the back before the extension); also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
 - [x] M13 — impl · review · ci · ok · merged (PR #21, 303a9b0)
 - [ ] M15 — impl · review · ci · ok · merged (after M13; before M12)
-- [ ] M12 — impl · review · ci · ok · merged; also from M14: mail and push sends retried with an idempotency key, or recorded as not needed (duplicate acceptable)
+- [ ] M12 — impl · review · ci · ok · merged; also from M14: mail and push sends retried with an idempotency key, or recorded as not needed (duplicate acceptable); also (maintainer decision 2026-11-26): no personal first name left in test fixtures or design docs (`front/**/*.test.ts` household and ingredient fixtures, `docs/conception-courses.md`), neutral names instead
 - [ ] Final PR `refactor/socle` → `main` opened, left for the maintainer
 
 ## Performance lot (M15) — load tests and time budgets that fail
