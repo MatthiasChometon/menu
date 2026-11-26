@@ -60,7 +60,26 @@ const count = computed((): number => (chosenDishes.value[group] ?? []).length);
 // Marked, not reordered. Sorting the grid by merit would move a card out from
 // under the finger on every pick; a mark leaves the choice exactly where it was
 // and still puts the balanced options first in the eye.
-const recommended = computed((): Set<string> => recommendedIn(group));
+//
+// Worked out after the tap has been painted, not during it: ranking a dish means
+// simulating the whole week with it added, for every candidate in the group, and
+// done in the same render as the tick it held the tick back by more than the
+// 100 ms a tap is allowed to take.
+const recommended = ref<Set<string>>(new Set());
+let pendingRanking: ReturnType<typeof setTimeout> | undefined;
+
+const rankAfterPaint = (): void => {
+  clearTimeout(pendingRanking);
+  requestAnimationFrame((): void => {
+    pendingRanking = setTimeout((): void => {
+      recommended.value = recommendedIn(group);
+    }, 0);
+  });
+};
+
+onMounted(rankAfterPaint);
+watch([(): RecipeSlot => group, chosenDishes], rankAfterPaint);
+onBeforeUnmount((): void => clearTimeout(pendingRanking));
 
 // Says what the dish brings when it closes a real gap, and falls back on the
 // plain mark when nothing in particular is short.
