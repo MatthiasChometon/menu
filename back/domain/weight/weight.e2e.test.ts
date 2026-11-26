@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 import { weightEntryConstraints } from './utils';
 
-const OWNER = 'matthias@example.com';
+const OWNER = 'admin@example.com';
 const SOMEBODY_ELSE = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 

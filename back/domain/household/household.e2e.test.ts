@@ -11,7 +11,7 @@ import { Sex, StarchQuality, TrainingType } from '../profile/enum';
 import { buildMeasurements } from '../profile/testing/measurements.builder';
 import { householdConstraints } from './utils';
 
-const OWNER = 'matthias@example.com';
+const OWNER = 'admin@example.com';
 const SOMEBODY_ELSE = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 

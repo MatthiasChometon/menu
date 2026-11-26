@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 
-const FIRST = 'matthias@example.com';
+const FIRST = 'admin@example.com';
 const SECOND = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 

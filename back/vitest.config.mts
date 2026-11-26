@@ -9,6 +9,11 @@ export default defineConfig({
     root: './',
     include: ['domain/**/*.test.ts', 'infrastructure/**/*.test.ts'],
     exclude: ['**/*e2e.test.ts'],
+    // Explicit, never the default: a hung test fails fast and says so. Pure logic answers in
+    // milliseconds, so five seconds is generous.
+    testTimeout: 5000,
+    hookTimeout: 10_000,
+    benchmark: { include: ['{domain,infrastructure}/**/*.bench.ts'] },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -1,5 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
 import { user } from '../user/schema';
 import { CustomRecipeSlot } from './enum';
 
@@ -12,18 +21,22 @@ export type StoredIngredients = Record<string, number>;
 // Its macros are never stored here: they follow from its ingredients, which
 // can point at a stocked food or one of the reader's own, so a stored total
 // would drift the moment either changed.
-export const customRecipe = pgTable('custom_recipe', {
-  id: uuid('id')
-    .primaryKey()
-    .$defaultFn((): string => randomUUID()),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  name: text('name').notNull(),
-  slot: text('slot').$type<CustomRecipeSlot>().notNull(),
-  ingredients: jsonb('ingredients').$type<StoredIngredients>().notNull(),
-  steps: jsonb('steps').$type<string[]>().notNull(),
-  prepMinutes: integer('prep_minutes').notNull(),
-  batch: boolean('batch').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+export const customRecipe = pgTable(
+  'custom_recipe',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .$defaultFn((): string => randomUUID()),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    slot: text('slot').$type<CustomRecipeSlot>().notNull(),
+    ingredients: jsonb('ingredients').$type<StoredIngredients>().notNull(),
+    steps: jsonb('steps').$type<string[]>().notNull(),
+    prepMinutes: integer('prep_minutes').notNull(),
+    batch: boolean('batch').notNull().default(false),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [index('custom_recipe_user_idx').on(table.userId)],
+);

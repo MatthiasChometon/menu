@@ -4,8 +4,7 @@ import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 const TEST_DATABASE_URL =
-  process.env.TEST_DATABASE_URL ??
-  'postgres://menu:menu@localhost:5433/menu_test';
+  process.env.TEST_DATABASE_URL ?? 'postgres://menu:menu@localhost:5433/menu_test';
 
 // Set before the config is read: the globalSetup runs in this process, and
 // @nestjs/config never overrides a variable already present in the environment.
@@ -22,10 +21,10 @@ const TEST_ENV = {
   FRONT_URL: 'http://localhost:3777',
   // The suite exercises the guest list, so it has to be closed here: the two
   // addresses the tests sign in with are the invitees.
-  ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com',
+  ALLOWED_EMAILS: 'admin@example.com,someone-else@example.com',
   // One of the two invitees is an administrator and the other is not, which is
   // what lets the suite check that the reports stay out of the wrong hands.
-  ADMIN_EMAILS: 'matthias@example.com',
+  ADMIN_EMAILS: 'admin@example.com',
   // A folder of its own: the suite writes real files and rewrites a real
   // manifest, and doing that in the served folder would be editing production.
   IMAGES_ROOT: join(tmpdir(), 'menu-images-e2e'),
@@ -60,6 +59,10 @@ export default defineConfig({
     fileParallelism: false,
     include: ['**/*e2e.test.ts'],
     exclude: ['node_modules/**', 'dist/**'],
+    // Explicit, never the default. A request through the whole app answers in tens of
+    // milliseconds; the hooks migrate a database and seed a world through the API.
+    testTimeout: 30_000,
+    hookTimeout: 120_000,
     env: TEST_ENV,
     globalSetup: ['./infrastructure/testing/e2e-database.ts'],
   },

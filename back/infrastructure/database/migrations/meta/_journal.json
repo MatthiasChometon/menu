@@ -127,6 +127,13 @@
       "when": 1795614541878,
       "tag": "0017_magenta_gideon",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795662845926,
+      "tag": "0018_user_scoped_read_indexes",
+      "breakpoints": true
     }
   ]
 }

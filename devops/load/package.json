@@ -1,0 +1,23 @@
+{
+  "name": "load",
+  "version": "0.0.1",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Load tests of the API (k6, TypeScript)",
+  "packageManager": "pnpm@11.13.1",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"*.ts\"",
+    "format": "prettier --write \"*.{ts,json,mjs}\"",
+    "format:check": "prettier --check \"*.{ts,json,mjs}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/k6": "2.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.10.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.74.0"
+  }
+}

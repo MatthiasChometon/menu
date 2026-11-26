@@ -6,7 +6,7 @@ import { buildMeasurements } from '../../profile/testing/measurements.builder';
 // The suite only has two invited addresses, so the tests take turns rather
 // than share: a leftover account turns the next sign-up into a conflict, and
 // the failure then looks like a bug in the code under test.
-const INVITED = ['matthias@example.com', 'someone-else@example.com'] as const;
+const INVITED = ['admin@example.com', 'someone-else@example.com'] as const;
 const PASSWORD = 'a-long-enough-password';
 
 let api: TestApp;

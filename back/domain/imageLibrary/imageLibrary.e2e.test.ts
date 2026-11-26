@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 
-const ADMIN = 'matthias@example.com';
+const ADMIN = 'admin@example.com';
 const READER = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 
