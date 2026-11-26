@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
@@ -59,7 +60,18 @@ export default defineNuxtConfig({
   // arrives when a card scrolls into view.
   // JSON catalogs are emitted as one JSON.parse string instead of an object literal,
   // which the engine reads faster than the same data as JavaScript source.
-  vite: { json: { stringify: true } },
+  vite: {
+    json: { stringify: true },
+    resolve: {
+      // graphql-request drags the whole graphql package in to read the name of
+      // an operation; see the replacement for what it keeps.
+      alias: {
+        'graphql-request': fileURLToPath(
+          new URL('./infrastructure/graphql/utils/liteGraphqlRequest.ts', import.meta.url),
+        ),
+      },
+    },
+  },
   hooks: {
     'build:manifest': (manifest): void => {
       for (const entry of Object.values(manifest)) {
