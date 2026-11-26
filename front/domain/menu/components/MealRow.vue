@@ -209,16 +209,7 @@ const menuItems = computed((): DropdownMenuItem[][] => {
         @click="toggleEaten(dayKey, meal.slot)"
       />
 
-      <LazyUDropdownMenu hydrate-on-interaction :items="menuItems">
-        <UButton
-          icon="i-lucide-ellipsis-vertical"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          class="shrink-0"
-          :aria-label="$t('menu.flex.mealActions')"
-        />
-      </LazyUDropdownMenu>
+      <UiActionsMenu :items="menuItems" :label="$t('menu.flex.mealActions')" />
     </div>
 
     <!-- A pot from yesterday, offered rather than imposed: the plan for this
