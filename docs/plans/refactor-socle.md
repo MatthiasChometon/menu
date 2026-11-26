@@ -449,3 +449,21 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   behaviour: with failures not logged the four refusal tests fail; with register awaiting the mail, four register tests fail. The
   e2e suite is CI only (no Postgres locally). `extension` needed no change.
 - 2026-11-26 — M13 merged (PR #21, 303a9b0): 4 review rounds (3 major, 6 minor, 2 nits). Overrides pinned inside the fixing major and scoped to parents; `ops/check-overrides.mjs` (with `node --test` tests) fails on a useless override and on an unreadable audit report, runs weekly and on any PR touching a manifest or lockfile. Mail sends no longer awaited (register, resend, reset), fail-first proven by mutation for each route. Next: M15.
+- 2026-11-26 — M15 back half (PR #22, draft, box not ticked: the front half belongs to another lot):
+  **Turned on:** `devops/load/` k6 suite (TypeScript, k6 2.3.0) playing every GraphQL operation and every REST route in six
+  profiles (smoke, load, spike, stress, soak, breakpoint); `.github/workflows/load.yml` (pull request: smoke + load; Monday 03:00 UTC
+  and on demand: all six) with the API held to one core and 512 MB (`taskset -c 0 node --max-old-space-size=512`), k6 on the other
+  cores, Postgres 17 with `pg_stat_statements` (ten slowest statements and RSS/CPU in the job summary). Back e2e budgets
+  (`back/infrastructure/performance/`): median of 15 samples per operation (read 100 ms, mutation 100 ms, credential 250 ms,
+  upload 1000 ms), a query-count guard per operation (N+1) and EXPLAIN checks (no sequential scan on the hot tables). Pure hot
+  functions have benches. Budgets, in ms (p95 / p99): read 300 / 800, mutation 250 / 800, credential 400 / 1000, upload 1000 / 3000.
+  **Measured on CI (full dispatch, 45738773367):** every operation within budget, failed 0.00 %. Load: read p95 at most 12 ms,
+  mutation at most 15 ms (p99 62 ms), login 45 ms, upload 57 ms. Soak 30 min: RSS flat at 439 MB, p95 7 ms. Breakpoint: the API
+  gives way at about 386 operations per second on one core.
+  **Budgets missed: none in the back.** The first CI runs were red from test and fixture faults (weigh-ins dated in the future,
+  EXPLAIN aimed at the wrong read, load scripts sending invalid dates, event ids and image ids), fixed as such; no budget was
+  loosened and no job made non-blocking.
+  **Deferred:** the front half (web vitals, bundle and interaction budgets): owner lot M15 front, exit when its PR is merged.
+  Mail send time stays out of the budgets (sent in the background, M3). A baseline on the real shared host: owner the maintainer,
+  exit when a run of the `load` workflow against it is decided (hosting decision, not a code one).
+  **Deletion candidates:** none.
