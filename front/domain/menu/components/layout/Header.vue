@@ -84,6 +84,8 @@ const isDark = computed({
 });
 
 const isDisplayPreferencesOpen = ref(false);
+// Fetched the first time the button is pressed rather than with every page.
+const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
 </script>
 
 <template>
@@ -198,5 +200,8 @@ const isDisplayPreferencesOpen = ref(false);
     </div>
   </header>
 
-  <UiDisplayPreferencesDialog v-model="isDisplayPreferencesOpen" />
+  <LazyUiDisplayPreferencesDialog
+    v-if="displayPreferencesOpened"
+    v-model="isDisplayPreferencesOpen"
+  />
 </template>
