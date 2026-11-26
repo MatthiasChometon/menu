@@ -14,7 +14,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   forbidOnly: Boolean(process.env.CI),
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
-  use: { baseURL: `http://localhost:${PORT}` },
+  // An action that cannot happen fails in seconds with its call log, instead of
+  // waiting for the whole test to time out.
+  use: { baseURL: `http://localhost:${PORT}`, actionTimeout: 10_000 },
   webServer: {
     command: 'pnpm preview',
     url: `http://localhost:${PORT}`,
