@@ -84,7 +84,7 @@ const simuleSession = async (page: import('@playwright/test').Page): Promise<voi
     } | null;
     const requete = corps?.query ?? '';
 
-    if (requete.includes('query me')) return route.fulfill({ json: { data: { me: SESSION.me } } });
+    if (/query\s+me\b/.test(requete)) return route.fulfill({ json: { data: { me: SESSION.me } } });
     if (requete.includes('query myProfile'))
       return route.fulfill({ json: { data: { myProfile: SESSION.myProfile } } });
     if (requete.includes('query myWeekPlan'))
