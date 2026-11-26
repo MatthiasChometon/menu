@@ -84,9 +84,6 @@ export default defineNuxtConfig({
   // a first paint pays for and parses, for pages the reader may never open. The
   // service worker already holds every chunk for offline use, so the same fetch
   // now waits for a finger or a pointer to come near the link.
-  // The stylesheet goes into the page itself: a separate render-blocking file costs a round trip
-  // before the first paint, which on the throttled link is most of the first-paint time.
-  features: { inlineStyles: true },
   experimental: {
     defaults: { nuxtLink: { prefetchOn: { visibility: false, interaction: true } } },
   },
