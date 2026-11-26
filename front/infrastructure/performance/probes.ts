@@ -5,6 +5,8 @@ export type Probe = {
   lcp: number;
   /** Sum of the layout shifts that no input caused. */
   cls: number;
+  /** One line per layout shift: value, time, and the nodes that moved (for the CI log). */
+  shifts: string[];
   /** One entry per interaction: the longest Event Timing duration of its events, ms. */
   interactions: number[];
   /** Time of the last click or key press, ms since navigation start. */
@@ -24,6 +26,7 @@ export const installProbes = (options: { ready: string; path: string }): void =>
   const probe: Probe = {
     lcp: 0,
     cls: 0,
+    shifts: [],
     interactions: [],
     lastInputAt: 0,
     feedbackMs: undefined,
@@ -57,6 +60,18 @@ export const installProbes = (options: { ready: string; path: string }): void =>
     for (const entry of list.getEntries()) {
       const shift = entry as PerformanceEntry & { value: number; hadRecentInput: boolean };
       if (!shift.hadRecentInput) probe.cls += shift.value;
+      if (shift.hadRecentInput) continue;
+      const moved = (
+        entry as unknown as {
+          sources: { node: Element | null; previousRect: DOMRect; currentRect: DOMRect }[];
+        }
+      ).sources.map(
+        (source): string =>
+          `${source.node?.nodeName ?? '?'}.${String((source.node as HTMLElement | null)?.className ?? '').slice(0, 40)} y${Math.round(source.previousRect.y)}->${Math.round(source.currentRect.y)} h${Math.round(source.previousRect.height)}->${Math.round(source.currentRect.height)}`,
+      );
+      probe.shifts.push(
+        `${shift.value.toFixed(4)} @${Math.round(entry.startTime)}ms ${moved.join(' | ')}`,
+      );
     }
   }).observe({ type: 'layout-shift', buffered: true });
 

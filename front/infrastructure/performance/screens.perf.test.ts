@@ -28,7 +28,10 @@ const coldLoad = async (
     await page.goto(screen.path);
     const mainMs = await waitForMain(page, WAIT_MS);
     await page.waitForTimeout(SETTLE_MS);
-    const { lcp, cls } = await readProbe(page);
+    const { lcp, cls, shifts } = await readProbe(page);
+    if (shifts.length > 0)
+      process.stdout.write(`SHIFTS ${screen.name} | ${shifts.join(' || ')}
+`);
     checkNothingUnstubbed(unstubbed);
     if (lcp === 0) throw new Error(`${screen.name}: no largest-contentful-paint entry arrived`);
 

@@ -68,11 +68,11 @@ export type Reading = Omit<ProbeWindow['__probe'], 'watchMain'>;
 /** What the page measured so far (the probe's functions do not cross the wire). */
 export const readProbe = (page: Page): Promise<Reading> =>
   page.evaluate((): Reading => {
-    const { lcp, cls, interactions, lastInputAt, feedbackMs, mainVisibleAt } = (
+    const { lcp, cls, shifts, interactions, lastInputAt, feedbackMs, mainVisibleAt } = (
       window as unknown as ProbeWindow
     ).__probe;
 
-    return { lcp, cls, interactions, lastInputAt, feedbackMs, mainVisibleAt };
+    return { lcp, cls, shifts, interactions, lastInputAt, feedbackMs, mainVisibleAt };
   });
 
 /** Waits until the screen's main content showed and returns when, ms since navigation start. */
