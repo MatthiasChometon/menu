@@ -69,6 +69,15 @@ const perClass = (selector: string, factor = 1, classes: BudgetClass[] = CLASSES
     }),
   );
 
+// No limit on the latency, only the figures: a threshold is what makes k6 report a metric.
+const observeClasses = (): Thresholds =>
+  Object.fromEntries(
+    CLASSES.map((budgetClass) => [
+      `http_req_duration{class:${budgetClass}}`,
+      ['p(95)>=0', 'p(99)>=0'],
+    ]),
+  );
+
 const env = (name: string, fallback: string): string => __ENV[name] ?? fallback;
 
 // An operation per scenario, each named after it: `scenarios.ts` finds what to play from the name.
@@ -169,6 +178,7 @@ const stress = (): Options => ({
   // Slow is allowed here, failing is not: past a few percent of errors the API has fallen.
   thresholds: {
     http_req_failed: [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '1m' }],
+    ...observeClasses(),
   },
 });
 
