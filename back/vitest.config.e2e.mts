@@ -21,10 +21,10 @@ const TEST_ENV = {
   FRONT_URL: 'http://localhost:3777',
   // The suite exercises the guest list, so it has to be closed here: the two
   // addresses the tests sign in with are the invitees.
-  ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com,admin@example.com',
+  ALLOWED_EMAILS: 'matthias@example.com,someone-else@example.com',
   // One of the two invitees is an administrator and the other is not, which is
   // what lets the suite check that the reports stay out of the wrong hands.
-  ADMIN_EMAILS: 'matthias@example.com,admin@example.com',
+  ADMIN_EMAILS: 'matthias@example.com',
   // A folder of its own: the suite writes real files and rewrites a real
   // manifest, and doing that in the served folder would be editing production.
   IMAGES_ROOT: join(tmpdir(), 'menu-images-e2e'),
