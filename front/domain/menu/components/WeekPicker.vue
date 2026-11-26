@@ -81,9 +81,10 @@ onMounted((): void => {
         @click="go(-1)"
       />
 
-      <USelect
+      <LazyUSelect
         v-if="weeks.length > 1"
         v-model="selectedWeek"
+        hydrate-on-interaction
         :items="options"
         value-key="value"
         icon="i-lucide-calendar-days"

@@ -161,7 +161,7 @@ watch(
           />
         </button>
 
-        <UDropdownMenu :items="flexItems">
+        <LazyUDropdownMenu hydrate-on-interaction :items="flexItems">
           <UButton
             icon="i-lucide-ellipsis-vertical"
             color="neutral"
@@ -170,7 +170,7 @@ watch(
             class="shrink-0"
             :aria-label="$t('menu.flex.dayActions')"
           />
-        </UDropdownMenu>
+        </LazyUDropdownMenu>
       </div>
     </template>
 
