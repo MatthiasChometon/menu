@@ -172,7 +172,7 @@ if (firstImage !== undefined) {
         v-for="(entry, position) in shownEntries"
         :key="entry.recipe.id"
         :entry="entry"
-        :eager="position < 3"
+        :eager="position === 0"
         @edit="editRecipe"
       />
     </div>

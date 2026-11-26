@@ -16,12 +16,31 @@ const {
 
 const hasFailed = ref(false);
 
+// A photograph that is not in the first screenful is not asked for until it is
+// about to scroll into view. The browser's own lazy loading looks a couple of
+// screens ahead on a slow connection, which put nine photographs on the wire
+// beside the one the page is measured on.
+const NEAR_MARGIN = '200px';
+const holder = ref<HTMLElement | null>(null);
+const isNear = ref(eager);
+const { stop } = useIntersectionObserver(
+  holder,
+  ([entry]): void => {
+    if (entry?.isIntersecting !== true) return;
+    isNear.value = true;
+    stop();
+  },
+  { rootMargin: NEAR_MARGIN },
+);
+
 const showsImage = computed((): boolean => src !== undefined && !hasFailed.value);
+const isFetched = computed((): boolean => showsImage.value && isNear.value);
 </script>
 
 <template>
   <img
-    v-if="showsImage"
+    v-if="isFetched"
+    ref="holder"
     :src="src"
     :alt="alt"
     :loading="eager ? 'eager' : 'lazy'"
@@ -33,6 +52,7 @@ const showsImage = computed((): boolean => src !== undefined && !hasFailed.value
   />
   <span
     v-else
+    ref="holder"
     :class="rounded"
     class="flex size-full items-center justify-center bg-elevated text-dimmed"
     role="img"
