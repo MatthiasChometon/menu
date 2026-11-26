@@ -11,5 +11,8 @@ export default defineConfig({
     environment: 'node',
     include: ['**/*.test.ts'],
     exclude: ['node_modules/**', '.output/**', '.wxt/**'],
+    // Explicit, so a hung or slow test fails after a known time, not the library default.
+    testTimeout: 10_000,
+    hookTimeout: 10_000,
   },
 });

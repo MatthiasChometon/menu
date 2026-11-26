@@ -1,0 +1,103 @@
+name: Perf front
+
+# Screen timings, INP and Lighthouse budgets of the front, on the generated site as it is
+# deployed. Blocking: a budget that is missed is a bug, never a threshold to loosen.
+# Timings run on the CI runner only; at most one automatic retry of a failed test.
+on:
+  pull_request:
+    paths:
+      - "front/**"
+      - ".github/workflows/perf-front.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: perf-front-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  timings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: front/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm generate
+      - name: Timings, INP and layout shift (4x CPU slowdown, median of 10)
+        run: pnpm test:perf
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-timings
+          path: front/test-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+  bench:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: front
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: front/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Hot pure functions against the stored baseline
+        run: pnpm bench
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: front
+    env:
+      PORT: "3777"
+      NITRO_PRESET: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: front/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: front/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm generate
+      - name: Calibrate the CPU slowdown on the reference device (mid-tier mobile)
+        run: |
+          pnpm dlx @lhci/cli@0.15.1 collect --numberOfRuns=3 --url=http://localhost:3777/courses --start-server-command="pnpm preview" --start-server-ready-pattern=Listening --settings.chromeFlags=--no-sandbox
+          echo "LH_CPU_SLOWDOWN=$(node lighthouse-calibrate.cjs)" >> "$GITHUB_ENV"
+          rm -rf .lighthouseci
+      - name: Lighthouse, median of 5 runs per page
+        run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse
+          path: front/lighthouse-reports
+          retention-days: 30
