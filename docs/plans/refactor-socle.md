@@ -491,18 +491,26 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   feedback 142-284 ms (navigation bar throttled by 200 ms: throttle 0); error reporter in the first-paint script
   (about 137 KB: fetched on the first error instead). A probe bug found on the way (week toggle selected the meal options
   menu). All 24 timing tests green on two runners of different speed (warm main content 253-677 ms, INP <= 76 ms, CLS <= 0.008).
-  **Still red, budgets unchanged: the `lighthouse` job.** Script weight 358-378 KB (budget 350 KB = 358,400 B) on four of five
-  URLs, TBT 284-1044 ms (budget 200), LCP 3.2-5.8 s (budget 2.5 s), measured at a slowdown of 5.4-7.8x. What remains is the
-  first-paint cost of a fully client-hydrated static site: the entry chunk (about 266 KB transferred) holds the framework,
-  the Nuxt UI components, the i18n message compiler and the whole recipe and food data (`recipes.json` 125 KB and `foods.json`
-  32 KB raw), all read synchronously by `useRecipes`, `useFoods` and `useMenu`. **Deferred to a follow-up lot, M15b "front
-  first-load weight" (owner: the front lot that follows M15; exit: the `lighthouse` job green with the budgets above).**
-  Options, none chosen: (1) an asynchronous data layer, so recipes, foods and menus load per route, plus lazy hydration
-  (`hydrate-on-visible`) of below-the-fold components: code only, large, touches every consumer of the three composables;
-  (2) a hosting-model change (server rendering or edge rendering of the first view) that the static host does not offer:
-  a decision for the maintainer; (3) decide whether the weight budget is read on what the real host serves (the runner's
-  static server compresses with gzip only, the shared host may use brotli) and whether the images should come from the image
-  host or a stub in the Lighthouse run (they currently reach the real image host, a flake risk); (4) revisit TBT and LCP with
-  the maintainer once (1) is measured. Not changed: any budget. Notes: the bench baseline was produced on Windows and CI
-  passes it with the 2x tolerance, so it should be regenerated on the runner once; a vitest worker teardown error shows up
-  now and then when three monitoring test files run together locally (not in CI).
+  **Lighthouse job (budgets unchanged): script weight now passes, TBT and LCP stay red.** The weight budget is a transfer
+  size: `resource-summary:script:size` counts compressed bytes as served, and 350 KB there is 350 KiB = 358,400 B (the
+  earlier "358-378 KB" figures were decimal kilobytes of transfer, not raw size). Reducing first-load code, one commit each:
+  i18n message compiler dropped (`bundle.runtimeOnly`, messages precompiled at build); the three feedback dialogs, the
+  display-preferences dialog, the recipe and food forms, the planner panels loaded on first open (`useOpenedOnce` plus `Lazy`
+  components; entry chunk 905,952 -> 686,048 B raw, 266 -> 213 KB transferred); day cards `hydrate-on-visible`; bottom-bar
+  and lazy-chunk prefetch hints removed; select and account menu no longer preloaded; language picker a native select;
+  week select lazy; day and meal action menus loaded on first touch (`ActionsMenu`). Home page script weight 375,735 ->
+  363,296 (select and menus made touch-only) -> 323,778 B (action menus); the other four URLs 349,8xx-351,426 B, all under
+  358,400. Last CI run: TBT 310 / 726 / 452 / 336 / 419 ms against 200 (`/`, `/composer`, `/courses`, `/recettes`,
+  `/recette`), LCP 3.4-5.5 s against 2.5 s, CLS and image weight pass. **Item not done: recipe and food data out of the entry
+  chunk.** Measured and not applied: the three catalogs are 20.4 + 4.6 + 1.0 KB compressed (about 26 KB), every screen needs
+  them before first render, and about 40 consumers read the composables synchronously, so a lazy load would only move the
+  bytes into a request waterfall on the critical path; the gain is parse time (JSON against a JS object literal), not
+  transfer. Not measured in isolation. LCP element on `/` is a paragraph whose render delay is about 91% of the time
+  (main-thread hydration); a CPU profile at 4x shows mostly "(program)" time, a stylesheet-rule scan (about 100 ms) and the
+  entry's top-level evaluation (about 204 ms). Remaining options, none chosen: (1) the asynchronous data layer above,
+  worth it only if parse time shows up in a profile; (2) a hosting-model change (server or edge rendering of the first view)
+  that the static host does not offer: a decision for the maintainer; (3) read the weight budget against what the real host
+  serves (the runner's static server compresses with gzip only) and decide whether the Lighthouse run stubs the image host
+  (it reaches the real one, a flake risk); (4) revisit TBT and LCP with the maintainer. Not changed: any budget. Notes: the
+  bench baseline was produced on Windows and CI passes it with the 2x tolerance, so it should be regenerated on the runner
+  once; a vitest worker teardown error shows up now and then when three monitoring test files run together locally (not in CI).
