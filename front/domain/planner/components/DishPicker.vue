@@ -274,7 +274,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       {{ $t('planner.filter.none') }}
     </p>
 
-    <PlannerDishDetail
+    <LazyPlannerDishDetail
       v-if="preview !== undefined"
       v-model="isPreviewOpen"
       :recipe="preview"
