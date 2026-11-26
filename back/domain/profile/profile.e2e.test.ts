@@ -38,7 +38,7 @@ type Targets = { kcal: number; protein: number; fat: number; carbs: number; fibe
 
 let api: TestApp;
 
-const signIn = (): Promise<string> => api.signUp('matthias@example.com', 'a-long-enough-password');
+const signIn = (): Promise<string> => api.signUp('admin@example.com', 'a-long-enough-password');
 
 beforeAll(async (): Promise<void> => {
   api = await startTestApp();

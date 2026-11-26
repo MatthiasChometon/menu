@@ -25,10 +25,10 @@ afterAll(async (): Promise<void> => {
 
 describe('stopping the server', () => {
   it('lets a grocery report still on its way reach the mail', async () => {
-    await api.signUp('matthias@example.com', 'a-long-enough-password');
+    await api.signUp('admin@example.com', 'a-long-enough-password');
     const users = api.resolve(UserRepository);
     const account = expectPresent(
-      await users.findRecordByEmail('matthias@example.com'),
+      await users.findRecordByEmail('admin@example.com'),
       'the account',
     );
     const realFind = users.findById.bind(users);

@@ -18,7 +18,7 @@ export const CROWD = { accounts: 300, weights: 10, foods: 6, recipes: 4 } as con
 export const PASSWORD = 'a-long-enough-password';
 // The one administrator of the suite (see vitest.config.e2e.mts): a second one would double the
 // announcements the bug-report tests hold back.
-export const ADMIN_EMAIL = 'matthias@example.com';
+export const ADMIN_EMAIL = 'admin@example.com';
 export const READER_EMAIL = 'someone-else@example.com';
 
 export type Who = 'anonymous' | 'reader' | 'admin' | 'device';

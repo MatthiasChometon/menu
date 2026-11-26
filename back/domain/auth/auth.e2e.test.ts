@@ -7,7 +7,7 @@ import { GoogleOAuth } from './google/service';
 import { UserRepository } from '../user/repository';
 import { AuthTokenRepository, EMAIL_VERIFICATION } from './tokens/repository';
 
-const EMAIL = 'matthias@example.com';
+const EMAIL = 'admin@example.com';
 const PASSWORD = 'a-long-enough-password';
 
 const ME = `query { me { id email name } }`;
@@ -35,7 +35,7 @@ describe('registering', () => {
     const response = await api.post('/auth/register', {
       email: EMAIL,
       password: PASSWORD,
-      name: 'Matthias',
+      name: 'Admin',
     });
 
     expect(response.statusCode).toBe(202);

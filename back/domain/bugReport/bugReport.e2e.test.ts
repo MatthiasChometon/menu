@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { MailService } from '../../infrastructure/mail/service';
 import { startTestApp, type TestApp } from '../../infrastructure/testing/e2e-app';
 
-const ADMIN = 'matthias@example.com';
+const ADMIN = 'admin@example.com';
 const READER = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 

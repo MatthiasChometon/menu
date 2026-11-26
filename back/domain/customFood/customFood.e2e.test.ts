@@ -7,7 +7,7 @@ import { UserRepository } from '../user/repository';
 import { customFood } from './schema';
 import { customFoodConstraints } from './utils';
 
-const OWNER = 'matthias@example.com';
+const OWNER = 'admin@example.com';
 const SOMEBODY_ELSE = 'someone-else@example.com';
 const PASSWORD = 'a-long-enough-password';
 

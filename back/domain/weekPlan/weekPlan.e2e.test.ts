@@ -51,7 +51,7 @@ beforeEach(async (): Promise<void> => {
 
 describe('composing a week', () => {
   it('gives back nothing for a week never composed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql<{ myWeekPlan: null }>(MINE, { weekOf: WEEK }, cookie);
 
@@ -60,7 +60,7 @@ describe('composing a week', () => {
   });
 
   it('keeps the dishes chosen, and nothing else', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, cookie);
     const response = await api.graphql<{ myWeekPlan: Plan }>(MINE, { weekOf: WEEK }, cookie);
@@ -70,7 +70,7 @@ describe('composing a week', () => {
   });
 
   it('replaces a week wholesale rather than merging into it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, cookie);
     // A dish removed by the reader must not survive the next save.
@@ -83,7 +83,7 @@ describe('composing a week', () => {
   });
 
   it('keeps each week apart from the others', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, cookie);
     await api.graphql(SAVE, { input: { weekOf: '2026-08-17', days: [] } }, cookie);
@@ -101,7 +101,7 @@ describe('composing a week', () => {
   });
 
   it('forgets a week on request, and says when there was none', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, cookie);
     const removed = await api.graphql<{ deleteWeekPlan: boolean }>(
@@ -130,7 +130,7 @@ describe('whose week it is', () => {
   });
 
   it('stays invisible to another account', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, mine);
 
     // The whole point of tying a week to its owner: two people, two weeks.
@@ -141,7 +141,7 @@ describe('whose week it is', () => {
   });
 
   it('lets two accounts hold different dishes for the same week', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     await api.graphql(SAVE, { input: { weekOf: WEEK, days: [MONDAY] } }, mine);
 
     const theirs = await signIn('someone-else@example.com');
@@ -158,7 +158,7 @@ describe('whose week it is', () => {
 
 describe('what the API refuses to store', () => {
   it('rejects a week that is not a date', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql(
       SAVE,
@@ -170,7 +170,7 @@ describe('what the API refuses to store', () => {
   });
 
   it('rejects a recipe identifier that is anything but one', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const injected = {
       day: 'MONDAY',
       meals: [{ slot: 'LUNCH', recipeId: "'; DROP TABLE week_plan; --" }],
@@ -186,7 +186,7 @@ describe('what the API refuses to store', () => {
     ['deleting', DELETE, { weekOf: '2026-13-45' }],
     ['saving', SAVE, { input: { weekOf: '2026-02-30', days: [] } }],
   ])('refuses a week that is not a date when %s', async (_operation, query, variables) => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql(query, variables, cookie);
 
@@ -194,7 +194,7 @@ describe('what the API refuses to store', () => {
   });
 
   it('rejects a day that is not a day', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql(
       SAVE,

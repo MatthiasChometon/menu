@@ -129,7 +129,7 @@ beforeEach(async (): Promise<void> => {
 
 describe('pairing a browser', () => {
   it('hands out a token and lists the browser afterwards', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const paired = await api.graphql<{ pairGroceryDevice: Device }>(
       PAIR_DEVICE,
@@ -155,7 +155,7 @@ describe('pairing a browser', () => {
 
 describe('running a queued order', () => {
   it('lets a paired browser pick the run up, report on it and close it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
 
@@ -196,7 +196,7 @@ describe('running a queued order', () => {
   });
 
   it('has nothing to hand out when no run is waiting', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
 
     const claimed = await api.graphql<{ claimGroceryJob: Job | null }>(
@@ -210,7 +210,7 @@ describe('running a queued order', () => {
   });
 
   it('gives the same run to only one browser', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const [first, second] = [await pair(cookie, 'Desktop'), await pair(cookie, 'Laptop')];
     await queueJob(cookie);
 
@@ -236,7 +236,7 @@ describe('running a queued order', () => {
 
 describe('refusing an identifier that cannot be one', () => {
   it('turns down a run id that is not a UUID as a bad input, not a crash', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql(JOB, { jobId: 'not-a-uuid' }, cookie);
 
@@ -244,7 +244,7 @@ describe('refusing an identifier that cannot be one', () => {
   });
 
   it('turns down a run id that is not a UUID when a browser reports on it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
 
     const response = await api.graphql(
@@ -258,7 +258,7 @@ describe('refusing an identifier that cannot be one', () => {
   });
 
   it('turns down a browser name that is empty or far too long, and pairs nothing', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const empty = await api.graphql(PAIR_DEVICE, { label: '   ' }, cookie);
     const long = await api.graphql(PAIR_DEVICE, { label: 'a'.repeat(500) }, cookie);
@@ -274,7 +274,7 @@ describe('refusing an identifier that cannot be one', () => {
   });
 
   it('turns down a push endpoint that is not an https address', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const unsubscribe = `mutation ($endpoint: String!) { unsubscribeFromGroceryPush(endpoint: $endpoint) }`;
 
     const response = await api.graphql(unsubscribe, { endpoint: 'javascript:alert(1)' }, cookie);
@@ -285,7 +285,7 @@ describe('refusing an identifier that cannot be one', () => {
 
 describe('keeping accounts apart', () => {
   it('never hands one account a run queued by another', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
     const theirToken = await pair(theirs, 'Their desktop');
     await queueJob(mine);
@@ -301,7 +301,7 @@ describe('keeping accounts apart', () => {
   });
 
   it('refuses to write into a run the browser does not hold', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
     const theirToken = await pair(theirs, 'Their desktop');
     const queued = await queueJob(mine);
@@ -323,7 +323,7 @@ describe('keeping accounts apart', () => {
   });
 
   it('shows nothing when asked for a run belonging to someone else', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
     const queued = await queueJob(mine);
 
@@ -353,7 +353,7 @@ describe('working out what to buy', () => {
   };
 
   it('turns the grams of a week into whole products', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     const queued = await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
@@ -364,10 +364,10 @@ describe('working out what to buy', () => {
   });
 
   it('buys less when the cupboard already holds some', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
-    const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
+    const account = await api.resolve(UserRepository).findRecordByEmail('admin@example.com');
     await api
       .resolve(GroceryPantryRepository)
       .replace(expectPresent(account, 'the account').id, new Map([['brownRice', 500]]));
@@ -380,7 +380,7 @@ describe('working out what to buy', () => {
   });
 
   it('still carries a food whose product is unknown, so the run goes looking', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const queued = await queueJob(cookie, [{ foodId: 'tofu', grams: 400 }]);
 
@@ -389,7 +389,7 @@ describe('working out what to buy', () => {
   });
 
   it('hands the basket to the browser that takes the run', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
     const token = await pair(cookie, 'Desktop');
     await queueJob(cookie, [{ foodId: 'brownRice', grams: 960 }]);
@@ -432,7 +432,7 @@ describe('telling the reader what the basket costs', () => {
   };
 
   it('keeps the amounts the run came back with', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -448,7 +448,7 @@ describe('telling the reader what the basket costs', () => {
   });
 
   it('flags a basket over what the account asked to be warned about', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 5000 } }, cookie);
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
@@ -460,7 +460,7 @@ describe('telling the reader what the basket costs', () => {
   });
 
   it('stays quiet when the basket is under it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 12000 } }, cookie);
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
@@ -472,7 +472,7 @@ describe('telling the reader what the basket costs', () => {
   });
 
   it('measures against the threshold in force when the run was asked for', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SAVE_PREFERENCE, { input: { alertThresholdCents: 5000 } }, cookie);
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
@@ -486,7 +486,7 @@ describe('telling the reader what the basket costs', () => {
   });
 
   it('warns by default, before anyone opens the settings', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql<{ myGroceryPreference: { alertThresholdCents: number } }>(
       MY_PREFERENCE,
@@ -498,7 +498,7 @@ describe('telling the reader what the basket costs', () => {
   });
 
   it('reports a basket that cannot be ordered at all', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -543,30 +543,30 @@ describe('what the week leaves in the cupboard', () => {
   };
 
   it('keeps what was bought over what was eaten', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     // Two boxes of 500 g bought for 960 g eaten.
     await runAndClose(cookie, [{ foodId: 'brownRice', grams: 960 }]);
 
-    expect((await pantryOf('matthias@example.com')).get('brownRice')).toBe(40);
+    expect((await pantryOf('admin@example.com')).get('brownRice')).toBe(40);
   });
 
   it('does not stock what the shop never supplied', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
 
     await runAndClose(cookie, [{ foodId: 'brownRice', grams: 960 }], {
       missingFoodIds: ['brownRice'],
     });
 
-    expect((await pantryOf('matthias@example.com')).has('brownRice')).toBe(false);
+    expect((await pantryOf('admin@example.com')).has('brownRice')).toBe(false);
   });
 
   it('leaves the cupboard alone when the run did not succeed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([RICE]);
-    const account = await api.resolve(UserRepository).findRecordByEmail('matthias@example.com');
+    const account = await api.resolve(UserRepository).findRecordByEmail('admin@example.com');
     await api
       .resolve(GroceryPantryRepository)
       .replace(expectPresent(account, 'the account').id, new Map([['oats', 300]]));
@@ -581,7 +581,7 @@ describe('what the week leaves in the cupboard', () => {
       asDevice(token),
     );
 
-    expect((await pantryOf('matthias@example.com')).get('oats')).toBe(300);
+    expect((await pantryOf('admin@example.com')).get('oats')).toBe(300);
   });
 });
 
@@ -596,7 +596,7 @@ describe('when a delivery is welcome', () => {
   const SATURDAY_MORNING = { weekday: 6, startMinute: 480, endMinute: 720 };
 
   it('hands the windows to the browser that takes the run', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, cookie);
     const token = await pair(cookie, 'Desktop');
     await queueJob(cookie);
@@ -612,7 +612,7 @@ describe('when a delivery is welcome', () => {
   });
 
   it('hands over none when the account never said, so nothing is booked', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     await queueJob(cookie);
 
@@ -627,7 +627,7 @@ describe('when a delivery is welcome', () => {
   });
 
   it('replaces the whole set rather than adding to it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, cookie);
 
     const saved = await api.graphql<{ saveGrocerySlotWindows: { weekday: number }[] }>(
@@ -642,7 +642,7 @@ describe('when a delivery is welcome', () => {
   });
 
   it('turns down a weekday that does not exist', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     const response = await api.graphql(
       SAVE_WINDOWS,
@@ -654,7 +654,7 @@ describe('when a delivery is welcome', () => {
   });
 
   it('keeps one account out of another one windows', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
     await api.graphql(SAVE_WINDOWS, { input: { windows: [SATURDAY_MORNING] } }, mine);
 
@@ -692,7 +692,7 @@ describe('keeping the reference in step with the shelves', () => {
     (await api.resolve(GroceryCatalogRepository).knownProducts()).get(foodId);
 
   it('takes the price the shop actually charged', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([{ ...RICE, priceCents: 179 }]);
 
     await close(cookie, [{ ...RICE, priceCents: 199, size: undefined }]);
@@ -702,7 +702,7 @@ describe('keeping the reference in step with the shelves', () => {
   });
 
   it('never overwrites a known size with nothing', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.resolve(GroceryCatalogRepository).record([{ ...RICE, priceCents: 179 }]);
 
     await close(cookie, [{ ...RICE, priceCents: 199 }]);
@@ -711,7 +711,7 @@ describe('keeping the reference in step with the shelves', () => {
   });
 
   it('promotes a substitute to the product of reference', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await close(cookie, [
       {
@@ -729,7 +729,7 @@ describe('keeping the reference in step with the shelves', () => {
   });
 
   it('keeps the last word when a substitute is reported twice in one run', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const tofu = { foodId: 'tofu', ean: '9999999999999', name: 'Tofu', priceCents: 249 };
 
     await close(cookie, [
@@ -741,7 +741,7 @@ describe('keeping the reference in step with the shelves', () => {
   });
 
   it('leaves the reference alone when the run did not succeed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -788,17 +788,17 @@ describe('telling somebody the basket is ready', () => {
   };
 
   it('writes to the account that asked, once the run is closed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await closeWith(cookie, { productsCents: 8450, deliveryFeesCents: 790 });
 
-    expect(await reportMail('matthias@example.com')).toEqual(
-      expect.objectContaining({ to: 'matthias@example.com', subject: 'Panier prêt' }),
+    expect(await reportMail('admin@example.com')).toEqual(
+      expect.objectContaining({ to: 'admin@example.com', subject: 'Panier prêt' }),
     );
   });
 
   it('says in the subject when the basket wants a look', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(
       `mutation ($input: GroceryPreferenceInput!) {
         saveGroceryPreference(input: $input) { alertThresholdCents }
@@ -809,11 +809,11 @@ describe('telling somebody the basket is ready', () => {
 
     await closeWith(cookie, { productsCents: 8450 });
 
-    expect((await reportMail('matthias@example.com')).subject).toBe('Panier prêt, à vérifier');
+    expect((await reportMail('admin@example.com')).subject).toBe('Panier prêt, à vérifier');
   });
 
   it('writes even when the run was stopped, which is when it matters most', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -825,13 +825,13 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect((await reportMail('matthias@example.com')).subject).toBe(
+    expect((await reportMail('admin@example.com')).subject).toBe(
       'Courses interrompues : il faut ton intervention',
     );
   });
 
   it('escapes what the shop wrote, since it lands in an HTML document', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -852,8 +852,8 @@ describe('telling somebody the basket is ready', () => {
       asDevice(token),
     );
 
-    expect((await reportMail('matthias@example.com')).html).not.toContain('<script>');
-    expect((await reportMail('matthias@example.com')).html).toContain('&lt;script&gt;');
+    expect((await reportMail('admin@example.com')).html).not.toContain('<script>');
+    expect((await reportMail('admin@example.com')).html).toContain('&lt;script&gt;');
   });
 });
 
@@ -881,50 +881,50 @@ describe('agreeing to be told on a phone', () => {
   };
 
   it('remembers a browser that agreed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
 
-    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+    expect(await subscriptionsOf('admin@example.com')).toHaveLength(1);
   });
 
   it('takes over an endpoint rather than duplicating it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
 
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
 
-    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+    expect(await subscriptionsOf('admin@example.com')).toHaveLength(1);
   });
 
   it('hands a shared browser to whoever signed in last', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
 
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/shared') }, mine);
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/shared') }, theirs);
 
-    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(0);
+    expect(await subscriptionsOf('admin@example.com')).toHaveLength(0);
     expect(await subscriptionsOf('someone-else@example.com')).toHaveLength(1);
   });
 
   it('forgets a browser that changed its mind', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, cookie);
 
     await api.graphql(UNSUBSCRIBE, { endpoint: 'https://push.example/1' }, cookie);
 
-    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(0);
+    expect(await subscriptionsOf('admin@example.com')).toHaveLength(0);
   });
 
   it('will not let one account unsubscribe another one browser', async () => {
-    const mine = await signIn('matthias@example.com');
+    const mine = await signIn('admin@example.com');
     const theirs = await signIn('someone-else@example.com');
     await api.graphql(SUBSCRIBE, { input: target('https://push.example/1') }, mine);
 
     await api.graphql(UNSUBSCRIBE, { endpoint: 'https://push.example/1' }, theirs);
 
-    expect(await subscriptionsOf('matthias@example.com')).toHaveLength(1);
+    expect(await subscriptionsOf('admin@example.com')).toHaveLength(1);
   });
 
   it('offers the public key without asking anyone to sign in', async () => {
@@ -961,7 +961,7 @@ describe('closing a run that is already closed', () => {
       .filter((mail): boolean => mail.to === email && !/token=[a-f0-9]{64}/.test(mail.text));
 
   it('keeps the totals of the first close when the browser retries with a failure', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     await closeRun(token, jobId, {
       outcome: 'SUCCEEDED',
@@ -979,17 +979,17 @@ describe('closing a run that is already closed', () => {
   });
 
   it('writes the report once, not once per close', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     await closeRun(token, jobId, { outcome: 'SUCCEEDED', productsCents: 8450 });
     await closeRun(token, jobId, { outcome: 'FAILED' });
     await api.settled();
 
-    expect(reportsTo('matthias@example.com')).toHaveLength(1);
+    expect(reportsTo('admin@example.com')).toHaveLength(1);
   });
 
   it('stays running when the cupboard cannot be restated, and the retry completes it', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     vi.spyOn(api.resolve(GroceryPantryRepository), 'replace').mockRejectedValueOnce(
       new Error('database went away'),
@@ -1003,11 +1003,11 @@ describe('closing a run that is already closed', () => {
     expect(failed.errors?.[0]?.message).toBeDefined();
     expect(waiting.data?.groceryJob.status).toBe('RUNNING');
     expect(retried.data?.finishGroceryJob.status).toBe('SUCCEEDED');
-    expect(reportsTo('matthias@example.com')).toHaveLength(1);
+    expect(reportsTo('admin@example.com')).toHaveLength(1);
   });
 
   it('takes no more events once the run is closed', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     await closeRun(token, jobId, { outcome: 'SUCCEEDED' });
 
@@ -1032,7 +1032,7 @@ describe('when the report cannot be sent', () => {
   // The failure is armed once the account is open: signing up sends a mail of
   // its own, which would fail first and prove nothing about the report.
   const closeSucceeded = async (breakIt: () => void): Promise<string | undefined> => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -1125,8 +1125,8 @@ describe('writes that must land whole or not at all', () => {
     expectPresent(await api.resolve(UserRepository).findRecordByEmail(email), email).id;
 
   it('leaves no run behind when its basket cannot be stored', async () => {
-    const cookie = await signIn('matthias@example.com');
-    const userId = await accountIdOf('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
+    const userId = await accountIdOf('admin@example.com');
 
     await expect(
       api.resolve(GroceryJobRepository).create({
@@ -1148,8 +1148,8 @@ describe('writes that must land whole or not at all', () => {
   });
 
   it('keeps the old cupboard when the new one cannot be stored', async () => {
-    await signIn('matthias@example.com');
-    const userId = await accountIdOf('matthias@example.com');
+    await signIn('admin@example.com');
+    const userId = await accountIdOf('admin@example.com');
     const pantry = api.resolve(GroceryPantryRepository);
     await pantry.replace(userId, new Map([['oats', 300]]));
 
@@ -1167,8 +1167,8 @@ describe('writes that must land whole or not at all', () => {
   });
 
   it('restates the cupboard as exactly the new set', async () => {
-    await signIn('matthias@example.com');
-    const userId = await accountIdOf('matthias@example.com');
+    await signIn('admin@example.com');
+    const userId = await accountIdOf('admin@example.com');
     const pantry = api.resolve(GroceryPantryRepository);
     await pantry.replace(userId, new Map([['oats', 300]]));
 
@@ -1184,8 +1184,8 @@ describe('writes that must land whole or not at all', () => {
   });
 
   it('keeps the old windows when the new ones cannot be stored', async () => {
-    await signIn('matthias@example.com');
-    const userId = await accountIdOf('matthias@example.com');
+    await signIn('admin@example.com');
+    const userId = await accountIdOf('admin@example.com');
     const slots = api.resolve(GrocerySlotRepository);
     const saturday = { weekday: 6, startMinute: 540, endMinute: 720 };
     await slots.replace(userId, [saturday]);
@@ -1220,7 +1220,7 @@ describe('writes that must land whole or not at all', () => {
 
 describe('refusing a list of foods that cannot be one', () => {
   it('turns down a missing food whose identifier is absurdly long', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const queued = await queueJob(cookie);
     await api.graphql(CLAIM_JOB, undefined, undefined, asDevice(token));
@@ -1301,7 +1301,7 @@ describe('retrying a call whose answer was lost', () => {
   const OTHER_KEY = '8d3b0f0e-6a53-4a39-9a61-1f7f6f0f6a02';
 
   it('hands back the run already taken when a claim is asked again with the same key', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const first = await queueJob(cookie, undefined, '2026-08-24');
     await queueJob(cookie, undefined, '2026-08-31');
@@ -1314,7 +1314,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('hands back the run an overlapping original is taking, instead of failing on the key', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const devices = await api.graphql<{ myGroceryDevices: { id: string }[] }>(
       MY_DEVICES,
@@ -1349,7 +1349,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('takes the next run when the key is a new one', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
     const first = await queueJob(cookie, undefined, '2026-08-24');
     const second = await queueJob(cookie, undefined, '2026-08-31');
@@ -1362,7 +1362,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('never hands a run to a browser that did not take it, whatever key it sends', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const mine = await pair(cookie, 'Desktop');
     const other = await pair(cookie, 'Laptop');
     await queueJob(cookie);
@@ -1374,7 +1374,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('records one event when a report is asked again with the same event id', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b01';
 
@@ -1386,7 +1386,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('answers a retried report with the recorded event even when the run has closed since', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b02';
     const first = await reportWith(token, jobId, eventId);
@@ -1404,7 +1404,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('refuses a new event once the run is closed, key or no key', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     await api.graphql(
       FINISH_JOB,
@@ -1419,7 +1419,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('does not let an event id recorded on one run answer for another run', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     const eventId = '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b04';
     await reportWith(token, jobId, eventId);
@@ -1446,7 +1446,7 @@ describe('retrying a call whose answer was lost', () => {
         reportWith(token, '5c1c6f1e-9d0e-4d51-8d19-0a6b7a0a1b05', 'nope'),
     ],
   ])('turns down %s that is not a UUID before touching the database', async (_name, send) => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const token = await pair(cookie, 'Desktop');
 
     const response = await send(token);
@@ -1455,7 +1455,7 @@ describe('retrying a call whose answer was lost', () => {
   });
 
   it('closes a run once when the close is asked again after a lost answer', async () => {
-    const cookie = await signIn('matthias@example.com');
+    const cookie = await signIn('admin@example.com');
     const { token, jobId } = await startRun(cookie);
     const close = (): Promise<GraphqlResponse<{ finishGroceryJob: { status: string } }>> =>
       api.graphql<{ finishGroceryJob: { status: string } }>(
@@ -1475,7 +1475,7 @@ describe('retrying a call whose answer was lost', () => {
         .mails()
         .filter(
           (mail): boolean =>
-            mail.to === 'matthias@example.com' && !/token=[a-f0-9]{64}/.test(mail.text),
+            mail.to === 'admin@example.com' && !/token=[a-f0-9]{64}/.test(mail.text),
         ),
     ).toHaveLength(1);
   });

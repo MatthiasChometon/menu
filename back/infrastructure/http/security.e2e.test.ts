@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { startTestApp, type TestApp } from '../testing/e2e-app';
 
-const EMAIL = 'matthias@example.com';
+const EMAIL = 'admin@example.com';
 const PASSWORD = 'a-long-enough-password';
 
 let api: TestApp;
