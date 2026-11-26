@@ -20,6 +20,9 @@ export default defineNuxtConfig({
         dsn:
           process.env.NUXT_PUBLIC_SENTRY_DSN ??
           'https://d62e03f01f829f7e30acc5b892048859@o4511738521845760.ingest.de.sentry.io/4511943243595856',
+        // The only hosts whose pages report. Everything else runs the same
+        // bundle without being production: see rules/reportingHost.ts.
+        hosts: ['menu.mtxlab.xyz'],
       },
     },
   },
