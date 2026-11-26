@@ -13,7 +13,7 @@ export const SCREENS: Screen[] = [
     interaction: {
       name: 'open or close a day',
       perform: async (page): Promise<void> => {
-        await page.locator('main button[aria-expanded]').nth(2).click();
+        await page.locator('main button[aria-controls^="day-"]').nth(2).click();
       },
     },
   },
@@ -82,7 +82,7 @@ export const SCREENS: Screen[] = [
     interaction: {
       name: 'open or close a day',
       perform: async (page): Promise<void> => {
-        await page.locator('main button[aria-expanded]').nth(2).click();
+        await page.locator('main button[aria-controls^="day-"]').nth(2).click();
       },
     },
   },
