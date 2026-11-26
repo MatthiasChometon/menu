@@ -40,11 +40,10 @@ useHead({
 <template>
   <UApp :locale="uiLocale">
     <!-- Nuxt's own page-to-page progress bar, painted in the app's primary so it
-         reads as part of the site rather than Nuxt's default green. The built-in
-         throttle holds it back on the instant transitions between prerendered
-         pages, so it only appears when a navigation actually waits on something —
-         a chunk not yet cached, or a signed-in page fetching its week. -->
-    <NuxtLoadingIndicator color="var(--ui-primary)" />
+         reads as part of the site rather than Nuxt's default green. No throttle:
+         the default holds the bar back for 200 ms, and a tap on a slow phone then
+         shows nothing for longer than the 100 ms a reader takes as instant. -->
+    <NuxtLoadingIndicator color="var(--ui-primary)" :throttle="0" />
     <UiAppShell>
       <template #header>
         <MenuHeader />
