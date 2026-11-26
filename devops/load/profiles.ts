@@ -92,7 +92,7 @@ const smoke = (): Options => ({
 
 // The rate is per ten seconds, so the rarest operation is still played often enough for a p95.
 const load = (): Options => ({
-  scenarios: eachOperation((name) => {
+  scenarios: eachOperation((name, index) => {
     const serial = SERIAL.includes(name);
 
     return {
@@ -100,6 +100,9 @@ const load = (): Options => ({
       exec: 'operation',
       rate: Math.max(2, Math.round(weightOf(name) * 2)),
       timeUnit: '10s',
+      // Staggered: the rarest operations all tick every five seconds, and left in step they would
+      // land as one burst of fifty requests, which no handful of people ever sends.
+      startTime: `${Math.round((index * 5000) / OPERATION_NAMES.length)}ms`,
       duration: env('LOAD_DURATION', '2m'),
       preAllocatedVUs: serial ? 1 : 2,
       maxVUs: serial ? 1 : 10,
@@ -238,5 +241,11 @@ export const optionsOf = (profile: ProfileName): Options => {
   };
   const options = builders[profile]();
 
-  return { ...options, setupTimeout: '10m', teardownTimeout: '30s', discardResponseBodies: false };
+  return {
+    ...options,
+    summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
+    setupTimeout: '10m',
+    teardownTimeout: '30s',
+    discardResponseBodies: false,
+  };
 };

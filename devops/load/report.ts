@@ -13,7 +13,13 @@ type Metric = {
   thresholds?: Record<string, { ok: boolean }>;
 };
 
+type Group = {
+  checks?: { name: string; passes: number; fails: number }[];
+  groups?: Group[];
+};
+
 export type SummaryData = {
+  root_group?: Group;
   metrics: Record<string, Metric | undefined>;
   state: { testRunDurationMs: number };
 };
@@ -38,6 +44,13 @@ const thresholdsOf = (data: SummaryData): [string, string, boolean][] =>
 
 const failedThresholds = (data: SummaryData): [string, string, boolean][] =>
   thresholdsOf(data).filter(([, , ok]): boolean => !ok);
+
+const failedChecks = (group: Group | undefined): string[] => [
+  ...(group?.checks ?? [])
+    .filter(({ fails }): boolean => fails > 0)
+    .map(({ name, passes, fails }): string => `${name}: ${fails} of ${passes + fails} failed`),
+  ...(group?.groups ?? []).flatMap(failedChecks),
+];
 
 const operationRows = (data: SummaryData): string[] =>
   OPERATION_NAMES.map((name): string => {
@@ -140,6 +153,14 @@ const markdown = (profile: ProfileName, data: SummaryData): string => {
     '',
     ...profileLines(profile, data),
     '',
+    ...(failedChecks(data.root_group).length === 0
+      ? []
+      : [
+          '### Checks that failed',
+          '',
+          ...failedChecks(data.root_group).map((line): string => `- ${line}`),
+          '',
+        ]),
     ...(missed.length === 0
       ? []
       : [
