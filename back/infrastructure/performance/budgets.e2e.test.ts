@@ -46,35 +46,18 @@ afterAll(async (): Promise<void> => {
   else process.env.ALLOWED_EMAILS = PREVIOUS_ALLOWLIST;
 });
 
+// Known before the photograph is taken: the names do not depend on its bytes.
+const NAMES = [...QUERIES, ...MUTATIONS, ...buildRest(Buffer.alloc(0))].map(
+  (operation): string => operation.name,
+);
+
 describe('the API answers within its time budget', () => {
-  it('covers every GraphQL query and mutation of the schema', () => {
-    expect(QUERIES).toHaveLength(19);
-    expect(MUTATIONS).toHaveLength(32);
-  });
-
   it('reports each operation once, by its name', () => {
-    const names = [...QUERIES, ...MUTATIONS].map((operation): string => operation.name);
-    expect(new Set(names).size).toBe(names.length);
+    expect(new Set(NAMES).size).toBe(NAMES.length);
   });
 
-  const names = [...QUERIES, ...MUTATIONS].map((operation): string => operation.name);
-  const restNames = [
-    'GET /health',
-    'GET /health/ready',
-    'GET /auth/google',
-    'GET /auth/google/callback',
-    'POST /auth/login',
-    'POST /auth/register',
-    'POST /auth/logout',
-    'POST /auth/verify-email',
-    'POST /auth/resend-verification',
-    'POST /auth/forgot-password',
-    'POST /auth/reset-password',
-    'POST /auth/delete-account',
-    'POST /images/:kind/:id',
-  ];
-
-  it.each([...names, ...restNames])('%s', { retry: 1 }, async (name): Promise<void> => {
+  // That NAMES is everything the API offers is checked against the API in coverage.e2e.test.ts.
+  it.each(NAMES)('%s', { retry: 1 }, async (name): Promise<void> => {
     const operation = operations.find((candidate): boolean => candidate.name === name);
     if (operation === undefined) throw new Error(`No operation called ${name}.`);
 

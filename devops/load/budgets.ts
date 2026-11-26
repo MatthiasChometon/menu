@@ -113,6 +113,27 @@ export const OPERATION_CLASS = {
   uploadImage: 'upload',
 } as const satisfies Record<string, BudgetClass>;
 
+/**
+ * The REST route each name above stands for. The back checks this list against the routes its
+ * controllers declare (`back/infrastructure/performance/coverage.e2e.test.ts`), so a route added
+ * without a scenario and a budget turns the build red.
+ */
+export const REST_ROUTES = {
+  'GET /health': 'health',
+  'GET /health/ready': 'healthReady',
+  'GET /auth/google': 'googleStart',
+  'GET /auth/google/callback': 'googleCallback',
+  'POST /auth/login': 'login',
+  'POST /auth/register': 'register',
+  'POST /auth/logout': 'logout',
+  'POST /auth/verify-email': 'verifyEmail',
+  'POST /auth/resend-verification': 'resendVerification',
+  'POST /auth/forgot-password': 'forgotPassword',
+  'POST /auth/reset-password': 'resetPassword',
+  'POST /auth/delete-account': 'deleteAccount',
+  'POST /images/:kind/:id': 'uploadImage',
+} as const satisfies Record<string, keyof typeof OPERATION_CLASS>;
+
 export type OperationName = keyof typeof OPERATION_CLASS;
 
 export const OPERATION_NAMES = Object.keys(OPERATION_CLASS) as OperationName[];
