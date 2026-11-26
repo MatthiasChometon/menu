@@ -16,9 +16,6 @@ const strictnessFlags = {
 const { componentsList, cssList, layerConfigTsGlobList, layerList, typesDirList } =
   buildDynamicLayers();
 
-// The select and the account menu, with the popper code they share.
-const touchOnlyChunks = ['Select', 'DropdownMenu', 'PopperArrow'];
-
 export default defineNuxtConfig({
   extends: layerList,
   alias: { '#brand-tokens': discoverBrandTokens() },
@@ -70,10 +67,12 @@ export default defineNuxtConfig({
         // nothing. They are fetched when needed instead; the service worker holds
         // every chunk for the next visit and for offline.
         entry.prefetch = false;
-        // The select and the account menu are drawn with the page but only come to
-        // life on a touch. The renderer still lists the module of every component
-        // it drew as a preload, which fetched them with the first paint.
-        if (touchOnlyChunks.includes(entry.name ?? '')) entry.preload = false;
+        // Every other chunk the page imports was also listed as a modulepreload:
+        // about 17 requests, 200 KB, started at the same moment as the stylesheet
+        // that blocks the first paint, so on a slow link the paint waited behind
+        // them (Lighthouse first paint -0.5 s without them). The entry module
+        // finds its imports itself a moment later; the paint no longer waits.
+        if (entry.isEntry !== true) entry.preload = false;
       }
     },
   },
