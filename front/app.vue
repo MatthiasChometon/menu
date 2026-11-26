@@ -14,6 +14,12 @@ const head = useLocaleHead({ seo: true });
 
 type LocaleHead = (typeof head)['value'];
 
+// The three dialogs hold forms and Nuxt UI's modal machinery. They are fetched and
+// mounted the first time someone asks for one, not with every page.
+const bugReportOpened = useOpenedOnce(useBugReport().isOpen);
+const improvementOpened = useOpenedOnce(useImprovement().isOpen);
+const weekShareOpened = useOpenedOnce(useWeekShare().isOpen);
+
 const { fontScale, isHighContrast } = useDisplayPreferences();
 
 // Space-separated so both can be on at once — someone who wants a bigger font
@@ -53,11 +59,11 @@ useHead({
       <LegalFooter />
 
       <BugReportButton />
-      <BugReportDialog />
+      <LazyBugReportDialog v-if="bugReportOpened" />
       <ImprovementRequestButton />
-      <ImprovementRequestDialog />
+      <LazyImprovementRequestDialog v-if="improvementOpened" />
       <WeekShareButton />
-      <WeekShareDialog />
+      <LazyWeekShareDialog v-if="weekShareOpened" />
       <template #footer>
         <MenuBottomNav />
       </template>
