@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 const localePath = useLocalePath();
-const nuxtApp = useNuxtApp();
-const { t } = nuxtApp.$i18n;
+const { t } = useNuxtApp().$i18n;
 const { dayLabel, mealLabel } = useMenuLabels();
 const { selectedMenu: currentMenu } = useSelectedWeek();
 const { recipeOf, imageOf } = useRecipes();
@@ -100,28 +99,18 @@ const portionItems = computed((): SelectItem[] => [
   })),
 ]);
 
-const heroImage = computed((): string | undefined =>
-  recipe.value === undefined ? undefined : nuxtApp.runWithContext(() => imageOf(recipe.value)),
-);
+// Read once, here: a head callback runs after setup, outside the Nuxt context imageOf needs.
+const heroImage = recipe.value === undefined ? undefined : imageOf(recipe.value);
 
 useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(recipe.value)) });
 
-// The head is resolved after setup, outside the Nuxt context imageOf's state needs.
 // The hero photograph is the largest thing painted: asked for in the head, it
 // starts downloading with the page instead of once the recipe has rendered.
-useHead({
-  link: () =>
-    heroImage.value === undefined
-      ? []
-      : [
-          {
-            rel: 'preload' as const,
-            as: 'image' as const,
-            href: heroImage.value,
-            fetchpriority: 'high' as const,
-          },
-        ],
-});
+if (heroImage !== undefined) {
+  useHead({
+    link: [{ rel: 'preload', as: 'image', href: heroImage, fetchpriority: 'high' }],
+  });
+}
 </script>
 
 <template>

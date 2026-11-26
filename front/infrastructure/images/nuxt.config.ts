@@ -13,22 +13,26 @@ const base = process.env.NUXT_PUBLIC_IMAGES_BASE ?? 'https://images.menu.mtxlab.
 
 type ImageManifest = Record<string, Record<string, string>>;
 
-const isImageManifest = (value: unknown): value is ImageManifest =>
+const isFileMap = (value: unknown): value is Record<string, string> =>
   typeof value === 'object' &&
   value !== null &&
-  Object.values(value).every(
-    (files): boolean =>
-      typeof files === 'object' &&
-      files !== null &&
-      Object.values(files).every((file): boolean => typeof file === 'string'),
-  );
+  Object.values(value).every((file): boolean => typeof file === 'string');
+
+// The file also carries a version number beside the maps of filenames: only the
+// maps are kept, instead of refusing the whole file (which baked in an empty
+// manifest and shipped every page with a pictogram and no preload).
+const imageManifestFrom = (value: unknown): ImageManifest => {
+  if (typeof value !== 'object' || value === null) return {};
+
+  return Object.fromEntries(Object.entries(value).filter(([, files]) => isFileMap(files)));
+};
 
 const manifestAtBuild = async (): Promise<ImageManifest> => {
   try {
     const response = await fetch(`${base}/manifest.json`, { signal: AbortSignal.timeout(10_000) });
     if (!response.ok) return {};
     const manifest: unknown = await response.json();
-    return isImageManifest(manifest) ? manifest : {};
+    return imageManifestFrom(manifest);
   } catch {
     // Offline, or the host is down: the pages still build, and the browser
     // fetches the manifest itself. Failing the build over a picture would be

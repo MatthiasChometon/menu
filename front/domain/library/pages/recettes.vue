@@ -10,8 +10,7 @@ const {
   hasFailed: haveMyRecipesFailed,
   refresh: refreshMyRecipes,
 } = useMyRecipes();
-const nuxtApp = useNuxtApp();
-const { t } = nuxtApp.$i18n;
+const { t } = useNuxtApp().$i18n;
 const isMounted = useMounted();
 
 const allRecipes = computed((): Recipe[] => Object.values(recipes));
@@ -78,25 +77,15 @@ const showSeasonOnly = (): void => {
 useSeoMeta({ title: (): string => t('library.pageTitle') });
 
 // The first card's photograph is the largest thing painted: asked for in the head,
-// it starts downloading with the page rather than once the list has rendered.
-const firstImage = computed((): string | undefined => {
-  const first = shownEntries.value[0];
-
-  return first === undefined ? undefined : nuxtApp.runWithContext(() => imageOf(first.recipe));
-});
-useHead({
-  link: () =>
-    firstImage.value === undefined
-      ? []
-      : [
-          {
-            rel: 'preload' as const,
-            as: 'image' as const,
-            href: firstImage.value,
-            fetchpriority: 'high' as const,
-          },
-        ],
-});
+// it starts downloading with the page rather than once the list has rendered. Read once,
+// here: a head callback runs after setup, outside the Nuxt context imageOf needs.
+const firstRecipe = shownEntries.value[0]?.recipe;
+const firstImage = firstRecipe === undefined ? undefined : imageOf(firstRecipe);
+if (firstImage !== undefined) {
+  useHead({
+    link: [{ rel: 'preload', as: 'image', href: firstImage, fetchpriority: 'high' }],
+  });
+}
 </script>
 
 <template>
