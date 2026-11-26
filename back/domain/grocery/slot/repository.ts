@@ -32,12 +32,8 @@ export class GrocerySlotRepository {
   async replace(userId: string, windows: GrocerySlotWindow[]): Promise<GrocerySlotWindow[]> {
     await this.database.transaction(async (transaction): Promise<void> => {
       await transaction.delete(grocerySlotWindow).where(eq(grocerySlotWindow.userId, userId));
-      if (windows.length > 0) {
-        await transaction
-          .insert(grocerySlotWindow)
-          .values(
-            windows.map((window): typeof grocerySlotWindow.$inferInsert => ({ userId, ...window })),
-          );
+      for (const window of windows) {
+        await transaction.insert(grocerySlotWindow).values({ userId, ...window });
       }
     });
 
