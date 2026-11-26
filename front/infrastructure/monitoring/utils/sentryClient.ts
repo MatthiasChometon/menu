@@ -1,10 +1,12 @@
 type SentryModule = typeof import('./sentry');
+type SentryOptions = Parameters<SentryModule['init']>[0];
 
-// The Sentry client is about a fifth of the script the first paint downloads and
-// parses, for a tool nobody looks at until something breaks. It is fetched as its
-// own chunk once the page is up, and errors reported meanwhile wait for it.
+// The Sentry client is about a quarter of the script a first paint would download
+// and parse, for a tool nobody looks at until something breaks. So it is not
+// fetched with the page: the first error, from anywhere, is what fetches it.
 let loading: Promise<SentryModule> | undefined;
-let initialised: Promise<void> | undefined;
+let initialised: Promise<SentryModule> | undefined;
+let options: SentryOptions | undefined;
 
 export const loadSentry = (): Promise<SentryModule> => {
   loading ??= import('./sentry');
@@ -12,11 +14,19 @@ export const loadSentry = (): Promise<SentryModule> => {
   return loading;
 };
 
-export const startSentry = (options: Parameters<SentryModule['init']>[0]): void => {
-  initialised = loadSentry().then((sentry): void => {
-    sentry.init(options);
-  });
+// What to initialise with, kept until it is needed. Never called with no address
+// to report to, so a local checkout never initialises it.
+export const configureSentry = (value: SentryOptions): void => {
+  options = value;
 };
 
-// Resolves once Sentry is initialised, or at once when it was never started.
-export const whenSentryReady = (): Promise<void> => initialised ?? Promise.resolve();
+// The initialised client, fetched and started on the first call.
+export const ensureSentry = (): Promise<SentryModule> => {
+  initialised ??= loadSentry().then((sentry): SentryModule => {
+    if (options !== undefined) sentry.init(options);
+
+    return sentry;
+  });
+
+  return initialised;
+};
