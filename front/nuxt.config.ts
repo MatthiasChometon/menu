@@ -57,6 +57,9 @@ export default defineNuxtConfig({
   // Dropping them from the manifest drops the hints. Nothing else changes: the
   // URLs the app uses come from the imported modules, and each photo still
   // arrives when a card scrolls into view.
+  // JSON catalogs are emitted as one JSON.parse string instead of an object literal,
+  // which the engine reads faster than the same data as JavaScript source.
+  vite: { json: { stringify: true } },
   hooks: {
     'build:manifest': (manifest): void => {
       for (const entry of Object.values(manifest)) {
