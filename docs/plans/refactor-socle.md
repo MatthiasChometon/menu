@@ -474,3 +474,35 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   Mail send time stays out of the budgets (sent in the background, M3). A baseline on the real shared host: owner the maintainer,
   exit when a run of the `load` workflow against it is decided (hosting decision, not a code one).
   **Deletion candidates:** none.
+
+- 2026-11-26 — M15 front half (PR #23, base `refactor/socle`; the back half is a separate PR, so a one-line conflict here
+  is expected). Turned on: Playwright timing suite on the generated site (`pnpm test:perf`: API stubbed, CDP CPU x4,
+  Pixel 7 viewport, fixed clock, median of 10 passes, one worker, Event Timing for INP with an error when no entry exists,
+  layout-shift and LCP observers, rAF probes for "main visible" and "first visible change"); budgets in one file
+  (`infrastructure/performance/budgets.ts`: main content 1 s warm, LCP 2.5 s cold, INP 200 ms, feedback 100 ms, CLS 0.1);
+  nine screens, 24 tests, all blocking in `.github/workflows/perf-front.yml` (`timings`, `bench`, `lighthouse`; no
+  `continue-on-error`, one automatic retry in CI at most). Lighthouse CI on the runner only (calibrated slowdown, median of
+  5, LCP, CLS, TBT < 200 ms, script and image weight). `vitest bench` baseline (`bench/baseline.json`, fails beyond 2x)
+  and explicit test timeouts. Bugs the budgets found, each its own commit with the red run recorded in the PR: `/recettes`
+  layout shift 0.154 (seasonal banner arriving late: height reserved); signed-in screens shift 0.108-0.113 (header grew 4 px
+  when the avatar replaced its skeleton: height held); week and recipes warm navigation 1.04-1.09 s (seven closed days
+  and 144 recipe cards drawn at once: bodies drawn on first open, list drawn 12 at a time); composer tap feedback 124-129 ms
+  (every candidate dish re-ranked by a week simulation in the tap's own render: ranked after paint); shopping/today warm
+  feedback 142-284 ms (navigation bar throttled by 200 ms: throttle 0); error reporter in the first-paint script
+  (about 137 KB: fetched on the first error instead). A probe bug found on the way (week toggle selected the meal options
+  menu). All 24 timing tests green on two runners of different speed (warm main content 253-677 ms, INP <= 76 ms, CLS <= 0.008).
+  **Still red, budgets unchanged: the `lighthouse` job.** Script weight 358-378 KB (budget 350 KB = 358,400 B) on four of five
+  URLs, TBT 284-1044 ms (budget 200), LCP 3.2-5.8 s (budget 2.5 s), measured at a slowdown of 5.4-7.8x. What remains is the
+  first-paint cost of a fully client-hydrated static site: the entry chunk (about 266 KB transferred) holds the framework,
+  the Nuxt UI components, the i18n message compiler and the whole recipe and food data (`recipes.json` 125 KB and `foods.json`
+  32 KB raw), all read synchronously by `useRecipes`, `useFoods` and `useMenu`. **Deferred to a follow-up lot, M15b "front
+  first-load weight" (owner: the front lot that follows M15; exit: the `lighthouse` job green with the budgets above).**
+  Options, none chosen: (1) an asynchronous data layer, so recipes, foods and menus load per route, plus lazy hydration
+  (`hydrate-on-visible`) of below-the-fold components: code only, large, touches every consumer of the three composables;
+  (2) a hosting-model change (server rendering or edge rendering of the first view) that the static host does not offer:
+  a decision for the maintainer; (3) decide whether the weight budget is read on what the real host serves (the runner's
+  static server compresses with gzip only, the shared host may use brotli) and whether the images should come from the image
+  host or a stub in the Lighthouse run (they currently reach the real image host, a flake risk); (4) revisit TBT and LCP with
+  the maintainer once (1) is measured. Not changed: any budget. Notes: the bench baseline was produced on Windows and CI
+  passes it with the 2x tolerance, so it should be regenerated on the runner once; a vitest worker teardown error shows up
+  now and then when three monitoring test files run together locally (not in CI).
