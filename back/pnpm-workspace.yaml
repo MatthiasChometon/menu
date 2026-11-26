@@ -10,6 +10,7 @@ overrides:
   # @fastify/cookie decorates one FastifyInstance and Nest hands us the other --
   # which does not typecheck. Everyone shares the version Nest ships with.
   fastify: 5.12.8
-  # Apollo and the GraphQL tooling pin 12.0.0 and 12.0.1, both with a prototype
-  # pollution advisory fixed in 12.0.2. Drop once the parents ask for it themselves.
-  "@graphql-tools/utils": ">=12.0.2"
+  # Apollo and the GraphQL tooling ask for 11.x, which has a prototype pollution
+  # advisory; only 12.0.2+ is fixed, so this crosses one major (12, never 13).
+  # The exit check is scripts/check-overrides.mjs, run in CI.
+  '@graphql-tools/utils@<12.0.2': '^12.0.2'
