@@ -96,7 +96,6 @@ const call = (data: Data, name: OperationName, document: string, input?: object)
 // run started with.
 export const SCENARIOS: Record<OperationName, Scenario> = {
   // GraphQL queries
-  amIAdmin: read('amIAdmin', 'admin', 'amIAdmin'),
   bugReports: read(
     'bugReports',
     'admin',
