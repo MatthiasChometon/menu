@@ -4,6 +4,11 @@
 //
 //   slowdown = max(1, 4 * benchmarkIndex / REFERENCE_BENCHMARK_INDEX)
 //
+// Where the number comes from:
+//   - CI: PERF_CPU_SLOWDOWN=4 in the workflow. The runner is the reference machine, so no warm-up
+//     runs there and there is nothing to go stale.
+//   - locally: `pnpm calibrate` (after `pnpm generate`) measures this host and writes
+//     perf-calibration.json; without it the plain 4 applies, with a warning.
 // 4 is the PageSpeed Insights mid-tier-mobile slowdown (maintainer approval 2026-11-26). The
 // budgets do not move: only the host's speed is divided out, so a slow laptop and a fast CI
 // runner are held to the same device. benchmarkIndex is Lighthouse's environment.benchmarkIndex,
@@ -42,8 +47,19 @@ const benchmarkIndexOf = (dir) =>
   );
 
 /** The slowdown to apply: the calibrated one, or the plain 4x when no warm-up ran. */
-const readCalibration = (file = CALIBRATION_FILE) => {
+const readCalibration = (file = CALIBRATION_FILE, env = process.env) => {
+  if (env.PERF_CPU_SLOWDOWN !== undefined) {
+    const slowdown = Number(env.PERF_CPU_SLOWDOWN);
+    if (!(slowdown >= 1))
+      throw new Error(`PERF_CPU_SLOWDOWN must be a number >= 1, got "${env.PERF_CPU_SLOWDOWN}"`);
+    console.error(`perf-calibration: CPU slowdown ${slowdown} (PERF_CPU_SLOWDOWN)`);
+    return { benchmarkIndex: undefined, slowdown };
+  }
   if (!fs.existsSync(file)) {
+    if (env.CI)
+      throw new Error(
+        'perf-calibration: set PERF_CPU_SLOWDOWN in CI, there is no calibration file',
+      );
     console.error(
       `perf-calibration: no ${path.basename(file)}, CPU slowdown ${BASE_SLOWDOWN} (uncalibrated)`,
     );
@@ -64,7 +80,10 @@ module.exports = {
 };
 
 // `node perf-calibration.cjs <lhci output dir>` writes perf-calibration.json from the warm-up runs.
-if (require.main === module) {
+if (require.main === module && process.argv[2] === '--clear') {
+  // Before a warm-up: a failed one must leave no value behind, never a stale one.
+  fs.rmSync(CALIBRATION_FILE, { force: true });
+} else if (require.main === module) {
   const benchmarkIndex = benchmarkIndexOf(process.argv[2] ?? '.lighthouseci');
   const tmp = `${CALIBRATION_FILE}.tmp`;
   fs.writeFileSync(tmp, `${JSON.stringify({ benchmarkIndex })}\n`);
