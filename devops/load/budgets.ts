@@ -45,7 +45,6 @@ export const BREAKPOINT_FLOOR_RPS = 20;
 /** Every operation of the API and the class its budget comes from. */
 export const OPERATION_CLASS = {
   // GraphQL queries
-  amIAdmin: 'read',
   bugReports: 'read',
   googleEnabled: 'read',
   groceryJob: 'read',
