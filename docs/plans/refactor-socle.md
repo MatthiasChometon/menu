@@ -529,7 +529,7 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   Playwright suite; budgets unchanged. Found and fixed on the way: the hosted image manifest carries `"version": 1`, which
   the validator rejected, so every build baked an empty manifest (no photographs, no preload) — now only the string maps
   are kept and `check:generated` fails a build without photographs. Recipe pages and `/recettes` preload their first
-  photograph (read once in setup: `useHead` callbacks run outside the Nuxt context). The photograph warm-up started 1.2 s
+  photograph (the image is read once in setup: a `useHead` callback runs after setup, outside the Nuxt context, and `runWithContext` cannot be used there because it is typed `T | Promise<T>` and returned a Promise, which produced `/[object Promise]` routes). The photograph warm-up started 1.2 s
   after idle and pulled up to 6.8 MB into a first load; it now starts on the first gesture (or after 30 s): home page
   image bytes 3.3 MB -> 0.24 MB. Local calibrated results (median of 5): LCP 4.4-6.2 s (budget 2.5 s, red), CLS <= 0.052,
   script <= 342 KB, image weight green except `/composer` (2.05 MB) and `/courses` borderline; TBT 1.1-1.8 s on a loaded
