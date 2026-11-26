@@ -56,7 +56,7 @@ const addDays = (isoDate: string, days: number): string => {
 
 /** Mondays, a week apart. */
 export const weekOfIndex = (index: number): string => addDays('2026-01-05', index * 7);
-export const dayOfIndex = (index: number): string => addDays('2025-01-01', index);
+export const dayOfIndex = (index: number): string => addDays('2015-01-01', index);
 
 export const foodInput = (index: number): object => ({
   name: `Food ${index}`,
