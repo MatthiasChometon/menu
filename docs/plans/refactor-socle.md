@@ -553,3 +553,13 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   with `srcset`/`sizes` in the front; estimate 1 lot, 65-96 KB heroes down to 20-35 KB and 4-6 KB thumbnails, which lowers
   transfer time but not the connection setup, so it alone is unlikely to bring `/recettes` and `/recette` under 2.5 s.
   Budgets untouched.
+
+### M15 front half, entry split by screen: nothing left to split
+
+`nuxt analyze` of the entry (1,246,894 B unminified, about 201 KB gz in CI): Vue, Nuxt, vue-router, unhead,
+the i18n runtime, Nuxt UI with reka-ui and tailwind-merge make about 830 KB of it, and every screen needs them.
+The i18n messages are already per locale and lazy, Sentry loads on the first failure, the GraphQL runtime is
+the lite client. What only some screens use is the recipe and food catalogue (143 KB raw, about 30 KB gz,
+imported by 28 files) and the generated GraphQL SDK (26 KB raw): together under 40 KB gz, about 30 ms of
+simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI. The `LH-SUMMARY` line
+(benchmarkIndex, LCP and TBT per URL) is now printed by the Lighthouse job.
