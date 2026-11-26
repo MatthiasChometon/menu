@@ -1,4 +1,4 @@
-type SentryModule = typeof import('@sentry/vue');
+type SentryModule = typeof import('./sentry');
 
 // The Sentry client is about a fifth of the script the first paint downloads and
 // parses, for a tool nobody looks at until something breaks. It is fetched as its
@@ -7,7 +7,7 @@ let loading: Promise<SentryModule> | undefined;
 let initialised: Promise<void> | undefined;
 
 export const loadSentry = (): Promise<SentryModule> => {
-  loading ??= import('@sentry/vue');
+  loading ??= import('./sentry');
 
   return loading;
 };
