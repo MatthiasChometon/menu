@@ -523,3 +523,18 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   stylesheet (critical rules only). Not changed: any budget. Notes: the
   bench baseline was produced on Windows and CI passes it with the 2x tolerance, so it should be regenerated on the runner
   once; a vitest worker teardown error shows up now and then when three monitoring test files run together locally (not in CI).
+- 2026-11-26 — M15 front half, local measurement pass (box stays unticked until the PR merges). Machine: Lighthouse
+  benchmarkIndex 1606-1997 against a reference of 2800 (median of 22 past CI reports), CPU slowdown calibrated to
+  `4 x benchmarkIndex / 2800` (2.44-2.84) by one tested helper (`perf-calibration.cjs`) read by Lighthouse and the
+  Playwright suite; budgets unchanged. Found and fixed on the way: the hosted image manifest carries `"version": 1`, which
+  the validator rejected, so every build baked an empty manifest (no photographs, no preload) — now only the string maps
+  are kept and `check:generated` fails a build without photographs. Recipe pages and `/recettes` preload their first
+  photograph (read once in setup: `useHead` callbacks run outside the Nuxt context). The photograph warm-up started 1.2 s
+  after idle and pulled up to 6.8 MB into a first load; it now starts on the first gesture (or after 30 s): home page
+  image bytes 3.3 MB -> 0.24 MB. Local calibrated results (median of 5): LCP 4.4-6.2 s (budget 2.5 s, red), CLS <= 0.052,
+  script <= 342 KB, image weight green except `/composer` (2.05 MB) and `/courses` borderline; TBT 1.1-1.8 s on a loaded
+  machine (113-173 ms on the quiet baseline; the same on the old warm-up, so machine load, not a regression).
+  Playwright timings, calibrated: 24 of 24 pass (cold LCP 450-708 ms, 1.5-1.7 s on two signed-in screens; CLS <= 0.093).
+  Observed FCP equals observed LCP and DOMContentLoaded is 0.3-0.5 s, so nothing hides the page; the simulated LCP
+  inflation is to be confirmed on a quiet runner. The 232 KB entry stylesheet is one Tailwind utilities layer (31 KB
+  compressed) and is kept as is.
