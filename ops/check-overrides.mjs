@@ -29,12 +29,19 @@ const FILES = ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"];
 // Outcomes of one audit: 'clean' (no advisory), 'vulnerable' (advisories found),
 // 'error' (no usable audit report: network, registry, resolve). Only a parsed
 // report counts; a failing command without one is never read as "needed".
+const SEVERITIES = ["low", "moderate", "high", "critical"];
+
 export const classifyAudit = (stdout) => {
   try {
-    const total = Object.values(
-      JSON.parse(stdout).metadata.vulnerabilities,
-    ).reduce((sum, n) => sum + n, 0);
-    return total === 0 ? "clean" : "vulnerable";
+    const report = JSON.parse(stdout);
+    if (report === null || typeof report !== "object" || "error" in report) {
+      return "error";
+    }
+    const counts = SEVERITIES.map((s) => report.metadata?.vulnerabilities?.[s]);
+    if (!counts.every((n) => typeof n === "number" && Number.isFinite(n))) {
+      return "error";
+    }
+    return counts.some((n) => n > 0) ? "vulnerable" : "clean";
   } catch {
     return "error";
   }

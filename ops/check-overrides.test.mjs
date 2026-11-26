@@ -26,6 +26,17 @@ test("error: no usable report (network down, registry error, empty output)", () 
     "error",
   );
   assert.equal(classifyAudit("<html>502</html>"), "error");
+  const zero = { low: 0, moderate: 0, high: 0, critical: 0 };
+  for (const malformed of [
+    { vulnerabilities: {} },
+    { metadata: { vulnerabilities: { low: null } } },
+    { metadata: { vulnerabilities: { ...zero, high: "3" } } },
+    { metadata: { vulnerabilities: { low: 0, moderate: 0, high: 0 } } },
+    { error: { code: "E" }, metadata: { vulnerabilities: zero } },
+    null,
+  ]) {
+    assert.equal(classifyAudit(JSON.stringify(malformed)), "error");
+  }
 });
 
 test("an error is retried once, then reported as an error, never as needed", () => {
