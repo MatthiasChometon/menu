@@ -132,7 +132,11 @@ const isDisplayPreferencesOpen = ref(false);
         </UButton>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
+      <!-- 40 px whatever sits at its end: the account avatar is taller than the
+           skeleton standing in for it and than the sign-in button, and the header
+           growing by the difference pushed the whole page down once the session
+           was known. -->
+      <div class="ml-auto flex min-h-10 shrink-0 items-center gap-1 lg:ml-0">
         <UButton
           icon="i-lucide-accessibility"
           :aria-label="$t('displayPreferences.open')"
