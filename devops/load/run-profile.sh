@@ -36,9 +36,16 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c 'SELECT pg_stat_statements_reset()
 sampler_pid=$!
 
 # The database holds the second core (see the workflow) and k6 gets the others, so what it spends
-# never comes out of the API's or the database's.
+# never comes out of the API's or the database's. A runner with three cores or fewer has no core
+# left to give: k6 then runs unpinned, and says so.
+k6_pin=()
+if [ "$(nproc)" -ge 4 ]; then
+  k6_pin=(taskset -c "2-$(( $(nproc) - 1 ))")
+else
+  echo "Only $(nproc) cores: k6 runs unpinned, so its load may weigh on the API." | tee -a "$summary"
+fi
 status=0
-(cd "$here" && SUMMARY_DIR="$REPORTS" taskset -c "2-$(( $(nproc) - 1 ))" \
+(cd "$here" && SUMMARY_DIR="$REPORTS" "${k6_pin[@]}" \
   k6 run --quiet -e PROFILE="$profile" api.ts) || status=$?
 
 # The breakpoint run ends by crossing a threshold on purpose, so k6's exit code says nothing:
