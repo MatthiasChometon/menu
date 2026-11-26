@@ -538,3 +538,18 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   Observed FCP equals observed LCP and DOMContentLoaded is 0.3-0.5 s, so nothing hides the page; the simulated LCP
   inflation is to be confirmed on a quiet runner. The 232 KB entry stylesheet is one Tailwind utilities layer (31 KB
   compressed) and is kept as is.
+- 2026-11-26 — M15 front half, CI Lighthouse pass (4x CPU slowdown pinned). Cuts pushed: a photograph is requested only
+  when it nears the screen (library page: one eager card instead of three; `/recettes` photo weight 706 KB -> 69 KB) and
+  GraphQL documents go through a 90-line fetch client instead of graphql-request plus the `graphql` package (entry
+  chunk -91 KB unminified, checked with `nuxt analyze`). CI medians before -> after: `/` 2876 -> 2869 ms, `/courses`
+  2707 -> 2642, `/composer` 2952 -> 2869, `/recettes` 5636 -> 5767, `/recette/thaiPeanutChickenBowl` 5415 -> 5939 (TBT
+  80-154 ms on a faster runner, benchmarkIndex about 4000). LCP did not move with bytes or CPU, so the recipe and food
+  data were NOT moved out of the entry chunk (estimated gain under 100 ms against a 2.5 s gap). Cause on the photo pages:
+  the simulated LCP image load runs 4.1-5.3 s for 70-96 KB. The photographs come from another origin
+  (images.menu.mtxlab.xyz, observed RTT 153 ms on top of the 150 ms simulated), so every first photograph pays a
+  connection setup (TCP, TLS, request) and TCP slow start at about 300 ms per round trip; the text-only pages sit at 2.9 s.
+  Remaining options, all outside the front slice: (1) serve the photographs from the page's own origin (copy them into
+  the build, about 11 MB, or proxy them), (2) next lot, back: resized AVIF/WebP variants from `back/domain/imageLibrary`
+  with `srcset`/`sizes` in the front; estimate 1 lot, 65-96 KB heroes down to 20-35 KB and 4-6 KB thumbnails, which lowers
+  transfer time but not the connection setup, so it alone is unlikely to bring `/recettes` and `/recette` under 2.5 s.
+  Budgets untouched.
