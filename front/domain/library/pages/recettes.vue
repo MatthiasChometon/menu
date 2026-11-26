@@ -37,6 +37,32 @@ const entries = computed((): LibraryEntry[] => entriesOf(allRecipes.value, month
 const { query, macroFilter, timeFilter, seasonOnly, filteredEntries, reset } =
   useLibraryFilters(entries);
 
+// The list is drawn a screenful at a time. All of it at once is a hundred and
+// forty cards and as many photographs, which put a warm visit to this page at
+// about 1.05 s on a throttled phone against a 1 s budget, and the cards past
+// the fold are not looked at until the reader scrolls to them.
+const PAGE_SIZE = 12;
+const drawn = ref(PAGE_SIZE);
+const shownEntries = computed((): LibraryEntry[] => filteredEntries.value.slice(0, drawn.value));
+const hasMore = computed((): boolean => drawn.value < filteredEntries.value.length);
+
+// A new filter starts the list again from the top.
+watch([query, macroFilter, timeFilter, seasonOnly], (): void => {
+  drawn.value = PAGE_SIZE;
+});
+
+// The marker is keyed on the count, so every batch gets a fresh one: an observer
+// only reports a change, and a batch too short to push the marker out of range
+// would otherwise leave the list stuck.
+const endMarker = ref<HTMLElement | null>(null);
+useIntersectionObserver(
+  endMarker,
+  ([entry]): void => {
+    if (entry?.isIntersecting === true) drawn.value += PAGE_SIZE;
+  },
+  { rootMargin: '600px' },
+);
+
 const seasonalIds = computed((): string[] => (isMounted.value ? seasonalFoodIds(month.value) : []));
 
 const showSeasonOnly = (): void => {
@@ -127,12 +153,13 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
 
     <div v-if="filteredEntries.length > 0" class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <LibraryRecipeCard
-        v-for="entry in filteredEntries"
+        v-for="entry in shownEntries"
         :key="entry.recipe.id"
         :entry="entry"
         @edit="editRecipe"
       />
     </div>
+    <div v-if="hasMore" ref="endMarker" :key="drawn" aria-hidden="true" class="h-px" />
 
     <div v-else class="flex flex-col items-center gap-3 py-20 text-center">
       <UIcon name="i-lucide-search-x" class="size-12 text-dimmed" />
