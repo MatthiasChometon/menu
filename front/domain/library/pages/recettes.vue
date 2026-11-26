@@ -100,12 +100,16 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
       <LibraryMyFoodsPanel v-if="user !== undefined" class="rise mt-6" />
     </ClientOnly>
 
-    <LibrarySeasonalBanner
-      v-if="isMounted"
-      class="mt-5"
-      :food-ids="seasonalIds"
-      @show-season="showSeasonOnly"
-    />
+    <!-- The banner depends on the reader's month, so it only exists once mounted.
+         Its place is kept meanwhile (measured: 270 px tall on a phone, 128 px from
+         the sm breakpoint), or the whole list jumps down when it appears. -->
+    <div class="mt-5 min-h-68 sm:min-h-32">
+      <LibrarySeasonalBanner
+        v-if="isMounted"
+        :food-ids="seasonalIds"
+        @show-season="showSeasonOnly"
+      />
+    </div>
 
     <LibraryFilters
       v-model:query="query"
