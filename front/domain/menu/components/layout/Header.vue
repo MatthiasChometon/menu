@@ -154,8 +154,11 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
           color="neutral"
           @click="isDark = !isDark"
         />
-        <USelect
+        <!-- Drawn with the page, made interactive on the first touch: the picker
+             is used once, and its dropdown machinery is a large share of the code. -->
+        <LazyUSelect
           v-model="currentLocale"
+          hydrate-on-interaction
           :items="languageItems"
           value-key="value"
           :aria-label="$t('accessibility.selectLanguage')"
@@ -166,7 +169,7 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
-          <UDropdownMenu v-if="user !== undefined" :items="accountItems">
+          <LazyUDropdownMenu v-if="user !== undefined" :items="accountItems">
             <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
               <UAvatar
                 :alt="user.name ?? user.email"
@@ -175,7 +178,7 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
                 :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
               />
             </UButton>
-          </UDropdownMenu>
+          </LazyUDropdownMenu>
           <!-- Signed out, the way back in: the profile moved into the avatar
                menu, which does not exist until you are signed in, so without
                this a signed-out reader had no visible door to sign-in at all.
