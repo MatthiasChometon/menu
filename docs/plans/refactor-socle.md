@@ -510,8 +510,7 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   on `/`, `/composer`, `/recette`); the JSON catalogs emitted as `JSON.parse` strings (`vite.json.stringify`, kept: TBT at the
   calibrated multiplier 366 -> 338, 686 -> 625, 613 -> 472, 330 -> 275, 277 -> 252 ms). Tried and reverted: inlining the
   entry stylesheet (LCP -0.12 to -0.25 s but TBT +100 ms and a timing test failed: 232 KB of CSS parsed in the document).
-  **At 4x, last measured figures (TBT ms / LCP ms, budget 200 / 2500):** `/` 142 / 2728; `/composer` 258 / 2860;
-  `/courses` 247 / 2784; `/recettes` 81 / 2782; `/recette/thaiPeanutChickenBowl` 98 / 2709. CLS and weights pass.
+  **At 4x, last measured figures (TBT ms / LCP ms, budget 200 / 2500; head 87ca6e5):** `/` 151 / 2728; `/composer` 225 / 2875; `/courses` 207 / 2783; `/recettes` 90 / 5658; `/recette/thaiPeanutChickenBowl` 194 / 5699 (the last two LCP are bimodal between runs, about 2.7 s or 5.7 s). CLS and weights pass.
   **Remaining cause per URL.** LCP: on every URL the LCP element is in the generated HTML and paints with the first frame
   (observed LCP = observed FCP, 120-170 ms); the simulated value is the simulated first paint (about 2.56 s: HTML plus the
   render-blocking entry stylesheet, 755 ms of wasted time in the audit, on a 150 ms RTT, 1.6 Mbps link) plus 150-300 ms of
