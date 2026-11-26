@@ -1,0 +1,38 @@
+name: Check overrides
+
+# A pnpm override is a debt: it exists because a parent still asks for a version
+# with a published advisory. This fails when one is no longer needed, so it gets
+# removed instead of living on. The registry changes without any commit, hence the
+# weekly run on top of pull requests that touch an override.
+on:
+  pull_request:
+    paths:
+      - "back/pnpm-workspace.yaml"
+      - "front/pnpm-workspace.yaml"
+      - "ops/check-overrides.mjs"
+      - ".github/workflows/check-overrides.yml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-overrides-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  overrides:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: front/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Overrides still needed
+        run: node ops/check-overrides.mjs back front
