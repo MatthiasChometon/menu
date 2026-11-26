@@ -55,7 +55,7 @@ describe('the account-scoped reads are served by an index', () => {
     for (const statement of statements) {
       const plan = await api.explain(statement);
       expect(plan, `${operation} on ${table}:\n${statement.sql}\n${plan}`).not.toMatch(
-        new RegExp(`Seq Scan on ${table}\b`),
+        new RegExp(`Seq Scan on ${table}\\b`),
       );
     }
   });
