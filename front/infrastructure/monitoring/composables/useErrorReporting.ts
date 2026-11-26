@@ -1,5 +1,5 @@
-import { captureException } from '@sentry/vue';
 import { toRaw } from 'vue';
+import { loadSentry, whenSentryReady } from '../utils/sentryClient';
 
 // What was already sent, by identity. The GraphQL client throws the very object
 // its error handler saw. ofetch throws a new FetchError around the failure, but
@@ -21,8 +21,8 @@ const keyOf = (error: unknown): object | undefined => {
 
 // Where a caught error goes instead of the console: handled on screen for the
 // reader, but still sent to the one place that can tell us it is happening.
-// With no DSN configured Sentry was never initialised and captureException does
-// nothing, which is the right behaviour for a local checkout. `source` is the
+// The client is loaded on demand (see utils/sentryClient). With no DSN configured
+// Sentry was never initialised and captureException does nothing, which is the right behaviour for a local checkout. `source` is the
 // object an interceptor saw when the error it reports is one it made up.
 export const useErrorReporting = (): {
   reportError: (context: string, error: unknown, source?: object) => void;
@@ -34,6 +34,13 @@ export const useErrorReporting = (): {
       reported.add(key);
     }
 
-    captureException(error, { tags: { context } });
+    whenSentryReady()
+      .then(loadSentry)
+      .then(({ captureException }): void => {
+        captureException(error, { tags: { context } });
+      })
+      // The reporter failing (the chunk blocked, offline) has nowhere left to be
+      // reported, and must never turn into an error for the reader.
+      .catch((): void => undefined);
   },
 });
