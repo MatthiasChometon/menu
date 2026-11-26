@@ -45,6 +45,8 @@ export const openScreen = async (
     ...devices['Pixel 7'],
     viewport: { width: 390, height: 670 },
     baseURL,
+    // The app speaks French on `/`; an English browser is sent to `/en`.
+    locale: 'fr-FR',
     serviceWorkers: 'block',
     reducedMotion: 'no-preference',
   });
