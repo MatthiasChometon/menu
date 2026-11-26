@@ -457,9 +457,9 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   (`back/infrastructure/performance/`): median of 15 samples per operation (read 100 ms, mutation 100 ms, credential 100 ms,
   upload 250 ms), a query-count guard per operation (N+1) and EXPLAIN checks (no sequential scan on the hot tables). Pure hot
   functions have benches. Budgets, in ms (p95 / p99): read 300 / 800, mutation 250 / 800, credential 250 / 800, upload 250 / 800 (the mutation numbers: the plan gives no more room).
-  **Measured on CI (full dispatch, 45738773367):** every operation within budget, failed 0.00 %. Load: read p95 at most 12 ms,
-  mutation at most 15 ms (p99 62 ms), login 45 ms, upload 57 ms. Soak 30 min: RSS flat at 439 MB, p95 7 ms. Breakpoint: the API
-  gives way at about 386 operations per second on one core.
+  **Measured on CI (full dispatch, 45755175894 on 794f461):** every operation within budget, failed 0.00 %. Load: read p95 at most 16 ms,
+  mutation at most 20 ms (p99 53 ms), login 46 ms, upload 57 ms. Soak 30 min: RSS 358 to 430 MB, flat, p95 7 ms. Breakpoint: the API
+  gives way at about 395 operations per second on one core.
   **Budgets missed: three, all in the code, fixed there.** The EXPLAIN check had a regex typo (a lone backslash-b in a template literal is a
   backspace) and could never fail; fixed, it went red on `weight`, `custom_food` and `custom_recipe` read by account with no index
   (run 45747548600) and the migration `0018_user_scoped_read_indexes` fixes them. The credential and upload budgets had been set
@@ -469,7 +469,7 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   without a k6 scenario and a budget fails `coverage.e2e.test.ts`), per-operation `checks` and `http_reqs` thresholds, class latencies
   computed by the summary, a failed `pg_stat_statements` read fails the job, N+1 counted at two list lengths for the four
   list-writing mutations plus a refusal of a thousand-item list, other accounts' rows (300 accounts) in the world and the k6 database,
-  Postgres pinned to core 1 (API core 0, k6 the rest). The world keeps the suite's single administrator address: a second one doubled the announcements the bug-report tests hold back.
+  Postgres pinned to core 1 (API core 0, k6 the rest). The suite has one administrator, `admin@example.com`; a second one doubled the announcements the bug-report tests hold back.
   **Deferred:** the front half (web vitals, bundle and interaction budgets): owner lot M15 front, exit when its PR is merged.
   Mail send time stays out of the budgets (sent in the background, M3). A baseline on the real shared host: owner the maintainer,
   exit when a run of the `load` workflow against it is decided (hosting decision, not a code one).
