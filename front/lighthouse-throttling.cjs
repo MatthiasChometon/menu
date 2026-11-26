@@ -1,6 +1,5 @@
-// The CPU slowdown that makes every runner emulate the same reference device: a mid-tier mobile
-// (Moto G4 class). The multiplier is computed by `lighthouse-calibrate.cjs` from the host's
-// benchmarkIndex and passed in LH_CPU_SLOWDOWN; 4 is Lighthouse's default when it is absent.
-const slowdown = Number(process.env.LH_CPU_SLOWDOWN ?? 4);
-
-module.exports = { cpuSlowdownMultiplier: slowdown };
+// The CPU slowdown of the Lighthouse run: a fixed 4x, the PageSpeed Insights reference for a
+// mid-tier mobile, so the figures read here are the ones PageSpeed Insights reports (maintainer
+// approval 2026-11-26). It is not calibrated per runner: a calibrated multiplier made the same
+// code score differently from one runner to the next.
+module.exports = { cpuSlowdownMultiplier: 4 };

@@ -88,11 +88,6 @@ jobs:
           cache-dependency-path: front/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm generate
-      - name: Calibrate the CPU slowdown on the reference device (mid-tier mobile)
-        run: |
-          pnpm dlx @lhci/cli@0.15.1 collect --numberOfRuns=3 --url=http://localhost:3777/courses --start-server-command="pnpm preview" --start-server-ready-pattern=Listening --settings.chromeFlags=--no-sandbox
-          echo "LH_CPU_SLOWDOWN=$(node lighthouse-calibrate.cjs)" >> "$GITHUB_ENV"
-          rm -rf .lighthouseci
       - name: Lighthouse, median of 5 runs per page
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.cjs
       - uses: actions/upload-artifact@v4
