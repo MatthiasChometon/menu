@@ -23,18 +23,26 @@ const shouldHoldBack = (): boolean => {
   return connection.saveData === true || ['slow-2g', '2g'].includes(connection.effectiveType ?? '');
 };
 
-const whenIdle = (run: () => void): void => {
-  // Braces on both branches: setTimeout hands back a handle, and an arrow that
-  // returns it while promising void is exactly what the build refused. Safari
-  // has no requestIdleCallback, which the DOM typings do not admit.
-  if (!('requestIdleCallback' in window)) {
-    setTimeout(run, START_DELAY_MS);
-    return;
-  }
+// Held back until the reader shows up (first pointer, key or scroll) or, failing
+// that, a long quiet period: the first seconds of a visit belong to the page
+// itself. Warming started 1.2 s after idle dragged ~3 MB of photographs into
+// every first load, which is what the image-weight budget measures.
+const IDLE_FALLBACK_MS = 30000;
 
-  window.requestIdleCallback((): void => {
-    window.setTimeout(run, START_DELAY_MS);
-  });
+const whenIdle = (run: () => void): void => {
+  const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'] as const;
+  let started = false;
+  const fallback = setTimeout((): void => start(), IDLE_FALLBACK_MS);
+
+  const start = (): void => {
+    if (started) return;
+    started = true;
+    clearTimeout(fallback);
+    events.forEach((name): void => window.removeEventListener(name, start));
+    setTimeout(run, START_DELAY_MS);
+  };
+
+  events.forEach((name): void => window.addEventListener(name, start, { passive: true }));
 };
 
 // An Image rather than fetch(): the service worker keeps photographs under a

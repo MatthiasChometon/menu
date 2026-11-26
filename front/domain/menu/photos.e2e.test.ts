@@ -67,6 +67,10 @@ test.describe('what a page costs in photographs', () => {
 
     await page.goto('/');
 
+    // The warm-up waits for the reader's first gesture (or 30 s of quiet).
+    await page.mouse.down();
+    await page.mouse.up();
+
     // The warm-up is easy to break in a way nothing else would notice: it runs
     // behind an idle callback, touches no pixel, and a page that never warms
     // looks exactly like one that does — until the signal goes.
