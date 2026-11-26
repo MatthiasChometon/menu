@@ -21,7 +21,9 @@ export class GroceryPushResolver {
       'The public key a browser needs to subscribe. Null when no keys are set, and then no push is ever sent.',
   })
   groceryPushKey(): string | undefined {
-    return this.config.get<string>('VAPID_PUBLIC_KEY');
+    throw new Error(
+      `red proof: this read is broken (${this.config.get<string>('VAPID_PUBLIC_KEY') ?? 'no key'})`,
+    );
   }
 
   @Mutation(() => Boolean, { description: 'Agrees to be told on this browser.' })
