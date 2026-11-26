@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import { expectPresent, type GraphqlResponse, type TestApp } from '../testing/e2e-app';
 
 /** What a person who has used the app for months holds: far from an empty database. */
@@ -11,8 +12,11 @@ export const SEED = {
   reports: 40,
 } as const;
 
+/** The other accounts of the site: the reader's rows are a small share of each table. */
+export const CROWD = { accounts: 300, weights: 10, foods: 6, recipes: 4 } as const;
+
 export const PASSWORD = 'a-long-enough-password';
-export const ADMIN_EMAIL = 'matthias@example.com';
+export const ADMIN_EMAIL = 'admin@example.com';
 export const READER_EMAIL = 'someone-else@example.com';
 
 export type Who = 'anonymous' | 'reader' | 'admin' | 'device';
@@ -277,6 +281,28 @@ export const requestImprovement = async (world: Caller, index: number): Promise<
   return idea.id;
 };
 
+// Rows for other accounts, written straight to the tables: what a planner chooses when one
+// account owns a few rows out of thousands is not what it chooses when it owns them all.
+const seedCrowd = async (api: TestApp): Promise<void> => {
+  const database = api.database();
+  await database.execute(sql`
+    INSERT INTO "user" (id, email, password_hash, email_verified_at)
+    SELECT gen_random_uuid(), crowd- || n || @example.com, x, now()
+    FROM generate_series(1, ${CROWD.accounts}) AS n`);
+  await database.execute(sql`
+    INSERT INTO "weight" (id, user_id, date, kg)
+    SELECT gen_random_uuid(), u.id, date '2015-01-01' + d, 60 + d % 30
+    FROM "user" u, generate_series(1, ${CROWD.weights}) AS d WHERE u.email LIKE 'crowd-%'`);
+  await database.execute(sql`
+    INSERT INTO "custom_food" (id, user_id, name, kcal, protein, fat, carbs, fiber, price_per_kg)
+    SELECT gen_random_uuid(), u.id, 'Food ' || d, 100, 10, 5, 10, 2, 5
+    FROM "user" u, generate_series(1, ${CROWD.foods}) AS d WHERE u.email LIKE 'crowd-%'`);
+  await database.execute(sql`
+    INSERT INTO "custom_recipe" (id, user_id, name, slot, ingredients, steps, prep_minutes)
+    SELECT gen_random_uuid(), u.id, 'Recipe ' || d, 'MAIN', '{}'::jsonb, '[]'::jsonb, 10
+    FROM "user" u, generate_series(1, ${CROWD.recipes}) AS d WHERE u.email LIKE 'crowd-%'`);
+};
+
 /** The whole world the budget tests run in: an admin, a reader with data, a paired browser. */
 export const buildWorld = async (api: TestApp): Promise<World> => {
   await api.reset();
@@ -284,6 +310,7 @@ export const buildWorld = async (api: TestApp): Promise<World> => {
   const reader = await api.signUp(READER_EMAIL, PASSWORD);
   const base = { api, cookies: { reader, admin }, deviceToken: '' };
 
+  await seedCrowd(api);
   const seeded = await seedReader(base);
 
   const paired = await call<{ pairGroceryDevice: { token: string } }>(
