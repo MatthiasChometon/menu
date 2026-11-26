@@ -287,20 +287,20 @@ const seedCrowd = async (api: TestApp): Promise<void> => {
   const database = api.database();
   await database.execute(sql`
     INSERT INTO "user" (id, email, password_hash, email_verified_at)
-    SELECT gen_random_uuid(), crowd- || n || @example.com, x, now()
-    FROM generate_series(1, ${CROWD.accounts}) AS n`);
+    SELECT gen_random_uuid(), 'crowd-' || n || '@example.com', 'x', now()
+    FROM generate_series(1, ${CROWD.accounts}::int) AS n`);
   await database.execute(sql`
     INSERT INTO "weight" (id, user_id, date, kg)
     SELECT gen_random_uuid(), u.id, date '2015-01-01' + d, 60 + d % 30
-    FROM "user" u, generate_series(1, ${CROWD.weights}) AS d WHERE u.email LIKE 'crowd-%'`);
+    FROM "user" u, generate_series(1, ${CROWD.weights}::int) AS d WHERE u.email LIKE 'crowd-%'`);
   await database.execute(sql`
     INSERT INTO "custom_food" (id, user_id, name, kcal, protein, fat, carbs, fiber, price_per_kg)
     SELECT gen_random_uuid(), u.id, 'Food ' || d, 100, 10, 5, 10, 2, 5
-    FROM "user" u, generate_series(1, ${CROWD.foods}) AS d WHERE u.email LIKE 'crowd-%'`);
+    FROM "user" u, generate_series(1, ${CROWD.foods}::int) AS d WHERE u.email LIKE 'crowd-%'`);
   await database.execute(sql`
     INSERT INTO "custom_recipe" (id, user_id, name, slot, ingredients, steps, prep_minutes)
     SELECT gen_random_uuid(), u.id, 'Recipe ' || d, 'MAIN', '{}'::jsonb, '[]'::jsonb, 10
-    FROM "user" u, generate_series(1, ${CROWD.recipes}) AS d WHERE u.email LIKE 'crowd-%'`);
+    FROM "user" u, generate_series(1, ${CROWD.recipes}::int) AS d WHERE u.email LIKE 'crowd-%'`);
 };
 
 /** The whole world the budget tests run in: an admin, a reader with data, a paired browser. */
