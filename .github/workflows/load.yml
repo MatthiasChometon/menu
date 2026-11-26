@@ -1,0 +1,155 @@
+name: Load tests
+
+# How the API holds a crowd (devops/load). Every operation of the API is played against a replica
+# built on the runner from the commit, never against production.
+#
+# - pull requests that touch the back, the front or the load suite: smoke and a short load run,
+#   both blocking;
+# - every Monday and on demand: all six profiles (smoke, load, spike, stress, soak, breakpoint),
+#   with a summary and an artifact.
+#
+# The replica keeps the limits of the shared host: the API on one core with 512 MB of heap, the
+# default pool of ten connections, the same Node and PostgreSQL major versions.
+on:
+  workflow_dispatch:
+    inputs:
+      profiles:
+        description: 'Profiles to play, in order'
+        default: 'smoke load spike stress soak breakpoint'
+  schedule:
+    # Mondays at 03:00 UTC, when nobody is using the app.
+    - cron: '0 3 * * 1'
+  pull_request:
+    paths:
+      - 'back/**'
+      - 'front/**'
+      - 'devops/load/**'
+      - '.github/workflows/load.yml'
+
+concurrency:
+  group: load-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  K6_VERSION: '2.3.0'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops/load
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: devops/load/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: devops/load/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+
+  replica:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      postgres:
+        # The major version the shared host runs, held to one core.
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: menu
+          POSTGRES_PASSWORD: menu
+          POSTGRES_DB: menu
+        ports:
+          - 5432:5432
+        options: >-
+          --cpus 1
+          --health-cmd "pg_isready -U menu -d menu"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgres://menu:menu@localhost:5432/menu
+      API_URL: http://127.0.0.1:3779
+      PROFILES: ${{ github.event_name == 'pull_request' && 'smoke load' || inputs.profiles || 'smoke load spike stress soak breakpoint' }}
+      # A pull request gets a short load run; the weekly one plays the default two minutes.
+      LOAD_DURATION: ${{ github.event_name == 'pull_request' && '90s' || '2m' }}
+      # The API settings of a replica nobody can sign in to but the load test.
+      NODE_ENV: production
+      PORT: '3779'
+      JWT_SECRET: load-test-secret-that-is-long-enough-for-the-api
+      THROTTLE_SKIP: 'true'
+      ALLOWED_EMAILS: '*'
+      ADMIN_EMAILS: admin@load.example
+      BUG_NOTICES_PER_HOUR: '1000000'
+      GOOGLE_CLIENT_ID: load-test
+      GOOGLE_CLIENT_SECRET: load-test
+      BACK_URL: http://127.0.0.1:3779
+      FRONT_URL: http://site.test
+      ALLOWED_ORIGINS: http://site.test
+      # Nothing listens there: the load test never sends a real e-mail.
+      MAIL_HOST: 127.0.0.1
+      MAIL_PORT: '2525'
+      MAIL_FROM: Menu <no-reply@example.com>
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: back/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: back/pnpm-lock.yaml
+
+      - name: Prepare the folders the API writes to
+        run: |
+          echo "REPORTS=$RUNNER_TEMP/load" >> "$GITHUB_ENV"
+          echo "IMAGES_ROOT=$RUNNER_TEMP/images" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/images/recipe" "$RUNNER_TEMP/images/food"
+          echo '{"version":1,"recipe":{},"food":{}}' > "$RUNNER_TEMP/images/manifest.json"
+
+      - name: Turn on pg_stat_statements
+        run: |
+          export PGPASSWORD=menu
+          psql -h localhost -U menu -d menu -c "ALTER SYSTEM SET shared_preload_libraries = 'pg_stat_statements'"
+          docker restart ${{ job.services.postgres.id }}
+          for _ in $(seq 30); do
+            pg_isready -h localhost -U menu -d menu && break
+            sleep 1
+          done
+          psql -h localhost -U menu -d menu -c 'CREATE EXTENSION IF NOT EXISTS pg_stat_statements'
+
+      - name: Build the API and migrate its database
+        working-directory: back
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm exec drizzle-kit migrate
+          pnpm build
+
+      - uses: grafana/setup-k6-action@v1.2.2
+        with:
+          k6-version: ${{ env.K6_VERSION }}
+
+      - name: Play ${{ env.PROFILES }}
+        run: |
+          echo "Runner: $(nproc) cores, $(free -g | awk '/^Mem:/ { print $2 }') GB of memory." >> "$GITHUB_STEP_SUMMARY"
+          status=0
+          for profile in $PROFILES; do
+            devops/load/run-profile.sh "$profile" || status=1
+          done
+          exit $status
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: load-replica
+          path: ${{ runner.temp }}/load
+          retention-days: 30

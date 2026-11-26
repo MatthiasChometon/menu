@@ -1,0 +1,15 @@
+{
+  // k6 runs these files itself (esbuild strips the types): tsc only checks them.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "types": ["k6"]
+  },
+  "include": ["*.ts"]
+}
