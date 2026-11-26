@@ -104,6 +104,15 @@ const heroImage = computed((): string | undefined =>
 );
 
 useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(recipe.value)) });
+
+// The hero photograph is the largest thing painted: asked for in the head, it
+// starts downloading with the page instead of once the recipe has rendered.
+useHead({
+  link: (): { rel: string; as: string; href: string; fetchpriority: string }[] =>
+    heroImage.value === undefined
+      ? []
+      : [{ rel: 'preload', as: 'image', href: heroImage.value, fetchpriority: 'high' }],
+});
 </script>
 
 <template>
@@ -135,6 +144,7 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
             :alt="nameOf(recipe)"
             icon="i-lucide-cooking-pot"
             rounded="rounded-3xl"
+            eager
           />
         </div>
 

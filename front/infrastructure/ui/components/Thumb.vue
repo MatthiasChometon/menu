@@ -4,11 +4,14 @@ const {
   alt,
   icon = 'i-lucide-image',
   rounded = 'rounded-xl',
+  eager = false,
 } = defineProps<{
   src?: string;
   alt: string;
   icon?: string;
   rounded?: string;
+  /** An image in the first screenful: fetched at once and first, never waiting to scroll near. */
+  eager?: boolean;
 }>();
 
 const hasFailed = ref(false);
@@ -21,7 +24,8 @@ const showsImage = computed((): boolean => src !== undefined && !hasFailed.value
     v-if="showsImage"
     :src="src"
     :alt="alt"
-    loading="lazy"
+    :loading="eager ? 'eager' : 'lazy'"
+    :fetchpriority="eager ? 'high' : undefined"
     decoding="async"
     :class="rounded"
     class="size-full object-cover"

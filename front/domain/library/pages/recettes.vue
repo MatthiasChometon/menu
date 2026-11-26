@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CustomRecipe } from '../../customCatalog/types/customCatalog.type';
 
-const { recipes } = useRecipes();
+const { recipes, imageOf } = useRecipes();
 const { entriesOf } = useRecipeCatalog();
 const { seasonalFoodIds, currentMonth } = useSeason();
 const { user } = useAuth();
@@ -75,6 +75,20 @@ const showSeasonOnly = (): void => {
 };
 
 useSeoMeta({ title: (): string => t('library.pageTitle') });
+
+// The first card's photograph is the largest thing painted: asked for in the head,
+// it starts downloading with the page rather than once the list has rendered.
+const firstImage = computed((): string | undefined => {
+  const first = shownEntries.value[0];
+
+  return first === undefined ? undefined : imageOf(first.recipe);
+});
+useHead({
+  link: (): { rel: string; as: string; href: string; fetchpriority: string }[] =>
+    firstImage.value === undefined
+      ? []
+      : [{ rel: 'preload', as: 'image', href: firstImage.value, fetchpriority: 'high' }],
+});
 </script>
 
 <template>
@@ -158,9 +172,10 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
 
     <div v-if="filteredEntries.length > 0" class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <LibraryRecipeCard
-        v-for="entry in shownEntries"
+        v-for="(entry, position) in shownEntries"
         :key="entry.recipe.id"
         :entry="entry"
+        :eager="position < 3"
         @edit="editRecipe"
       />
     </div>

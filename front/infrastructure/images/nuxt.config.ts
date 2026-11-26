@@ -40,6 +40,9 @@ const manifestAtBuild = async (): Promise<ImageManifest> => {
 const manifest = await manifestAtBuild();
 
 export default defineNuxtConfig({
+  // The photographs come from another origin: connecting early saves the DNS, TCP and TLS
+  // round trips that otherwise sit in front of the first one.
+  app: { head: { link: [{ rel: 'preconnect', href: base }] } },
   runtimeConfig: {
     public: {
       imagesBase: base,
