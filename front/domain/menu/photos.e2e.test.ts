@@ -67,24 +67,24 @@ test.describe('what a page costs in photographs', () => {
 
     await page.goto('/');
 
-    // The warm-up is easy to break in a way nothing else would notice: it runs
-    // behind an idle callback, touches no pixel, and a page that never warms
-    // looks exactly like one that does — until the signal goes.
+    // The warm-up listens for the reader's first gesture (or starts after 30 s of quiet), and its
+    // listeners exist only once the app has hydrated: wait for that explicitly, then make one
+    // click on a neutral corner. The poll below stays under the 30 s fallback, so a gesture that
+    // stopped working fails here instead of being hidden by the timer.
+    await page.waitForFunction(() => {
+      const nuxtApp = (window as unknown as { useNuxtApp?: () => { isHydrating: boolean } })
+        .useNuxtApp;
+      return nuxtApp !== undefined && !nuxtApp().isHydrating;
+    });
+    await page.mouse.click(1, 1);
+
+    // The warm-up is easy to break in a way nothing else would notice: it runs behind an idle
+    // callback, touches no pixel, and a page that never warms looks exactly like one that does,
+    // until the signal goes.
     //
-    // Polled rather than timed: sharing one preview server with the rest of the
-    // suite, the warm-up takes as long as it takes, and a fixed wait only ever
-    // measures how busy the machine was.
-    // The warm-up waits for the reader's first gesture (or 30 s of quiet), and its
-    // listeners exist only once the page has hydrated: so the gesture is repeated
-    // until the warm-up reacts, as a reader's would be.
-    await expect
-      .poll(
-        async (): Promise<number> => {
-          await page.mouse.click(10, 10);
-          return fetched.size;
-        },
-        { timeout: 40_000 },
-      )
-      .toBeGreaterThan(100);
+    // Polled rather than timed: sharing one preview server with the rest of the suite, the
+    // warm-up takes as long as it takes, and a fixed wait only ever measures how busy the
+    // machine was.
+    await expect.poll((): number => fetched.size, { timeout: 25_000 }).toBeGreaterThan(100);
   });
 });
