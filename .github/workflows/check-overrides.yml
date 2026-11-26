@@ -3,12 +3,19 @@ name: Check overrides
 # A pnpm override is a debt: it exists because a parent still asks for a version
 # with a published advisory. This fails when one is no longer needed, so it gets
 # removed instead of living on. The registry changes without any commit, hence the
-# weekly run on top of pull requests that touch an override.
+# weekly run on top of pull requests that touch an override or a dependency.
 on:
   pull_request:
     paths:
       - "back/pnpm-workspace.yaml"
       - "front/pnpm-workspace.yaml"
+      - "back/package.json"
+      - "front/package.json"
+      - "extension/package.json"
+      - "back/pnpm-lock.yaml"
+      - "front/pnpm-lock.yaml"
+      - "extension/pnpm-lock.yaml"
+      - "ops/check-overrides.test.mjs"
       - "ops/check-overrides.mjs"
       - ".github/workflows/check-overrides.yml"
   schedule:
@@ -33,6 +40,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+
+      - name: Test the check (needed, not needed, error)
+        run: node --test ops/check-overrides.test.mjs
 
       - name: Overrides still needed
         run: node ops/check-overrides.mjs back front

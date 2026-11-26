@@ -8,7 +8,7 @@ allowBuilds:
 
 # Transitive packages with a published advisory that their parents have not
 # picked up yet, pinned inside the major that fixes them. The exit check is
-# scripts/check-overrides.mjs (run in CI): it fails when an override no longer
+# ops/check-overrides.mjs (run in CI): it fails when an override no longer
 # changes the resolution. Build-time tooling (GraphQL codegen, Nuxt devtools) is
 # part of the prod graph pnpm audits, which is why it is listed here too.
 overrides:

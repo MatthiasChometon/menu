@@ -428,7 +428,10 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   The `zod` override was not needed once the lockfile was refreshed and is gone.
   **Exit condition, checked by a script:** `ops/check-overrides.mjs` (workflow `check-overrides`: every Monday 06:17 UTC, on pull
   requests touching a `pnpm-workspace.yaml`, and on demand) removes each override in a temp copy, resolves again and audits; it fails
-  when the audit stays clean, i.e. the parent now resolves a fixed version, and names the override to delete. Owner: the maintainer,
+  when the audit stays clean, i.e. the parent now resolves a fixed version, and names the override to delete. A network, registry
+  or resolve error is not read as "still needed": one retry, then exit 1 with "could not be checked" (outcomes tested in
+  \`ops/check-overrides.test.mjs\`, run in the workflow). The workflow also runs on pull requests touching any \`package.json\` or
+  \`pnpm-lock.yaml\` of the three packages. Owner: the maintainer,
   who removes what it reports. Run by hand: `node ops/check-overrides.mjs back front`. `fastify` is exempt (it dedupes a package,
   it is not an advisory).
   **Front dev dependencies not updated:** `pnpm update` over the whole tree fails, 2026-11-26, with

@@ -21,20 +21,37 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const KEEP = new Set(["fastify"]);
 const FILES = ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"];
 
+// Outcomes of one audit: 'clean' (no advisory), 'vulnerable' (advisories found),
+// 'error' (no usable audit report: network, registry, resolve). Only a parsed
+// report counts; a failing command without one is never read as "needed".
+export const classifyAudit = (stdout) => {
+  try {
+    const total = Object.values(
+      JSON.parse(stdout).metadata.vulnerabilities,
+    ).reduce((sum, n) => sum + n, 0);
+    return total === 0 ? "clean" : "vulnerable";
+  } catch {
+    return "error";
+  }
+};
+
 const run = (cwd, args) => {
   try {
-    execFileSync("pnpm", args, {
-      cwd,
-      stdio: "pipe",
-      shell: process.platform === "win32",
-    });
-    return 0;
+    return {
+      status: 0,
+      stdout: execFileSync("pnpm", args, {
+        cwd,
+        stdio: "pipe",
+        shell: process.platform === "win32",
+      }).toString(),
+    };
   } catch (error) {
-    return error.status ?? 1;
+    return { status: error.status ?? 1, stdout: String(error.stdout ?? "") };
   }
 };
 
@@ -57,7 +74,13 @@ const withoutOverride = (workspace, index) =>
     .filter((_, i) => i !== index)
     .join("\n");
 
-const isNeeded = (folder, workspace, index) => {
+// 'needed' | 'unneeded' | 'error'. One retry: the registry has flaky moments.
+export const verdict = (attempt) => {
+  const first = attempt();
+  return first === "error" ? attempt() : first;
+};
+
+const attemptWithout = (folder, workspace, index) => () => {
   const work = mkdtempSync(join(tmpdir(), "check-overrides-"));
   try {
     for (const file of FILES)
@@ -73,8 +96,15 @@ const isNeeded = (folder, workspace, index) => {
       "--ignore-scripts",
       "--no-frozen-lockfile",
     ]);
-    if (resolved !== 0) return true; // cannot resolve without it: still needed
-    return run(work, ["audit", "--prod", "--audit-level=low"]) !== 0;
+    if (resolved.status !== 0) return "error";
+    const audit = classifyAudit(
+      run(work, ["audit", "--prod", "--audit-level=low", "--json"]).stdout,
+    );
+    return audit === "vulnerable"
+      ? "needed"
+      : audit === "clean"
+        ? "unneeded"
+        : "error";
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
@@ -82,26 +112,41 @@ const isNeeded = (folder, workspace, index) => {
 
 const check = (folder) => {
   const workspace = readFileSync(join(folder, "pnpm-workspace.yaml"), "utf8");
-  const unneeded = [];
+  const result = { unneeded: [], errors: [] };
   for (const { index, key } of overrideLines(workspace)) {
     if (KEEP.has(key)) continue;
-    const needed = isNeeded(folder, workspace, index);
+    const outcome = verdict(attemptWithout(folder, workspace, index));
     console.log(
-      `${folder}: ${key} ${needed ? "still needed" : "NOT NEEDED ANY MORE"}`,
+      `${folder}: ${key} ${{ needed: "still needed", unneeded: "NOT NEEDED ANY MORE", error: "COULD NOT BE CHECKED" }[outcome]}`,
     );
-    if (!needed) unneeded.push(key);
+    if (outcome === "unneeded") result.unneeded.push(key);
+    if (outcome === "error") result.errors.push(key);
   }
-  return unneeded;
+  return result;
 };
 
-const failures = process.argv
-  .slice(2)
-  .flatMap((folder) =>
-    check(resolve(folder)).map((key) => `${folder}: ${key}`),
-  );
-if (failures.length > 0) {
-  console.error(
-    `\nRemove from pnpm-workspace.yaml (the audit is clean without them):\n  ${failures.join("\n  ")}`,
-  );
-  process.exit(1);
-}
+const main = () => {
+  const results = process.argv
+    .slice(2)
+    .map((folder) => ({ folder, ...check(resolve(folder)) }));
+  const list = (field) =>
+    results
+      .flatMap((r) => r[field].map((key) => `${r.folder}: ${key}`))
+      .join("\n  ");
+  const errors = list("errors");
+  const unneeded = list("unneeded");
+  if (errors) {
+    console.error(
+      `\nNo usable audit report (network, registry or resolve error, retried once); nothing was concluded for:\n  ${errors}`,
+    );
+  }
+  if (unneeded) {
+    console.error(
+      `\nRemove from pnpm-workspace.yaml (the audit is clean without them):\n  ${unneeded}`,
+    );
+  }
+  if (errors || unneeded) process.exit(1);
+};
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  main();
