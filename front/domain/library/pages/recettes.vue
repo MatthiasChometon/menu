@@ -10,7 +10,8 @@ const {
   hasFailed: haveMyRecipesFailed,
   refresh: refreshMyRecipes,
 } = useMyRecipes();
-const { t } = useNuxtApp().$i18n;
+const nuxtApp = useNuxtApp();
+const { t } = nuxtApp.$i18n;
 const isMounted = useMounted();
 
 const allRecipes = computed((): Recipe[] => Object.values(recipes));
@@ -81,13 +82,20 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
 const firstImage = computed((): string | undefined => {
   const first = shownEntries.value[0];
 
-  return first === undefined ? undefined : imageOf(first.recipe);
+  return first === undefined ? undefined : nuxtApp.runWithContext(() => imageOf(first.recipe));
 });
 useHead({
   link: () =>
     firstImage.value === undefined
       ? []
-      : [{ rel: 'preload' as const, as: 'image' as const, href: firstImage.value, fetchpriority: 'high' as const }],
+      : [
+          {
+            rel: 'preload' as const,
+            as: 'image' as const,
+            href: firstImage.value,
+            fetchpriority: 'high' as const,
+          },
+        ],
 });
 </script>
 
