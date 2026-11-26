@@ -500,17 +500,27 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   and lazy-chunk prefetch hints removed; select and account menu no longer preloaded; language picker a native select;
   week select lazy; day and meal action menus loaded on first touch (`ActionsMenu`). Home page script weight 375,735 ->
   363,296 (select and menus made touch-only) -> 323,778 B (action menus); the other four URLs 349,8xx-351,426 B, all under
-  358,400. Last CI run: TBT 310 / 726 / 452 / 336 / 419 ms against 200 (`/`, `/composer`, `/courses`, `/recettes`,
-  `/recette`), LCP 3.4-5.5 s against 2.5 s, CLS and image weight pass. **Item not done: recipe and food data out of the entry
-  chunk.** Measured and not applied: the three catalogs are 20.4 + 4.6 + 1.0 KB compressed (about 26 KB), every screen needs
-  them before first render, and about 40 consumers read the composables synchronously, so a lazy load would only move the
-  bytes into a request waterfall on the critical path; the gain is parse time (JSON against a JS object literal), not
-  transfer. Not measured in isolation. LCP element on `/` is a paragraph whose render delay is about 91% of the time
-  (main-thread hydration); a CPU profile at 4x shows mostly "(program)" time, a stylesheet-rule scan (about 100 ms) and the
-  entry's top-level evaluation (about 204 ms). Remaining options, none chosen: (1) the asynchronous data layer above,
-  worth it only if parse time shows up in a profile; (2) a hosting-model change (server or edge rendering of the first view)
-  that the static host does not offer: a decision for the maintainer; (3) read the weight budget against what the real host
-  serves (the runner's static server compresses with gzip only) and decide whether the Lighthouse run stubs the image host
-  (it reaches the real one, a flake risk); (4) revisit TBT and LCP with the maintainer. Not changed: any budget. Notes: the
+  358,400.
+  **Lighthouse reference (maintainer approval 2026-11-26, PageSpeed Insights reference):** a fixed CPU slowdown of 4x
+  instead of the multiplier calibrated per runner (about 6.6 on the CI runners); calibration script and workflow step
+  removed (`ci(lighthouse)` commit). Budgets unchanged.
+  Then, each measured in CI (medians of 5): modulepreload links dropped for every non-entry chunk (simulated first paint
+  3.0 -> 2.56 s on every URL); the entry animation starts at opacity 0.6 instead of 0 (an element at opacity 0 is not
+  counted as painted, so the hero text became the LCP candidate only after the fade had started: LCP 5.0-5.6 -> 2.7-2.9 s
+  on `/`, `/composer`, `/recette`); the JSON catalogs emitted as `JSON.parse` strings (`vite.json.stringify`, kept: TBT at the
+  calibrated multiplier 366 -> 338, 686 -> 625, 613 -> 472, 330 -> 275, 277 -> 252 ms). Tried and reverted: inlining the
+  entry stylesheet (LCP -0.12 to -0.25 s but TBT +100 ms and a timing test failed: 232 KB of CSS parsed in the document).
+  **At 4x, last measured figures (TBT ms / LCP ms, budget 200 / 2500):** `/` 142 / 2728; `/composer` 258 / 2860;
+  `/courses` 247 / 2784; `/recettes` 81 / 2782; `/recette/thaiPeanutChickenBowl` 98 / 2709. CLS and weights pass.
+  **Remaining cause per URL.** LCP: on every URL the LCP element is in the generated HTML and paints with the first frame
+  (observed LCP = observed FCP, 120-170 ms); the simulated value is the simulated first paint (about 2.56 s: HTML plus the
+  render-blocking entry stylesheet, 755 ms of wasted time in the audit, on a 150 ms RTT, 1.6 Mbps link) plus 150-300 ms of
+  tasks, so the 2.5 s budget sits under the cost of the first request chain on a static host. TBT: `/composer` is the
+  entry chunk evaluation (about 860 ms of scripting) plus the page chunk; `/courses` the entry chunk plus a 136 ms lazy
+  chunk. Each also shows one 125-145 ms long task (entry evaluation) near 330 ms. **Item not done: recipe and food data out
+  of the entry chunk** (about 40 consumers read the catalogs synchronously; a lazy load only moves the bytes into a request
+  waterfall). Options left: (1) split the entry chunk by screen (the composer and courses logic out of the shared entry);
+  (2) a hosting-model change (edge or server rendering of the first view): maintainer decision; (3) a lighter first
+  stylesheet (critical rules only). Not changed: any budget. Notes: the
   bench baseline was produced on Windows and CI passes it with the 2x tolerance, so it should be regenerated on the runner
   once; a vitest worker teardown error shows up now and then when three monitoring test files run together locally (not in CI).
