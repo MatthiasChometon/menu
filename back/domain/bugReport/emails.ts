@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../infrastructure/mail/escape';
 import type { MailMessage } from '../../infrastructure/mail/token';
 import { BugSeverity } from './enum';
 import type { ReportContext } from './type';
@@ -9,13 +10,6 @@ import type { ReportContext } from './type';
 // Everything interpolated here comes from a person, so it is escaped. An email
 // client renders the same HTML a browser does, and a report is the one place
 // where a stranger writes the content.
-const escape = (text: string): string =>
-  text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-
 const SEVERITY_LABEL: Record<BugSeverity, string> = {
   [BugSeverity.BLOCKING]: 'Bloquant',
   [BugSeverity.ANNOYING]: 'Gênant',
@@ -47,7 +41,7 @@ export const bugReportEmail = (
   const rows = lines
     .map(
       ([name, value]): string =>
-        `<tr><td style="padding:2px 12px 2px 0;color:#78716c;white-space:nowrap;">${name}</td><td style="padding:2px 0;">${escape(value)}</td></tr>`,
+        `<tr><td style="padding:2px 12px 2px 0;color:#78716c;white-space:nowrap;">${name}</td><td style="padding:2px 0;">${escapeHtml(value)}</td></tr>`,
     )
     .join('');
 
@@ -55,7 +49,7 @@ export const bugReportEmail = (
     to,
     subject: `[menu] ${label} — ${message.slice(0, 60)}`,
     html: `<!doctype html><html><body style="margin:0;padding:24px;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#1c1917;">
-  <p style="margin:0 0 16px;white-space:pre-wrap;font-size:16px;line-height:1.6;">${escape(message)}</p>
+  <p style="margin:0 0 16px;white-space:pre-wrap;font-size:16px;line-height:1.6;">${escapeHtml(message)}</p>
   <table style="border-collapse:collapse;font-size:13px;">${rows}</table>
 </body></html>`,
     text: `${message}\n\n${lines.map(([name, value]): string => `${name} : ${value}`).join('\n')}\n`,

@@ -37,7 +37,7 @@ describe('useRecipeNotes', () => {
   });
 
   it('still caps the note, by code points, in a browser without Intl.Segmenter', () => {
-    vi.stubGlobal('Intl', { ...Intl, Segmenter: undefined });
+    vi.stubGlobal('Intl', Object.create(Intl, { Segmenter: { value: undefined } }));
     localStorage.setItem('recipe-note:oldBrowserNote', `${'x'.repeat(399)}🍅🍅`);
 
     const { note } = useRecipeNotes('oldBrowserNote');

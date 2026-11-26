@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
-import { countedRow, insertedRow } from '../../infrastructure/database/rows';
-import { user } from '../user/schema';
+import { insertedRow } from '../../infrastructure/database/rows';
+import { insertUnlessFull } from '../user/insert-unless-full';
 import { customRecipe, StoredIngredients } from './schema';
 import { CustomRecipeDraft, CustomRecipeIngredient, CustomRecipeRecord } from './type';
 
@@ -16,35 +16,28 @@ const toIngredientList = (stored: StoredIngredients): CustomRecipeIngredient[] =
 export class CustomRecipeRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  // Counted and inserted under a lock on the owner, so two adds sent together
-  // cannot both see room for one more: nothing comes back when the book is
-  // already full.
+  // Nothing comes back when the book is already full.
   async addUnlessFull(
     userId: string,
     recipe: CustomRecipeDraft,
     maxItems: number,
   ): Promise<CustomRecipeRecord | undefined> {
-    return this.database.transaction(
-      async (transaction): Promise<CustomRecipeRecord | undefined> => {
-        await transaction
-          .select({ id: user.id })
-          .from(user)
-          .where(eq(user.id, userId))
-          .for('update');
-        const counted = await transaction
+    const records = await insertUnlessFull(this.database, {
+      ownerId: userId,
+      maxItems,
+      countOwned: (transaction) =>
+        transaction
           .select({ total: count() })
           .from(customRecipe)
-          .where(eq(customRecipe.userId, userId));
-        if (countedRow(counted) >= maxItems) return undefined;
-
-        const records = await transaction
+          .where(eq(customRecipe.userId, userId)),
+      insert: (transaction) =>
+        transaction
           .insert(customRecipe)
           .values({ userId, ...recipe, ingredients: toStoredIngredients(recipe.ingredients) })
-          .returning();
+          .returning(),
+    });
 
-        return this.toRecipe(insertedRow(records));
-      },
-    );
+    return records === undefined ? undefined : this.toRecipe(insertedRow(records));
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed

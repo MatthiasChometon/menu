@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, count, eq, inArray } from 'drizzle-orm';
 import { DATABASE, type Database } from '../../infrastructure/database/token';
-import { countedRow, insertedRow } from '../../infrastructure/database/rows';
-import { user } from '../user/schema';
+import { insertedRow } from '../../infrastructure/database/rows';
+import { insertUnlessFull } from '../user/insert-unless-full';
 import { customFood } from './schema';
 import { CustomFoodDraft, CustomFoodRecord } from './type';
 
@@ -10,29 +10,28 @@ import { CustomFoodDraft, CustomFoodRecord } from './type';
 export class CustomFoodRepository {
   constructor(@Inject(DATABASE) private readonly database: Database) {}
 
-  // Counted and inserted under a lock on the owner, so two adds sent together
-  // cannot both see room for one more: nothing comes back when the pantry is
-  // already full.
+  // Nothing comes back when the pantry is already full.
   async addUnlessFull(
     userId: string,
     food: CustomFoodDraft,
     maxItems: number,
   ): Promise<CustomFoodRecord | undefined> {
-    return this.database.transaction(async (transaction): Promise<CustomFoodRecord | undefined> => {
-      await transaction.select({ id: user.id }).from(user).where(eq(user.id, userId)).for('update');
-      const counted = await transaction
-        .select({ total: count() })
-        .from(customFood)
-        .where(eq(customFood.userId, userId));
-      if (countedRow(counted) >= maxItems) return undefined;
-
-      const records = await transaction
-        .insert(customFood)
-        .values({ userId, ...food })
-        .returning();
-
-      return this.toFood(insertedRow(records));
+    const records = await insertUnlessFull(this.database, {
+      ownerId: userId,
+      maxItems,
+      countOwned: (transaction) =>
+        transaction
+          .select({ total: count() })
+          .from(customFood)
+          .where(eq(customFood.userId, userId)),
+      insert: (transaction) =>
+        transaction
+          .insert(customFood)
+          .values({ userId, ...food })
+          .returning(),
     });
+
+    return records === undefined ? undefined : this.toFood(insertedRow(records));
   }
 
   // The owner is part of the condition, not checked afterwards: an id guessed

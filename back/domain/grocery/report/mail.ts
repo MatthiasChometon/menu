@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { escapeHtml } from '../../../infrastructure/mail/escape';
 import { MailMessage } from '../../../infrastructure/mail/token';
 import { GroceryJobStatus } from '../enum';
 import { GroceryJob } from '../job/model';
@@ -7,9 +8,6 @@ import { euros } from './utils';
 
 // Anything that came from the shop is escaped: a product name is text the shop
 // wrote, and it lands in an HTML document.
-const escaped = (text: string): string =>
-  text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
 @Injectable()
 export class GroceryReportMail {
   build(to: string, job: GroceryJob, basketUrl: string): MailMessage {
@@ -39,16 +37,16 @@ export class GroceryReportMail {
       subject: this.subjectOf(job, attention.length > 0),
       text: lines.join('\n'),
       html: `<div style="font-family:system-ui,sans-serif;line-height:1.5">
-  <p>${summary.map(escaped).join('<br>')}</p>
-  ${attention.map((note): string => `<p style="font-weight:600">${escaped(note)}</p>`).join('')}
+  <p>${summary.map(escapeHtml).join('<br>')}</p>
+  ${attention.map((note): string => `<p style="font-weight:600">${escapeHtml(note)}</p>`).join('')}
   <ul>${shortfalls
     .map(
       (event): string =>
-        `<li><strong>${escaped(event.label ?? event.foodId ?? '')}</strong> ${escaped(event.detail ?? '')}</li>`,
+        `<li><strong>${escapeHtml(event.label ?? event.foodId ?? '')}</strong> ${escapeHtml(event.detail ?? '')}</li>`,
     )
     .join('')}</ul>
   <p>La commande et le paiement restent à toi : rien n’a été validé.</p>
-  <p><a href="${escaped(basketUrl)}">Ouvrir mon panier</a></p>
+  <p><a href="${escapeHtml(basketUrl)}">Ouvrir mon panier</a></p>
 </div>`,
     };
   }

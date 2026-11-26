@@ -35,8 +35,8 @@ describe('reading an ingredient the household shares', () => {
   it('shows what goes in the pan, not one person share', async () => {
     const wrapper = await mount(
       shared([
-        { eater: eater('me', 'Matthias'), grams: 120 },
-        { eater: eater('mum', 'Maman'), grams: 80 },
+        { eater: eater('me', 'Alex'), grams: 120 },
+        { eater: eater('sam', 'Sam'), grams: 80 },
       ]),
     );
 
@@ -46,25 +46,25 @@ describe('reading an ingredient the household shares', () => {
   it('keeps each portion behind a fold until it is asked for', async () => {
     const wrapper = await mount(
       shared([
-        { eater: eater('me', 'Matthias'), grams: 120 },
-        { eater: eater('mum', 'Maman'), grams: 80 },
+        { eater: eater('me', 'Alex'), grams: 120 },
+        { eater: eater('sam', 'Sam'), grams: 80 },
       ]),
     );
 
     // A phone held over a pan has room for one number. The others exist, but
     // they are wanted at serving time, not while cooking.
-    expect(wrapper.text()).not.toContain('Maman');
+    expect(wrapper.text()).not.toContain('Sam');
 
     await wrapper.find('button[aria-controls^="shares-"]').trigger('click');
 
-    expect(wrapper.text()).toContain('Matthias');
-    expect(wrapper.text()).toContain('Maman');
+    expect(wrapper.text()).toContain('Alex');
+    expect(wrapper.text()).toContain('Sam');
     expect(wrapper.text()).toContain('120');
     expect(wrapper.text()).toContain('80');
   });
 
   it('offers no fold when one person is eating', async () => {
-    const wrapper = await mount(shared([{ eater: eater('me', 'Matthias'), grams: 140 }]));
+    const wrapper = await mount(shared([{ eater: eater('me', 'Alex'), grams: 140 }]));
 
     // The total IS their portion. A fold repeating the number above it would be
     // noise dressed up as information — and this is what the page shows today.
@@ -80,7 +80,7 @@ describe('reading an ingredient the household shares', () => {
   });
 
   it('still names everyone when the household is five', async () => {
-    const names = ['Matthias', 'Maman', 'Papa', 'Léa', 'Tom'];
+    const names = ['Alex', 'Sam', 'Charlie', 'Robin', 'Jo'];
     const wrapper = await mount(
       shared(
         names.map((name, index): SharedQuantity['perEater'][number] => ({
