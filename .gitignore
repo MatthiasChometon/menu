@@ -38,4 +38,4 @@ playwright-report
 
 # Perf calibration of the host (written by pnpm calibrate)
 front/perf-calibration.json
-front/.lighthouseci-warmup
+front/.lighthouseci

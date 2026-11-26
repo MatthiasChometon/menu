@@ -9,6 +9,5 @@ module.exports = {
       url: [`http://localhost:${process.env.PORT ?? '3777'}/`],
       settings: { chromeFlags: '--no-sandbox', onlyCategories: ['performance'] },
     },
-    upload: { target: 'filesystem', outputDir: '.lighthouseci-warmup' },
   },
 };

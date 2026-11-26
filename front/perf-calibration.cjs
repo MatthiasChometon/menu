@@ -65,7 +65,7 @@ module.exports = {
 
 // `node perf-calibration.cjs <lhci output dir>` writes perf-calibration.json from the warm-up runs.
 if (require.main === module) {
-  const benchmarkIndex = benchmarkIndexOf(process.argv[2] ?? '.lighthouseci-warmup');
+  const benchmarkIndex = benchmarkIndexOf(process.argv[2] ?? '.lighthouseci');
   const tmp = `${CALIBRATION_FILE}.tmp`;
   fs.writeFileSync(tmp, `${JSON.stringify({ benchmarkIndex })}\n`);
   fs.renameSync(tmp, CALIBRATION_FILE);
