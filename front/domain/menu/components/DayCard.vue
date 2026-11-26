@@ -100,6 +100,15 @@ const isPast = computed((): boolean => {
 
 const isOpen = ref(defaultOpen);
 
+// A closed day only draws its header. The week is seven of these, each with five
+// meal rows and a macro bar, and drawing all of them up front put the page at
+// about 1.08 s on a throttled phone, over the 1 s a screen is allowed to take
+// once the app is warm. The body is drawn the first time the day is opened.
+const hasBeenOpened = ref(defaultOpen);
+watch(isOpen, (value): void => {
+  if (value) hasBeenOpened.value = true;
+});
+
 // The current day is only known once mounted (a prerendered page would freeze
 // whatever day it was built on), so the open card follows that late signal.
 watch(
@@ -166,18 +175,20 @@ watch(
     </template>
 
     <div v-show="isOpen" :id="`day-${day.key}`" class="space-y-1 p-2">
-      <MenuMealRow
-        v-for="meal in day.meals"
-        :key="meal.slot"
-        :meal="meal"
-        :day-key="day.key"
-        :leftover-targets="leftoverTargetsFor(meal.slot)"
-      />
+      <template v-if="hasBeenOpened">
+        <MenuMealRow
+          v-for="meal in day.meals"
+          :key="meal.slot"
+          :meal="meal"
+          :day-key="day.key"
+          :leftover-targets="leftoverTargetsFor(meal.slot)"
+        />
 
-      <div class="mt-2 rounded-2xl bg-elevated/50 p-4">
-        <p class="mb-3 text-sm font-semibold">{{ $t('menu.dayTotal') }}</p>
-        <MenuMacroBar :macros="day.macros" :targets="targets" compact />
-      </div>
+        <div class="mt-2 rounded-2xl bg-elevated/50 p-4">
+          <p class="mb-3 text-sm font-semibold">{{ $t('menu.dayTotal') }}</p>
+          <MenuMacroBar :macros="day.macros" :targets="targets" compact />
+        </div>
+      </template>
     </div>
   </UCard>
 </template>
