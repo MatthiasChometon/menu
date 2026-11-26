@@ -410,24 +410,38 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
 - 2026-11-26 — M13 (dependency upgrades; `pnpm audit --prod --audit-level=low` in every CI), PR on `refactor/socle-m13`.
   **Result:** `pnpm audit --prod` reports no known vulnerability in `back`, `front` and `extension` (back had 56 findings, front 126,
   extension none). New blocking step `Audit production dependencies` in `ci-back`, `ci-front` and `ci-extension`
-  (`pnpm audit --prod --audit-level=low`, no `continue-on-error`). **Nothing is ignored:** every advisory had a fix.
-  **Back:** in-range upgrade of every dependency; `fastify` pinned to 5.12.8 (the version `@nestjs/platform-fastify` 11.2 ships)
-  in `package.json` and the override; `@graphql-tools/utils >=12.0.2` override (Apollo and Nest GraphQL pin 12.0.0 and 12.0.1);
+  (`pnpm audit --prod --audit-level=low`, no `continue-on-error`); `ci-e2e` installs the same front lockfile, which `ci-front`
+  audits, so it has no step of its own. **Nothing is ignored:** every advisory had a fix.
+  **Back:** in-range upgrade of every dependency; `fastify` pinned to 5.12.8 (the version `@nestjs/platform-fastify` 11.2 ships);
   `nodemailer` 9 to 10 in its own commit (only breaking change of 10.0.0: Node 20 floor; typecheck, build and mail tests unchanged).
-  **Front:** `pnpm update --prod` (Nuxt 4.7, `@nuxt/ui` 4.13, Vue 3.5.46, `@nuxtjs/i18n`, Sentry) plus targeted updates
-  of transitive packages, and narrow overrides in `pnpm-workspace.yaml` for what no parent has picked up yet:
-  `@graphql-tools/utils`, `simple-git` (4.x), `@simple-git/argv-parser`, `zod`, `lodash`, `immutable` 3.x and `minimatch` 11 only
-  under `readdir-glob`, `graphql-config`, `eslint` and `@eslint/config-array` (a global `minimatch` 11 breaks
-  `eslint-plugin-import-x`, which needs `makeRe`). Nuxt 4.7 types `useFetch` options per known server route and defaults to GET;
-  `useApi` now accepts `AnyServerRouteMethod` (the calls go to an external API). Dev dependencies of the front were not updated
-  (`pnpm update` over the whole tree currently fails on `mdn-data@2.37.2`, published nowhere). **Exit condition for the front
-  overrides:** each one is removed as soon as `pnpm audit --prod` stays clean without it (checked at the next dependency
-  update, owner: whoever runs it; M12 may drop the ones its upgrades make useless). **Mail (the M3 deferral):** the transport
-  already had 10 s connection, greeting and socket timeouts (M4). Register, `resend-verification` and `forgot-password` no longer
-  await the mail server: the lookup, the token and the send run through `BackgroundTasks` on every branch, so a known and an
-  unknown address answer in the same time, a slow or dead server shows nowhere in the response, and a refused send is logged
-  (it used to turn a recorded sign-up into an error; the reader asks for another link). Drained on shutdown by the shared
-  registry (M4). The e2e `post` helper waits for background work, so tests read the mail a request produced. Covered by
-  `domain/auth/mailWithoutWaiting.test.ts` (mail server that never answers, known and unknown address, three routes; red on the
-  old code); the e2e suite is CI only (no Postgres locally). **Left:** lockfile-level audit of dev dependencies is out of scope
-  (`--prod` only); `extension` needed no change.
+  **Front:** `pnpm update --prod` (Nuxt 4.7, `@nuxt/ui` 4.13, Vue 3.5.46, `@nuxtjs/i18n`, Sentry) plus targeted updates of
+  transitive packages. Nuxt 4.7 types `useFetch` options per known server route and defaults to GET; `useApi` now accepts
+  `AnyServerRouteMethod` (the calls go to an external API). It also reads the preview command from the config, not from the
+  generated output: the e2e web server runs `nuxt preview` with `NITRO_PRESET=static`, for that process only; the site it serves
+  is built by the same `pnpm generate` the deploy runs, so the output is identical.
+  **Overrides (`pnpm-workspace.yaml`), each pinned inside the major that fixes it, scoped to its parent where one parent needs it:**
+  `@graphql-tools/utils@<12.0.2` to `^12.0.2` in both packages (back asked for 11, front for 9, 10 and 11; only 12.0.2+ is fixed, so
+  this is the one deliberate major jump, to 12 and never 13; codegen output, build and the 973 front tests were checked against it);
+  `@nuxt/devtools>simple-git` to `^4.0.1` (3.x is vulnerable, critical; `@simple-git/argv-parser` follows from simple-git 4 itself, no
+  override); `lodash@<4.17.24` and `immutable@<3.8.4` inside their own major; `minimatch` to `^11.0.1` only under `readdir-glob`,
+  `graphql-config`, `eslint` and `@eslint/config-array` (fixed from 11.0.1 only; a global jump breaks `eslint-plugin-import-x`).
+  The `zod` override was not needed once the lockfile was refreshed and is gone.
+  **Exit condition, checked by a script:** `ops/check-overrides.mjs` (workflow `check-overrides`: every Monday 06:17 UTC, on pull
+  requests touching a `pnpm-workspace.yaml`, and on demand) removes each override in a temp copy, resolves again and audits; it fails
+  when the audit stays clean, i.e. the parent now resolves a fixed version, and names the override to delete. Owner: the maintainer,
+  who removes what it reports. Run by hand: `node ops/check-overrides.mjs back front`. `fastify` is exempt (it dedupes a package,
+  it is not an advisory).
+  **Front dev dependencies not updated:** `pnpm update` over the whole tree fails, 2026-11-26, with
+  `ERR_PNPM_NO_MATCHING_VERSION No matching version found for mdn-data@2.37.2` (chain `@nuxt/eslint@1.17.0` > `@nuxt/eslint-config` >
+  `eslint-plugin-unicorn@73.0.0` > `@eslint/css-tree@4.1.3`). Owner: the maintainer. Retry on 2026-12-03 with `pnpm update` in `front`
+  (any dev-only advisory does not reach `pnpm audit --prod`); drop this line once it resolves.
+  **Mail (the M3 deferral):** the transport already had 10 s connection, greeting and socket timeouts (M4). Register,
+  `resend-verification` and `forgot-password` no longer await the mail server: the lookup, the token and the send run through
+  `BackgroundTasks` on every branch, so a known and an unknown address answer in the same time, a slow or dead server shows
+  nowhere in the response, and a refused send is logged (it used to turn a recorded sign-up into an error; the reader asks for
+  another link). Drained on shutdown by the shared registry (M4). The e2e `post` helper waits for background work, so tests read
+  the mail a request produced. `domain/auth/mailWithoutWaiting.test.ts` covers: the three routes hand the mail over without waiting
+  (mail server that never answers, known and unknown address), a slow send is still pending when the call is back, and a refused
+  send is logged, not thrown, on all four sends (reset, resend, register new account, register taken address). Red on the old
+  behaviour: with failures not logged the four refusal tests fail; with register awaiting the mail, four register tests fail. The
+  e2e suite is CI only (no Postgres locally). `extension` needed no change.
