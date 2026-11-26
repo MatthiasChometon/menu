@@ -178,7 +178,13 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
           <LazyUDropdownMenu v-if="user !== undefined" :items="accountItems">
-            <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
+            <UButton
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              class="size-9 justify-center p-0"
+              :aria-label="$t('auth.account')"
+            >
               <UAvatar
                 :alt="user.name ?? user.email"
                 :text="initials"
@@ -204,7 +210,7 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
             {{ $t('auth.signIn') }}
           </UButton>
           <template #fallback>
-            <USkeleton class="size-8 rounded-full" />
+            <USkeleton class="size-9 rounded-full" />
           </template>
         </ClientOnly>
       </div>
