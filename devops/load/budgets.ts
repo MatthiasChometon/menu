@@ -24,11 +24,12 @@ export type Budget = { p95: number; p99: number; rule: string };
 export const BUDGETS: Record<BudgetClass, Budget> = {
   read: { p95: 300, p99: 800, rule: 'API read feeding a screen: p95 300 ms' },
   mutation: { p95: 250, p99: 800, rule: 'Doherty 400 ms end to end, API share p95 250 ms' },
-  // Hashing a password is slow on purpose. The person waits for it behind a spinner and the whole
-  // Doherty threshold is theirs to spend, so it gets the whole 400 ms.
-  credential: { p95: 400, p99: 1000, rule: 'Doherty 400 ms; past 1 s progress is shown' },
-  // A photograph is resized on the server: past one second a progress bar is on screen.
-  upload: { p95: 1000, p99: 3000, rule: 'Past 1 s progress is shown; far below Nielsen 10 s' },
+  // A sign-in, a sign-up and an account deletion are mutations like the others: the plan gives no
+  // more room for hashing a password, so the code stays inside the mutation numbers.
+  credential: { p95: 250, p99: 800, rule: 'Doherty 400 ms end to end, API share p95 250 ms' },
+  // A photograph is resized on the server, and it is a mutation too: the plan gives it the same
+  // API share. Past one second a progress bar would be needed; it never gets near.
+  upload: { p95: 250, p99: 800, rule: 'Doherty 400 ms end to end, API share p95 250 ms' },
 };
 
 /** The spike may cost up to twice the budget while it lasts, and not a millisecond after. */

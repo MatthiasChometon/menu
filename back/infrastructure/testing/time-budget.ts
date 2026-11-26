@@ -8,13 +8,10 @@ export const BUDGET_MS = {
   read: 100,
   /** Doherty 400 ms end to end, API share 250 ms p95: the median stays under 0.1 s. */
   mutation: 100,
-  /**
-   * Password hashing is slow on purpose (scrypt). Doherty 400 ms end to end leaves the API
-   * 250 ms, and the median is held to that.
-   */
-  credential: 250,
-  /** Any operation over 1 s must show progress (Nielsen 1 s): an upload is held to it. */
-  upload: 1000,
+  /** A sign-in or a sign-up is a mutation: the plan gives it no more room, hashing included. */
+  credential: 100,
+  /** An upload is a mutation too: it keeps the API share of the Doherty threshold, 250 ms. */
+  upload: 250,
 } as const;
 
 /** One sample is never enough: the median of at least this many calls is what is judged. */
