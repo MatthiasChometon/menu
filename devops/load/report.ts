@@ -1,5 +1,6 @@
 import { BREAKPOINT_FLOOR_RPS, BUDGETS, OPERATION_CLASS, OPERATION_NAMES } from './budgets.ts';
 import type { BudgetClass } from './budgets.ts';
+import { classTrendName } from './http.ts';
 import { BREAKPOINT_RAMP_SECONDS, BREAKPOINT_TOP_RPS, FLOOR_SECONDS } from './profiles.ts';
 import type { ProfileName } from './profiles.ts';
 
@@ -72,6 +73,16 @@ const classRows = (data: SummaryData, selector: string): string[] =>
     return `| ${budgetClass} | ${ms(value(data, metric, 'med'))} | ${ms(value(data, metric, 'p(95)'))} | ${ms(value(data, metric, 'p(99)'))} | ${budget.p95} / ${budget.p99} ms |`;
   });
 
+// The stress profile has no latency threshold, so k6 does not break the latency down by class by
+// itself: the figures come from a trend the scripts feed for each class (see `http.ts`).
+const observedRows = (data: SummaryData): string[] =>
+  (Object.keys(BUDGETS) as BudgetClass[]).map((budgetClass): string => {
+    const metric = classTrendName(budgetClass);
+    const budget = BUDGETS[budgetClass];
+
+    return `| ${budgetClass} | ${ms(value(data, metric, 'med'))} | ${ms(value(data, metric, 'p(95)'))} | ${ms(value(data, metric, 'p(99)'))} | ${budget.p95} / ${budget.p99} ms |`;
+  });
+
 const CLASS_HEADER = [
   '| Class | Median | p95 | p99 | Budget p95 / p99 |',
   '| --- | --- | --- | --- | --- |',
@@ -132,6 +143,15 @@ const profileLines = (profile: ProfileName, data: SummaryData): string[] => {
       gaveWay
         ? `The API gave way at about **${reached} operations per second** (errors above 5 % or p95 above 2 s).`
         : `The API held the whole ramp up to ${BREAKPOINT_TOP_RPS} operations per second.`,
+    ];
+  }
+
+  if (profile === 'stress') {
+    return [
+      '### By class of operation (slow is allowed here, failing is not)',
+      '',
+      ...CLASS_HEADER,
+      ...observedRows(data),
     ];
   }
 

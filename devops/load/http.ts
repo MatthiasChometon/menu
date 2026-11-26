@@ -1,8 +1,9 @@
 import { check } from 'k6';
 import http from 'k6/http';
+import { Trend } from 'k6/metrics';
 import type { RefinedResponse, ResponseType } from 'k6/http';
-import { OPERATION_CLASS } from './budgets.ts';
-import type { OperationName } from './budgets.ts';
+import { BUDGETS, OPERATION_CLASS } from './budgets.ts';
+import type { BudgetClass, OperationName } from './budgets.ts';
 
 export const API_URL = (__ENV['API_URL'] ?? 'http://127.0.0.1:3779').replace(/\/$/, '');
 
@@ -38,8 +39,22 @@ const headersFor = (who: Who, session: Session): Record<string, string> => {
   return {};
 };
 
-const verdict = (label: Label, answer: Answer, ok: boolean): boolean =>
-  check(answer, { [`${label} answered as expected`]: () => ok }, { op: label });
+export const classTrendName = (budgetClass: BudgetClass): string => `class_${budgetClass}_duration`;
+
+// One trend per class of operation, for the profiles that put no threshold on the latency and
+// would otherwise have no figures to report.
+const CLASS_TRENDS = Object.fromEntries(
+  (Object.keys(BUDGETS) as BudgetClass[]).map((budgetClass) => [
+    budgetClass,
+    new Trend(classTrendName(budgetClass), true),
+  ]),
+) as Record<BudgetClass, Trend>;
+
+const verdict = (label: Label, answer: Answer, ok: boolean): boolean => {
+  if (label !== 'prep') CLASS_TRENDS[OPERATION_CLASS[label]].add(answer.timings.duration);
+
+  return check(answer, { [`${label} answered as expected`]: () => ok }, { op: label });
+};
 
 type GraphqlBody = { data?: Record<string, unknown>; errors?: unknown[] };
 

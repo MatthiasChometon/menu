@@ -51,7 +51,10 @@ const perOperation = (factor = 1): Thresholds =>
           `http_req_duration{op:${name}}`,
           [`p(95)<${budget.p95 * factor}`, `p(99)<${budget.p99 * factor}`],
         ],
-        [`http_reqs{op:${name}}`, ['count>=0']],
+        // A broken operation answers 200 with an error: its own checks must hold, and it must have
+        // been played at all.
+        [`checks{op:${name}}`, [`rate>${MIN_CHECKS_RATE}`]],
+        [`http_reqs{op:${name}}`, ['count>0']],
       ];
     }),
   );
@@ -69,13 +72,10 @@ const perClass = (selector: string, factor = 1, classes: BudgetClass[] = CLASSES
     }),
   );
 
-// No limit on the latency, only the figures: a threshold is what makes k6 report a metric.
-const observeClasses = (): Thresholds =>
+// A class that received no request is a mix that stopped playing it, not a quiet run.
+const playedClasses = (): Thresholds =>
   Object.fromEntries(
-    CLASSES.map((budgetClass) => [
-      `http_req_duration{class:${budgetClass}}`,
-      ['p(95)>=0', 'p(99)>=0'],
-    ]),
+    CLASSES.map((budgetClass) => [`http_reqs{class:${budgetClass}}`, ['count>0']]),
   );
 
 const env = (name: string, fallback: string): string => __ENV[name] ?? fallback;
@@ -178,7 +178,7 @@ const stress = (): Options => ({
   // Slow is allowed here, failing is not: past a few percent of errors the API has fallen.
   thresholds: {
     http_req_failed: [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '1m' }],
-    ...observeClasses(),
+    ...playedClasses(),
   },
 });
 
