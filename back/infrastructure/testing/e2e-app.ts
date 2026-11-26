@@ -7,7 +7,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import { AppModule } from '../../app.module';
 import { BackgroundTasks } from '../background/service';
-import { DATABASE, type Database } from '../database/token';
+import { DATABASE, DATABASE_CLIENT, type Database, type DatabaseClient } from '../database/token';
 import { MAIL_TRANSPORT, type MailMessage } from '../mail/token';
 import { configureApp, createAdapter } from '../http/setup';
 
@@ -77,12 +77,23 @@ export type TestApp = {
    * the message under test is the one the real MailService built.
    */
   mails: () => MailMessage[];
+  /**
+   * Runs `work` and reports every SQL statement the app sent meanwhile, counted
+   * through the Drizzle logger: the deterministic proxy for "no N+1".
+   */
+  countQueries: (work: () => Promise<unknown>) => Promise<QueryCount>;
+  /** The plan PostgreSQL picks for a statement the app sent, as text, with sequential scans forbidden. */
+  explain: (statement: SentStatement) => Promise<string>;
   /** Waits for what the app does after answering - announcements, pushes - to finish. */
   settled: () => Promise<void>;
   /** Empty every table, so each test starts from a known state. */
   reset: () => Promise<void>;
   close: () => Promise<void>;
 };
+
+export type SentStatement = { sql: string; params: unknown[] };
+
+export type QueryCount = { count: number; statements: SentStatement[] };
 
 export type TestCookie = { name: string; value: string; httpOnly?: boolean; maxAge?: number };
 
@@ -101,11 +112,26 @@ export const startTestApp = async (): Promise<TestApp> => {
   await migrationClient.end();
 
   const sent: MailMessage[] = [];
+  // Every statement the app sends goes through this logger, transactions included.
+  const statements: SentStatement[] = [];
 
   // Only the transport is swapped. Stubbing MailService instead would skip the
   // one thing worth checking — that the message reaching the wire says what we
   // think it says, link included.
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(DATABASE)
+    .useFactory({
+      factory: (client: DatabaseClient): Database =>
+        drizzle({
+          client,
+          logger: {
+            logQuery: (sql, params): void => {
+              statements.push({ sql, params });
+            },
+          },
+        }),
+      inject: [DATABASE_CLIENT],
+    })
     .overrideProvider(MAIL_TRANSPORT)
     .useValue({
       sendMail: (message: MailMessage): Promise<void> => {
@@ -123,6 +149,7 @@ export const startTestApp = async (): Promise<TestApp> => {
   await app.getHttpAdapter().getInstance().ready();
 
   const database = app.get<Database>(DATABASE);
+  const client = app.get<DatabaseClient>(DATABASE_CLIENT);
 
   const post: TestApp['post'] = async (url, body, cookie, headers) => {
     const response = await app.inject({
@@ -230,6 +257,29 @@ export const startTestApp = async (): Promise<TestApp> => {
     postFile,
     resolve: <T>(token: Type<T>): T => app.get<T>(token),
     database: (): Database => app.get<Database>(DATABASE),
+    countQueries: async (work): Promise<QueryCount> => {
+      await app.get(BackgroundTasks).settled();
+      const before = statements.length;
+      await work();
+      await app.get(BackgroundTasks).settled();
+
+      const made = statements.slice(before);
+
+      return { count: made.length, statements: made };
+    },
+    explain: async ({ sql: text, params }): Promise<string> => {
+      // A table of a few hundred rows is cheaper to read whole than through any index, so the
+      // planner would answer "Seq Scan" whether or not an index exists. Forbidding the scan
+      // (inside one transaction, so the setting never leaks) makes the plan show whether an
+      // index could serve the statement at all.
+      const rows = await client.begin(async (transaction) => {
+        await transaction.unsafe('SET LOCAL enable_seqscan = off');
+
+        return transaction.unsafe(`EXPLAIN ${text}`, params as never[]);
+      });
+
+      return rows.map((row): string => String(row['QUERY PLAN'])).join('\n');
+    },
     mails: (): MailMessage[] => sent,
     settled: (): Promise<void> => app.get(BackgroundTasks).settled(),
     // CASCADE rather than a delete order: the profile hangs off the user, and
