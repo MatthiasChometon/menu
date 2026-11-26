@@ -64,6 +64,14 @@ export default defineNuxtConfig({
       }
     },
   },
+  // A link that scrolls into view fetches the chunk of the page it leads to, and
+  // the bottom bar shows five of them on every page: about 100 KB of script that
+  // a first paint pays for and parses, for pages the reader may never open. The
+  // service worker already holds every chunk for offline use, so the same fetch
+  // now waits for a finger or a pointer to come near the link.
+  experimental: {
+    defaults: { nuxtLink: { prefetchOn: { visibility: false, interaction: true } } },
+  },
   css: cssList,
   components: componentsList,
   imports: { dirs: typesDirList },
