@@ -87,7 +87,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: front/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm generate
+      # The image host's manifest is read while generating; an empty one ships pages with no photographs
+      # and no preload, which is not the site being measured. One new attempt, then the job fails.
+      - run: pnpm generate && pnpm check:generated || (pnpm generate && pnpm check:generated)
       - name: Lighthouse, median of 5 runs per page
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.cjs
       - uses: actions/upload-artifact@v4

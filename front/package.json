@@ -10,6 +10,7 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
+    "check:generated": "tsx infrastructure/images/scripts/checkGenerated.ts",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "check": "tsx domain/menu/scripts/check.ts",
