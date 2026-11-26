@@ -84,10 +84,10 @@ const firstImage = computed((): string | undefined => {
   return first === undefined ? undefined : imageOf(first.recipe);
 });
 useHead({
-  link: (): { rel: string; as: string; href: string; fetchpriority: string }[] =>
+  link: () =>
     firstImage.value === undefined
       ? []
-      : [{ rel: 'preload', as: 'image', href: firstImage.value, fetchpriority: 'high' }],
+      : [{ rel: 'preload' as const, as: 'image' as const, href: firstImage.value, fetchpriority: 'high' as const }],
 });
 </script>
 

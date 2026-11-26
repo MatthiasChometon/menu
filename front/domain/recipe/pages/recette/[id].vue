@@ -108,10 +108,10 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 // The hero photograph is the largest thing painted: asked for in the head, it
 // starts downloading with the page instead of once the recipe has rendered.
 useHead({
-  link: (): { rel: string; as: string; href: string; fetchpriority: string }[] =>
+  link: () =>
     heroImage.value === undefined
       ? []
-      : [{ rel: 'preload', as: 'image', href: heroImage.value, fetchpriority: 'high' }],
+      : [{ rel: 'preload' as const, as: 'image' as const, href: heroImage.value, fetchpriority: 'high' as const }],
 });
 </script>
 
