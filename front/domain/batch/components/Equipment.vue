@@ -61,7 +61,7 @@ const isChecked = (id: string): boolean => checked.value.has(id);
               role="presentation"
               loading="lazy"
               decoding="async"
-              class="size-full object-cover"
+              class="size-full overflow-hidden object-cover"
             />
             <UIcon v-else :name="item.icon" class="size-4.5" />
           </span>

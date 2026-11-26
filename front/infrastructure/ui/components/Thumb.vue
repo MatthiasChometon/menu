@@ -28,7 +28,7 @@ const showsImage = computed((): boolean => src !== undefined && !hasFailed.value
     :fetchpriority="eager ? 'high' : undefined"
     decoding="async"
     :class="rounded"
-    class="size-full object-cover"
+    class="size-full overflow-hidden object-cover"
     @error="hasFailed = true"
   />
   <span
