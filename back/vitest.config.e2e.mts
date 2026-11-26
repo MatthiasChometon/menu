@@ -4,8 +4,7 @@ import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 const TEST_DATABASE_URL =
-  process.env.TEST_DATABASE_URL ??
-  'postgres://menu:menu@localhost:5433/menu_test';
+  process.env.TEST_DATABASE_URL ?? 'postgres://menu:menu@localhost:5433/menu_test';
 
 // Set before the config is read: the globalSetup runs in this process, and
 // @nestjs/config never overrides a variable already present in the environment.
@@ -60,6 +59,10 @@ export default defineConfig({
     fileParallelism: false,
     include: ['**/*e2e.test.ts'],
     exclude: ['node_modules/**', 'dist/**'],
+    // Explicit, never the default. A request through the whole app answers in tens of
+    // milliseconds; the hooks migrate a database and seed a world through the API.
+    testTimeout: 30_000,
+    hookTimeout: 120_000,
     env: TEST_ENV,
     globalSetup: ['./infrastructure/testing/e2e-database.ts'],
   },
