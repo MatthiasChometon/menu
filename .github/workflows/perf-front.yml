@@ -24,6 +24,9 @@ jobs:
     defaults:
       run:
         working-directory: front
+    env:
+      # CI is the reference machine: the CPU slowdown is pinned, never calibrated.
+      PERF_CPU_SLOWDOWN: "4"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -37,11 +40,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm generate
-      - name: Calibrate the CPU slowdown to this runner (benchmarkIndex of 3 warm-up runs)
-        run: pnpm calibrate
-        env:
-          NITRO_PRESET: static
-      - name: Timings, INP and layout shift (calibrated CPU slowdown, median of 10)
+      - name: Timings, INP and layout shift (CPU slowdown pinned to 4, median of 10)
         run: pnpm test:perf
       - uses: actions/upload-artifact@v4
         if: always()
@@ -80,6 +79,9 @@ jobs:
     env:
       PORT: "3777"
       NITRO_PRESET: static
+      # CI is the reference machine: the CPU slowdown is pinned, never calibrated (`pnpm calibrate` is for
+      # slower local hosts, see front/perf-calibration.cjs).
+      PERF_CPU_SLOWDOWN: "4"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -94,8 +96,6 @@ jobs:
       # The image host's manifest is read while generating; an empty one ships pages with no photographs
       # and no preload, which is not the site being measured. One new attempt, then the job fails.
       - run: pnpm generate && pnpm check:generated || (pnpm generate && pnpm check:generated)
-      - name: Calibrate the CPU slowdown to this runner (benchmarkIndex of 3 warm-up runs)
-        run: pnpm calibrate
       - name: Lighthouse, median of 5 runs per page
         run: pnpm dlx @lhci/cli@0.15.1 autorun --config=lighthouserc.cjs
       - uses: actions/upload-artifact@v4

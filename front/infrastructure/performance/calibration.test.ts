@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { median, REFERENCE_BENCHMARK_INDEX, slowdownFor } from '../../perf-calibration.cjs';
+import {
+  median,
+  readCalibration,
+  REFERENCE_BENCHMARK_INDEX,
+  slowdownFor,
+} from '../../perf-calibration.cjs';
 
 describe('perf calibration', () => {
   it('slows a host as fast as the reference down by exactly 4x', () => {
@@ -20,5 +25,17 @@ describe('perf calibration', () => {
 
   it('takes the median of the warm-up indexes', () => {
     expect(median([1400, 1500, 9000])).toBe(1500);
+  });
+
+  it('takes the slowdown pinned by the environment, as CI does', () => {
+    expect(readCalibration('missing.json', { PERF_CPU_SLOWDOWN: '4' }).slowdown).toBe(4);
+  });
+
+  it('refuses a missing calibration in CI instead of guessing', () => {
+    expect(() => readCalibration('missing.json', { CI: 'true' })).toThrow(/PERF_CPU_SLOWDOWN/);
+  });
+
+  it('refuses a pinned slowdown that is not a number of at least 1', () => {
+    expect(() => readCalibration('missing.json', { PERF_CPU_SLOWDOWN: 'fast' })).toThrow();
   });
 });
