@@ -24,6 +24,7 @@
     "test:watch": "vitest",
     "test:visual": "nuxt generate && playwright test",
     "test:visual:update": "nuxt generate && playwright test --update-snapshots",
+    "calibrate": "pnpm dlx @lhci/cli@0.15.1 collect --config=lighthouserc.warmup.cjs && node perf-calibration.cjs .lighthouseci-warmup",
     "test:perf": "playwright test -c playwright.perf.config.ts",
     "bench": "vitest bench --run --outputJson bench/current.json && tsx bench/compare.ts",
     "bench:baseline": "vitest bench --run --outputJson bench/baseline.json",

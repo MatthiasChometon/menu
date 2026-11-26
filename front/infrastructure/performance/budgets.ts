@@ -14,8 +14,5 @@ export const BUDGETS = {
   layoutShift: 0.1,
 } as const;
 
-/** The CPU slowdown that stands for a mid-tier mobile, the Lighthouse reference. */
-export const CPU_SLOWDOWN = 4;
-
 /** Samples per measurement: a median over fewer than ten is a guess. */
 export const PASSES = 10;

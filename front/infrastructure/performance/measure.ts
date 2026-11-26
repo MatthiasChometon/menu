@@ -1,5 +1,5 @@
 import { devices, type Browser, type Page } from '@playwright/test';
-import { CPU_SLOWDOWN } from './budgets';
+import { readCalibration } from '../../perf-calibration.cjs';
 import { installProbes, type ProbeWindow } from './probes';
 import { stubApi, type Reader } from './stubApi';
 
@@ -30,6 +30,9 @@ export type Screen = {
     feedbackIsNative?: boolean;
   };
 };
+
+/** Calibrated once per run to this host: the same value Lighthouse reads. */
+const { slowdown: CPU_SLOWDOWN } = readCalibration();
 
 // A Monday, so the rolling week starts on a known day and the seeded plan covers it.
 const NOW = new Date('2026-09-21T10:00:00+02:00');

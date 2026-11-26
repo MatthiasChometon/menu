@@ -35,3 +35,7 @@ __pycache__
 # Playwright
 test-results
 playwright-report
+
+# Perf calibration of the host (written by pnpm calibrate)
+front/perf-calibration.json
+front/.lighthouseci-warmup

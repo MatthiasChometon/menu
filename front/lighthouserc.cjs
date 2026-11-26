@@ -1,6 +1,6 @@
 const throttling = require('./lighthouse-throttling.cjs');
 
-const BASE = 'http://localhost:3777';
+const BASE = `http://localhost:${process.env.PORT ?? '3777'}`;
 
 // Lighthouse (mobile, simulated slow 4G, median of 5 runs) on the generated site, on the
 // runner only. LCP 2.5 s, CLS 0.1 and TBT 200 ms are the Core Web Vitals "good" thresholds
