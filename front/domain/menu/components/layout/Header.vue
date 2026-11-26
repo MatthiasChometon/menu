@@ -27,8 +27,8 @@ const initials = computed((): string => {
     .join('');
 });
 
-const languageItems = computed((): SelectItem[] =>
-  locales.value.map((entry): SelectItem => ({
+const languageItems = computed((): { label: string; value: string }[] =>
+  locales.value.map((entry): { label: string; value: string } => ({
     label: entry.name ?? entry.code,
     value: entry.code,
   })),
@@ -154,17 +154,25 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
           color="neutral"
           @click="isDark = !isDark"
         />
-        <!-- Drawn with the page, made interactive on the first touch: the picker
-             is used once, and its dropdown machinery is a large share of the code. -->
-        <LazyUSelect
-          v-model="currentLocale"
-          hydrate-on-interaction
-          :items="languageItems"
-          value-key="value"
-          :aria-label="$t('accessibility.selectLanguage')"
-          size="sm"
-          class="w-24 sm:w-28"
-        />
+        <!-- A native select: the browser's own list, announced and operated the
+             same way, and none of the dropdown code Nuxt UI's select brings (about
+             25 KB of script on every page for a control used once). -->
+        <span class="relative inline-block w-24 sm:w-28">
+          <select
+            v-model="currentLocale"
+            :aria-label="$t('accessibility.selectLanguage')"
+            class="h-8 w-full cursor-pointer appearance-none rounded-md bg-default py-1 pl-2.5 pr-7 text-sm text-highlighted ring ring-inset ring-accented focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <option v-for="item in languageItems" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </option>
+          </select>
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="pointer-events-none absolute right-2 top-1/2 size-4 -translate-y-1/2 text-dimmed"
+            aria-hidden="true"
+          />
+        </span>
 
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
