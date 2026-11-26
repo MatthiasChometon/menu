@@ -77,7 +77,7 @@ Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok
 - [x] M9 — impl · review · ci · ok · merged (PR #20, be0bae9); M9 review nits for M12: anchor `query me` in the e2e stub with `/query\s+me\b/`, and build the Intl stub with `Object.create(Intl)` instead of `{...Intl}`
 - [x] M10 — impl · review · ci · ok · merged (PR #19, d31a3a1); also from M14: the sign-in redirect survives the Google OAuth round trip (carried in `state`, tested)
 - [x] M11 — impl · review · ci · ok · merged (PR #15, 1aa82aa; deploy the back before the extension); also from M14: `claim`/`report`/`finish` and the carrefour PATCH retried with a server-checked idempotency key, or the reason recorded
-- [ ] M13 — impl · review · ci · ok · merged
+- [x] M13 — impl · review · ci · ok · merged (PR #21, 303a9b0)
 - [ ] M15 — impl · review · ci · ok · merged (after M13; before M12)
 - [ ] M12 — impl · review · ci · ok · merged; also from M14: mail and push sends retried with an idempotency key, or recorded as not needed (duplicate acceptable)
 - [ ] Final PR `refactor/socle` → `main` opened, left for the maintainer
@@ -448,3 +448,4 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   send is logged, not thrown, on all four sends (reset, resend, register new account, register taken address). Red on the old
   behaviour: with failures not logged the four refusal tests fail; with register awaiting the mail, four register tests fail. The
   e2e suite is CI only (no Postgres locally). `extension` needed no change.
+- 2026-11-26 — M13 merged (PR #21, 303a9b0): 4 review rounds (3 major, 6 minor, 2 nits). Overrides pinned inside the fixing major and scoped to parents; `ops/check-overrides.mjs` (with `node --test` tests) fails on a useless override and on an unreadable audit report, runs weekly and on any PR touching a manifest or lockfile. Mail sends no longer awaited (register, resend, reset), fail-first proven by mutation for each route. Next: M15.
