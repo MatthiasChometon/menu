@@ -61,6 +61,12 @@ export default defineNuxtConfig({
     'build:manifest': (manifest): void => {
       for (const entry of Object.values(manifest)) {
         entry.assets = entry.assets?.filter((asset): boolean => !asset.endsWith('.webp'));
+        // Nuxt also hints (rel=prefetch) every lazy chunk a page could use — the
+        // select, the account menu, the dialogs, the other routes — so the browser
+        // fetched all of them with the first paint and the lazy loading saved
+        // nothing. They are fetched when needed instead; the service worker holds
+        // every chunk for the next visit and for offline.
+        entry.prefetch = false;
       }
     },
   },
