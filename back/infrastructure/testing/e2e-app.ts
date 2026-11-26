@@ -132,6 +132,10 @@ export const startTestApp = async (): Promise<TestApp> => {
       headers: { ...headers, ...(cookie === undefined ? {} : { cookie }) },
     });
 
+    // What a request leaves behind (a mail, a push) is part of its outcome:
+    // waiting here means a test reads it once it exists, not "soon".
+    await app.get(BackgroundTasks).settled();
+
     return {
       statusCode: response.statusCode,
       body: response.body,

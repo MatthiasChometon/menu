@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BackgroundTasks } from '../../../infrastructure/background/service';
 import { MailService } from '../../../infrastructure/mail/service';
 import { User } from '../../user/model';
 import { UserRepository } from '../../user/repository';
@@ -19,6 +20,7 @@ export class EmailVerificationService {
     private readonly tokens: AuthTokenRepository,
     private readonly users: UserRepository,
     private readonly mail: MailService,
+    private readonly background: BackgroundTasks,
     private readonly config: ConfigService,
   ) {}
 
@@ -45,11 +47,16 @@ export class EmailVerificationService {
 
   /** Sends another link, and says nothing about whether there was anyone to
    *  send it to: the caller is not signed in, so answering honestly would turn
-   *  this route into a way to test which addresses have accounts. */
-  async resend(email: string): Promise<void> {
-    const record = await this.users.findRecordByEmail(email);
-    if (record === undefined || record.emailVerifiedAt !== null) return;
+   *  this route into a way to test which addresses have accounts. Everything
+   *  that differs between the two cases (the token, the mail, a slow or dead
+   *  mail server) happens after the answer has gone, so neither the content nor
+   *  the response time tells them apart. */
+  resend(email: string): void {
+    this.background.run('verification link', async (): Promise<void> => {
+      const record = await this.users.findRecordByEmail(email);
+      if (record === undefined || record.emailVerifiedAt !== null) return;
 
-    await this.send(record.id, record.email, record.locale);
+      await this.send(record.id, record.email, record.locale);
+    });
   }
 }

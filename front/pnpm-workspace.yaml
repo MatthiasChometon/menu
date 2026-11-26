@@ -5,3 +5,24 @@ allowBuilds:
   esbuild: true
   unrs-resolver: true
   vue-demi: false
+
+# Transitive packages with a published advisory that their parents have not
+# picked up yet, pinned inside the major that fixes them. The exit check is
+# ops/check-overrides.mjs (run in CI): it fails when an override no longer
+# changes the resolution. Build-time tooling (GraphQL codegen, Nuxt devtools) is
+# part of the prod graph pnpm audits, which is why it is listed here too.
+overrides:
+  # Only 12.0.2+ is fixed: the parents ask for 9, 10 and 11, so this crosses majors.
+  # Codegen output and the front build and tests were checked against 12.
+  '@graphql-tools/utils@<12.0.2': '^12.0.2'
+  # @nuxt/devtools asks for 3.x, fixed from 4.0.1 (critical). Its only consumer.
+  '@nuxt/devtools>simple-git': '^4.0.1'
+  # @graphql-codegen/plugin-helpers pins lodash 4.17.23 exactly; same major.
+  'lodash@<4.17.24': '^4.17.24'
+  # @ardatan/relay-compiler asks for 3.7.x; same major.
+  'immutable@<3.8.4': '^3.8.4'
+  # Fixed from 11.0.1 only; each parent below asks for an older major.
+  'readdir-glob>minimatch': '^11.0.1'
+  'graphql-config>minimatch': '^11.0.1'
+  '@eslint/config-array>minimatch': '^11.0.1'
+  'eslint>minimatch': '^11.0.1'

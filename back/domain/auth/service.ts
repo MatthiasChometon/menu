@@ -9,6 +9,7 @@ import { LoginInput, RegisterInput } from './emailAndPassword/input';
 import { EmailVerificationService } from './emailVerification/service';
 import { ConfigService } from '@nestjs/config';
 import { frontUrl } from './front-url';
+import { BackgroundTasks } from '../../infrastructure/background/service';
 import { MailService } from '../../infrastructure/mail/service';
 import { accountExistsEmail } from './emailAndPassword/emails';
 
@@ -22,6 +23,7 @@ export class AuthService {
     private readonly allowlist: EmailAllowlist,
     private readonly verification: EmailVerificationService,
     private readonly mail: MailService,
+    private readonly background: BackgroundTasks,
     private readonly config: ConfigService,
   ) {}
 
@@ -48,14 +50,21 @@ export class AuthService {
     // with an error that gives the address away.
     const record = await this.users.create(email, passwordHash, name, locale);
     if (record === undefined) {
-      await this.warnOwner(email);
+      this.background.run('account-exists notice', (): Promise<void> => this.warnOwner(email));
       return;
     }
 
     // No session comes back from here. Handing one out would make the
     // verification decorative: anybody could open an account on somebody
     // else's address and use it while the real owner deleted the mail.
-    await this.verification.send(record.id, record.email, record.locale);
+    //
+    // Sent after the answer, on both branches: a mail server that is slow or down
+    // must not make a free address answer later than a taken one, and a failed
+    // send is logged rather than failing a sign-up that is already recorded.
+    // The reader can ask for another link.
+    this.background.run('verification link', (): Promise<void> =>
+      this.verification.send(record.id, record.email, record.locale),
+    );
   }
 
   // The same 202 a real sign-up gets: telling a stranger the address is taken is

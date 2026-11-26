@@ -25,6 +25,7 @@ const serviceWhereLookupFinds = (record: unknown): Harness => {
       unusedByLogin, // allowlist
       unusedByLogin, // verification
       unusedByLogin, // mail
+      unusedByLogin, // background
       unusedByLogin, // config
     ),
     pretendToVerify,

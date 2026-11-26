@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { BackgroundTasks } from '../../../infrastructure/background/service';
 import { MailService } from '../../../infrastructure/mail/service';
 import { User } from '../../user/model';
 import { UserMapper } from '../../user/mapper';
@@ -24,20 +25,25 @@ export class PasswordResetService {
     private readonly passwords: PasswordService,
     private readonly mapper: UserMapper,
     private readonly mail: MailService,
+    private readonly background: BackgroundTasks,
     private readonly config: ConfigService,
   ) {}
 
   /** Sends a link, and says nothing about whether there was anyone to send it
    *  to. The caller is not signed in, so an honest answer would turn this into
-   *  a way to test which addresses have accounts here. */
-  async request(email: string): Promise<void> {
-    const record = await this.users.findRecordByEmail(email);
-    if (record === undefined) return;
+   *  a way to test which addresses have accounts here. The lookup, the token
+   *  and the mail all happen after the answer has gone: what they cost must not
+   *  show in the response time. */
+  request(email: string): void {
+    this.background.run('password reset link', async (): Promise<void> => {
+      const record = await this.users.findRecordByEmail(email);
+      if (record === undefined) return;
 
-    const token = await this.tokens.issue(record.id, PASSWORD_RESET, TTL_MS);
-    const url = `${frontUrl(this.config)}${RESET_PATH}?token=${token}`;
+      const token = await this.tokens.issue(record.id, PASSWORD_RESET, TTL_MS);
+      const url = `${frontUrl(this.config)}${RESET_PATH}?token=${token}`;
 
-    await this.mail.send(passwordResetEmail(record.email, url, record.locale));
+      await this.mail.send(passwordResetEmail(record.email, url, record.locale));
+    });
   }
 
   /** Spends the link and sets the new password. Every session signed before now

@@ -57,6 +57,9 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { PORT: String(PORT), NITRO_PORT: String(PORT) },
+    // Nuxt 4.7 picks the preview command from the config, not from the generated
+    // output: without the static preset it looks for a Node server that `nuxt
+    // generate` never writes.
+    env: { PORT: String(PORT), NITRO_PORT: String(PORT), NITRO_PRESET: 'static' },
   },
 });

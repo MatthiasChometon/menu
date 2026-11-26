@@ -26,8 +26,8 @@ export class PasswordResetController {
   // unknown address would make this the cheapest way to enumerate accounts.
   @Post('forgot-password')
   @HttpCode(204)
-  async forgot(@Body() { email }: ForgotPasswordInput): Promise<void> {
-    await this.reset.request(email);
+  forgot(@Body() { email }: ForgotPasswordInput): void {
+    this.reset.request(email);
   }
 
   // Signed in on the spot: they have just proved they own the address, which is
