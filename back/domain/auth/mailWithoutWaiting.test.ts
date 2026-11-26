@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { BackgroundTasks } from '../../infrastructure/background/service';
 import type { MailService } from '../../infrastructure/mail/service';
 import type { UserRepository } from '../user/repository';
@@ -35,47 +35,86 @@ afterEach((): void => {
   vi.restoreAllMocks();
 });
 
+const refusing = (): MailService =>
+  ({ send: vi.fn().mockRejectedValue(new Error('ETIMEDOUT')) }) as unknown as MailService;
+
+const passwordReset = (
+  found: unknown,
+  mail: MailService,
+  background: BackgroundTasks,
+): PasswordResetService =>
+  new PasswordResetService(
+    tokens,
+    usersFinding(found),
+    undefined as unknown as PasswordService,
+    undefined as unknown as UserMapper,
+    mail,
+    background,
+    config,
+  );
+
+const registration = (
+  existing: unknown,
+  mail: MailService,
+  background: BackgroundTasks,
+): AuthService => {
+  const users = {
+    create: vi.fn().mockResolvedValue(existing === undefined ? record : undefined),
+    findRecordByEmail: vi.fn().mockResolvedValue(existing),
+  } as unknown as UserRepository;
+  const verification = new EmailVerificationService(tokens, users, mail, background, config);
+
+  return new AuthService(
+    users,
+    { hash: vi.fn().mockResolvedValue('hash') } as unknown as PasswordService,
+    undefined as never,
+    undefined as never,
+    { assertAllowed: vi.fn() } as unknown as EmailAllowlist,
+    verification,
+    mail,
+    background,
+    config,
+  );
+};
+
+const newAccount = { email: 'a@example.com', password: 'long-enough-password' };
+
 describe.each([
   ['a known address', record],
   ['an unknown address', undefined],
 ])('asking for a password reset link with %s', (_, found) => {
-  it('answers while the mail server is still silent', () => {
-    const { mail } = neverAnswering();
-    const service = new PasswordResetService(
-      tokens,
-      usersFinding(found),
-      undefined as unknown as PasswordService,
-      undefined as unknown as UserMapper,
-      mail,
-      new BackgroundTasks(),
-      config,
-    );
-
-    expect(service.request('a@example.com')).toBeUndefined();
-  });
-});
-
-describe('a link whose mail the server refuses', () => {
-  it('is logged, not thrown, for a reset request', async () => {
-    const logged = vi.spyOn(Logger.prototype, 'error').mockImplementation((): void => undefined);
+  it('hands the mail over without waiting for the mail server', () => {
+    const { mail, send } = neverAnswering();
     const background = new BackgroundTasks();
-    const mail = {
-      send: vi.fn().mockRejectedValue(new Error('ETIMEDOUT')),
-    } as unknown as MailService;
-    const service = new PasswordResetService(
-      tokens,
-      usersFinding(record),
-      undefined as unknown as PasswordService,
-      undefined as unknown as UserMapper,
-      mail,
-      background,
-      config,
-    );
 
-    service.request('a@example.com');
+    expect(passwordReset(found, mail, background).request('a@example.com')).toBeUndefined();
+
+    // Nothing has been sent yet and the call is already back: the send is the
+    // background task's to wait for.
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('is back while a slow mail server has not answered yet', async () => {
+    let release = (): void => undefined;
+    const gate = new Promise<void>((resolve): void => {
+      release = resolve;
+    });
+    let answered = false;
+    const send = vi.fn(async (): Promise<void> => {
+      await gate;
+      answered = true;
+    });
+    const background = new BackgroundTasks();
+
+    passwordReset(found, { send } as unknown as MailService, background).request('a@example.com');
+    await vi.waitFor((): void => {
+      expect(send).toHaveBeenCalledTimes(found === undefined ? 0 : 1);
+    });
+    expect(answered).toBe(false);
+
+    release();
     await background.settled();
-
-    expect(logged).toHaveBeenCalledWith('password reset link: ETIMEDOUT');
+    expect(answered).toBe(found !== undefined);
   });
 });
 
@@ -83,8 +122,8 @@ describe.each([
   ['a waiting address', record],
   ['an unknown address', undefined],
 ])('asking for another verification link with %s', (_, found) => {
-  it('answers while the mail server is still silent', () => {
-    const { mail } = neverAnswering();
+  it('hands the mail over without waiting for the mail server', () => {
+    const { mail, send } = neverAnswering();
     const service = new EmailVerificationService(
       tokens,
       usersFinding(found),
@@ -94,6 +133,7 @@ describe.each([
     );
 
     expect(service.resend('a@example.com')).toBeUndefined();
+    expect(send).not.toHaveBeenCalled();
   });
 });
 
@@ -101,31 +141,70 @@ describe.each([
   ['a free address', undefined],
   ['a taken address', record],
 ])('registering with %s', (_, existing) => {
-  it('answers while the mail server is still silent', async () => {
+  it('is answered while the mail server never answers', async () => {
     const { mail, send } = neverAnswering();
-    const background = new BackgroundTasks();
-    const users = {
-      create: vi.fn().mockResolvedValue(existing === undefined ? record : undefined),
-      findRecordByEmail: vi.fn().mockResolvedValue(existing),
-    } as unknown as UserRepository;
-    const verification = new EmailVerificationService(tokens, users, mail, background, config);
-    const service = new AuthService(
-      users,
-      { hash: vi.fn().mockResolvedValue('hash') } as unknown as PasswordService,
-      undefined as never,
-      undefined as never,
-      { assertAllowed: vi.fn() } as unknown as EmailAllowlist,
-      verification,
-      mail,
-      background,
-      config,
-    );
 
     await expect(
-      service.register({ email: 'a@example.com', password: 'long-enough-password' }),
+      registration(existing, mail, new BackgroundTasks()).register(newAccount),
     ).resolves.toBeUndefined();
     await vi.waitFor((): void => {
       expect(send).toHaveBeenCalledOnce();
     });
+  });
+});
+
+describe('a mail the server refuses', () => {
+  const failures = (): MockInstance<Logger['error']> =>
+    vi.spyOn(Logger.prototype, 'error').mockImplementation((): void => undefined);
+
+  it('is logged, not thrown, for a reset request', async () => {
+    const logged = failures();
+    const background = new BackgroundTasks();
+
+    passwordReset(record, refusing(), background).request('a@example.com');
+    await background.settled();
+
+    expect(logged).toHaveBeenCalledWith('password reset link: ETIMEDOUT');
+  });
+
+  it('is logged, not thrown, for another verification link', async () => {
+    const logged = failures();
+    const background = new BackgroundTasks();
+    const service = new EmailVerificationService(
+      tokens,
+      usersFinding(record),
+      refusing(),
+      background,
+      config,
+    );
+
+    service.resend('a@example.com');
+    await background.settled();
+
+    expect(logged).toHaveBeenCalledWith('verification link: ETIMEDOUT');
+  });
+
+  it('is logged, and the sign-up still succeeds, for a new account', async () => {
+    const logged = failures();
+    const background = new BackgroundTasks();
+
+    await expect(
+      registration(undefined, refusing(), background).register(newAccount),
+    ).resolves.toBeUndefined();
+    await background.settled();
+
+    expect(logged).toHaveBeenCalledWith('verification link: ETIMEDOUT');
+  });
+
+  it('is logged, and the sign-up still succeeds, for a taken address', async () => {
+    const logged = failures();
+    const background = new BackgroundTasks();
+
+    await expect(
+      registration(record, refusing(), background).register(newAccount),
+    ).resolves.toBeUndefined();
+    await background.settled();
+
+    expect(logged).toHaveBeenCalledWith('account-exists notice: ETIMEDOUT');
   });
 });
