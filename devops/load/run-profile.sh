@@ -28,14 +28,17 @@ fi
 
 # --- a known database, then the run -----------------------------------------------------------
 "$here/prepare.sh" "$API_URL" "$DATABASE_URL" || { kill "$api_pid"; exit 1; }
-psql "$DATABASE_URL" -q -c 'SELECT pg_stat_statements_reset()' > /dev/null 2>&1 || true
+# The statistics are part of the report: without them the run is not valid, so this stops it.
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -c 'SELECT pg_stat_statements_reset()' > /dev/null \
+  || { echo 'pg_stat_statements is not available: see the workflow step that turns it on.'; kill "$api_pid"; exit 1; }
 
 "$here/sample.sh" "$api_pid" "$REPORTS/api-$profile-resources.csv" &
 sampler_pid=$!
 
-# k6 gets the other cores, so what it spends never comes out of the API's.
+# The database holds the second core (see the workflow) and k6 gets the others, so what it spends
+# never comes out of the API's or the database's.
 status=0
-(cd "$here" && SUMMARY_DIR="$REPORTS" taskset -c "1-$(( $(nproc) - 1 ))" \
+(cd "$here" && SUMMARY_DIR="$REPORTS" taskset -c "2-$(( $(nproc) - 1 ))" \
   k6 run --quiet -e PROFILE="$profile" api.ts) || status=$?
 
 # The breakpoint run ends by crossing a threshold on purpose, so k6's exit code says nothing:
@@ -60,8 +63,13 @@ fi
   echo
   echo '| Total | Calls | Mean | Max | Statement |'
   echo '| --- | --- | --- | --- | --- |'
-  psql "$DATABASE_URL" --no-align --tuples-only --field-separator ' | ' \
-    -f "$here/slow-statements.sql" 2> /dev/null | sed -e 's/^/| /' -e 's/$/ |/'
+  if slowest=$(psql "$DATABASE_URL" -v ON_ERROR_STOP=1 --no-align --tuples-only \
+    --field-separator ' | ' -f "$here/slow-statements.sql") && [ -n "$slowest" ]; then
+    echo "$slowest" | sed -e 's/^/| /' -e 's/$/ |/'
+  else
+    echo '| ERROR | the statistics are empty or could not be read | | | |'
+    status=1
+  fi
   echo
 } >> "$summary"
 
