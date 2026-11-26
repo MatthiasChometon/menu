@@ -20,6 +20,11 @@ const isCreateFoodOpen = ref(false);
 const editingRecipe = ref<CustomRecipe>();
 const isEditRecipeOpen = ref(false);
 
+// The forms are fetched the first time one is asked for, not with the list.
+const createRecipeOpened = useOpenedOnce(isCreateRecipeOpen);
+const createFoodOpened = useOpenedOnce(isCreateFoodOpen);
+const editRecipeOpened = useOpenedOnce(isEditRecipeOpen);
+
 const editRecipe = (id: string): void => {
   const recipe = myRecipes.value.find((candidate): boolean => candidate.id === id);
   if (recipe === undefined) return;
@@ -170,8 +175,12 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
       </UButton>
     </div>
 
-    <LibraryFoodFormDialog v-model="isCreateFoodOpen" />
-    <LibraryRecipeFormDialog v-model="isCreateRecipeOpen" />
-    <LibraryRecipeFormDialog v-model="isEditRecipeOpen" :recipe="editingRecipe" />
+    <LazyLibraryFoodFormDialog v-if="createFoodOpened" v-model="isCreateFoodOpen" />
+    <LazyLibraryRecipeFormDialog v-if="createRecipeOpened" v-model="isCreateRecipeOpen" />
+    <LazyLibraryRecipeFormDialog
+      v-if="editRecipeOpened"
+      v-model="isEditRecipeOpen"
+      :recipe="editingRecipe"
+    />
   </div>
 </template>
