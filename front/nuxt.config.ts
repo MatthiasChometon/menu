@@ -99,10 +99,6 @@ export default defineNuxtConfig({
   experimental: {
     defaults: { nuxtLink: { prefetchOn: { visibility: false, interaction: true } } },
   },
-  // The one global stylesheet (Tailwind, 32 KB compressed) blocked the first paint behind
-  // its own request: Lighthouse counted about 450 ms of it. Inlined, it arrives with the
-  // HTML; the service worker still holds each page once.
-  features: { inlineStyles: true },
   css: cssList,
   components: componentsList,
   imports: { dirs: typesDirList },
