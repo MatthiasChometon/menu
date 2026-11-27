@@ -505,6 +505,16 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   **Lighthouse reference (maintainer approval 2026-11-26, PageSpeed Insights reference):** a fixed CPU slowdown of 4x
   instead of the multiplier calibrated per runner (about 6.6 on the CI runners); calibration script and workflow step
   removed (`ci(lighthouse)` commit). Budgets unchanged.
+  **Calibrated x4 (maintainer approval 2026-11-27, supersedes the fixed 4):** `cpuSlowdown = max(1, 4 x benchmarkIndex /
+  REFERENCE_BENCHMARK_INDEX)` for Lighthouse and the Playwright perf run, so the times are projected onto the real
+  app whatever the machine. REFERENCE_BENCHMARK_INDEX = 2800 (constant of `front/perf-calibration.cjs`): the median of the 22
+  per-run benchmarkIndex medians of this repository's runners, the speed at which the 4x of the PageSpeed mid-tier
+  phone is held; the factor only divides the host's speed out (Lighthouse documentation, "CPU throttling": the multiplier
+  stands for the gap between the host and the target device as `benchmarkIndex` measures it). Each perf job runs
+  `pnpm calibrate` (3 warm-up runs); indexes more than 15 % off their median make it fail and it is rerun once, then the
+  job is red (not conclusive). `LH-SUMMARY` lines end with the warm-up benchmarkIndex, the factor and the free RAM.
+  Budgets unchanged. The Playwright run is throttled by the same factor, so its medians are compared as they are:
+  dividing a median measured under the factor by that same factor would cancel the projection.
   Then, each measured in CI (medians of 5): modulepreload links dropped for every non-entry chunk (simulated first paint
   3.0 -> 2.56 s on every URL); the entry animation starts at opacity 0.6 instead of 0 (an element at opacity 0 is not
   counted as painted, so the hero text became the LCP candidate only after the fade had started: LCP 5.0-5.6 -> 2.7-2.9 s

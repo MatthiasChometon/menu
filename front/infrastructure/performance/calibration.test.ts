@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isSteady,
   median,
   readCalibration,
   REFERENCE_BENCHMARK_INDEX,
@@ -21,6 +22,15 @@ describe('perf calibration', () => {
 
   it('slows a faster host down more', () => {
     expect(slowdownFor(REFERENCE_BENCHMARK_INDEX * 1.5)).toBe(6);
+  });
+
+  it('rounds the factor to two decimals', () => {
+    expect(slowdownFor((REFERENCE_BENCHMARK_INDEX * 1.2345) / 1)).toBe(4.94);
+  });
+
+  it('calls a warm-up steady within 15 % of its median, unsteady beyond', () => {
+    expect(isSteady([3000, 3200, 2800])).toBe(true);
+    expect(isSteady([3000, 3600, 2000])).toBe(false);
   });
 
   it('takes the median of the warm-up indexes', () => {
