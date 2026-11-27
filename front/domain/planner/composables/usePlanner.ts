@@ -25,7 +25,10 @@ export type Planner = Pick<
 > &
   Pick<PlannerDishes, 'kindOf' | 'isQuick'> &
   PlannerSelection &
-  Pick<PlannerScoring, 'recommendedIn' | 'fillsIn' | 'selectionBalance' | 'budgetStatus'> &
+  Pick<
+    PlannerScoring,
+    'recommendedIn' | 'recommendedInSlices' | 'fillsIn' | 'selectionBalance' | 'budgetStatus'
+  > &
   PlannerSwaps &
   PlannerGeneration &
   PlannerSpread &
@@ -61,6 +64,7 @@ export const usePlanner = (): Planner => {
     isQuick,
     ...selection,
     recommendedIn: scoring.recommendedIn,
+    recommendedInSlices: scoring.recommendedInSlices,
     fillsIn: scoring.fillsIn,
     selectionBalance: scoring.selectionBalance,
     budgetStatus: scoring.budgetStatus,

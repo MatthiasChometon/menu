@@ -12,7 +12,7 @@ const {
   limitsOf,
   isGroupComplete,
   isGroupFull,
-  recommendedIn,
+  recommendedInSlices,
   fillsIn,
 } = usePlanner();
 const { t } = useNuxtApp().$i18n;
@@ -20,6 +20,7 @@ const { macroLongLabel } = useMenuLabels();
 const { groupLabel, groupHint, filterLabel } = usePlannerLabels();
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
+const { reportError } = useErrorReporting();
 
 // Only the savoury dishes are numerous enough to need narrowing, and only they
 // come in fish, meat and vegetable. Offering the same chips on a list of skyr
@@ -67,19 +68,32 @@ const count = computed((): number => (chosenDishes.value[group] ?? []).length);
 // 100 ms a tap is allowed to take.
 const recommended = ref<Set<string>>(new Set());
 let pendingRanking: ReturnType<typeof setTimeout> | undefined;
+// Each request takes a number; a slice that finds a newer one has been asked for
+// stops, so a quick second tap never waits for the first ranking to finish.
+let latestRequest = 0;
 
 const rankAfterPaint = (): void => {
   clearTimeout(pendingRanking);
+  latestRequest += 1;
+  const request = latestRequest;
   requestAnimationFrame((): void => {
     pendingRanking = setTimeout((): void => {
-      recommended.value = recommendedIn(group);
+      recommendedInSlices(group, (): boolean => request !== latestRequest).then(
+        (ranked): void => {
+          if (ranked !== undefined && request === latestRequest) recommended.value = ranked;
+        },
+        (error: unknown): void => reportError('planner:ranking', error),
+      );
     }, 0);
   });
 };
 
 onMounted(rankAfterPaint);
 watch([(): RecipeSlot => group, chosenDishes], rankAfterPaint);
-onBeforeUnmount((): void => clearTimeout(pendingRanking));
+onBeforeUnmount((): void => {
+  clearTimeout(pendingRanking);
+  latestRequest += 1;
+});
 
 // Says what the dish brings when it closes a real gap, and falls back on the
 // plain mark when nothing in particular is short.
