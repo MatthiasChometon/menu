@@ -56,7 +56,10 @@ useHead({
       </template>
       <NuxtPage />
 
-      <LegalFooter />
+      <!-- Below the fold: server-rendered as usual, but hydrated when scrolled
+           into view rather than during the first seconds the page is being made
+           usable. -->
+      <LazyLegalFooter hydrate-on-visible />
 
       <BugReportButton />
       <LazyBugReportDialog v-if="bugReportOpened" />
