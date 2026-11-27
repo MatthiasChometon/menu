@@ -89,7 +89,11 @@ const firstImage = firstRecipe === undefined ? undefined : imageOf(firstRecipe);
 if (firstImage !== undefined) {
   useHead({
     link: [
-      preloadLinkOf(firstImage, CARD_SIZES, useRuntimeConfig().public.localImages as LocalImages),
+      preloadLinkOf(
+        firstImage,
+        CARD_SIZES,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ),
     ],
   });
 }

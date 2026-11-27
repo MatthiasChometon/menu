@@ -1,0 +1,302 @@
+[
+  {
+    "url": "http://localhost:3791/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_31_36.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_31_36.report.json",
+    "summary": {
+      "performance": 0.45,
+      "accessibility": 0.9,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_32_11.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_32_11.report.json",
+    "summary": {
+      "performance": 0.43,
+      "accessibility": 0.9,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_33_13.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_33_13.report.json",
+    "summary": {
+      "performance": 0.43,
+      "accessibility": 0.9,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_33_44.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_33_44.report.json",
+    "summary": {
+      "performance": 0.44,
+      "accessibility": 0.9,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/courses",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_34_15.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_34_15.report.json",
+    "summary": {
+      "performance": 0.48,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/courses",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_34_45.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_34_45.report.json",
+    "summary": {
+      "performance": 0.49,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/courses",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_35_45.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_35_45.report.json",
+    "summary": {
+      "performance": 0.49,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/courses",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_36_14.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_36_14.report.json",
+    "summary": {
+      "performance": 0.47,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recettes",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_36_45.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_36_45.report.json",
+    "summary": {
+      "performance": 0.45,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recettes",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_38_18.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_38_18.report.json",
+    "summary": {
+      "performance": 0.44,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recettes",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_39_05.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_39_05.report.json",
+    "summary": {
+      "performance": 0.56,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recettes",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_39_51.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_39_51.report.json",
+    "summary": {
+      "performance": 0.41,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recette/thaiPeanutChickenBowl",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_40_41.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_40_41.report.json",
+    "summary": {
+      "performance": 0.45,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recette/thaiPeanutChickenBowl",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_29.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_29.report.json",
+    "summary": {
+      "performance": 0.46,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recette/thaiPeanutChickenBowl",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_53.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_53.report.json",
+    "summary": {
+      "performance": 0.48,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recette/thaiPeanutChickenBowl",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_42_18.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_42_18.report.json",
+    "summary": {
+      "performance": 0.48,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/composer",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_42_41.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_42_41.report.json",
+    "summary": {
+      "performance": 0.44,
+      "accessibility": 0.93,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/composer",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_43_14.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_43_14.report.json",
+    "summary": {
+      "performance": 0.44,
+      "accessibility": 0.93,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/composer",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_44_24.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_44_24.report.json",
+    "summary": {
+      "performance": 0.41,
+      "accessibility": 0.93,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/composer",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_44_59.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_44_59.report.json",
+    "summary": {
+      "performance": 0.42,
+      "accessibility": 0.93,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_32_42.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost--2026_11_26_17_32_42.report.json",
+    "summary": {
+      "performance": 0.44,
+      "accessibility": 0.9,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/courses",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_35_15.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-courses-2026_11_26_17_35_15.report.json",
+    "summary": {
+      "performance": 0.48,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recettes",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_37_32.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recettes-2026_11_26_17_37_32.report.json",
+    "summary": {
+      "performance": 0.42,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/recette/thaiPeanutChickenBowl",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_05.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-recette_thaiPeanutChickenBowl-2026_11_26_17_41_05.report.json",
+    "summary": {
+      "performance": 0.47,
+      "accessibility": 0.96,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:3791/composer",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_43_47.report.html",
+    "jsonPath": "C:\\projets\\menu-socle-m15-front\\front\\lighthouse-reports\\localhost-composer-2026_11_26_17_43_47.report.json",
+    "summary": {
+      "performance": 0.42,
+      "accessibility": 0.93,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  }
+]

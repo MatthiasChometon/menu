@@ -114,7 +114,11 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 if (heroImage !== undefined) {
   useHead({
     link: [
-      preloadLinkOf(heroImage, HERO_SIZES, useRuntimeConfig().public.localImages as LocalImages),
+      preloadLinkOf(
+        heroImage,
+        HERO_SIZES,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ),
     ],
   });
 }

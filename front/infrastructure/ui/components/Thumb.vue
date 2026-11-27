@@ -48,7 +48,7 @@ const { stop } = useIntersectionObserver(
 
 // A photograph the site serves itself comes in AVIF and WebP, in several widths.
 const local = computed((): LocalSource | undefined =>
-  localSourceOf(src, useRuntimeConfig().public.localImages as LocalImages),
+  localSourceOf(src, useRuntimeConfig().public.localImages as unknown as LocalImages),
 );
 
 const showsImage = computed((): boolean => src !== undefined && !hasFailed.value);

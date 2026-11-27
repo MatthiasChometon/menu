@@ -47,10 +47,10 @@ const hostManifest = await manifestAtBuild();
 
 // Written by `localizeImages.ts` before the build: the sizes of the photographs the site serves
 // itself. Absent (offline build): every picture keeps coming from the host, as before.
-const localImages: unknown = existsSync('public/img/images.json')
+const localImages: Record<string, Record<string, number[]>> = existsSync('public/img/images.json')
   ? JSON.parse(readFileSync('public/img/images.json', 'utf8'))
   : {};
-const isLocalised = Object.keys(localImages as object).length > 0;
+const isLocalised = Object.keys(localImages).length > 0;
 
 // Listed by the host but not localised (404 there): left out, so no page points a browser back at it.
 const manifest: ImageManifest = isLocalised
@@ -59,10 +59,7 @@ const manifest: ImageManifest = isLocalised
         kind,
         Object.fromEntries(
           Object.entries(files).filter(
-            ([, file]) =>
-              (localImages as Record<string, Record<string, unknown>>)[kind]?.[
-                file.replace(/\.[^.]+$/, '')
-              ] !== undefined,
+            ([, file]) => localImages[kind]?.[file.replace(/\.[^.]+$/, '')] !== undefined,
           ),
         ),
       ]),

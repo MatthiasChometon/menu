@@ -63,8 +63,11 @@ export const useImages = (): {
     // Served by the site itself when the build localised it, from the host otherwise (a photo
     // added since the build).
     return (
-      localFallbackOf(kind, file, useRuntimeConfig().public.localImages as LocalImages) ??
-      `${host()}/${kind}/${file}`
+      localFallbackOf(
+        kind,
+        file,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ) ?? `${host()}/${kind}/${file}`
     );
   };
 
@@ -78,7 +81,7 @@ export const useImages = (): {
       const manifest = state().value;
       const base = host();
 
-      const local = useRuntimeConfig().public.localImages as LocalImages;
+      const local = useRuntimeConfig().public.localImages as unknown as LocalImages;
 
       return imageKinds.flatMap((kind): string[] =>
         Object.values(manifest[kind] ?? {}).map(
