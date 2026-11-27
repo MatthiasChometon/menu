@@ -1,6 +1,6 @@
 // Reads the HTML `nuxt generate` wrote, to check what the browser will be asked to download.
 const attributeOf = (tag: string, name: string): string | undefined =>
-  new RegExp(String.raw`\s${name}="([^"]*)"`).exec(tag)?.[1];
+  new RegExp('\\s' + name + '="([^"]*)"').exec(tag)?.[1];
 
 const imageTagsOf = (html: string): string[] =>
   [
