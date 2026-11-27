@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  HERO_SIZES,
+  preloadLinkOf,
+  type LocalImages,
+} from '../../../../infrastructure/images/utils/localImages';
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
@@ -108,7 +113,9 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
 // starts downloading with the page instead of once the recipe has rendered.
 if (heroImage !== undefined) {
   useHead({
-    link: [{ rel: 'preload', as: 'image', href: heroImage, fetchpriority: 'high' }],
+    link: [
+      preloadLinkOf(heroImage, HERO_SIZES, useRuntimeConfig().public.localImages as LocalImages),
+    ],
   });
 }
 </script>
@@ -142,6 +149,7 @@ if (heroImage !== undefined) {
             :alt="nameOf(recipe)"
             icon="i-lucide-cooking-pot"
             rounded="rounded-3xl"
+            :sizes="HERO_SIZES"
             eager
           />
         </div>

@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs';
+
 // The photographs live on o2switch, not in the bundle. Two things follow, and
 // they pull against each other:
 //
@@ -41,16 +43,41 @@ const manifestAtBuild = async (): Promise<ImageManifest> => {
   }
 };
 
-const manifest = await manifestAtBuild();
+const hostManifest = await manifestAtBuild();
+
+// Written by `localizeImages.ts` before the build: the sizes of the photographs the site serves
+// itself. Absent (offline build): every picture keeps coming from the host, as before.
+const localImages: unknown = existsSync('public/img/images.json')
+  ? JSON.parse(readFileSync('public/img/images.json', 'utf8'))
+  : {};
+const isLocalised = Object.keys(localImages as object).length > 0;
+
+// Listed by the host but not localised (404 there): left out, so no page points a browser back at it.
+const manifest: ImageManifest = isLocalised
+  ? Object.fromEntries(
+      Object.entries(hostManifest).map(([kind, files]) => [
+        kind,
+        Object.fromEntries(
+          Object.entries(files).filter(
+            ([, file]) =>
+              (localImages as Record<string, Record<string, unknown>>)[kind]?.[
+                file.replace(/\.[^.]+$/, '')
+              ] !== undefined,
+          ),
+        ),
+      ]),
+    )
+  : hostManifest;
 
 export default defineNuxtConfig({
-  // The photographs come from another origin: connecting early saves the DNS, TCP and TLS
-  // round trips that otherwise sit in front of the first one.
-  app: { head: { link: [{ rel: 'preconnect', href: base }] } },
+  // Photographs still on the host (offline build, or added since): connecting early saves the DNS,
+  // TCP and TLS round trips in front of the first one. Not needed once the site serves its own.
+  app: { head: { link: isLocalised ? [] : [{ rel: 'preconnect', href: base }] } },
   runtimeConfig: {
     public: {
       imagesBase: base,
       imageManifest: manifest,
+      localImages,
     },
   },
 });

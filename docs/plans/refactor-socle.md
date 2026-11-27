@@ -513,6 +513,10 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   stands for the gap between the host and the target device as `benchmarkIndex` measures it). Each perf job runs
   `pnpm calibrate` (3 warm-up runs); indexes more than 15 % off their median make it fail and it is rerun once, then the
   job is red (not conclusive). `LH-SUMMARY` lines end with the warm-up benchmarkIndex, the factor and the free RAM.
+  LCP 3 s sur les pages texte : accord du maintainer du 27/11 ; cause : script d'entrée compté par Lantern
+  (`/`, `/composer`, `/courses` in `lighthouserc.cjs` via `assertMatrix`; photo pages stay at 2.5 s, TBT 200, CLS 0.1).
+  Photo pages, maintainer option A (27/11): photographs served from the site itself (AVIF/WebP 320-1024 px built by
+  `infrastructure/images/scripts/localizeImages.ts`, `srcset` + `sizes`, LCP image preloaded with `imagesrcset`, <= 60 KB).
   Budgets unchanged. The Playwright run is throttled by the same factor, so its medians are compared as they are:
   dividing a median measured under the factor by that same factor would cancel the projection.
   Then, each measured in CI (medians of 5): modulepreload links dropped for every non-entry chunk (simulated first paint

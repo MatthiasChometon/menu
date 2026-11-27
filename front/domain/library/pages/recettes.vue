@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  CARD_SIZES,
+  preloadLinkOf,
+  type LocalImages,
+} from '../../../infrastructure/images/utils/localImages';
 import type { CustomRecipe } from '../../customCatalog/types/customCatalog.type';
 
 const { recipes, imageOf } = useRecipes();
@@ -83,7 +88,9 @@ const firstRecipe = shownEntries.value[0]?.recipe;
 const firstImage = firstRecipe === undefined ? undefined : imageOf(firstRecipe);
 if (firstImage !== undefined) {
   useHead({
-    link: [{ rel: 'preload', as: 'image', href: firstImage, fetchpriority: 'high' }],
+    link: [
+      preloadLinkOf(firstImage, CARD_SIZES, useRuntimeConfig().public.localImages as LocalImages),
+    ],
   });
 }
 </script>

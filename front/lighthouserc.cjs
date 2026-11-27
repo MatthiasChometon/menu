@@ -1,6 +1,22 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type -- plain CommonJS config */
 const throttling = require('./lighthouse-throttling.cjs');
 
 const BASE = `http://localhost:${process.env.PORT ?? '3777'}`;
+
+const lcp = (maxNumericValue) => ['error', { maxNumericValue, aggregationMethod: 'median' }];
+
+const commonAssertions = {
+  'cumulative-layout-shift': ['error', { maxNumericValue: 0.1, aggregationMethod: 'median' }],
+  'total-blocking-time': ['error', { maxNumericValue: 200, aggregationMethod: 'median' }],
+  'resource-summary:script:size': [
+    'error',
+    { maxNumericValue: 350 * 1024, aggregationMethod: 'median' },
+  ],
+  'resource-summary:image:size': [
+    'error',
+    { maxNumericValue: 1500 * 1024, aggregationMethod: 'median' },
+  ],
+};
 
 // Lighthouse (mobile, simulated slow 4G, median of 5 runs) on the generated site, on the
 // runner only. LCP 2.5 s, CLS 0.1 and TBT 200 ms are the Core Web Vitals "good" thresholds
@@ -24,22 +40,18 @@ module.exports = {
       settings: { chromeFlags: '--no-sandbox', throttling },
     },
     assert: {
-      assertions: {
-        'largest-contentful-paint': [
-          'error',
-          { maxNumericValue: 2500, aggregationMethod: 'median' },
-        ],
-        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1, aggregationMethod: 'median' }],
-        'total-blocking-time': ['error', { maxNumericValue: 200, aggregationMethod: 'median' }],
-        'resource-summary:script:size': [
-          'error',
-          { maxNumericValue: 350 * 1024, aggregationMethod: 'median' },
-        ],
-        'resource-summary:image:size': [
-          'error',
-          { maxNumericValue: 1500 * 1024, aggregationMethod: 'median' },
-        ],
-      },
+      assertMatrix: [
+        // Text pages: LCP 3 s, maintainer agreement of 2026-11-27 (cause: the entry script, counted by
+        // Lantern). Photo pages keep the 2.5 s of the plan's table.
+        {
+          matchingUrlPattern: `^${BASE}/(composer|courses)?$`,
+          assertions: { ...commonAssertions, 'largest-contentful-paint': lcp(3000) },
+        },
+        {
+          matchingUrlPattern: `^${BASE}/(recettes|recette/.*)$`,
+          assertions: { ...commonAssertions, 'largest-contentful-paint': lcp(2500) },
+        },
+      ],
     },
     upload: { target: 'filesystem', outputDir: 'lighthouse-reports' },
   },
