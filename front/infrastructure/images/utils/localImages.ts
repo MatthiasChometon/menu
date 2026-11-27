@@ -119,3 +119,23 @@ export const preloadLinkOf = (src: string, sizes: string, local: LocalImages): P
     fetchpriority: 'high',
   };
 };
+
+// Listed by the host's manifest but answering 404 (an existing fault of the image host, found on
+// 2026-11-27, written down in docs/plans/refactor-socle.md): the site shows its pictogram for them.
+// Any other photograph the manifest lists and the host lacks fails `pnpm check:generated`.
+export const KNOWN_MISSING_ON_HOST: string[] = [
+  'equipment/colander.ae85e743.webp',
+  'equipment/container.104562a9.webp',
+  'equipment/cookingVessel.c58bd4e2.webp',
+  'equipment/cuttingBoard.3add2bc8.webp',
+  'equipment/knife.3dc0ee49.webp',
+  'equipment/ladle.21e5d554.webp',
+  'equipment/mixingBowl.a63c2675.webp',
+  'equipment/ovenTray.98629283.webp',
+  'equipment/scale.0a7c5e4f.webp',
+];
+
+export const unexpectedlyMissing = (
+  missing: string[],
+  known: string[] = KNOWN_MISSING_ON_HOST,
+): string[] => missing.filter((image): boolean => !known.includes(image));

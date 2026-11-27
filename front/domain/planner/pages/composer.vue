@@ -297,7 +297,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
         />
       </section>
 
-      <PlannerHouseholdBalance v-if="hasWeek" />
+      <LazyPlannerHouseholdBalance v-if="hasWeek" hydrate-on-visible />
     </template>
 
     <!-- The way forward stays under the thumb, whatever the length of the list.

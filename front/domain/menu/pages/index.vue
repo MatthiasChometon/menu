@@ -190,7 +190,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           />
         </section>
 
-        <MenuReminders />
+        <LazyMenuReminders hydrate-on-visible />
       </template>
 
       <MenuWeekLoadFailed v-else-if="hasFailed" class="mt-6" @retry="retry" />

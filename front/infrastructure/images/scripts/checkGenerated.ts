@@ -1,6 +1,6 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { LCP_IMAGE_BUDGET_BYTES } from '../utils/localImages';
+import { LCP_IMAGE_BUDGET_BYTES, unexpectedlyMissing } from '../utils/localImages';
 import { crossOriginImagesOf, lcpPreloadOf } from '../utils/generatedImages';
 
 // A build that could not read the image host's manifest still succeeds, and ships pages with
@@ -32,7 +32,14 @@ const lcpProblemsOf = (page: string): string[] => {
     : [];
 };
 
+const missingOnHost = existsSync('public/img/missing.json')
+  ? (JSON.parse(readFileSync('public/img/missing.json', 'utf8')) as string[])
+  : [];
+
 const problems = [
+  ...unexpectedlyMissing(missingOnHost).map(
+    (image): string => `${image} is referenced by the host's manifest and absent from the host`,
+  ),
   ...LCP_PAGES.flatMap(lcpProblemsOf),
   ...pagesIn(OUTPUT).flatMap((page): string[] =>
     crossOriginImagesOf(readFileSync(page, 'utf8')).map(

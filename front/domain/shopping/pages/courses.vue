@@ -229,24 +229,30 @@ useSeoMeta({ title: (): string => t('shopping.title') });
       </div>
 
       <div v-else class="mt-6 space-y-7">
-        <ShoppingAisle
+        <LazyShoppingAisle
           v-for="(group, index) in activeGroups"
           :key="group.aisle"
+          hydrate-on-visible
           :group="group"
           :picked-ids="visiblePickedIds"
           :index="index"
           @toggle="toggle"
           @pantry="togglePantry"
         />
-        <ShoppingSeasoningAisle
+        <LazyShoppingSeasoningAisle
           v-if="activeSeasonings.length > 0"
+          hydrate-on-visible
           :seasonings="activeSeasonings"
           :picked-ids="visiblePickedIds"
           :index="activeGroups.length"
           @toggle="toggle"
           @pantry="togglePantry"
         />
-        <ShoppingPantrySection :entries="pantryEntries" @remove="togglePantry" />
+        <LazyShoppingPantrySection
+          hydrate-on-visible
+          :entries="pantryEntries"
+          @remove="togglePantry"
+        />
       </div>
 
       <UModal v-model:open="isResetOpen" :title="$t('shopping.resetTitle')">

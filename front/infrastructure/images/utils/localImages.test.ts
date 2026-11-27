@@ -6,7 +6,9 @@ import {
   LCP_IMAGE_BUDGET_BYTES,
   localFallbackOf,
   localSourceOf,
+  KNOWN_MISSING_ON_HOST,
   preloadLinkOf,
+  unexpectedlyMissing,
   type LocalImages,
 } from './localImages';
 
@@ -74,5 +76,18 @@ describe('generated pages', () => {
 
   it('keeps the LCP image budget at 60 KB', () => {
     expect(LCP_IMAGE_BUDGET_BYTES).toBe(60 * 1024);
+  });
+});
+
+describe('photographs the host lacks', (): void => {
+  it('fails for a referenced image that is neither on the host nor a known fault', (): void => {
+    expect(unexpectedlyMissing(['recipe/ghost.abcd1234.webp'])).toEqual([
+      'recipe/ghost.abcd1234.webp',
+    ]);
+  });
+
+  it('tolerates only the nine equipment photographs already known to be missing', (): void => {
+    expect(KNOWN_MISSING_ON_HOST).toHaveLength(9);
+    expect(unexpectedlyMissing(KNOWN_MISSING_ON_HOST)).toEqual([]);
   });
 });

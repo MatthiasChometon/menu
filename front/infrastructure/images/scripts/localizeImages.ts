@@ -22,6 +22,7 @@ const KINDS: LocalKind[] = ['recipe', 'food', 'equipment'];
 const CONCURRENCY = 4;
 const OUT_DIR = 'public';
 const TABLE_FILE = `${OUT_DIR}/img/images.json`;
+const MISSING_FILE = `${OUT_DIR}/img/missing.json`;
 
 type Job = { kind: LocalKind; file: string };
 
@@ -105,7 +106,13 @@ const main = async (): Promise<void> => {
       }
     }),
   );
-  if (jobs.length > 0) writeAtomically(TABLE_FILE, `${JSON.stringify(table)}\n`);
+  if (jobs.length > 0) {
+    writeAtomically(TABLE_FILE, `${JSON.stringify(table)}\n`);
+    const missing = jobs
+      .filter((job): boolean => table[job.kind]?.[stemOf(job.file)] === undefined)
+      .map((job): string => `${job.kind}/${job.file}`);
+    writeAtomically(MISSING_FILE, `${JSON.stringify(missing)}\n`);
+  }
   process.stdout.write(`localizeImages: ${jobs.length} photographs served from the site itself\n`);
 };
 

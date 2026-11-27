@@ -577,3 +577,19 @@ the lite client. What only some screens use is the recipe and food catalogue (14
 imported by 28 files) and the generated GraphQL SDK (26 KB raw): together under 40 KB gz, about 30 ms of
 simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI. The `LH-SUMMARY` line
 (benchmarkIndex, LCP and TBT per URL) is now printed by the Lighthouse job.
+
+### M15 front: entry chunk and the photographs the host lacks (2026-11-27)
+
+- Entry chunk measured with `nuxt analyze` (gz, per module, summed before compression so the parts overstate the real
+  220 KB gz): nuxt runtime 55, domain 51 (of which `recipes.json` 20.5 and `foods.json` 4.8, read synchronously by
+  `recipeCatalog`), `@vue/runtime-core` 38, `@nuxt/ui` 29 (`tailwind-merge` 12), i18n runtime 42 (messages are already
+  one lazy file per locale), unhead 16, vue-router 15 (+5), reka-ui 15, icon client bundle + iconify 21, vueuse 9.
+  The Sentry client chunk (85) is separate. A target of 100 KB gz is out of reach without making the recipe catalogue
+  asynchronous, which every page and the prerender read synchronously.
+- Hydration deferred (`Lazy...` + `hydrate-on-visible`) below the fold: seasoning/pantry blocks and aisles of
+  `/courses`, the household balance of `/composer`, the reminders of `/`; the week's day cards already were. E2E test:
+  `courses.e2e.test.ts` (first tap on an item is taken).
+- Photographs listed by the image host's manifest and answering 404 (existing fault of the host, not invented here):
+  equipment/colander.ae85e743, container.104562a9, cookingVessel.c58bd4e2, cuttingBoard.3add2bc8, knife.3dc0ee49,
+  ladle.21e5d554, mixingBowl.a63c2675, ovenTray.98629283, scale.0a7c5e4f (all `.webp`). `pnpm check:generated` fails for
+  any other referenced photograph the host lacks (`KNOWN_MISSING_ON_HOST` in `localImages.ts`).
