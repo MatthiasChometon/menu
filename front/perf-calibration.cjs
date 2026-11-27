@@ -21,9 +21,11 @@ const fs = require('fs');
 const path = require('path');
 
 const BASE_SLOWDOWN = 4;
-// Source: the median of the 22 per-run medians of environment.benchmarkIndex in the Lighthouse
-// reports of this repository's `Perf front` GitHub Actions runs of 2026-11-26 (range 1999-4160).
-const REFERENCE_BENCHMARK_INDEX = 2800;
+// Source: the median of the CI runners' benchmarkIndex, the convention shared by the three projects
+// (not the "1500-2000" range of the Lighthouse documentation, which is out of date). This repository's own
+// median is 2800 (22 per-run medians of the `Perf front` reports of 2026-11-26, range 1999-4160), within
+// 10 % of 2950, so the common constant 2950 is kept.
+const REFERENCE_BENCHMARK_INDEX = 2950;
 // How far a warm-up run may stray from the median of the three before the host's speed is
 // considered unsettled (a noisy neighbour on the runner).
 const STEADY_TOLERANCE = 0.15;

@@ -47,23 +47,23 @@ tests, and lists in its PR body the rules checked and what was left (with the re
 
 Status per lot: `impl` implementer PR open · `review` LGTM · `ci` green · `ok` my validation · `merged`.
 
-| Lot | Scope | Size (ts+vue lines) |
-| --- | --- | --- |
-| M1 | Back socle: `main.ts`, `app.module.ts`, `infrastructure/**` (config/env validation, `configureApp`, global error filter, GraphQL hardening, throttler, health, database), `tsconfig`/ESLint strictness, `Dockerfile`, `docker-compose.yml`, `ops/` | ~1.2k + config |
-| M2 | Back `domain/grocery` | 3.2k |
-| M3 | Back `domain/auth`, `user`, `household`, `profile` | 4.1k |
-| M4 | Back `domain/bugReport`, `customRecipe`, `improvementRequest`, `customFood`, `weekPlan`, `weight`, `imageLibrary` | 4.0k |
-| M5 | Front socle: `nuxt.config.ts`, `ddd/`, `infrastructure/**` (ui, asset, api, i18n…), `tsconfig`/ESLint, PR CI for front and extension (`ci-front.yml`, `ci-extension.yml`) | ~2k + config |
-| M6 | Front `domain/menu` | 5.5k |
-| M7 | Front `domain/planner` | 4.8k |
-| M8 | Front `domain/order`, `shopping`, `batch`, `today` | 5.6k |
-| M9 | Front `domain/weight`, `insights`, `recipe`, `profile`, `library` (also: show an alert when `useMyFoods().hasFailed` / `useMyRecipes().hasFailed` is true in the library panels, with a test; handed over by M10) | 7.6k |
-| M10 | Front `domain/auth`, `weekShare`, `onboarding`, `bugReport`, `improvementRequest`, `cooking`, `customCatalog`, `legal`, `progress` | 3.4k |
-| M11 | `extension/` | 1.7k |
-| M14 | Transverse, runs before M8: no `void` on a promise anywhere (back, front, extension; ESLint `ignoreVoid: false`), one shared retry helper with exponential backoff + full jitter on outbound idempotent calls and polling, back global interceptors (request log, timeout), front `useApi` / GraphQL interceptors (401 to sign-in, report unexpected errors once) | repo-wide |
-| M13 | Dependency upgrades (back, front, extension) until `pnpm audit --prod` is clean, then `pnpm audit --prod` in every CI | — |
-| M15 | Performance: k6 suite on every API operation with failing per-operation budgets chosen from UX rules, full profiles weekly, time budgets in the back e2e tests (median + SQL query count), Playwright screen timings, Vitest timeouts and benches, Lighthouse CI budgets (section "Performance lot") | — |
-| M12 | Final pass: duplicates across slices, dead code / unused dependencies (`knip`), README and docs up to date, final PR to `main` | — |
+| Lot | Scope                                                                                                                                                                                                                                                                                                                                                             | Size (ts+vue lines) |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| M1  | Back socle: `main.ts`, `app.module.ts`, `infrastructure/**` (config/env validation, `configureApp`, global error filter, GraphQL hardening, throttler, health, database), `tsconfig`/ESLint strictness, `Dockerfile`, `docker-compose.yml`, `ops/`                                                                                                                | ~1.2k + config      |
+| M2  | Back `domain/grocery`                                                                                                                                                                                                                                                                                                                                             | 3.2k                |
+| M3  | Back `domain/auth`, `user`, `household`, `profile`                                                                                                                                                                                                                                                                                                                | 4.1k                |
+| M4  | Back `domain/bugReport`, `customRecipe`, `improvementRequest`, `customFood`, `weekPlan`, `weight`, `imageLibrary`                                                                                                                                                                                                                                                 | 4.0k                |
+| M5  | Front socle: `nuxt.config.ts`, `ddd/`, `infrastructure/**` (ui, asset, api, i18n…), `tsconfig`/ESLint, PR CI for front and extension (`ci-front.yml`, `ci-extension.yml`)                                                                                                                                                                                         | ~2k + config        |
+| M6  | Front `domain/menu`                                                                                                                                                                                                                                                                                                                                               | 5.5k                |
+| M7  | Front `domain/planner`                                                                                                                                                                                                                                                                                                                                            | 4.8k                |
+| M8  | Front `domain/order`, `shopping`, `batch`, `today`                                                                                                                                                                                                                                                                                                                | 5.6k                |
+| M9  | Front `domain/weight`, `insights`, `recipe`, `profile`, `library` (also: show an alert when `useMyFoods().hasFailed` / `useMyRecipes().hasFailed` is true in the library panels, with a test; handed over by M10)                                                                                                                                                 | 7.6k                |
+| M10 | Front `domain/auth`, `weekShare`, `onboarding`, `bugReport`, `improvementRequest`, `cooking`, `customCatalog`, `legal`, `progress`                                                                                                                                                                                                                                | 3.4k                |
+| M11 | `extension/`                                                                                                                                                                                                                                                                                                                                                      | 1.7k                |
+| M14 | Transverse, runs before M8: no `void` on a promise anywhere (back, front, extension; ESLint `ignoreVoid: false`), one shared retry helper with exponential backoff + full jitter on outbound idempotent calls and polling, back global interceptors (request log, timeout), front `useApi` / GraphQL interceptors (401 to sign-in, report unexpected errors once) | repo-wide           |
+| M13 | Dependency upgrades (back, front, extension) until `pnpm audit --prod` is clean, then `pnpm audit --prod` in every CI                                                                                                                                                                                                                                             | —                   |
+| M15 | Performance: k6 suite on every API operation with failing per-operation budgets chosen from UX rules, full profiles weekly, time budgets in the back e2e tests (median + SQL query count), Playwright screen timings, Vitest timeouts and benches, Lighthouse CI budgets (section "Performance lot")                                                              | —                   |
+| M12 | Final pass: duplicates across slices, dead code / unused dependencies (`knip`), README and docs up to date, final PR to `main`                                                                                                                                                                                                                                    | —                   |
 
 - [x] M1 — impl · review · ci · ok · merged (PR #2, dd84bec)
 - [x] M2 — impl · review · ci · ok · merged (PR #3, 4759525)
@@ -95,19 +95,18 @@ A budget is what a person accepts, then split between the network, the API and t
 A baseline measured on CI only checks that the budget is reachable; **if the code is slower than
 the UX budget, the test is red and that is a bug to fix** (never a budget to raise).
 
-| UX rule (source) | Threshold | Budget it gives |
-| --- | --- | --- |
-| Feels instantaneous (Nielsen 0.1 s; RAIL "response") | 100 ms | visible feedback after a tap or click (pressed state, skeleton, optimistic update) ≤ 100 ms |
-| Interaction to Next Paint, "good" (Core Web Vitals) | 200 ms (p75) | INP ≤ 200 ms on every page; no long task > 50 ms on the main thread during an interaction |
-| Doherty threshold (flow is kept) | 400 ms | a mutation (save, toggle, add) answers in p95 ≤ 400 ms end to end, API p95 ≤ 250 ms |
-| Flow of thought kept (Nielsen 1 s; RAIL "load" ≤ 1 s on a warm navigation) | 1 s | main content of a screen visible ≤ 1 s after a client-side navigation; the API reads that feed it p95 ≤ 300 ms, p99 ≤ 800 ms |
-| Largest Contentful Paint, "good" (Core Web Vitals) | 2.5 s (p75) | LCP ≤ 2.5 s on a cold load (Lighthouse mobile, slow 4G); FCP ≤ 1.8 s; TTFB ≤ 800 ms |
-| Cumulative Layout Shift, "good" | 0.1 | CLS ≤ 0.1; every deferred block reserves its place (skeleton) |
-| Attention limit (Nielsen 10 s) | 10 s | any operation over 1 s shows progress; over 10 s it runs in the background with a notification, never a blocking wait |
+| UX rule (source)                                                           | Threshold    | Budget it gives                                                                                                              |
+| -------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Feels instantaneous (Nielsen 0.1 s; RAIL "response")                       | 100 ms       | visible feedback after a tap or click (pressed state, skeleton, optimistic update) ≤ 100 ms                                  |
+| Interaction to Next Paint, "good" (Core Web Vitals)                        | 200 ms (p75) | INP ≤ 200 ms on every page; no long task > 50 ms on the main thread during an interaction                                    |
+| Doherty threshold (flow is kept)                                           | 400 ms       | a mutation (save, toggle, add) answers in p95 ≤ 400 ms end to end, API p95 ≤ 250 ms                                          |
+| Flow of thought kept (Nielsen 1 s; RAIL "load" ≤ 1 s on a warm navigation) | 1 s          | main content of a screen visible ≤ 1 s after a client-side navigation; the API reads that feed it p95 ≤ 300 ms, p99 ≤ 800 ms |
+| Largest Contentful Paint, "good" (Core Web Vitals)                         | 2.5 s (p75)  | LCP ≤ 2.5 s on a cold load (Lighthouse mobile, slow 4G); FCP ≤ 1.8 s; TTFB ≤ 800 ms                                          |
+| Cumulative Layout Shift, "good"                                            | 0.1          | CLS ≤ 0.1; every deferred block reserves its place (skeleton)                                                                |
+| Attention limit (Nielsen 10 s)                                             | 10 s         | any operation over 1 s shows progress; over 10 s it runs in the background with a notification, never a blocking wait        |
 
 Under load (k6 `load` profile, expected peak × 3) the same p95 budgets hold; under `spike` p95
 may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 % everywhere.
-
 
 ### Work
 
@@ -120,7 +119,7 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
 2. **Budgets that fail**: one `devops/load/budgets.ts` file, values from the table above, per
    operation tag: `http_req_duration{op:...}` p95 and p99, `http_req_failed` < 1 %, `checks`
    > 99 %; `abortOnFail` on the breakpoint run. Tightening is free; loosening needs the
-   maintainer's OK in the PR.
+   > maintainer's OK in the PR.
 3. **Realistic constraints**: the API runs on the runner held to the shared host's limits
    (1 CPU, 512 MB heap, same Node and PostgreSQL major versions, same pool size), PostgreSQL as a
    service container. **Never load the production host** (a light pass of a few requests at
@@ -506,9 +505,9 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   instead of the multiplier calibrated per runner (about 6.6 on the CI runners); calibration script and workflow step
   removed (`ci(lighthouse)` commit). Budgets unchanged.
   **Calibrated x4 (maintainer approval 2026-11-27, supersedes the fixed 4):** `cpuSlowdown = max(1, 4 x benchmarkIndex /
-  REFERENCE_BENCHMARK_INDEX)` for Lighthouse and the Playwright perf run, so the times are projected onto the real
-  app whatever the machine. REFERENCE_BENCHMARK_INDEX = 2800 (constant of `front/perf-calibration.cjs`): the median of the 22
-  per-run benchmarkIndex medians of this repository's runners, the speed at which the 4x of the PageSpeed mid-tier
+REFERENCE_BENCHMARK_INDEX)` for Lighthouse and the Playwright perf run, so the times are projected onto the real
+  app whatever the machine. REFERENCE_BENCHMARK_INDEX = 2950 (constant of `front/perf-calibration.cjs`, the median of the CI runners and the constant common to the three projects; this repository's own median of the 22
+  per-run benchmarkIndex medians is 2800, within 10 %, so 2950 is kept; not the outdated 1500-2000 of the Lighthouse documentation), the speed at which the 4x of the PageSpeed mid-tier
   phone is held; the factor only divides the host's speed out (Lighthouse documentation, "CPU throttling": the multiplier
   stands for the gap between the host and the target device as `benchmarkIndex` measures it). Each perf job runs
   `pnpm calibrate` (3 warm-up runs); indexes more than 15 % off their median make it fail and it is rerun once, then the
@@ -539,8 +538,8 @@ may reach 2× for the duration of the spike, never more; `http_req_failed` < 1 %
   bench baseline was produced on Windows and CI passes it with the 2x tolerance, so it should be regenerated on the runner
   once; a vitest worker teardown error shows up now and then when three monitoring test files run together locally (not in CI).
 - 2026-11-26 — M15 front half, local measurement pass (box stays unticked until the PR merges). Machine: Lighthouse
-  benchmarkIndex 1606-1997 against a reference of 2800 (median of 22 past CI reports), CPU slowdown calibrated to
-  `4 x benchmarkIndex / 2800` (2.44-2.84) by one tested helper (`perf-calibration.cjs`) read by Lighthouse and the
+  benchmarkIndex 1606-1997 against a reference of 2950 (common to the three projects; this repository median 2800 over 22 CI reports), CPU slowdown calibrated to
+  `4 x benchmarkIndex / 2950` (2.44-2.84) by one tested helper (`perf-calibration.cjs`) read by Lighthouse and the
   Playwright suite; budgets unchanged. Found and fixed on the way: the hosted image manifest carries `"version": 1`, which
   the validator rejected, so every build baked an empty manifest (no photographs, no preload) — now only the string maps
   are kept and `check:generated` fails a build without photographs. Recipe pages and `/recettes` preload their first
