@@ -39,6 +39,18 @@ describe('liteGraphqlRequest', () => {
     });
   });
 
+  it('sends the name of the operation, as graphql-request does', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(answer({ data: {} }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await new GraphQLClient('https://api.test/graphql').request({
+      document: 'fragment F on User { id } query Weeks($a: Int) { weeks { ...F } }',
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string).operationName).toBe('Weeks');
+  });
+
   it('throws the answer, status included, when the API reports errors', async () => {
     vi.stubGlobal(
       'fetch',

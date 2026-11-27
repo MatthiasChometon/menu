@@ -43,6 +43,11 @@ export const gql = (chunks: TemplateStringsArray, ...variables: unknown[]): stri
     '',
   );
 
+// graphql-request sends the operation's name next to the document; the API's request
+// log and the front's test stubs read it, so it is read back from the text here.
+const operationNameOf = (document: string): string | undefined =>
+  /\b(?:query|mutation|subscription)\s+([_A-Za-z][_0-9A-Za-z]*)/.exec(document)?.[1];
+
 const headersOf = (value: unknown): Headers =>
   value instanceof globalThis.Headers
     ? Object.fromEntries(value.entries())
@@ -80,7 +85,11 @@ export class GraphQLClient {
       url: this.url,
       method: 'POST',
       headers: headersOf(requestHeaders),
-      body: JSON.stringify({ query: document, variables }),
+      body: JSON.stringify({
+        query: document,
+        variables,
+        operationName: operationNameOf(document),
+      }),
       signal,
     };
     const { url, ...init } = (await this.options.requestMiddleware?.(initial)) ?? initial;
