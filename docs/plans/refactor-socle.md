@@ -593,3 +593,11 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
   equipment/colander.ae85e743, container.104562a9, cookingVessel.c58bd4e2, cuttingBoard.3add2bc8, knife.3dc0ee49,
   ladle.21e5d554, mixingBowl.a63c2675, ovenTray.98629283, scale.0a7c5e4f (all `.webp`). `pnpm check:generated` fails for
   any other referenced photograph the host lacks (`KNOWN_MISSING_ON_HOST` in `localImages.ts`).
+- Cut 1, catalogue out of the entry: `domain/menu/plugins/loadCatalog.ts` (enforce `pre`, awaited before mount) imports
+  `recipes.json` and `foods.json` dynamically and fills the reactive catalogues; `useMenu` builds its menus on first
+  use instead of at import. Entry 220 -> 196.9 KB gz (`recipes.js` is its own 20.5 KB chunk). Domain code left in the
+  entry is 26 KB gz: the week header, solver and week store, which every page's header needs (selected week, today).
+  Cut 3, icons: the client bundle already holds only the 173 icons the scan finds (52.7 KB raw, 10.5 gz), nothing more
+  to drop. Cut 4: `pnpm check:generated` now measures the entry script (ceiling 198 000 B gz, `entryChunk.ts`) and
+  fails if the recipe catalogue is back in it. The 120 KB target is not reached: what is left is the framework
+  (nuxt 55, vue 47, i18n 42, @nuxt/ui + reka + tailwind 56, unhead 16, router 20).
