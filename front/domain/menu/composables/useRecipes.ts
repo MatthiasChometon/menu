@@ -1,13 +1,10 @@
-import recipeData from '~~/domain/menu/content/recipes.json';
 import type { Recipe } from '../types/menu.type';
 
-// Reactive so a signed-in reader's own recipes can join the site's, once they
-// load: mergeCustomCatalog.client.ts is the only thing that ever writes to it,
-// and only in the browser. The prerender and an anonymous visit never touch
-// that plugin, so both keep seeing this exact static catalogue.
-export const recipeCatalog = reactive<Record<string, Recipe>>({
-  ...useCatalogBuilder().buildRecipeCatalog(recipeData),
-});
+// Filled by plugins/loadCatalog.ts, from its own chunk, before the app mounts:
+// the entry script does not carry the JSON. Reactive so a signed-in reader's
+// own recipes can join the site's, once they load: mergeCustomCatalog.client.ts
+// is the only other thing that ever writes to it, and only in the browser.
+export const recipeCatalog = reactive<Record<string, Recipe>>({});
 
 export const useRecipes = (): {
   recipes: Record<string, Recipe>;

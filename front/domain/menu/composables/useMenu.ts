@@ -14,9 +14,17 @@ const catalog = (): MenuCatalog => {
   return { foodOf, recipeOf, freshOf };
 };
 
-const menuList: Menu[] = Object.values(menuModules)
-  .map((module): Menu => buildMenu(module.default, catalog()))
-  .sort((left, right): number => right.weekOf.localeCompare(left.weekOf));
+// Built on first use, not when the module loads: the catalogue it reads is
+// filled by plugins/loadCatalog.ts, which runs after the entry script.
+let builtMenus: Menu[] | undefined;
+
+const menuList = (): Menu[] => {
+  builtMenus ??= Object.values(menuModules)
+    .map((module): Menu => buildMenu(module.default, catalog()))
+    .sort((left, right): number => right.weekOf.localeCompare(left.weekOf));
+
+  return builtMenus;
+};
 
 export const useMenu = (): {
   menus: Menu[];
@@ -24,11 +32,15 @@ export const useMenu = (): {
   menuOf: (weekOf: string) => Menu | undefined;
   dayOrder: readonly DayKey[];
   mealOrder: readonly MealSlot[];
-} => ({
-  menus: menuList,
-  latestMenu: menuList[0],
-  menuOf: (weekOf: string): Menu | undefined =>
-    menuList.find((menu): boolean => menu.weekOf === weekOf),
-  dayOrder,
-  mealOrder,
-});
+} => {
+  const menus = menuList();
+
+  return {
+    menus,
+    latestMenu: menus[0],
+    menuOf: (weekOf: string): Menu | undefined =>
+      menus.find((menu): boolean => menu.weekOf === weekOf),
+    dayOrder,
+    mealOrder,
+  };
+};
