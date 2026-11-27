@@ -8,8 +8,8 @@ const eaterOf = (id: string, targets: typeof menu): Eater => ({ id, name: id, ta
 
 // Two people who eat very differently: the menu's own reader, and someone on a
 // far smaller allowance who still needs their protein.
-const matthias = eaterOf('matthias', menu);
-const mother = eaterOf('mother', { kcal: 1614, protein: 141, fat: 56, carbs: 136, fiber: 23 });
+const alex = eaterOf('alex', menu);
+const sam = eaterOf('sam', { kcal: 1614, protein: 141, fat: 56, carbs: 136, fiber: 23 });
 
 const chicken = { id: 'chicken', kcal: 165, protein: 31 } as FoodQuantity['food'];
 const rice = { id: 'rice', kcal: 350, protein: 7 } as FoodQuantity['food'];
@@ -21,7 +21,7 @@ const recipe: FoodQuantity[] = [
 
 describe('sharing a dish between several people', () => {
   it('weighs each person their own portion of the same dish', () => {
-    const [poultry] = sharePortions(recipe, menu, [matthias, mother]);
+    const [poultry] = sharePortions(recipe, menu, [alex, sam]);
 
     const [his, hers] = poultry!.perEater;
     expect(his?.grams).toBe(180);
@@ -32,7 +32,7 @@ describe('sharing a dish between several people', () => {
   });
 
   it('cuts the starch far harder than the protein, per person', () => {
-    const [, starch] = sharePortions(recipe, menu, [matthias, mother]);
+    const [, starch] = sharePortions(recipe, menu, [alex, sam]);
     const [, hers] = starch!.perEater;
 
     // 1614/3150 of 140 g: the rice roughly halves where the chicken hardly moved.
@@ -40,7 +40,7 @@ describe('sharing a dish between several people', () => {
   });
 
   it('puts in the pan exactly what the portions add up to', () => {
-    const [poultry] = sharePortions(recipe, menu, [matthias, mother]);
+    const [poultry] = sharePortions(recipe, menu, [alex, sam]);
 
     const served = poultry!.perEater.reduce((sum, { grams }): number => sum + grams, 0);
     // Not "close to": a cook who weighs the total and then serves the portions
@@ -58,13 +58,13 @@ describe('sharing a dish between several people', () => {
   });
 
   it('shows the recipe as written when the menu has no targets of its own', () => {
-    const [poultry] = sharePortions(recipe, undefined, [matthias, mother]);
+    const [poultry] = sharePortions(recipe, undefined, [alex, sam]);
 
     expect(poultry!.total).toBe(180);
   });
 
   it('leaves one person exactly where they were before the household existed', () => {
-    const [poultry, starch] = sharePortions(recipe, menu, [matthias]);
+    const [poultry, starch] = sharePortions(recipe, menu, [alex]);
 
     expect(poultry!.total).toBe(180);
     expect(starch!.total).toBe(140);
@@ -74,14 +74,14 @@ describe('sharing a dish between several people', () => {
     // Under five grammes the kitchen scale shows decimals, and so must we.
     expect(
       totalOf([
-        { eater: matthias, grams: 1.2 },
-        { eater: mother, grams: 0.9 },
+        { eater: alex, grams: 1.2 },
+        { eater: sam, grams: 0.9 },
       ]),
     ).toBe(2.1);
     expect(
       totalOf([
-        { eater: matthias, grams: 120 },
-        { eater: mother, grams: 61 },
+        { eater: alex, grams: 120 },
+        { eater: sam, grams: 61 },
       ]),
     ).toBe(181);
   });
