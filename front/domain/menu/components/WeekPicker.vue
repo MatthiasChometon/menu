@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDayMonth } from '../../../infrastructure/performance/dayMonthFormat';
 const { selectedWeek, statusOfSelected, weekOptions } = useSelectedWeek();
 const { keyOf } = useWeekLabel();
 const { weekLabel } = useMenuLabels();
@@ -16,10 +17,7 @@ const weeks = computed((): string[] => weekOptions.value);
 const index = computed((): number => weeks.value.indexOf(selectedWeek.value));
 
 const dateOf = (weekOf: string): string =>
-  new Date(`${weekOf}T00:00:00`).toLocaleDateString(locale.value, {
-    day: 'numeric',
-    month: 'long',
-  });
+  formatDayMonth(new Date(`${weekOf}T00:00:00`), locale.value);
 
 // A name when the week has one, the date otherwise. Both are shown at once —
 // "Cette semaine" tells you where you are, the date tells you which one.

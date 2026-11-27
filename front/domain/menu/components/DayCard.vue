@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDayMonth } from '../../../infrastructure/performance/dayMonthFormat';
 import type { DropdownMenuItem } from '@nuxt/ui';
 
 const {
@@ -78,9 +79,7 @@ const flexItems = computed((): DropdownMenuItem[][] => [
 // to work out where today was, and a shopping list bought on the wrong week is
 // the mistake that costs a trip.
 const dateLabel = computed((): string | undefined =>
-  date === undefined
-    ? undefined
-    : date.toLocaleDateString(locale.value, { day: 'numeric', month: 'long' }),
+  date === undefined ? undefined : formatDayMonth(date, locale.value),
 );
 
 // A day already gone, dimmed so the eye skips it: the week reads as "here is
