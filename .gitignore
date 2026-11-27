@@ -42,3 +42,4 @@ front/.lighthouseci
 
 # Photographs localised at build (infrastructure/images/scripts/localizeImages.ts)
 front/public/img
+front/lighthouse-reports
