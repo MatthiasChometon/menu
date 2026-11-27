@@ -30,6 +30,10 @@ export default defineNuxtConfig({
   // service worker is meaningless in a component test anyway.
   modules: ['@nuxt/eslint', '@vueuse/nuxt', ...(process.env.VITEST ? [] : ['@vite-pwa/nuxt'])],
   icon: {
+    // Inline <svg> rather than CSS mask classes: with classes, @nuxt/icon walks
+    // every stylesheet rule at start-up to learn which icon classes exist
+    // (about 150 ms of main thread at CPU x4); inline svg has nothing to scan.
+    mode: 'svg',
     // Most icons are named in composables (the nav entries, the profile
     // choices) rather than written in a template, and the scan only reads
     // templates by default — those icons were left out of the bundle and the app
