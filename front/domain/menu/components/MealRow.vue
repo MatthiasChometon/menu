@@ -161,53 +161,45 @@ const menuItems = computed((): DropdownMenuItem[][] => {
               {{ round(meal.macros.protein) }} {{ $t('menu.unit.gram') }}
               {{ $t('menu.macroShort.protein') }}
             </span>
-            <UBadge v-if="isReduced" color="neutral" variant="subtle" size="sm">
+            <UiPlainBadge v-if="isReduced" color="neutral">
               {{ $t('menu.portionReduced') }}
-            </UBadge>
+            </UiPlainBadge>
             <!-- Only worth saying before the meal is eaten: afterwards the fridge
                  no longer holds this portion. -->
-            <UBadge v-if="isReady && !eaten" color="primary" variant="subtle" size="sm">
+            <UiPlainBadge v-if="isReady && !eaten" color="primary">
               {{ $t('cooking.inTheFridge') }}
-            </UBadge>
-            <UBadge
-              v-if="meal.flex.excludedAs === 'eatingOut'"
-              color="neutral"
-              variant="subtle"
-              size="sm"
-            >
+            </UiPlainBadge>
+            <UiPlainBadge v-if="meal.flex.excludedAs === 'eatingOut'" color="neutral">
               {{ $t('menu.flex.override.eatingOutBadge') }}
-            </UBadge>
-            <UBadge
-              v-if="meal.flex.excludedAs === 'cheatMeal'"
-              color="warning"
-              variant="subtle"
-              size="sm"
-            >
+            </UiPlainBadge>
+            <UiPlainBadge v-if="meal.flex.excludedAs === 'cheatMeal'" color="warning">
               {{ $t('menu.flex.override.cheatMealBadge') }}
-            </UBadge>
-            <UBadge v-if="meal.flex.isLeftover" color="primary" variant="subtle" size="sm">
+            </UiPlainBadge>
+            <UiPlainBadge v-if="meal.flex.isLeftover" color="primary">
               {{ $t('menu.flex.leftover.badge') }}
-            </UBadge>
-            <UBadge v-if="meal.flex.isSwapped" color="neutral" variant="subtle" size="sm">
+            </UiPlainBadge>
+            <UiPlainBadge v-if="meal.flex.isSwapped" color="neutral">
               {{ $t('menu.flex.swap.badge') }}
-            </UBadge>
+            </UiPlainBadge>
           </p>
         </div>
       </NuxtLink>
 
       <!-- Outside the link on purpose: a button nested in an anchor is invalid,
            and tapping "eaten" must never navigate to the recipe. -->
-      <UButton
+      <UiPlainButton
         v-if="!isExcluded"
-        :icon="eaten ? 'i-lucide-check-check' : 'i-lucide-check'"
         :color="eaten ? 'primary' : 'neutral'"
         :variant="eaten ? 'soft' : 'ghost'"
         size="sm"
+        square
         class="shrink-0"
         :aria-pressed="eaten"
         :aria-label="eaten ? $t('cooking.markNotEaten') : $t('cooking.markEaten')"
         @click="toggleEaten(dayKey, meal.slot)"
-      />
+      >
+        <UIcon :name="eaten ? 'i-lucide-check-check' : 'i-lucide-check'" class="size-4 shrink-0" />
+      </UiPlainButton>
 
       <UiActionsMenu :items="menuItems" :label="$t('menu.flex.mealActions')" />
     </div>
@@ -225,17 +217,22 @@ const menuItems = computed((): DropdownMenuItem[][] => {
           nameOf(meal.flex.suggestedLeftover.recipe)
         }}</span>
       </span>
-      <UButton size="xs" color="primary" variant="soft" @click="useLeftoverHere(dayKey, meal.slot)">
+      <UiPlainButton
+        size="xs"
+        color="primary"
+        variant="soft"
+        @click="useLeftoverHere(dayKey, meal.slot)"
+      >
         {{ $t('menu.flex.leftover.accept') }}
-      </UButton>
-      <UButton
+      </UiPlainButton>
+      <UiPlainButton
         size="xs"
         color="neutral"
         variant="ghost"
         @click="declineLeftover(dayKey, meal.slot)"
       >
         {{ $t('menu.flex.leftover.decline') }}
-      </UButton>
+      </UiPlainButton>
     </div>
   </div>
 </template>

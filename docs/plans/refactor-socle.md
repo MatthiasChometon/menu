@@ -621,3 +621,11 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
   Known, not caused by this cut (identical at HEAD): visual failures mobile week-light (3280 vs 3285 px), tablet and
   desktop batch-light (5613 vs 5614); local perf test CLS 0.36 on the shopping list (0.361 at HEAD, footer shift);
   `pointer.e2e` "keeps the hand" fails about one run in three on desktop (cursor read on a node replaced by hydration).
+
+### 2026-11-28 — M15 front, third cut (CLS, visual, pointer, TBT, LCP)
+
+- CLS of `/courses`: the three aisle blocks were `Lazy` + `hydrate-on-visible` but are only drawn after mount, so the chunk load left a window with neither skeleton nor list and the footer jumped (0.36-0.41). They are eager again and drawn one section per task by `useStagedReveal` behind the skeleton, which stays until the last one is in. Perf test "shopping list cold": CLS 0.001 / 0.01.
+- Visual 1-5 px: `git bisect` between 396f2c8 (green) and origin/refactor/socle 10f3ad0 (red) gives M5 (#11, 3175bbc) as first bad commit: the baselines are already red upstream (week-light mobile 3281 vs 3280, batch-light tablet/desktop 5614 vs 5613). On this branch a further +4 px came from `min-h-10` on the header end block; it is `min-h-9` now (same height as upstream, avatar `size-9`).
+- `pointer.e2e` "keeps the hand": the control was read while the prerendered skeleton was still being swapped (a detached node has no cursor); it now waits on the list itself. 10 runs in a row green.
+- TBT: `useStagedReveal` (from verdure 023c6b4), `UiPlainButton` / `UiPlainBadge` (classes compared with the Nuxt UI theme per variant, size and color; `type="button"`, aria-label kept) in the meal rows and the actions menu.
+- LCP photo pages (CI report, /recettes): TTFB 453 ms, load delay 303 ms, load time 87 ms, render delay 2013 ms (70 %); TBT is only 60-110 ms there and the image is discoverable, `fetchpriority=high`, eager, so the render delay is simulated main-thread work of the 197 KB entry bundle, not blocking time.

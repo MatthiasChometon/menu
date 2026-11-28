@@ -131,11 +131,11 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
         </UButton>
       </nav>
 
-      <!-- 40 px whatever sits at its end: the account avatar is taller than the
+      <!-- 36 px whatever sits at its end: the account avatar is taller than the
            skeleton standing in for it and than the sign-in button, and the header
            growing by the difference pushed the whole page down once the session
            was known. -->
-      <div class="ml-auto flex min-h-10 shrink-0 items-center gap-1 lg:ml-0">
+      <div class="ml-auto flex min-h-9 shrink-0 items-center gap-1 lg:ml-0">
         <UButton
           icon="i-lucide-accessibility"
           :aria-label="$t('displayPreferences.open')"

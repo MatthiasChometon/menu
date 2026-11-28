@@ -34,15 +34,17 @@ const openNow = (): void => {
       :aria-label="label"
     />
   </LazyUDropdownMenu>
-  <UButton
+  <UiPlainButton
     v-else
-    icon="i-lucide-ellipsis-vertical"
     color="neutral"
     variant="ghost"
     size="sm"
+    square
     class="shrink-0"
     :aria-label="label"
     @pointerenter="arm"
     @click="openNow"
-  />
+  >
+    <UIcon name="i-lucide-ellipsis-vertical" class="size-4 shrink-0" />
+  </UiPlainButton>
 </template>
