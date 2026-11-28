@@ -2,7 +2,7 @@
 // Lighthouse simulation charges to LCP and TBT, which is why it has a ceiling: 196 681 B
 // were measured once the recipe and food catalogues left it (220 KB before), and a build
 // that grows it past this fails instead of drifting back.
-export const ENTRY_CHUNK_BUDGET_GZIP_BYTES = 198_000;
+export const ENTRY_CHUNK_BUDGET_GZIP_BYTES = 169_000;
 
 const ENTRY_SCRIPT = /<script type="module" src="([^"]+)"/;
 

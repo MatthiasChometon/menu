@@ -20,6 +20,12 @@ const bugReportOpened = useOpenedOnce(useBugReport().isOpen);
 const improvementOpened = useOpenedOnce(useImprovement().isOpen);
 const weekShareOpened = useOpenedOnce(useWeekShare().isOpen);
 
+// The toaster (and the toast code of reka-ui under it) is mounted when the first toast is
+// pushed, not with every page: most visits never raise one.
+const { toasts } = useToast();
+const hasToast = computed((): boolean => toasts.value.length > 0);
+const toasterOpened = useOpenedOnce(hasToast);
+
 const { fontScale, isHighContrast } = useDisplayPreferences();
 
 // Space-separated so both can be on at once — someone who wants a bigger font
@@ -44,7 +50,7 @@ useHead({
 </script>
 
 <template>
-  <UApp :locale="uiLocale">
+  <UiAppProviders :locale="uiLocale">
     <!-- Nuxt's own page-to-page progress bar, painted in the app's primary so it
          reads as part of the site rather than Nuxt's default green. No throttle:
          the default holds the bar back for 200 ms, and a tap on a slow phone then
@@ -71,5 +77,6 @@ useHead({
         <MenuBottomNav />
       </template>
     </UiAppShell>
-  </UApp>
+    <LazyUToaster v-if="toasterOpened" />
+  </UiAppProviders>
 </template>

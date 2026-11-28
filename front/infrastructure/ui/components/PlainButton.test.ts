@@ -27,4 +27,14 @@ describe('the plain button', () => {
 
     expect(wrapper.get('button').attributes('type')).toBe('submit');
   });
+
+  it('is a link, without a button, when given a destination', async () => {
+    const wrapper = await mountSuspended(PlainButton, {
+      props: { to: '/courses', variant: 'soft', color: 'primary' },
+      slots: { default: 'Shopping' },
+    });
+
+    expect(wrapper.find('button').exists()).toBe(false);
+    expect(wrapper.get('a').attributes('href')).toBe('/courses');
+  });
 });

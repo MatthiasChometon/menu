@@ -117,18 +117,18 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
         class="ml-auto hidden items-center gap-1 lg:flex"
         :aria-label="$t('accessibility.mainNavigation')"
       >
-        <UButton
+        <UiPlainButton
           v-for="entry in entries"
           :key="entry.to"
           :to="entry.to"
-          :icon="entry.icon"
           :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
           :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
           :aria-current="isCurrent(entry.to) ? 'page' : undefined"
           :class="isCurrent(entry.to) && 'font-semibold'"
         >
+          <UIcon :name="entry.icon" class="size-5 shrink-0" />
           {{ entry.label }}
-        </UButton>
+        </UiPlainButton>
       </nav>
 
       <!-- 36 px whatever sits at its end: the account avatar is taller than the
@@ -136,21 +136,25 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
            growing by the difference pushed the whole page down once the session
            was known. -->
       <div class="ml-auto flex min-h-9 shrink-0 items-center gap-1 lg:ml-0">
-        <UButton
-          icon="i-lucide-accessibility"
+        <UiPlainButton
+          square
           :aria-label="$t('displayPreferences.open')"
           variant="ghost"
           color="neutral"
           @click="isDisplayPreferencesOpen = true"
-        />
-        <UButton
-          :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+        >
+          <UIcon name="i-lucide-accessibility" class="size-5 shrink-0" />
+        </UiPlainButton>
+        <UiPlainButton
+          square
           :aria-label="$t('accessibility.toggleTheme')"
           :aria-pressed="isDark"
           variant="ghost"
           color="neutral"
           @click="isDark = !isDark"
-        />
+        >
+          <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="size-5 shrink-0" />
+        </UiPlainButton>
         <!-- A native select: the browser's own list, announced and operated the
              same way, and none of the dropdown code Nuxt UI's select brings (about
              25 KB of script on every page for a control used once). -->
@@ -175,39 +179,39 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
           <LazyUDropdownMenu v-if="user !== undefined" :items="accountItems">
-            <UButton
+            <UiPlainButton
               variant="ghost"
               color="neutral"
               size="sm"
               class="size-9 justify-center p-0"
               :aria-label="$t('auth.account')"
             >
-              <UAvatar
+              <LazyUAvatar
                 :alt="user.name ?? user.email"
                 :text="initials"
                 size="sm"
                 :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
               />
-            </UButton>
+            </UiPlainButton>
           </LazyUDropdownMenu>
           <!-- Signed out, the way back in: the profile moved into the avatar
                menu, which does not exist until you are signed in, so without
                this a signed-out reader had no visible door to sign-in at all.
                It leads to the profile page, which is where the sign-in form
                lives. -->
-          <UButton
+          <UiPlainButton
             v-else
             :to="localePath('/profil')"
-            icon="i-lucide-log-in"
             color="primary"
             variant="soft"
             size="sm"
             class="font-semibold"
           >
+            <UIcon name="i-lucide-log-in" class="size-4 shrink-0" />
             {{ $t('auth.signIn') }}
-          </UButton>
+          </UiPlainButton>
           <template #fallback>
-            <USkeleton class="size-9 rounded-full" />
+            <span class="block size-9 animate-pulse rounded-full bg-elevated" />
           </template>
         </ClientOnly>
       </div>

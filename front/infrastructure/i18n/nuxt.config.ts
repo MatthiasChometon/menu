@@ -15,7 +15,12 @@ export default defineNuxtConfig({
     // The messages are files, so the module compiles them while building. What the
     // browser then needs is the message runtime, not the compiler that turns a
     // message string into a function (about 30 KB of the entry chunk).
-    bundle: { runtimeOnly: true, dropMessageCompiler: true },
+    bundle: {
+      compositionOnly: true,
+      runtimeOnly: true,
+      dropMessageCompiler: true,
+      fullInstall: false,
+    },
     detectBrowserLanguage: { useCookie: true, cookieKey: 'i18n_redirected', redirectOn: 'root' },
   },
 });
