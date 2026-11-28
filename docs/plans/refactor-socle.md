@@ -741,3 +741,9 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Découpe des messages annulée (df21534) : -12 ms de LCP recette pour +30 à +120 ms de TBT. Après annulation (avec `icon.collections`) : LCP 2183 / 2349 / 2184 / recette 2557 / recettes 2409 ; TBT 216 / 211 / 203 / 71 / 65.
 - Sans `icon.collections` après annulation : TBT 243 / 213 / 241, donc l'écart des runs CI à config égale est de ±30 ms : le TBT du canal est trop bruité pour trancher un levier de 20 ms. `icon.collections` conservé (entrée -1,1 Ko).
 - Reste : TBT texte 3-16 ms au-dessus de 200 et LCP recette 57 ms au-dessus de 2500 ; il faut un vrai levier (travail du script d'entrée, hydratation différée du bas de page), pas un réglage.
+
+### M15 front : chargement différé des composants (28/11)
+
+- Chunks de la page recette : données de toutes les recettes (20,7 Ko gz) et des aliments (5,2 Ko), Sentry client (32 Ko), tailwind-merge/tv (13,4 Ko), bundle d'icônes (10,9 Ko) ; Select + floating-ui + FocusScope + Textarea (~50 Ko) venaient de `USelect`, `UTextarea` (note) et `UAlert`.
+- Essai : `Lazy*` + `hydrate-on-idle` / `hydrate-on-visible` sur ces composants (recette, composer, courses, accueil) : -50 Ko avant le LCP, mais CI pire : TBT 253 / 290 / 150, LCP recette 2571, job timings en échec. Annulé.
+- Reste sans levier simple : données de recettes en un seul chunk, Sentry, tv.
