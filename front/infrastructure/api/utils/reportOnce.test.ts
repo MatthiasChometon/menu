@@ -3,7 +3,7 @@ import { createFetch } from 'ofetch';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApiInterceptors } from './apiInterceptors';
 
-vi.mock('@sentry/vue', () => ({ captureException: vi.fn() }));
+vi.mock('@sentry/vue', () => ({ captureException: vi.fn(), init: vi.fn() }));
 
 // The real chain: ofetch calls the interceptor, throws its own error, and the
 // code that caught it reports it too, as the components do.
@@ -37,7 +37,7 @@ describe('a failure met by the interceptor and by the code that caught it', () =
 
     await api('/recipes').catch((error: unknown): void => reportError('recipes:load', error));
 
-    expect(sentFor('/recipes')).toHaveLength(1);
+    await vi.waitFor(() => expect(sentFor('/recipes')).toHaveLength(1));
   });
 
   it('does not retry a 500, but retries a 503 once', async () => {
@@ -56,7 +56,7 @@ describe('a failure met by the interceptor and by the code that caught it', () =
 
     await api('/recipes').catch((error: unknown): void => reportError('recipes:load', error));
 
-    expect(sentFor('/recipes')).toHaveLength(1);
+    await vi.waitFor(() => expect(sentFor('/recipes')).toHaveLength(1));
   });
 
   it('still reports a different failure that follows', async () => {
@@ -66,7 +66,7 @@ describe('a failure met by the interceptor and by the code that caught it', () =
     await api('/a').catch((error: unknown): void => reportError('a', error));
     await api('/b').catch((error: unknown): void => reportError('b', error));
 
-    expect(sentFor('/a')).toHaveLength(1);
-    expect(sentFor('/b')).toHaveLength(1);
+    await vi.waitFor(() => expect(sentFor('/a')).toHaveLength(1));
+    await vi.waitFor(() => expect(sentFor('/b')).toHaveLength(1));
   });
 });

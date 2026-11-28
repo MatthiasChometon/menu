@@ -260,8 +260,9 @@ test('chaque pop-up dans chaque format', async ({ page }) => {
     // The recipe's portion select only shows for a dish served more than once
     // in the week: beefLentilBolognese fills a lunch every day of the composed
     // week above, so its page has the dropdown to test.
+    // The language picker is a native select: its list belongs to the browser,
+    // not to the page, so there is no popup of ours to keep on screen.
     for (const [nom, chemin, accessible] of [
-      ['langue', '/', 'Choisir la langue'],
       ['semaine-composer', '/composer', 'Choisir le jour de départ'],
       ['portions', '/recette/beefLentilBolognese', 'Quantités à préparer'],
     ] as const) {

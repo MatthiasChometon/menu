@@ -12,6 +12,15 @@ export default defineNuxtConfig({
       { code: 'fr', language: 'fr-FR', name: 'Français', files: translationFileList('fr') },
       { code: 'en', language: 'en-US', name: 'English', files: translationFileList('en') },
     ],
+    // The messages are files, so the module compiles them while building. What the
+    // browser then needs is the message runtime, not the compiler that turns a
+    // message string into a function (about 30 KB of the entry chunk).
+    bundle: {
+      compositionOnly: true,
+      runtimeOnly: true,
+      dropMessageCompiler: true,
+      fullInstall: false,
+    },
     detectBrowserLanguage: { useCookie: true, cookieKey: 'i18n_redirected', redirectOn: 'root' },
   },
 });

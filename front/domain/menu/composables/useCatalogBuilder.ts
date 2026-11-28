@@ -23,14 +23,15 @@ type RawFood = Macros & {
   micros?: Partial<Micros>;
 };
 
-type RawRecipe = {
+export type RawRecipe = {
   slot: string;
   name: LocalizedText;
   prepMinutes: number;
   batch: boolean;
   ingredients: Record<string, number>;
   seasonings?: string[];
-  steps: LocalizedSteps;
+  // Absent from the browser catalogue: each recipe's steps load with its own page.
+  steps?: LocalizedSteps;
 };
 
 type RawSeasoning = { name: LocalizedText; icon: string; fresh?: boolean; amount?: LocalizedText };
@@ -111,7 +112,7 @@ export const useCatalogBuilder = (): CatalogBuilder => {
       batch: recipe.batch,
       ingredients: recipe.ingredients,
       seasonings: recipe.seasonings ?? [],
-      steps: recipe.steps,
+      steps: recipe.steps ?? { fr: [], en: [] },
     }));
 
   const buildSeasoningCatalog = (raw: Record<string, RawSeasoning>): Record<string, Seasoning> =>

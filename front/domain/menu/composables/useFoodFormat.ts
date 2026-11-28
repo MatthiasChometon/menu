@@ -1,3 +1,5 @@
+import { recipeSteps } from './useRecipes';
+
 export const useFoodFormat = (): {
   nameOf: (item: { name: LocalizedText }) => string;
   stepsOf: (recipe: Recipe) => string[];
@@ -22,7 +24,10 @@ export const useFoodFormat = (): {
 
   return {
     nameOf: (item: { name: LocalizedText }): string => localized(item.name),
-    stepsOf: (recipe: Recipe): string[] => (isEnglish() ? recipe.steps.en : recipe.steps.fr),
+    stepsOf: (recipe: Recipe): string[] => {
+      const steps = recipeSteps[recipe.id] ?? recipe.steps;
+      return isEnglish() ? steps.en : steps.fr;
+    },
     quantityLabel,
     pieceLabel: (food: Food, grams: number): string | undefined => {
       if (food.pieceWeight === undefined || food.piece === undefined) return undefined;

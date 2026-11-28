@@ -5,11 +5,24 @@ const open = defineModel<boolean>({ required: true });
 
 const { isChosen, toggleDish } = usePlanner();
 const { nameOf, stepsOf, quantityLabel } = useFoodFormat();
-const { imageOf } = useRecipes();
+const { imageOf, loadStepsOf } = useRecipes();
 const { seasoningsOf } = useSeasonings();
 const { foodOf } = useFoods();
 const { macrosOfQuantities } = useNutrition();
 const { plainTextOf } = useRecipeSteps();
+const { reportError } = useErrorReporting();
+
+// The steps are not in the catalogue: they load when the dish is first opened.
+watch(
+  open,
+  (isOpen): void => {
+    if (isOpen)
+      loadStepsOf(recipe.id).catch((failure: unknown): void =>
+        reportError('planner:loadSteps', failure),
+      );
+  },
+  { immediate: true },
+);
 
 // The reference portion, as written. It is what the solver will scale, so it is
 // the honest thing to show while deciding whether the dish appeals.

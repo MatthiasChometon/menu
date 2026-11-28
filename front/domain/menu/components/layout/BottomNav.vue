@@ -7,7 +7,7 @@ const { entries, isCurrent } = useNavigation();
        bar; the header spells them out from lg up. Five fit a bar outright, so
        there is no "more" tab hiding anything any longer. -->
   <nav
-    class="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-default/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg lg:hidden"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-default pb-[env(safe-area-inset-bottom)] lg:hidden"
     :aria-label="$t('accessibility.mainNavigation')"
   >
     <ul class="flex">

@@ -23,6 +23,11 @@ test.describe('what the pointer says about a control', () => {
   test('keeps the hand on the controls inside the page, not only the header', async ({ page }) => {
     await page.goto('/courses/');
 
+    // The prerendered page holds skeletons that the list replaces once mounted: a control read
+    // before that swap is a node about to be detached, and a detached node has no cursor at all.
+    // Waiting on the list itself is waiting on the state, not on a delay.
+    await page.getByRole('main').locator('button[aria-pressed]').first().waitFor();
+
     // Ticking an item off is the gesture this site exists for. Disabled
     // controls are excluded on purpose: a week arrow with nowhere to go says
     // not-allowed, which is right, and it happens to come first in the page.

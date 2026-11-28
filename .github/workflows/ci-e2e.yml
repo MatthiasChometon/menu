@@ -54,6 +54,13 @@ jobs:
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Restore the localised photographs
+        uses: actions/cache@v4
+        with:
+          path: front/public/img
+          key: localised-images-${{ github.run_id }}
+          restore-keys: localised-images-
+
       - name: Generate the site
         run: pnpm generate
 

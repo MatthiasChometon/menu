@@ -14,6 +14,9 @@ export const useProfile = (): {
    *  targets" action calls. Throws when there is no profile to adjust yet. */
   adjustTargets: (deltaKcal: number) => Promise<Profile>;
 } => {
+  // Not loaded until the browser has mounted: the prerender has no profile and the first client render
+  // must say the same, or hydration finds a skeleton where the server wrote the default targets.
+  const isMounted = useMounted();
   // Same reasoning as the session: browser-only, so the prerender never calls
   // the API, and one shared request across the components that read it.
   const { data, status, error, refresh } = useAsyncData(
@@ -47,7 +50,7 @@ export const useProfile = (): {
 
   return {
     profile: data,
-    isLoading: computed((): boolean => status.value === 'pending'),
+    isLoading: computed((): boolean => !isMounted.value || status.value === 'pending'),
     hasAnswered: computed((): boolean => data.value !== undefined),
     hasFailed: computed((): boolean => error.value !== undefined),
     refresh: async (): Promise<void> => {

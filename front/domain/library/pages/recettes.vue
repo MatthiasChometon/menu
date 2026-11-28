@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import {
+  CARD_SIZES,
+  preloadLinkOf,
+  type LocalImages,
+} from '../../../infrastructure/images/utils/localImages';
 import type { CustomRecipe } from '../../customCatalog/types/customCatalog.type';
 
-const { recipes } = useRecipes();
+const { recipes, imageOf } = useRecipes();
 const { entriesOf } = useRecipeCatalog();
 const { seasonalFoodIds, currentMonth } = useSeason();
 const { user } = useAuth();
@@ -20,6 +25,11 @@ const isCreateFoodOpen = ref(false);
 const editingRecipe = ref<CustomRecipe>();
 const isEditRecipeOpen = ref(false);
 
+// The forms are fetched the first time one is asked for, not with the list.
+const createRecipeOpened = useOpenedOnce(isCreateRecipeOpen);
+const createFoodOpened = useOpenedOnce(isCreateFoodOpen);
+const editRecipeOpened = useOpenedOnce(isEditRecipeOpen);
+
 const editRecipe = (id: string): void => {
   const recipe = myRecipes.value.find((candidate): boolean => candidate.id === id);
   if (recipe === undefined) return;
@@ -37,6 +47,32 @@ const entries = computed((): LibraryEntry[] => entriesOf(allRecipes.value, month
 const { query, macroFilter, timeFilter, seasonOnly, filteredEntries, reset } =
   useLibraryFilters(entries);
 
+// The list is drawn a screenful at a time. All of it at once is a hundred and
+// forty cards and as many photographs, which put a warm visit to this page at
+// about 1.05 s on a throttled phone against a 1 s budget, and the cards past
+// the fold are not looked at until the reader scrolls to them.
+const PAGE_SIZE = 12;
+const drawn = ref(PAGE_SIZE);
+const shownEntries = computed((): LibraryEntry[] => filteredEntries.value.slice(0, drawn.value));
+const hasMore = computed((): boolean => drawn.value < filteredEntries.value.length);
+
+// A new filter starts the list again from the top.
+watch([query, macroFilter, timeFilter, seasonOnly], (): void => {
+  drawn.value = PAGE_SIZE;
+});
+
+// The marker is keyed on the count, so every batch gets a fresh one: an observer
+// only reports a change, and a batch too short to push the marker out of range
+// would otherwise leave the list stuck.
+const endMarker = ref<HTMLElement | null>(null);
+useIntersectionObserver(
+  endMarker,
+  ([entry]): void => {
+    if (entry?.isIntersecting === true) drawn.value += PAGE_SIZE;
+  },
+  { rootMargin: '600px' },
+);
+
 const seasonalIds = computed((): string[] => (isMounted.value ? seasonalFoodIds(month.value) : []));
 
 const showSeasonOnly = (): void => {
@@ -44,6 +80,23 @@ const showSeasonOnly = (): void => {
 };
 
 useSeoMeta({ title: (): string => t('library.pageTitle') });
+
+// The first card's photograph is the largest thing painted: asked for in the head,
+// it starts downloading with the page rather than once the list has rendered. Read once,
+// here: a head callback runs after setup, outside the Nuxt context imageOf needs.
+const firstRecipe = shownEntries.value[0]?.recipe;
+const firstImage = firstRecipe === undefined ? undefined : imageOf(firstRecipe);
+if (firstImage !== undefined) {
+  useHead({
+    link: [
+      preloadLinkOf(
+        firstImage,
+        CARD_SIZES,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ),
+    ],
+  });
+}
 </script>
 
 <template>
@@ -100,12 +153,16 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
       <LibraryMyFoodsPanel v-if="user !== undefined" class="rise mt-6" />
     </ClientOnly>
 
-    <LibrarySeasonalBanner
-      v-if="isMounted"
-      class="mt-5"
-      :food-ids="seasonalIds"
-      @show-season="showSeasonOnly"
-    />
+    <!-- The banner depends on the reader's month, so it only exists once mounted.
+         Its place is kept meanwhile (measured: 270 px tall on a phone, 128 px from
+         the sm breakpoint), or the whole list jumps down when it appears. -->
+    <div class="mt-5 min-h-68 sm:min-h-32">
+      <LibrarySeasonalBanner
+        v-if="isMounted"
+        :food-ids="seasonalIds"
+        @show-season="showSeasonOnly"
+      />
+    </div>
 
     <LibraryFilters
       v-model:query="query"
@@ -123,12 +180,14 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
 
     <div v-if="filteredEntries.length > 0" class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <LibraryRecipeCard
-        v-for="entry in filteredEntries"
+        v-for="(entry, position) in shownEntries"
         :key="entry.recipe.id"
         :entry="entry"
+        :eager="position === 0"
         @edit="editRecipe"
       />
     </div>
+    <div v-if="hasMore" ref="endMarker" :key="drawn" aria-hidden="true" class="h-px" />
 
     <div v-else class="flex flex-col items-center gap-3 py-20 text-center">
       <UIcon name="i-lucide-search-x" class="size-12 text-dimmed" />
@@ -139,8 +198,12 @@ useSeoMeta({ title: (): string => t('library.pageTitle') });
       </UButton>
     </div>
 
-    <LibraryFoodFormDialog v-model="isCreateFoodOpen" />
-    <LibraryRecipeFormDialog v-model="isCreateRecipeOpen" />
-    <LibraryRecipeFormDialog v-model="isEditRecipeOpen" :recipe="editingRecipe" />
+    <LazyLibraryFoodFormDialog v-if="createFoodOpened" v-model="isCreateFoodOpen" />
+    <LazyLibraryRecipeFormDialog v-if="createRecipeOpened" v-model="isCreateRecipeOpen" />
+    <LazyLibraryRecipeFormDialog
+      v-if="editRecipeOpened"
+      v-model="isEditRecipeOpen"
+      :recipe="editingRecipe"
+    />
   </div>
 </template>

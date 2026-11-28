@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const { entry } = defineProps<{ entry: LibraryEntry }>();
+import { CARD_SIZES } from '../../../infrastructure/images/utils/localImages';
+const { entry, eager = false } = defineProps<{ entry: LibraryEntry; eager?: boolean }>();
 const emit = defineEmits<{ edit: [id: string] }>();
 
 const localePath = useLocalePath();
@@ -46,6 +47,8 @@ const confirmRemoval = async (): Promise<void> => {
           :alt="nameOf(entry.recipe)"
           icon="i-lucide-cooking-pot"
           rounded="rounded-none"
+          :eager="eager"
+          :sizes="CARD_SIZES"
           class="transform-gpu transition-transform duration-500 will-change-transform group-hover:scale-105"
         />
       </div>

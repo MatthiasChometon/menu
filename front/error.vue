@@ -40,9 +40,10 @@ useSeoMeta({
         {{ $t(isMissing ? 'error.missing.hint' : 'error.broken.hint') }}
       </p>
 
-      <UButton class="mt-2" color="primary" icon="i-lucide-calendar-days" @click="goHome">
+      <UiPlainButton variant="solid" color="primary" class="mt-2" @click="goHome">
+        <UIcon name="i-lucide-calendar-days" class="size-5 shrink-0" />
         {{ $t('error.home') }}
-      </UButton>
+      </UiPlainButton>
     </div>
 
     <LegalFooter />

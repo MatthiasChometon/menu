@@ -12,7 +12,7 @@ const {
   limitsOf,
   isGroupComplete,
   isGroupFull,
-  recommendedIn,
+  recommendedInSlices,
   fillsIn,
 } = usePlanner();
 const { t } = useNuxtApp().$i18n;
@@ -20,6 +20,7 @@ const { macroLongLabel } = useMenuLabels();
 const { groupLabel, groupHint, filterLabel } = usePlannerLabels();
 const { nameOf } = useFoodFormat();
 const { imageOf } = useRecipes();
+const { reportError } = useErrorReporting();
 
 // Only the savoury dishes are numerous enough to need narrowing, and only they
 // come in fish, meat and vegetable. Offering the same chips on a list of skyr
@@ -60,7 +61,39 @@ const count = computed((): number => (chosenDishes.value[group] ?? []).length);
 // Marked, not reordered. Sorting the grid by merit would move a card out from
 // under the finger on every pick; a mark leaves the choice exactly where it was
 // and still puts the balanced options first in the eye.
-const recommended = computed((): Set<string> => recommendedIn(group));
+//
+// Worked out after the tap has been painted, not during it: ranking a dish means
+// simulating the whole week with it added, for every candidate in the group, and
+// done in the same render as the tick it held the tick back by more than the
+// 100 ms a tap is allowed to take.
+const recommended = ref<Set<string>>(new Set());
+let pendingRanking: ReturnType<typeof setTimeout> | undefined;
+// Each request takes a number; a slice that finds a newer one has been asked for
+// stops, so a quick second tap never waits for the first ranking to finish.
+let latestRequest = 0;
+
+const rankAfterPaint = (): void => {
+  clearTimeout(pendingRanking);
+  latestRequest += 1;
+  const request = latestRequest;
+  requestAnimationFrame((): void => {
+    pendingRanking = setTimeout((): void => {
+      recommendedInSlices(group, (): boolean => request !== latestRequest).then(
+        (ranked): void => {
+          if (ranked !== undefined && request === latestRequest) recommended.value = ranked;
+        },
+        (error: unknown): void => reportError('planner:ranking', error),
+      );
+    }, 0);
+  });
+};
+
+onMounted(rankAfterPaint);
+watch([(): RecipeSlot => group, chosenDishes], rankAfterPaint);
+onBeforeUnmount((): void => {
+  clearTimeout(pendingRanking);
+  latestRequest += 1;
+});
 
 // Says what the dish brings when it closes a real gap, and falls back on the
 // plain mark when nothing in particular is short.
@@ -255,7 +288,7 @@ const isLocked = (recipeId: string): boolean => isFull.value && !isChosen(group,
       {{ $t('planner.filter.none') }}
     </p>
 
-    <PlannerDishDetail
+    <LazyPlannerDishDetail
       v-if="preview !== undefined"
       v-model="isPreviewOpen"
       :recipe="preview"

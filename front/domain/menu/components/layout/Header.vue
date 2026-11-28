@@ -27,8 +27,8 @@ const initials = computed((): string => {
     .join('');
 });
 
-const languageItems = computed((): SelectItem[] =>
-  locales.value.map((entry): SelectItem => ({
+const languageItems = computed((): { label: string; value: string }[] =>
+  locales.value.map((entry): { label: string; value: string } => ({
     label: entry.name ?? entry.code,
     value: entry.code,
   })),
@@ -84,13 +84,12 @@ const isDark = computed({
 });
 
 const isDisplayPreferencesOpen = ref(false);
+// Fetched the first time the button is pressed rather than with every page.
+const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
 </script>
 
 <template>
-  <header
-    class="sticky top-0 z-40 border-b border-default bg-default/85 backdrop-blur-lg"
-    role="banner"
-  >
+  <header class="sticky top-0 z-40 border-b border-default bg-default" role="banner">
     <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
       <NuxtLink :to="localePath('/')" class="group flex min-w-0 items-center gap-2.5">
         <!-- The favicon itself, not a lookalike: the header, the browser tab,
@@ -118,81 +117,109 @@ const isDisplayPreferencesOpen = ref(false);
         class="ml-auto hidden items-center gap-1 lg:flex"
         :aria-label="$t('accessibility.mainNavigation')"
       >
-        <UButton
+        <UiPlainButton
           v-for="entry in entries"
           :key="entry.to"
           :to="entry.to"
-          :icon="entry.icon"
           :variant="isCurrent(entry.to) ? 'soft' : 'ghost'"
           :color="isCurrent(entry.to) ? 'primary' : 'neutral'"
           :aria-current="isCurrent(entry.to) ? 'page' : undefined"
           :class="isCurrent(entry.to) && 'font-semibold'"
         >
+          <UIcon :name="entry.icon" class="size-5 shrink-0" />
           {{ entry.label }}
-        </UButton>
+        </UiPlainButton>
       </nav>
 
-      <div class="ml-auto flex shrink-0 items-center gap-1 lg:ml-0">
-        <UButton
-          icon="i-lucide-accessibility"
+      <!-- 36 px whatever sits at its end: the account avatar is taller than the
+           skeleton standing in for it and than the sign-in button, and the header
+           growing by the difference pushed the whole page down once the session
+           was known. -->
+      <div class="ml-auto flex min-h-9 shrink-0 items-center gap-1 lg:ml-0">
+        <UiPlainButton
+          square
           :aria-label="$t('displayPreferences.open')"
           variant="ghost"
           color="neutral"
           @click="isDisplayPreferencesOpen = true"
-        />
-        <UButton
-          :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+        >
+          <UIcon name="i-lucide-accessibility" class="size-5 shrink-0" />
+        </UiPlainButton>
+        <UiPlainButton
+          square
           :aria-label="$t('accessibility.toggleTheme')"
           :aria-pressed="isDark"
           variant="ghost"
           color="neutral"
           @click="isDark = !isDark"
-        />
-        <USelect
-          v-model="currentLocale"
-          :items="languageItems"
-          value-key="value"
-          :aria-label="$t('accessibility.selectLanguage')"
-          size="sm"
-          class="w-24 sm:w-28"
-        />
+        >
+          <UIcon :name="isDark ? 'i-lucide-moon' : 'i-lucide-sun'" class="size-5 shrink-0" />
+        </UiPlainButton>
+        <!-- A native select: the browser's own list, announced and operated the
+             same way, and none of the dropdown code Nuxt UI's select brings (about
+             25 KB of script on every page for a control used once). -->
+        <span class="relative inline-block w-24 sm:w-28">
+          <select
+            v-model="currentLocale"
+            :aria-label="$t('accessibility.selectLanguage')"
+            class="h-8 w-full cursor-pointer appearance-none rounded-md bg-default py-1 pl-2.5 pr-7 text-sm text-highlighted ring ring-inset ring-accented focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            <option v-for="item in languageItems" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </option>
+          </select>
+          <UIcon
+            name="i-lucide-chevron-down"
+            class="pointer-events-none absolute right-2 top-1/2 size-4 -translate-y-1/2 text-dimmed"
+            aria-hidden="true"
+          />
+        </span>
 
         <!-- Being signed in was invisible: the only way to find out was to open
              the profile page and see whether it asked you to sign in. -->
         <ClientOnly>
-          <UDropdownMenu v-if="user !== undefined" :items="accountItems">
-            <UButton variant="ghost" color="neutral" size="sm" :aria-label="$t('auth.account')">
-              <UAvatar
+          <LazyUDropdownMenu v-if="user !== undefined" :items="accountItems">
+            <UiPlainButton
+              variant="ghost"
+              color="neutral"
+              size="sm"
+              class="size-9 justify-center p-0"
+              :aria-label="$t('auth.account')"
+            >
+              <LazyUAvatar
                 :alt="user.name ?? user.email"
                 :text="initials"
                 size="sm"
                 :ui="{ root: 'bg-primary/15 text-primary font-bold' }"
               />
-            </UButton>
-          </UDropdownMenu>
+            </UiPlainButton>
+          </LazyUDropdownMenu>
           <!-- Signed out, the way back in: the profile moved into the avatar
                menu, which does not exist until you are signed in, so without
                this a signed-out reader had no visible door to sign-in at all.
                It leads to the profile page, which is where the sign-in form
                lives. -->
-          <UButton
+          <UiPlainButton
             v-else
             :to="localePath('/profil')"
-            icon="i-lucide-log-in"
             color="primary"
             variant="soft"
             size="sm"
             class="font-semibold"
           >
+            <UIcon name="i-lucide-log-in" class="size-4 shrink-0" />
             {{ $t('auth.signIn') }}
-          </UButton>
+          </UiPlainButton>
           <template #fallback>
-            <USkeleton class="size-8 rounded-full" />
+            <span class="block size-9 animate-pulse rounded-full bg-elevated" />
           </template>
         </ClientOnly>
       </div>
     </div>
   </header>
 
-  <UiDisplayPreferencesDialog v-model="isDisplayPreferencesOpen" />
+  <LazyUiDisplayPreferencesDialog
+    v-if="displayPreferencesOpened"
+    v-model="isDisplayPreferencesOpen"
+  />
 </template>

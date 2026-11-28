@@ -54,6 +54,30 @@ const visiblePickedCount = computed(
   (): number => visiblePickedIds.value.filter((id): boolean => activeIds.value.includes(id)).length,
 );
 
+// The sections (one per aisle, then the seasonings and the pantry) are drawn one per task once the
+// list is ready, so no single task carries the whole list; the skeleton holds the place until the
+// last one is in, which keeps the swap a single, stable one.
+const { stage } = useStagedReveal();
+const isListReady = computed((): boolean => isMounted.value && !isLoadingEaters.value);
+const revealedSections = ref(0);
+const isListShown = ref(false);
+const isSectionShown = (position: number): boolean =>
+  isListShown.value || revealedSections.value > position;
+watch(
+  isListReady,
+  (ready): void => {
+    if (!ready) return;
+    const sectionCount = activeGroups.value.length + 2;
+    for (let section = 0; section < sectionCount; section += 1) {
+      stage((): void => {
+        revealedSections.value += 1;
+        isListShown.value = revealedSections.value >= sectionCount;
+      });
+    }
+  },
+  { immediate: true },
+);
+
 const isComplete = computed(
   (): boolean => totalLines.value > 0 && visiblePickedCount.value === totalLines.value,
 );
@@ -223,30 +247,35 @@ useSeoMeta({ title: (): string => t('shopping.title') });
            then swapping them for a skeleton made the whole list appear,
            vanish and come back — and the numbers in between were for one
            person in a house of three. -->
-      <div v-if="!isMounted || isLoadingEaters" class="mt-6 space-y-4">
+      <div v-if="!isListShown" class="mt-6 space-y-4">
         <USkeleton v-for="row in 4" :key="row" class="h-24 rounded-xl" />
         <span class="sr-only">{{ $t('accessibility.loading') }}</span>
       </div>
 
-      <div v-else class="mt-6 space-y-7">
-        <ShoppingAisle
-          v-for="(group, index) in activeGroups"
-          :key="group.aisle"
-          :group="group"
-          :picked-ids="visiblePickedIds"
-          :index="index"
-          @toggle="toggle"
-          @pantry="togglePantry"
-        />
+      <div v-if="isListReady" :class="['mt-6 space-y-7', { hidden: !isListShown }]">
+        <template v-for="(group, index) in activeGroups" :key="group.aisle">
+          <ShoppingAisle
+            v-if="isSectionShown(index)"
+            :group="group"
+            :picked-ids="visiblePickedIds"
+            :index="index"
+            @toggle="toggle"
+            @pantry="togglePantry"
+          />
+        </template>
         <ShoppingSeasoningAisle
-          v-if="activeSeasonings.length > 0"
+          v-if="activeSeasonings.length > 0 && isSectionShown(activeGroups.length)"
           :seasonings="activeSeasonings"
           :picked-ids="visiblePickedIds"
           :index="activeGroups.length"
           @toggle="toggle"
           @pantry="togglePantry"
         />
-        <ShoppingPantrySection :entries="pantryEntries" @remove="togglePantry" />
+        <ShoppingPantrySection
+          v-if="isSectionShown(activeGroups.length + 1)"
+          :entries="pantryEntries"
+          @remove="togglePantry"
+        />
       </div>
 
       <UModal v-model:open="isResetOpen" :title="$t('shopping.resetTitle')">

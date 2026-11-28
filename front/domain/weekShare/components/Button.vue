@@ -11,16 +11,18 @@ const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').ends
 
 <template>
   <ClientOnly>
-    <UButton
+    <UiPlainButton
       v-if="menu !== undefined && !onFocusedPage"
-      icon="i-lucide-share-2"
+      square
       color="primary"
       variant="solid"
       size="sm"
-      class="fixed bottom-52 right-4 z-30 rounded-full text-white shadow-lg sm:bottom-32"
+      class="fixed bottom-52 right-4 z-30 rounded-full! text-white shadow-lg sm:bottom-32"
       :aria-label="$t('weekShare.open')"
       :title="$t('weekShare.open')"
       @click="open"
-    />
+    >
+      <UIcon name="i-lucide-share-2" class="size-4 shrink-0" />
+    </UiPlainButton>
   </ClientOnly>
 </template>

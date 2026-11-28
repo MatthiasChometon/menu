@@ -15,16 +15,18 @@ const onFocusedPage = computed((): boolean => route.path.replace(/\/$/, '').ends
        and back to the corner only once the nav is gone. The point is to be there
        at the moment the problem happens, not to be findable later. -->
   <ClientOnly>
-    <UButton
+    <UiPlainButton
       v-if="user !== undefined && !onFocusedPage"
-      icon="i-lucide-bug"
+      square
       color="neutral"
       variant="solid"
       size="sm"
-      class="fixed bottom-20 right-4 z-30 rounded-full shadow-lg lg:bottom-6"
+      class="fixed bottom-20 right-4 z-30 rounded-full! shadow-lg lg:bottom-6"
       :aria-label="$t('bugReport.open')"
       :title="$t('bugReport.open')"
       @click="open"
-    />
+    >
+      <UIcon name="i-lucide-bug" class="size-4 shrink-0" />
+    </UiPlainButton>
   </ClientOnly>
 </template>

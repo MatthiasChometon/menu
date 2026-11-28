@@ -1,4 +1,7 @@
+import { fileURLToPath } from 'node:url';
 import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
+import { recipeSplitPlugin } from './infrastructure/performance/recipeSplitPlugin';
+import { lazyIconBundlePlugin } from './infrastructure/ui/utils/lazyIconBundlePlugin';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
 // Nuxt already turns on noUncheckedIndexedAccess. Left off on purpose:
@@ -29,6 +32,13 @@ export default defineNuxtConfig({
   // service worker is meaningless in a component test anyway.
   modules: ['@nuxt/eslint', '@vueuse/nuxt', ...(process.env.VITEST ? [] : ['@vite-pwa/nuxt'])],
   icon: {
+    // Inline <svg> rather than CSS mask classes: with classes, @nuxt/icon walks
+    // every stylesheet rule at start-up to learn which icon classes exist
+    // (about 150 ms of main thread at CPU x4); inline svg has nothing to scan.
+    mode: 'svg',
+    // Every icon of the app is Lucide, bar the Google logo. The default lists the two hundred collections
+    // Iconify knows, and that list is shipped in the entry script for nothing.
+    collections: ['lucide', 'simple-icons'],
     // Most icons are named in composables (the nav entries, the profile
     // choices) rather than written in a template, and the scan only reads
     // templates by default — those icons were left out of the bundle and the app
@@ -57,12 +67,50 @@ export default defineNuxtConfig({
   // Dropping them from the manifest drops the hints. Nothing else changes: the
   // URLs the app uses come from the imported modules, and each photo still
   // arrives when a card scrolls into view.
+  // JSON catalogs are emitted as one JSON.parse string instead of an object literal,
+  // which the engine reads faster than the same data as JavaScript source.
+  vite: {
+    json: { stringify: true },
+    resolve: {
+      // graphql-request drags the whole graphql package in to read the name of
+      // an operation; see the replacement for what it keeps.
+      alias: {
+        'graphql-request': fileURLToPath(
+          new URL('./infrastructure/graphql/utils/liteGraphqlRequest.ts', import.meta.url),
+        ),
+      },
+    },
+  },
   hooks: {
+    'vite:extendConfig': (config, { isClient }): void => {
+      config.plugins?.push(recipeSplitPlugin('domain/menu/content/recipes.json'));
+      if (isClient) config.plugins?.push(lazyIconBundlePlugin());
+    },
     'build:manifest': (manifest): void => {
       for (const entry of Object.values(manifest)) {
         entry.assets = entry.assets?.filter((asset): boolean => !asset.endsWith('.webp'));
+        // Nuxt also hints (rel=prefetch) every lazy chunk a page could use — the
+        // select, the account menu, the dialogs, the other routes — so the browser
+        // fetched all of them with the first paint and the lazy loading saved
+        // nothing. They are fetched when needed instead; the service worker holds
+        // every chunk for the next visit and for offline.
+        entry.prefetch = false;
+        // Every other chunk the page imports was also listed as a modulepreload:
+        // about 17 requests, 200 KB, started at the same moment as the stylesheet
+        // that blocks the first paint, so on a slow link the paint waited behind
+        // them (Lighthouse first paint -0.5 s without them). The entry module
+        // finds its imports itself a moment later; the paint no longer waits.
+        if (entry.isEntry !== true) entry.preload = false;
       }
     },
+  },
+  // A link that scrolls into view fetches the chunk of the page it leads to, and
+  // the bottom bar shows five of them on every page: about 100 KB of script that
+  // a first paint pays for and parses, for pages the reader may never open. The
+  // service worker already holds every chunk for offline use, so the same fetch
+  // now waits for a finger or a pointer to come near the link.
+  experimental: {
+    defaults: { nuxtLink: { prefetchOn: { visibility: false, interaction: true } } },
   },
   css: cssList,
   components: componentsList,

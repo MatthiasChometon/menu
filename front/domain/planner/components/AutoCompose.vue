@@ -11,6 +11,8 @@ const {
 const { labelOf } = usePlannerWeek();
 
 const isPreferencesOpen = ref(false);
+// Fetched the first time the panel is asked for, not with the page.
+const preferencesOpened = useOpenedOnce(isPreferencesOpen);
 const selectedSource = ref<string | undefined>(undefined);
 
 const weekOptions = computed((): SelectItem[] =>
@@ -92,6 +94,6 @@ const onDuplicate = (): void => {
       </template>
     </div>
 
-    <PlannerPreferencesPanel v-model="isPreferencesOpen" />
+    <LazyPlannerPreferencesPanel v-if="preferencesOpened" v-model="isPreferencesOpen" />
   </section>
 </template>

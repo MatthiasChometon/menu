@@ -205,9 +205,12 @@ body::after {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Starts translucent, not invisible: the browser does not count an element at
+     opacity 0 as painted, so a heading that fades in from nothing is reported as
+     the largest paint a half-second after the page was already readable. */
   @keyframes rise {
     from {
-      opacity: 0;
+      opacity: 0.6;
       transform: translateY(1.25rem);
     }
     to {

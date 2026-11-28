@@ -31,7 +31,18 @@ export type PlannerScoring = {
   /** The macro this dish would help most with, when one is short. */
   fillsIn: (group: RecipeSlot, recipeId: string) => keyof Macros | undefined;
   recommendedIn: (group: RecipeSlot) => Set<string>;
+  /** The same ranking, worked out in slices that hand the main thread back
+   *  between them, so no single task holds the page for long. Gives up with
+   *  undefined as soon as `isStale` says the answer is no longer wanted. */
+  recommendedInSlices: (
+    group: RecipeSlot,
+    isStale: () => boolean,
+  ) => Promise<Set<string> | undefined>;
 };
+
+// A slice of ranking longer than this lets the page breathe before the next one:
+// a task past 50 ms is what the browser counts as blocking.
+const SLICE_BUDGET_MS = 25;
 
 // How a day, a dish or a whole selection measures against the targets and the
 // budget — everything that answers "is this better" without changing the plan.
@@ -74,8 +85,26 @@ export const usePlannerScoring = (
   // What a selection would look like spread over the window, without touching
   // the plan itself — the same preview the balance and the budget are read
   // from, and what a candidate dish is tried against before it is chosen.
+  //
+  // While a ranking runs, a day built from the same slots is built once: a
+  // candidate dish lands on a few days only, and every other day of its week is
+  // the one the previous candidate already solved.
+  let rankingDays: Map<string, PlannedDay> | undefined;
+
+  const dayFor = (day: DayKey, slots: Partial<Record<MealSlot, string>>): PlannedDay => {
+    if (rankingDays === undefined) return buildDay(day, slots);
+
+    const key = `${day}|${JSON.stringify(slots)}`;
+    const known = rankingDays.get(key);
+    if (known !== undefined) return known;
+
+    const built = buildDay(day, slots);
+    rankingDays.set(key, built);
+    return built;
+  };
+
   const simulatedWeekFor = (selection: Partial<Record<RecipeSlot, string[]>>): PlannedDay[] =>
-    windowDays.value.map((day, index): PlannedDay => buildDay(day, slotsOnDay(selection, index)));
+    windowDays.value.map((day, index): PlannedDay => dayFor(day, slotsOnDay(selection, index)));
 
   // The current picks, previewed the same way — what the balance panel and the
   // budget read while the reader is still choosing, before anything is spread.
@@ -195,5 +224,52 @@ export const usePlannerScoring = (
     return new Set(ranked.slice(0, 3).map((entry): string => entry.id));
   };
 
-  return { errorOf, gapOf, scoreOf, selectionBalance, budgetStatus, fillsIn, recommendedIn };
+  const topThree = (ranked: { id: string; error: number }[]): Set<string> =>
+    new Set(
+      [...ranked]
+        .sort((left, right): number => left.error - right.error)
+        .slice(0, 3)
+        .map((entry): string => entry.id),
+    );
+
+  const recommendedInSlices = async (
+    group: RecipeSlot,
+    isStale: () => boolean,
+  ): Promise<Set<string> | undefined> => {
+    const candidates = eligibleDishesFor(group).filter(
+      (recipe): boolean => !(chosenDishes.value[group] ?? []).includes(recipe.id),
+    );
+    const ranked: { id: string; error: number }[] = [];
+    let sliceStart = performance.now();
+    rankingDays = new Map();
+
+    try {
+      for (const recipe of candidates) {
+        ranked.push({ id: recipe.id, error: scoreOf(group, recipe.id) });
+
+        if (performance.now() - sliceStart > SLICE_BUDGET_MS) {
+          await new Promise<void>((resolve): void => {
+            setTimeout(resolve, 0);
+          });
+          if (isStale()) return undefined;
+          sliceStart = performance.now();
+        }
+      }
+    } finally {
+      rankingDays = undefined;
+    }
+
+    return topThree(ranked);
+  };
+
+  return {
+    errorOf,
+    gapOf,
+    scoreOf,
+    selectionBalance,
+    budgetStatus,
+    fillsIn,
+    recommendedIn,
+    recommendedInSlices,
+  };
 };

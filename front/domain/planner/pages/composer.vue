@@ -190,7 +190,12 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
          collation" list, two picks that fill both slots. -->
     <div v-if="currentGroups !== undefined" class="rise mt-6">
       <div class="space-y-10">
-        <PlannerDishPicker v-for="group in currentGroups" :key="group" :group="group" />
+        <LazyPlannerDishPicker
+          v-for="group in currentGroups"
+          :key="group"
+          :group="group"
+          hydrate-on-interaction
+        />
       </div>
 
       <!-- Under the cards on purpose: it vanishes on the first pick, and
@@ -297,7 +302,7 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
         />
       </section>
 
-      <PlannerHouseholdBalance v-if="hasWeek" />
+      <LazyPlannerHouseholdBalance v-if="hasWeek" hydrate-on-visible />
     </template>
 
     <!-- The way forward stays under the thumb, whatever the length of the list.

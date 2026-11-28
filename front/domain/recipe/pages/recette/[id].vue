@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import {
+  HERO_SIZES,
+  preloadLinkOf,
+  type LocalImages,
+} from '../../../../infrastructure/images/utils/localImages';
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
 const { dayLabel, mealLabel } = useMenuLabels();
 const { selectedMenu: currentMenu } = useSelectedWeek();
-const { recipeOf, imageOf } = useRecipes();
+const { recipeOf, imageOf, loadStepsOf } = useRecipes();
 const { variantsOf, portionsOf, weekQuantitiesOf } = useRecipeVariants();
 const { seasoningsOf } = useSeasonings();
 const { nameOf, stepsOf } = useFoodFormat();
@@ -22,6 +27,10 @@ const {
 const WEEK = 'week';
 
 const recipeId = computed((): string => String(route.params.id));
+
+// The catalogue carries no steps: this recipe's own chunk, and no other, is read before
+// the page renders, and shipped in its payload so the browser needs no request for it.
+await loadStepsOf(recipeId.value, { ship: true });
 
 const recipe = computed((): Recipe | undefined => recipeOf(recipeId.value));
 
@@ -99,11 +108,24 @@ const portionItems = computed((): SelectItem[] => [
   })),
 ]);
 
-const heroImage = computed((): string | undefined =>
-  recipe.value === undefined ? undefined : imageOf(recipe.value),
-);
+// Read once, here: a head callback runs after setup, outside the Nuxt context imageOf needs.
+const heroImage = recipe.value === undefined ? undefined : imageOf(recipe.value);
 
 useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(recipe.value)) });
+
+// The hero photograph is the largest thing painted: asked for in the head, it
+// starts downloading with the page instead of once the recipe has rendered.
+if (heroImage !== undefined) {
+  useHead({
+    link: [
+      preloadLinkOf(
+        heroImage,
+        HERO_SIZES,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ),
+    ],
+  });
+}
 </script>
 
 <template>
@@ -135,6 +157,8 @@ useSeoMeta({ title: (): string => (recipe.value === undefined ? '' : nameOf(reci
             :alt="nameOf(recipe)"
             icon="i-lucide-cooking-pot"
             rounded="rounded-3xl"
+            :sizes="HERO_SIZES"
+            eager
           />
         </div>
 

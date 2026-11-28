@@ -1,3 +1,8 @@
+import {
+  localFallbackOf,
+  type LocalImages,
+} from '../../../infrastructure/images/utils/localImages';
+
 // The manifest file may carry more than the photograph maps (a version, say):
 // only the maps below are read, so anything else is dropped on the way in.
 const imageKinds = ['recipe', 'food', 'equipment'] as const;
@@ -53,7 +58,17 @@ export const useImages = (): {
     // Absent from the manifest means no photograph exists — the caller shows a
     // pictogram. Building a URL anyway would trade a clean fallback for a 404
     // and a flash of broken image.
-    return file === undefined ? undefined : `${host()}/${kind}/${file}`;
+    if (file === undefined) return undefined;
+
+    // Served by the site itself when the build localised it, from the host otherwise (a photo
+    // added since the build).
+    return (
+      localFallbackOf(
+        kind,
+        file,
+        useRuntimeConfig().public.localImages as unknown as LocalImages,
+      ) ?? `${host()}/${kind}/${file}`
+    );
   };
 
   return {
@@ -66,8 +81,12 @@ export const useImages = (): {
       const manifest = state().value;
       const base = host();
 
+      const local = useRuntimeConfig().public.localImages as unknown as LocalImages;
+
       return imageKinds.flatMap((kind): string[] =>
-        Object.values(manifest[kind] ?? {}).map((file): string => `${base}/${kind}/${file}`),
+        Object.values(manifest[kind] ?? {}).map(
+          (file): string => localFallbackOf(kind, file, local) ?? `${base}/${kind}/${file}`,
+        ),
       );
     },
     refresh: async (): Promise<void> => {
