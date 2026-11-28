@@ -693,3 +693,16 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
   second chunk, 199 ms (99 + 87 ms tasks).
 - `/composer`: the dish pickers are hydrated on the first interaction (`hydrate-on-interaction`), not at load. The
   mount of the page dropped from ~600 ms to ~330 ms at 4x CPU, the longest task from ~944 to ~630 ms.
+
+### 2026-11-28 - M15, eighth cut (critical CSS)
+
+- The generated pages have no `modulepreload` and no font preload in the head (checked in the HTML), so there was
+  nothing to remove there: the entry imports and the fonts are discovered at run time, from the script and from the
+  stylesheet.
+- Critical CSS: `inlineCriticalCss.ts` (beasties, after the prune) inlines the rules the first paint needs and loads
+  the stylesheet without blocking. Beasties drops the `@font-face` style written by the fonts module (the family
+  is reached through a custom property), so it is put back as it was. The stylesheet check counts a file once.
+  The visual baselines are unchanged (the batch light one also fails without this step, locally).
+- Composer: the second re-render was not isolated. An unreachable API (as in Lighthouse CI) fails two requests
+  and loads the Sentry client on the page; deferring that load until idle changed nothing measurable, so it was
+  not kept.
