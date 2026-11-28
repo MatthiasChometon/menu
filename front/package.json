@@ -10,7 +10,7 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "tsx infrastructure/images/scripts/localizeImages.ts && nuxt generate && tsx infrastructure/performance/scripts/pruneGeneratedCss.ts",
-    "check:generated": "tsx infrastructure/images/scripts/checkGenerated.ts && tsx infrastructure/performance/scripts/checkEntryChunk.ts && tsx infrastructure/performance/scripts/checkStylesheet.ts",
+    "check:generated": "tsx infrastructure/images/scripts/checkGenerated.ts && tsx infrastructure/performance/scripts/checkEntryChunk.ts && tsx infrastructure/performance/scripts/checkStylesheet.ts && tsx infrastructure/performance/scripts/checkPagePayload.ts",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "check": "tsx domain/menu/scripts/check.ts",
