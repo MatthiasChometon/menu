@@ -14,7 +14,7 @@ export const useSelectedWeek = (): {
   selectedWeek: Ref<string>;
   /** The weeks a signed-in reader can move between: this one and the ones ahead. */
   weekOptions: ComputedRef<string[]>;
-  selectedMenu: Ref<Menu | undefined>;
+  selectedMenu: ComputedRef<Menu | undefined>;
   /** The menu on screen is the example, not the reader's own composition. */
   isDemo: ComputedRef<boolean>;
   /** The reader's own week is still being fetched. */
@@ -57,23 +57,26 @@ export const useSelectedWeek = (): {
     now.value === undefined ? [] : weeksFrom(now.value),
   );
 
-  // On the server the reader is always anonymous, so this resolves to the
-  // example and the page prerenders with it. On the client, once auth settles,
-  // a signed-in reader's own week takes its place.
+  // Only a signed-in reader's own week is fetched. The example is built from the
+  // catalogues every page already loads before it hydrates, so it is not put in
+  // the page payload as well: that copy was 20 KB gzipped on /recettes.
   const {
-    data: selectedMenu,
+    data: ownMenu,
     pending: isLoading,
     error,
     refresh,
   } = useAsyncData<Menu | undefined>(
     'menu:shown',
     async (): Promise<Menu | undefined> => {
-      if (user.value === undefined) return demoMenu.value;
-      if (profile.value === undefined) return undefined;
+      if (user.value === undefined || profile.value === undefined) return undefined;
 
       return menuFor(selectedWeek.value);
     },
     { watch: [user, profile, selectedWeek], default: (): undefined => undefined },
+  );
+
+  const selectedMenu = computed((): Menu | undefined =>
+    user.value === undefined ? demoMenu.value : ownMenu.value,
   );
 
   return {
