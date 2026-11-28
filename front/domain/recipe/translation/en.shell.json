@@ -1,0 +1,10 @@
+{
+  "recipe": {
+    "minutes": "min",
+    "batch": "Batch-cooked on the first day",
+    "nutrition": "This portion provides",
+    "ingredients": "Ingredients",
+    "seasonings": "Spices and seasonings",
+    "steps": "Method"
+  }
+}

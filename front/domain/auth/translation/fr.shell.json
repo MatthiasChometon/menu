@@ -1,0 +1,8 @@
+{
+  "auth": {
+    "signOut": "Se déconnecter",
+    "account": "Mon compte",
+    "signIn": "Se connecter",
+    "signedInAs": "Connecté en tant que"
+  }
+}

@@ -1,6 +1,5 @@
 {
   "profile": {
-    "nav": "My profile",
     "pageTitle": "My profile",
     "pageLead": "Your answers decide the quantities shown in the recipes.",
     "onboarding": {
@@ -99,7 +98,6 @@
       "unavailable": "Accounts are not open yet. In the meantime the recipes show exactly as written."
     },
     "scaled": {
-      "notice": "Quantities adapted to your profile",
       "original": "Original quantities"
     },
     "household": {

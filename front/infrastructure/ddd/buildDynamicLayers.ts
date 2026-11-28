@@ -62,9 +62,13 @@ export const discoverBrandTokens = (): string =>
 
 const buildRootAlias = (file: string): string => `~~/${file.replaceAll(sep, '/')}`;
 
+// What every page needs: the shell of each domain (`<locale>.shell.json`: the keys
+// other slices read, plus the dialogs that open on any page) and every
+// infrastructure file. The rest of a domain (`<locale>.json`) belongs to its pages
+// and is loaded with their route (see infrastructure/i18n/plugins/domainMessages).
 const discoverLayerTranslations = (locale: string): string[] =>
   globSync([
-    `domain/**/translation/${locale}.json`,
+    `domain/**/translation/${locale}.shell.json`,
     `infrastructure/**/translation/${locale}.json`,
   ]).map((file) => resolve(file));
 

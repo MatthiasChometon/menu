@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MeasurementsInput } from '#gql';
+definePageMeta({ translations: ['profile', 'auth'] });
 const { t } = useNuxtApp().$i18n;
 const { user, isLoading: isLoadingUser } = useAuth();
 useSignInRedirect();

@@ -16,8 +16,9 @@ const keysOf = (tree: TranslationTree, prefix = ''): string[] =>
 const bySlice = new Map<string, { fr?: TranslationTree; en?: TranslationTree }>();
 
 for (const [path, tree] of Object.entries(modules)) {
-  const slice = path.replace(/\/translation\/(fr|en)\.json$/, '');
-  const locale = path.endsWith('fr.json') ? 'fr' : 'en';
+  // A domain's messages come in two files, the shell every page loads and the rest.
+  const slice = path.replace(/\/(fr|en)(\.shell)?\.json$/, '$2');
+  const locale = /\/fr(\.shell)?\.json$/.test(path) ? 'fr' : 'en';
   bySlice.set(slice, { ...bySlice.get(slice), [locale]: tree });
 }
 

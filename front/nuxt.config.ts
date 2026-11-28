@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
 import { lazyIconBundlePlugin } from './infrastructure/ui/utils/lazyIconBundlePlugin';
+import { lazyMessagesPlugin } from './infrastructure/i18n/utils/lazyMessagesPlugin';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
 // Nuxt already turns on noUncheckedIndexedAccess. Left off on purpose:
@@ -35,6 +36,9 @@ export default defineNuxtConfig({
     // every stylesheet rule at start-up to learn which icon classes exist
     // (about 150 ms of main thread at CPU x4); inline svg has nothing to scan.
     mode: 'svg',
+    // Every icon of the app is Lucide, bar the Google logo. The default lists the two hundred collections
+    // Iconify knows, and that list is shipped in the entry script for nothing.
+    collections: ['lucide', 'simple-icons'],
     // Most icons are named in composables (the nav entries, the profile
     // choices) rather than written in a template, and the scan only reads
     // templates by default — those icons were left out of the bundle and the app
@@ -79,6 +83,7 @@ export default defineNuxtConfig({
   },
   hooks: {
     'vite:extendConfig': (config, { isClient }): void => {
+      config.plugins?.push(lazyMessagesPlugin());
       if (isClient) config.plugins?.push(lazyIconBundlePlugin());
     },
     'build:manifest': (manifest): void => {

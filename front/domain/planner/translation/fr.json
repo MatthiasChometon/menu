@@ -103,8 +103,7 @@
     },
     "generate": {
       "action": "Générer ma semaine",
-      "hint": "Remplit les choix pour la variété et les cibles, répartit sur les jours puis ajuste — en un clic. Les plats verrouillés ne bougent pas.",
-      "working": "Génération en cours…"
+      "hint": "Remplit les choix pour la variété et les cibles, répartit sur les jours puis ajuste — en un clic. Les plats verrouillés ne bougent pas."
     },
     "preferences": {
       "open": "Préférences",

@@ -1,12 +1,7 @@
 {
   "recipe": {
     "back": "Back to the week",
-    "ingredients": "Ingredients",
-    "steps": "Method",
-    "nutrition": "This portion provides",
     "prepTime": "Prep time",
-    "minutes": "min",
-    "batch": "Batch-cooked on the first day",
     "servedAt": "On the menu",
     "portionFull": "Full portion",
     "portionReduced": "Smaller portion",
@@ -17,7 +12,6 @@
     "portions": "portions",
     "cookingFor": "Enough for",
     "cookingForHint": "Cook it all in one go, then split it into containers.",
-    "seasonings": "Spices and seasonings",
     "seasoningsHint": "Get them out before you start: season to taste, they do not count towards the figures.",
     "freshSeasoning": "to buy",
     "stepDone": "Step done",

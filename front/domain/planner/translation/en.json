@@ -103,8 +103,7 @@
     },
     "generate": {
       "action": "Generate my week",
-      "hint": "Fills the choices for variety and the targets, spreads them across the days, then mends them — in one click. Locked dishes never move.",
-      "working": "Generating…"
+      "hint": "Fills the choices for variety and the targets, spreads them across the days, then mends them — in one click. Locked dishes never move."
     },
     "preferences": {
       "open": "Preferences",

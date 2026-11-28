@@ -1,6 +1,5 @@
 {
   "library": {
-    "nav": "Recettes",
     "pageTitle": "Toutes les recettes",
     "pageLead": "Toutes les recettes de la carte, filtrables par apport dominant, temps de préparation, ingrédient ou saison.",
     "search": {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+definePageMeta({ translations: ['weight', 'auth'] });
 const { t } = useNuxtApp().$i18n;
 
 useSeoMeta({ title: (): string => t('weight.pageTitle') });

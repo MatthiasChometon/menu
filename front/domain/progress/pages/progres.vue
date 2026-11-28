@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TabsItem } from '@nuxt/ui';
+definePageMeta({ translations: ['weight', 'auth'] });
 
 const { t } = useNuxtApp().$i18n;
 

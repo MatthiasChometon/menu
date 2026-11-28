@@ -1,6 +1,5 @@
 {
   "profile": {
-    "nav": "Mon profil",
     "pageTitle": "Mon profil",
     "pageLead": "Tes réponses décident des quantités affichées dans les recettes.",
     "onboarding": {
@@ -99,7 +98,6 @@
       "unavailable": "Les comptes ne sont pas encore ouverts. En attendant, les recettes s'affichent telles qu'elles ont été écrites."
     },
     "scaled": {
-      "notice": "Quantités adaptées à ton profil",
       "original": "Quantités d'origine"
     },
     "household": {

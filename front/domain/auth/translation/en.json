@@ -1,13 +1,10 @@
 {
   "auth": {
     "signInWithGoogle": "Continue with Google",
-    "signOut": "Sign out",
-    "signedInAs": "Signed in as",
     "emailLabel": "Email address",
     "emailPlaceholder": "Email address",
     "passwordLabel": "Password",
     "passwordPlaceholder": "Password",
-    "signIn": "Sign in",
     "createAccount": "Create an account",
     "noAccount": "No account yet? Create one",
     "haveAccount": "Already have an account? Sign in",
@@ -57,7 +54,6 @@
       "retry": "Back to sign-in",
       "unavailable": "The server is not answering. Try again in a moment — your link may still be good."
     },
-    "account": "My account",
     "delete": {
       "title": "Delete my account",
       "lead": "Erases your account and everything in it, for good. This cannot be undone.",
