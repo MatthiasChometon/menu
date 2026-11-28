@@ -1,8 +1,0 @@
-{
-  "auth": {
-    "signOut": "Sign out",
-    "account": "My account",
-    "signIn": "Sign in",
-    "signedInAs": "Signed in as"
-  }
-}

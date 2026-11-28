@@ -52,9 +52,6 @@ importers:
       '@intlify/eslint-plugin-vue-i18n':
         specifier: ^4.5.1
         version: 4.5.1(eslint@10.8.0(jiti@2.7.0))(jsonc-eslint-parser@3.1.0)(vue-eslint-parser@10.4.1(eslint@10.8.0(jiti@2.7.0)))(yaml-eslint-parser@1.3.2)
-      '@intlify/unplugin-vue-i18n':
-        specifier: 11.2.8
-        version: 11.2.8(@vue/compiler-dom@3.5.46)(rollup@4.68.8)(typescript@5.9.3)(vite@8.3.8(@types/node@26.6.7)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.4)(tsx@4.23.13)(yaml@2.9.1))(vue-i18n@11.4.23(vue@3.5.46(typescript@5.9.3)))(vue@3.5.46(typescript@5.9.3))
       '@napi-rs/canvas':
         specifier: ^1.0.8
         version: 1.0.8
@@ -289,6 +286,11 @@ packages:
 
   '@babel/parser@7.29.15':
     resolution: {integrity: sha512-RpKWyisHoP81twtSCgmE02iU0RnPcq1DN5bBEbpUePrjA9Q3wXhufnCJrrayPpoZieqFh3zyZQqwtSK0gGccRA==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/parser@7.29.7':
+    resolution: {integrity: sha512-hnORnjP/1P/zFEndoeX+n+t1RwWRJiJpM/jO7FW32Kn9r5+sJB2JWOdYo4L6k78j15eCwY3Gm/7364B1EMwtNg==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -8922,7 +8924,7 @@ snapshots:
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
       '@babel/helpers': 7.29.7
-      '@babel/parser': 7.29.15
+      '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
       '@babel/traverse': 7.29.7
       '@babel/types': 7.29.15
@@ -9089,6 +9091,10 @@ snapshots:
       '@babel/types': 7.29.15
 
   '@babel/parser@7.29.15':
+    dependencies:
+      '@babel/types': 7.29.15
+
+  '@babel/parser@7.29.7':
     dependencies:
       '@babel/types': 7.29.15
 
@@ -9680,7 +9686,7 @@ snapshots:
       '@babel/code-frame': 7.29.7
       '@babel/generator': 7.29.15
       '@babel/helper-globals': 7.29.7
-      '@babel/parser': 7.29.15
+      '@babel/parser': 7.29.7
       '@babel/template': 7.29.7
       '@babel/types': 7.29.15
       debug: 4.4.3
@@ -9841,8 +9847,8 @@ snapshots:
 
   '@es-joy/jsdoccomment@0.91.0':
     dependencies:
-      '@types/estree': 1.0.10
-      '@typescript-eslint/types': 8.74.0
+      '@types/estree': 1.0.9
+      '@typescript-eslint/types': 8.65.0
       comment-parser: 1.4.7
       esquery: 1.7.0
       jsdoc-type-pratt-parser: 8.0.0
@@ -12767,7 +12773,7 @@ snapshots:
   '@stylistic/eslint-plugin@5.10.0(eslint@10.8.0(jiti@2.7.0))':
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.8.0(jiti@2.7.0))
-      '@typescript-eslint/types': 8.74.0
+      '@typescript-eslint/types': 8.65.0
       eslint: 10.8.0(jiti@2.7.0)
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
@@ -14889,7 +14895,7 @@ snapshots:
 
   eslint-plugin-import-x@4.17.1(@typescript-eslint/utils@8.65.0(eslint@10.8.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.8.0(jiti@2.7.0)):
     dependencies:
-      '@typescript-eslint/types': 8.74.0
+      '@typescript-eslint/types': 8.65.0
       comment-parser: 1.4.7
       debug: 4.4.3
       eslint: 10.8.0(jiti@2.7.0)
@@ -15046,8 +15052,8 @@ snapshots:
 
   espree@10.4.0:
     dependencies:
-      acorn: 8.19.0
-      acorn-jsx: 5.3.2(acorn@8.19.0)
+      acorn: 8.18.0
+      acorn-jsx: 5.3.2(acorn@8.18.0)
       eslint-visitor-keys: 4.2.1
 
   espree@11.2.0:

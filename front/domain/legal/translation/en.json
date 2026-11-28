@@ -2,6 +2,11 @@
   "legal": {
     "updated": "Updated 28 August 2026",
     "contactLabel": "Write to",
+    "footer": {
+      "notice": "Legal notice",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
     "notice": {
       "title": "Legal notice",
       "lead": "Who publishes this site, and who hosts it.",

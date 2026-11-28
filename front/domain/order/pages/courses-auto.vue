@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['order'] });
 const { t } = useNuxtApp().$i18n;
 
 useHead({ title: t('order.title') });

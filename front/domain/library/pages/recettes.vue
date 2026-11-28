@@ -5,7 +5,6 @@ import {
   type LocalImages,
 } from '../../../infrastructure/images/utils/localImages';
 import type { CustomRecipe } from '../../customCatalog/types/customCatalog.type';
-definePageMeta({ translations: ['library'] });
 
 const { recipes, imageOf } = useRecipes();
 const { entriesOf } = useRecipeCatalog();

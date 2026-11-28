@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['batch', 'recipe'] });
 const { selectedWeek, selectedMenu: currentMenu, isLoading, hasFailed, retry } = useSelectedWeek();
 const { planOf } = useBatchPlan();
 const { nameOf } = useFoodFormat();

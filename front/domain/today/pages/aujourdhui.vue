@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['today'] });
 const isMounted = useMounted();
 // Shared with useDailyChecklist, so the reminders and the water both settle on
 // the same instant as the meal card rather than drifting a tick apart.

@@ -1,7 +1,12 @@
 {
   "recipe": {
     "back": "Retour à la semaine",
+    "ingredients": "Ingrédients",
+    "steps": "Préparation",
+    "nutrition": "Apports de la portion",
     "prepTime": "Temps de préparation",
+    "minutes": "min",
+    "batch": "Se prépare en batch le premier jour",
     "servedAt": "Au menu",
     "portionFull": "Portion pleine",
     "portionReduced": "Portion réduite",
@@ -12,6 +17,7 @@
     "portions": "portions",
     "cookingFor": "De quoi tenir",
     "cookingForHint": "Tout se prépare en une fois, à répartir ensuite en barquettes.",
+    "seasonings": "Épices et assaisonnements",
     "seasoningsHint": "À sortir avant de commencer : les doses se règlent au goût, elles ne comptent pas dans les apports.",
     "freshSeasoning": "à acheter",
     "stepDone": "Étape terminée",

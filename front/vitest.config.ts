@@ -15,7 +15,6 @@ process.env.TZ = 'Pacific/Auckland';
 export default defineVitestConfig({
   test: {
     environment: 'nuxt',
-    setupFiles: ['./vitest.setup.ts'],
     include: ['domain/**/*.test.ts', 'infrastructure/**/*.test.ts'],
     exclude: ['**/node_modules/**', '**/*visual.test.ts', '**/*e2e.test.ts', '**/*perf.test.ts'],
     benchmark: { include: ['domain/**/*.bench.ts'] },

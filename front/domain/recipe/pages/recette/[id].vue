@@ -4,7 +4,6 @@ import {
   preloadLinkOf,
   type LocalImages,
 } from '../../../../infrastructure/images/utils/localImages';
-definePageMeta({ translations: ['recipe'] });
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;

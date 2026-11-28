@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['shopping'] });
 const { selectedWeek, selectedMenu: currentMenu, isLoading, hasFailed, retry } = useSelectedWeek();
 const { groupsOf } = useShoppingGroups();
 const { eaters, isLoading: isLoadingEaters, isUnscaled, linesFor } = useShoppingQuantities();

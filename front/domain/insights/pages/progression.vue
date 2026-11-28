@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['insights'] });
 const { t } = useNuxtApp().$i18n;
 
 useSeoMeta({ title: (): string => t('insights.pageTitle') });

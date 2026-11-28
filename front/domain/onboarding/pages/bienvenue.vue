@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['onboarding'] });
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const { dismiss } = useOnboardingStatus();

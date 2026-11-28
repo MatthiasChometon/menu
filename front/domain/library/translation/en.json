@@ -1,5 +1,6 @@
 {
   "library": {
+    "nav": "Recipes",
     "pageTitle": "Every recipe",
     "pageLead": "Every recipe on the menu, filterable by dominant macro, prep time, ingredient or season.",
     "search": {

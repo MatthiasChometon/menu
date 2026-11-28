@@ -1,5 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ translations: ['auth'] });
 const route = useRoute();
 const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;

@@ -1,10 +1,13 @@
 {
   "auth": {
     "signInWithGoogle": "Continuer avec Google",
+    "signOut": "Se déconnecter",
+    "signedInAs": "Connecté en tant que",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "Adresse e-mail",
     "passwordLabel": "Mot de passe",
     "passwordPlaceholder": "Mot de passe",
+    "signIn": "Se connecter",
     "createAccount": "Créer un compte",
     "noAccount": "Pas encore de compte ? En créer un",
     "haveAccount": "Déjà un compte ? Se connecter",
@@ -54,6 +57,7 @@
       "retry": "Retour à la connexion",
       "unavailable": "Le serveur ne répond pas. Réessaie dans un instant — ton lien est peut-être encore valable."
     },
+    "account": "Mon compte",
     "delete": {
       "title": "Supprimer mon compte",
       "lead": "Efface définitivement ton compte et tout ce qu'il contient. Cette action est irréversible.",
