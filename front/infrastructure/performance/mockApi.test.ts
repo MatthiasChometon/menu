@@ -33,8 +33,16 @@ describe('the API Lighthouse talks to', () => {
   });
 
   it('accepts the CORS preflight', async () => {
-    const response = await fetch(url, { method: 'OPTIONS' });
+    const response = await fetch(url, {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'http://localhost:3777',
+        'access-control-request-headers': 'content-type,x-demo',
+      },
+    });
 
     expect(response.status).toBe(204);
+    expect(response.headers.get('access-control-allow-headers')).toBe('content-type,x-demo');
+    expect(response.headers.get('access-control-allow-credentials')).toBe('true');
   });
 });

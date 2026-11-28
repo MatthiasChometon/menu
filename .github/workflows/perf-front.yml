@@ -115,6 +115,8 @@ jobs:
       - name: Runner speed and medians per URL (grep LH-SUMMARY)
         if: always()
         run: node infrastructure/performance/summarize-lighthouse.cjs lighthouse-reports
+      - name: No request outside localhost (the production CSP forbids any other host)
+        run: node infrastructure/performance/check-lighthouse-hosts.cjs lighthouse-reports
       - uses: actions/upload-artifact@v4
         if: always()
         with:

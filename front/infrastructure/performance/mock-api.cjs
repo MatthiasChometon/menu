@@ -15,7 +15,12 @@ const UNAUTHENTICATED = JSON.stringify({
 const handler = (request, response) => {
   response.setHeader('access-control-allow-origin', request.headers.origin ?? '*');
   response.setHeader('access-control-allow-credentials', 'true');
-  response.setHeader('access-control-allow-headers', '*');
+  // A wildcard is refused once credentials are sent: the headers asked for are named.
+  response.setHeader(
+    'access-control-allow-headers',
+    request.headers['access-control-request-headers'] ?? 'content-type',
+  );
+  response.setHeader('vary', 'origin');
   response.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
   if (request.method === 'OPTIONS') {
     response.writeHead(204).end();
