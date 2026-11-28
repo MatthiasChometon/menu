@@ -601,3 +601,23 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
   to drop. Cut 4: `pnpm check:generated` now measures the entry script (ceiling 198 000 B gz, `entryChunk.ts`) and
   fails if the recipe catalogue is back in it. The 120 KB target is not reached: what is left is the framework
   (nuxt 55, vue 47, i18n 42, @nuxt/ui + reka + tailwind 56, unhead 16, router 20).
+- 2026-11-28 — M15 front, second cut (CSS, blur, and what was tried and dropped).
+  Step 1, CSS: Nuxt UI writes every colour variant of every component (entry css 232 KB raw). Limiting Tailwind's
+  sources, `componentDetection` and `theme.colors` changed nothing, so `pnpm generate` now prunes after the build
+  (`infrastructure/performance/pruneCss.ts`): a rule is dropped if a class it requires appears in no shipped .js/.html
+  (escapes kept, keyframes/@property/@font-face untouched). 232 KB -> 143 KB raw (gz 29.9 -> ~19 KB). 60 KB is not
+  reachable without editing the Nuxt UI theme generation. `check:generated` fails above 150 000 B
+  (`stylesheet.ts`). Local layout/recalc at 4x did not move measurably (~650/445 ms before and after).
+  Step 3: `backdrop-blur-lg` and the translucent background removed from Header and BottomNav (opaque `bg-default`);
+  local layout unchanged within noise, no baseline moved.
+  Step 2, `content-visibility: auto` + `contain-intrinsic-size` below the fold: tried and reverted. No measurable
+  layout gain at 4x (layout ~610-790 / recalc ~410-650 ms, same as without), and it moved the full-page visual
+  baselines (week page 3280 -> 3471 px high on mobile; shopping/tablet 3700 -> 3652): skipped blocks are not painted
+  in full-page captures. Baselines are not to be changed here, hence dropped.
+  Step 4, deferring WeekPicker hydration: not done. The e2e preview has a single week, so both arrows are disabled
+  and there is no first click to prove (the mandatory test cannot exercise it); the picker is at the top of the page,
+  so `hydrate-on-visible` would hydrate at once anyway.
+  Step 5, progressive lists: not done, same reason as 2 (fewer server-rendered elements moves the full-page baselines).
+  Known, not caused by this cut (identical at HEAD): visual failures mobile week-light (3280 vs 3285 px), tablet and
+  desktop batch-light (5613 vs 5614); local perf test CLS 0.36 on the shopping list (0.361 at HEAD, footer shift);
+  `pointer.e2e` "keeps the hand" fails about one run in three on desktop (cursor read on a node replaced by hydration).

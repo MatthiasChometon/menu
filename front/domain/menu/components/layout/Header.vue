@@ -89,10 +89,7 @@ const displayPreferencesOpened = useOpenedOnce(isDisplayPreferencesOpen);
 </script>
 
 <template>
-  <header
-    class="sticky top-0 z-40 border-b border-default bg-default/85 backdrop-blur-lg"
-    role="banner"
-  >
+  <header class="sticky top-0 z-40 border-b border-default bg-default" role="banner">
     <div class="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
       <NuxtLink :to="localePath('/')" class="group flex min-w-0 items-center gap-2.5">
         <!-- The favicon itself, not a lookalike: the header, the browser tab,

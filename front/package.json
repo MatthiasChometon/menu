@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
-    "generate": "tsx infrastructure/images/scripts/localizeImages.ts && nuxt generate",
-    "check:generated": "tsx infrastructure/images/scripts/checkGenerated.ts && tsx infrastructure/performance/scripts/checkEntryChunk.ts",
+    "generate": "tsx infrastructure/images/scripts/localizeImages.ts && nuxt generate && tsx infrastructure/performance/scripts/pruneGeneratedCss.ts",
+    "check:generated": "tsx infrastructure/images/scripts/checkGenerated.ts && tsx infrastructure/performance/scripts/checkEntryChunk.ts && tsx infrastructure/performance/scripts/checkStylesheet.ts",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "check": "tsx domain/menu/scripts/check.ts",
@@ -61,6 +61,7 @@
     "eslint": "^10.7.0",
     "eslint-plugin-jsonc": "^3.3.0",
     "happy-dom": "^20.10.6",
+    "postcss": "8.5.33",
     "prettier": "^3.9.5",
     "sharp": "^0.35.4",
     "tsx": "^4.23.13",
