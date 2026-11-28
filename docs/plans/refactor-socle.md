@@ -747,3 +747,9 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Chunks de la page recette : données de toutes les recettes (20,7 Ko gz) et des aliments (5,2 Ko), Sentry client (32 Ko), tailwind-merge/tv (13,4 Ko), bundle d'icônes (10,9 Ko) ; Select + floating-ui + FocusScope + Textarea (~50 Ko) venaient de `USelect`, `UTextarea` (note) et `UAlert`.
 - Essai : `Lazy*` + `hydrate-on-idle` / `hydrate-on-visible` sur ces composants (recette, composer, courses, accueil) : -50 Ko avant le LCP, mais CI pire : TBT 253 / 290 / 150, LCP recette 2571, job timings en échec. Annulé.
 - Reste sans levier simple : données de recettes en un seul chunk, Sentry, tv.
+
+### M15 front : données de recettes par recette (28/11)
+
+- f914e87 + c36493c : le catalogue lu par toutes les pages n'a plus les étapes (19,4 -> 5,7 Ko gz) ; une chunk par recette (`virtual:recipe-steps/<id>`, ~1 Ko) est chargée par la page recette (embarquée dans son payload), le dialogue de plat et le mode cuisine. Test : la chunk d'une recette ne contient aucune autre recette. Entrée 156 203 o.
+- CI (index runner 2500, plus lent que 2950 du run précédent) : LCP `/` 2197, composer 2349, courses 2185, recette 2561, recettes 2411 ; TBT 234 / 219 / 284 / 74 / 72. Au run précédent (même code, runner à 2950) : TBT texte 196 / 178 / 156, mais recette 2569. Le LCP recette ne bouge pas : les données ne sont pas sur son chemin critique.
+- Sentry : déjà chargé seulement à la première erreur ; avec l'API simulée de la CI il n'est jamais demandé (vérifié en local : 0 requête sur `/` et sur une recette). Le différer après idle ajouterait 32 Ko de téléchargement pendant la mesure : non fait.
