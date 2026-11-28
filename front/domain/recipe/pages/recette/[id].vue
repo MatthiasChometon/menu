@@ -9,7 +9,7 @@ const localePath = useLocalePath();
 const { t } = useNuxtApp().$i18n;
 const { dayLabel, mealLabel } = useMenuLabels();
 const { selectedMenu: currentMenu } = useSelectedWeek();
-const { recipeOf, imageOf } = useRecipes();
+const { recipeOf, imageOf, loadStepsOf } = useRecipes();
 const { variantsOf, portionsOf, weekQuantitiesOf } = useRecipeVariants();
 const { seasoningsOf } = useSeasonings();
 const { nameOf, stepsOf } = useFoodFormat();
@@ -27,6 +27,10 @@ const {
 const WEEK = 'week';
 
 const recipeId = computed((): string => String(route.params.id));
+
+// The catalogue carries no steps: this recipe's own chunk, and no other, is read before
+// the page renders, so the prerendered page and the hydrated one show the same steps.
+await loadStepsOf(recipeId.value);
 
 const recipe = computed((): Recipe | undefined => recipeOf(recipeId.value));
 

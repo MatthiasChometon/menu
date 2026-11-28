@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
+import { recipeSplitPlugin } from './infrastructure/performance/recipeSplitPlugin';
 import { lazyIconBundlePlugin } from './infrastructure/ui/utils/lazyIconBundlePlugin';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
@@ -82,6 +83,7 @@ export default defineNuxtConfig({
   },
   hooks: {
     'vite:extendConfig': (config, { isClient }): void => {
+      config.plugins?.push(recipeSplitPlugin('domain/menu/content/recipes.json'));
       if (isClient) config.plugins?.push(lazyIconBundlePlugin());
     },
     'build:manifest': (manifest): void => {

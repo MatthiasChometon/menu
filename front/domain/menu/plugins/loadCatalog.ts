@@ -1,7 +1,7 @@
 import { foodCatalog } from '../composables/useFoods';
 import { recipeCatalog } from '../composables/useRecipes';
 
-// The catalogues are about 25 KB gzipped of JSON that every page reads, but
+// The catalogues (the recipes without their steps, see recipeSplitPlugin) are JSON that every page reads, but
 // that no page needs before the plugins have run: loading them here, from
 // their own chunk, keeps them out of the entry script the browser has to parse
 // before anything else. enforce 'pre' puts it ahead of every plugin that reads
@@ -14,7 +14,7 @@ export default defineNuxtPlugin({
     const { buildFoodCatalog, buildRecipeCatalog } = useCatalogBuilder();
     const [foods, recipes] = await Promise.all([
       import('~~/domain/menu/content/foods.json'),
-      import('~~/domain/menu/content/recipes.json'),
+      import('virtual:recipe-catalog'),
     ]);
     Object.assign(foodCatalog, buildFoodCatalog(foods.default));
     Object.assign(recipeCatalog, buildRecipeCatalog(recipes.default));

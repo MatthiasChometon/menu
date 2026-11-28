@@ -17,6 +17,7 @@ mockNuxtImport(
     (): {
       recipeOf: () => unknown;
       imageOf: () => undefined;
+      loadStepsOf: () => Promise<void>;
     } => ({
       recipeOf: (): unknown => ({
         id: 'chiliChicken',
@@ -29,6 +30,7 @@ mockNuxtImport(
         steps: { fr: ['Cuire.'], en: ['Cook.'] },
       }),
       imageOf: (): undefined => undefined,
+      loadStepsOf: (): Promise<void> => Promise.resolve(),
     }),
 );
 

@@ -1,4 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+
+// The catalogue carries no steps: they load one recipe at a time, so the checks that
+// walk every recipe load them all first.
+beforeAll(async (): Promise<void> => {
+  const { recipes, loadStepsOf } = useRecipes();
+  await Promise.all(Object.keys(recipes).map((id): Promise<void> => loadStepsOf(id)));
+});
 
 describe('useRecipeSteps', () => {
   it('splits a step into its plain text and its ingredient mentions', () => {

@@ -2,6 +2,8 @@
 const { selectedMenu: currentMenu, isLoading, hasFailed, retry } = useSelectedWeek();
 const { planOf } = useBatchPlan();
 const { nameOf, stepsOf } = useFoodFormat();
+const { loadStepsOf } = useRecipes();
+const { reportError } = useErrorReporting();
 const { t } = useNuxtApp().$i18n;
 const localePath = useLocalePath();
 const { isSupported, isActive, request, release } = useWakeLock();
@@ -9,6 +11,14 @@ const { isSupported, isActive, request, release } = useWakeLock();
 const plan = computed((): BatchPlan | undefined =>
   currentMenu.value === undefined ? undefined : planOf(currentMenu.value),
 );
+
+// The steps are not in the catalogue: the plan's recipes load theirs, one chunk each.
+watchEffect((): void => {
+  for (const task of plan.value?.tasks ?? [])
+    loadStepsOf(task.recipe.id).catch((failure: unknown): void =>
+      reportError('batch:loadSteps', failure),
+    );
+});
 
 const heading = ref<HTMLHeadingElement | null>(null);
 
