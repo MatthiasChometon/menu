@@ -734,3 +734,10 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Le TBT monte de 30 à 120 ms sur toutes les pages depuis la découpe des messages : le script d'entrée passe de 409 à 584 ms (`/recettes`), à taille égale.
 - Pas reproduit en local (profil CDP, CPU x4, 7 runs : 1405 ms contre 1389 ms pour `/composer`), ni avec `runtimeOnly`/`dropMessageCompiler` alignés sur Nuxt. Cause non isolée.
 - Bissection par la CI impossible sans relever le plafond d'entrée (157 000 o), refusé : le job échoue avant Lighthouse si `icon.collections` est retiré.
+
+### M15 front : diagnostic et revert de la découpe (28/11)
+
+- Plafond relevé à 160 000 o pour UN run (2b0d309), remis à 157 000 o dans df21534. Sans `icon.collections` ni découpe : TBT `/` 189, composer 254, courses 107 ; avec la découpe et la liste : 219 / 300 / 221.
+- Découpe des messages annulée (df21534) : -12 ms de LCP recette pour +30 à +120 ms de TBT. Après annulation (avec `icon.collections`) : LCP 2183 / 2349 / 2184 / recette 2557 / recettes 2409 ; TBT 216 / 211 / 203 / 71 / 65.
+- Sans `icon.collections` après annulation : TBT 243 / 213 / 241, donc l'écart des runs CI à config égale est de ±30 ms : le TBT du canal est trop bruité pour trancher un levier de 20 ms. `icon.collections` conservé (entrée -1,1 Ko).
+- Reste : TBT texte 3-16 ms au-dessus de 200 et LCP recette 57 ms au-dessus de 2500 ; il faut un vrai levier (travail du script d'entrée, hydratation différée du bas de page), pas un réglage.
