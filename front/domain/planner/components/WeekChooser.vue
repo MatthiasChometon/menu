@@ -51,9 +51,8 @@ const lengthOptions = computed((): { label: string; value: number }[] =>
         :aria-label="$t('menu.week.previous')"
         @click="go(-1)"
       />
-      <LazyUSelect
+      <USelect
         v-model="week"
-        hydrate-on-idle
         :items="options"
         value-key="value"
         class="min-w-0 flex-1 font-semibold"
@@ -76,10 +75,9 @@ const lengthOptions = computed((): { label: string; value: number }[] =>
       <p class="px-1 text-xs text-muted">
         <span v-if="isReady">{{ $t('planner.weekChoice.from') }} {{ dateOf(week) }}</span>
       </p>
-      <LazyUSelect
+      <USelect
         v-if="isReady"
         v-model="length"
-        hydrate-on-idle
         :items="lengthOptions"
         value-key="value"
         size="sm"

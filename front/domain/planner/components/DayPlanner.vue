@@ -112,8 +112,7 @@ const statusLabel = computed((): string => {
     <div v-if="isOpen" :id="`plan-${day.key}`" class="mt-4 grid gap-2">
       <div v-for="slot in mealOrder" :key="slot" class="flex items-center gap-3">
         <span class="w-28 shrink-0 text-sm text-muted">{{ mealLabel(slot) }}</span>
-        <LazyUSelect
-          hydrate-on-idle
+        <USelect
           :model-value="chosen(day.key, slot)"
           :items="itemsFor(slot)"
           value-key="value"

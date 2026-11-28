@@ -42,10 +42,9 @@ const spendDeltaLabel = computed((): string => {
         <label for="spent" class="text-sm font-medium text-muted">
           {{ $t('shopping.spend.title') }}
         </label>
-        <LazyUInput
+        <UInput
           id="spent"
           v-model="spentInput"
-          hydrate-on-idle
           type="number"
           min="0"
           inputmode="decimal"
@@ -58,7 +57,7 @@ const spendDeltaLabel = computed((): string => {
           <template #trailing>
             <span class="text-sm text-muted" aria-hidden="true">€</span>
           </template>
-        </LazyUInput>
+        </UInput>
       </div>
       <dl class="flex items-center gap-5 tabular-nums">
         <div>

@@ -145,9 +145,8 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         $t('accessibility.loading')
       }}</span>
 
-      <LazyUAlert
+      <UAlert
         v-if="status === 'upcoming'"
-        hydrate-on-idle
         class="rise mt-5"
         color="primary"
         variant="subtle"
@@ -160,11 +159,10 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
           </span>
           <span class="block">{{ $t('menu.status.beforeStart') }}</span>
         </template>
-      </LazyUAlert>
+      </UAlert>
 
-      <LazyUAlert
+      <UAlert
         v-else-if="status === 'past'"
-        hydrate-on-idle
         class="rise mt-5"
         color="neutral"
         variant="subtle"
@@ -174,7 +172,7 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <template #description>
           {{ hasLaterWeek ? $t('menu.status.pastHasNext') : $t('menu.status.pastNoNext') }}
         </template>
-      </LazyUAlert>
+      </UAlert>
 
       <!-- Above the week itself: what to eat on Monday matters more than
            re-reading a week already lived. -->

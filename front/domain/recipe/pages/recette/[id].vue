@@ -180,15 +180,14 @@ if (heroImage !== undefined) {
         </div>
       </header>
 
-      <LazyRecipeNoteEditor hydrate-on-visible :recipe-id="recipeId" />
+      <RecipeNoteEditor :recipe-id="recipeId" />
 
       <section v-if="variant !== undefined" class="rise space-y-3" style="animation-delay: 60ms">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-xl font-bold">{{ $t('recipe.ingredients') }}</h2>
-          <LazyUSelect
+          <USelect
             v-if="portions > 1"
             v-model="selectedId"
-            hydrate-on-visible
             :items="portionItems"
             value-key="value"
             :aria-label="$t('recipe.portionChoice')"
@@ -199,7 +198,7 @@ if (heroImage !== undefined) {
         <!-- The recipe is still shown, as written, but the reader must know it is
              not weighed for them: the quantities below would otherwise pass for
              their own. -->
-        <LazyUAlert
+        <UAlert
           v-if="hasEatersFailed"
           class="mb-3"
           role="alert"
@@ -213,8 +212,8 @@ if (heroImage !== undefined) {
               {{ $t('recipe.retry') }}
             </UButton>
           </template>
-        </LazyUAlert>
-        <LazyUAlert
+        </UAlert>
+        <UAlert
           v-if="isWeek"
           class="mb-3"
           color="primary"
@@ -223,7 +222,7 @@ if (heroImage !== undefined) {
           :title="`${$t('recipe.cookingFor')} ${portions} ${portionLabel(portions)}`"
           :description="$t('recipe.cookingForHint')"
         />
-        <LazyUAlert
+        <UAlert
           v-if="isPersonalised"
           class="mb-3"
           color="primary"

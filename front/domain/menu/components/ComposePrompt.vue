@@ -37,9 +37,8 @@ const {
         {{ $t('menu.compose.action') }}
       </UButton>
     </div>
-    <LazyUAlert
+    <UAlert
       v-if="generateFirstWeekFailed"
-      hydrate-on-idle
       class="mt-3"
       color="error"
       variant="subtle"
