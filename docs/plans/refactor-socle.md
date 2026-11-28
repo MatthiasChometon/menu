@@ -727,3 +727,10 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Image recette : `HERO_SIZES` (736 px au-delà de 800 px, sinon 100vw - 32 px) correspond à la largeur affichée (`max-w-3xl` moins le padding) ; la variante 768 est choisie à 412 px x 1,75. L'écart 22,7 contre 17,7 Ko vient du contenu de la photo, pas du choix de variante. Qualité inchangée.
 - TBT 1460 ms sur `/courses` : tâche unique de 1613 ms dans l'entrée au tout premier run du groupe (les autres runs : 158-199 ms), même heure de départ : bruit du runner, pas un bug déterministe.
 - Les chunks propres à la page recette (≈ 12 Ko) : à mesurer sur le LHR du run suivant, après la coupe des messages.
+
+### M15 front : CI sur 11e3559 (28/11)
+
+- Relance du job Lighthouse : mêmes chiffres, donc pas du bruit. LCP recette 2558, TBT `/` 219, `/composer` 300, `/courses` 221 (un run à 490), `/recettes` 92, recette 94.
+- Le TBT monte de 30 à 120 ms sur toutes les pages depuis la découpe des messages : le script d'entrée passe de 409 à 584 ms (`/recettes`), à taille égale.
+- Pas reproduit en local (profil CDP, CPU x4, 7 runs : 1405 ms contre 1389 ms pour `/composer`), ni avec `runtimeOnly`/`dropMessageCompiler` alignés sur Nuxt. Cause non isolée.
+- Bissection par la CI impossible sans relever le plafond d'entrée (157 000 o), refusé : le job échoue avant Lighthouse si `icon.collections` est retiré.
