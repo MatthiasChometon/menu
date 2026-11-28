@@ -710,3 +710,9 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Critical CSS measured on CI (run of 0875025) and reverted: simulated FCP 1844 -> 2110 ms on every page, photo LCP
   unchanged (2709 / 2711), TBT unchanged within noise. Inlining the rules and still fetching the full stylesheet
   costs more than the blocking request it removes.
+
+## M15 front : réduction de l'entrée (28/11)
+
+- Carte de l'entrée (gzip estimé) : Vue runtime 22K, iconify 6.5K, reactivity 6.3K, vue-router 5.3K, intlify 5.3K, runtime-dom 4.7K, NuxtLink 3.7K, vue-i18n 3.5K, asyncData 3K, vueuse 2.8K ; Sentry, client GraphQL et catalogue i18n étaient déjà hors de l'entrée.
+- Coupe : le bundle d'icônes `@nuxt/icon` (≈ 11 Ko gzip) se charge à la demande côté navigateur (`lazyIconBundlePlugin`, plugin Vite client branché par le hook `vite:extendConfig`), le serveur garde le bundle synchrone (`iconBundle.server.ts`). Entrée 168 282 -> 156 854 o gzip, plafond `check:generated` 169 000 -> 157 000. Test e2e : une icône dessinée après le chargement apparaît toujours.
+- Bancs Lighthouse CI : une API factice (`mock-api.cjs`) répond UNAUTHENTICATED comme la prod pour un visiteur, plutôt que des pages sans requête au chargement : mêmes données en prod, et plus d'erreurs réseau qui chargeaient Sentry pendant la mesure.

@@ -12,7 +12,7 @@ describe('the entry script', () => {
   });
 
   it('passes under its ceiling without the catalogue', () => {
-    expect(entryChunkProblemsOf({ gzipBytes: 160_000, source: 'const a = 1;' }, recipes)).toEqual(
+    expect(entryChunkProblemsOf({ gzipBytes: 150_000, source: 'const a = 1;' }, recipes)).toEqual(
       [],
     );
   });

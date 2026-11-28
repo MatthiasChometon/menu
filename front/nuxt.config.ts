@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { buildDynamicLayers, discoverBrandTokens } from './infrastructure/ddd/buildDynamicLayers';
+import { lazyIconBundlePlugin } from './infrastructure/ui/utils/lazyIconBundlePlugin';
 import { recipeRouteList } from './infrastructure/ddd/recipeRoutes';
 
 // Nuxt already turns on noUncheckedIndexedAccess. Left off on purpose:
@@ -77,6 +78,9 @@ export default defineNuxtConfig({
     },
   },
   hooks: {
+    'vite:extendConfig': (config, { isClient }): void => {
+      if (isClient) config.plugins?.push(lazyIconBundlePlugin());
+    },
     'build:manifest': (manifest): void => {
       for (const entry of Object.values(manifest)) {
         entry.assets = entry.assets?.filter((asset): boolean => !asset.endsWith('.webp'));

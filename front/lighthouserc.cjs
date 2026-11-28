@@ -26,7 +26,7 @@ module.exports = {
   ci: {
     collect: {
       numberOfRuns: 5,
-      startServerCommand: `pnpm dlx serve@14.2.4 .output/public -l ${process.env.PORT ?? '3777'}`,
+      startServerCommand: `node infrastructure/performance/mock-api.cjs & pnpm dlx serve@14.2.4 .output/public -l ${process.env.PORT ?? '3777'}`,
       // What serve prints once it listens: "Accepting connections at http://localhost:<port>".
       startServerReadyPattern: 'Accepting connections',
       startServerReadyTimeout: 120000,
