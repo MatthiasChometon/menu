@@ -175,8 +175,9 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       {{ $t('accessibility.loading') }}
     </span>
 
-    <UAlert
+    <LazyUAlert
       v-else-if="step === 0"
+      hydrate-on-idle
       class="rise mt-5"
       color="neutral"
       variant="subtle"

@@ -16,8 +16,9 @@ const monday = computed((): string =>
 <template>
   <!-- Only when there is nothing to eat on Monday. Repeating it once the week
        is planned would train the reader to skip the banner entirely. -->
-  <UAlert
+  <LazyUAlert
     v-if="weekOf !== undefined && !isPlanned"
+    hydrate-on-idle
     class="rise"
     color="primary"
     variant="subtle"
@@ -36,5 +37,5 @@ const monday = computed((): string =>
         {{ $t('menu.planNext.action') }}
       </UButton>
     </template>
-  </UAlert>
+  </LazyUAlert>
 </template>

@@ -5,7 +5,8 @@ const emit = defineEmits<{ retry: [] }>();
 <template>
   <!-- The week could not be fetched: say so and offer the retry, rather than pass
        it off as an empty week and send the reader to compose another. -->
-  <UAlert
+  <LazyUAlert
+    hydrate-on-idle
     role="alert"
     color="error"
     variant="subtle"

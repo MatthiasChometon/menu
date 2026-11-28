@@ -33,7 +33,7 @@ const choose = (): void => {
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="nameOf(recipe)">
+  <LazyUModal v-model:open="open" hydrate-on-idle :title="nameOf(recipe)">
     <template #body>
       <div class="space-y-5">
         <div class="aspect-[16/10] overflow-hidden rounded-2xl">
@@ -112,5 +112,5 @@ const choose = (): void => {
         {{ chosen ? $t('planner.detail.remove') : $t('planner.detail.choose') }}
       </UButton>
     </template>
-  </UModal>
+  </LazyUModal>
 </template>

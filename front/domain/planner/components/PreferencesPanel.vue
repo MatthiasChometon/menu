@@ -70,7 +70,7 @@ const windowItems = computed((): Option[] => [
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="$t('planner.preferences.title')">
+  <LazyUModal v-model:open="open" hydrate-on-idle :title="$t('planner.preferences.title')">
     <template #body>
       <div class="space-y-5">
         <p class="text-sm text-muted">{{ $t('planner.preferences.lead') }}</p>
@@ -94,7 +94,8 @@ const windowItems = computed((): Option[] => [
         </fieldset>
 
         <UFormField :label="$t('planner.preferences.maxPrep')">
-          <USelect
+          <LazyUSelect
+            hydrate-on-idle
             :model-value="preferences.maxPrepMinutes"
             :items="prepItems"
             value-key="value"
@@ -104,7 +105,8 @@ const windowItems = computed((): Option[] => [
         </UFormField>
 
         <UFormField :label="$t('planner.preferences.maxRepeats')">
-          <USelect
+          <LazyUSelect
+            hydrate-on-idle
             :model-value="preferences.maxRepeatsPerWeek"
             :items="repeatItems"
             value-key="value"
@@ -117,8 +119,9 @@ const windowItems = computed((): Option[] => [
           :label="$t('planner.preferences.weeklyBudget')"
           :hint="$t('planner.preferences.weeklyBudgetHint')"
         >
-          <UInput
+          <LazyUInput
             v-model="budgetInput"
+            hydrate-on-idle
             type="number"
             min="0"
             inputmode="numeric"
@@ -131,14 +134,15 @@ const windowItems = computed((): Option[] => [
             <template #trailing>
               <span class="text-sm text-muted" aria-hidden="true">€</span>
             </template>
-          </UInput>
+          </LazyUInput>
         </UFormField>
 
         <UFormField
           :label="$t('planner.preferences.varietyWindow')"
           :help="$t('planner.preferences.varietyWindowHint')"
         >
-          <USelect
+          <LazyUSelect
+            hydrate-on-idle
             :model-value="varietyWindowWeeksSetting"
             :items="windowItems"
             value-key="value"
@@ -152,5 +156,5 @@ const windowItems = computed((): Option[] => [
     <template #footer>
       <UButton block @click="open = false">{{ $t('planner.preferences.done') }}</UButton>
     </template>
-  </UModal>
+  </LazyUModal>
 </template>

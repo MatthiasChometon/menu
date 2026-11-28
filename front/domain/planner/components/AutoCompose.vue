@@ -73,8 +73,9 @@ const onDuplicate = (): void => {
       </UButton>
 
       <template v-if="weekOptions.length > 0">
-        <USelect
+        <LazyUSelect
           v-model="selectedSource"
+          hydrate-on-idle
           :items="weekOptions"
           value-key="value"
           size="sm"

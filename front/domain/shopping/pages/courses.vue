@@ -212,8 +212,9 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         :estimated-total="estimatedTotal"
       />
 
-      <UAlert
+      <LazyUAlert
         v-if="isComplete"
+        hydrate-on-idle
         class="rise mt-4"
         color="primary"
         variant="subtle"
@@ -278,7 +279,7 @@ useSeoMeta({ title: (): string => t('shopping.title') });
         />
       </div>
 
-      <UModal v-model:open="isResetOpen" :title="$t('shopping.resetTitle')">
+      <LazyUModal v-model:open="isResetOpen" hydrate-on-idle :title="$t('shopping.resetTitle')">
         <template #body>
           <p class="text-muted">{{ $t('shopping.resetHint') }}</p>
         </template>
@@ -292,7 +293,7 @@ useSeoMeta({ title: (): string => t('shopping.title') });
             </UButton>
           </div>
         </template>
-      </UModal>
+      </LazyUModal>
     </template>
   </div>
 </template>
