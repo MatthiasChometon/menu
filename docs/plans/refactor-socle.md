@@ -706,3 +706,7 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Composer: the second re-render was not isolated. An unreachable API (as in Lighthouse CI) fails two requests
   and loads the Sentry client on the page; deferring that load until idle changed nothing measurable, so it was
   not kept.
+
+- Critical CSS measured on CI (run of 0875025) and reverted: simulated FCP 1844 -> 2110 ms on every page, photo LCP
+  unchanged (2709 / 2711), TBT unchanged within noise. Inlining the rules and still fetching the full stylesheet
+  costs more than the blocking request it removes.
