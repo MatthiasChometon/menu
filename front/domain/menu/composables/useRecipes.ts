@@ -14,7 +14,7 @@ export const useRecipes = (): {
   recipes: Record<string, Recipe>;
   recipeOf: (id: string) => Recipe | undefined;
   imageOf: (recipe: Recipe) => string | undefined;
-  loadStepsOf: (id: string) => Promise<void>;
+  loadStepsOf: (id: string, options?: { ship?: boolean }) => Promise<void>;
 } => {
   const { recipeImage } = useImages();
 
@@ -22,11 +22,21 @@ export const useRecipes = (): {
     recipes: recipeCatalog,
     recipeOf: (id: string): Recipe | undefined => recipeCatalog[id],
     imageOf: (recipe: Recipe): string | undefined => recipeImage(recipe.id),
-    loadStepsOf: async (id: string): Promise<void> => {
-      if (id in recipeSteps) return;
-      const { default: loaders } = await import('virtual:recipe-steps');
-      const load = loaders[id];
-      if (load !== undefined) recipeSteps[id] = (await load()).default;
+    // `ship` puts the steps in the page's payload: the prerendered page then carries
+    // them and the browser reads them back without a request of its own, which a
+    // recipe's own page, being what it is opened for, can afford. Called from a
+    // component's setup, before anything is awaited, since it reads the nuxt app.
+    loadStepsOf: async (id: string, { ship = false } = {}): Promise<void> => {
+      const shipped = ship ? useState<LocalizedSteps | undefined>(`recipe-steps:${id}`) : undefined;
+      let steps = shipped?.value ?? recipeSteps[id];
+      if (steps === undefined) {
+        const { default: loaders } = await import('virtual:recipe-steps');
+        steps = (await loaders[id]?.())?.default;
+      }
+      if (steps === undefined) return;
+
+      recipeSteps[id] = steps;
+      if (shipped !== undefined) shipped.value = steps;
     },
   };
 };

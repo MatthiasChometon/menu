@@ -29,8 +29,8 @@ const WEEK = 'week';
 const recipeId = computed((): string => String(route.params.id));
 
 // The catalogue carries no steps: this recipe's own chunk, and no other, is read before
-// the page renders, so the prerendered page and the hydrated one show the same steps.
-await loadStepsOf(recipeId.value);
+// the page renders, and shipped in its payload so the browser needs no request for it.
+await loadStepsOf(recipeId.value, { ship: true });
 
 const recipe = computed((): Recipe | undefined => recipeOf(recipeId.value));
 
