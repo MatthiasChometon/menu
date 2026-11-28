@@ -96,30 +96,6 @@ const filledDays = computed((): PlannedDay[] =>
 
 const hasWeek = computed((): boolean => filledDays.value.length > 0);
 
-// The spread week is drawn a day per task once the page is up, then the household balance below it
-// (hydrated on scroll it stayed French for an English visitor, and the seven planners cost one long
-// task); a skeleton holds each place meanwhile.
-const { stage } = useStagedReveal();
-const revealedDays = ref(0);
-const isBalanceShown = ref(false);
-const hasStagedWeek = ref(false);
-watch(
-  [isMounted, hasWeek],
-  ([mounted, week]): void => {
-    if (!mounted || !week || hasStagedWeek.value) return;
-    hasStagedWeek.value = true;
-    days.value.forEach((): void => {
-      stage((): void => {
-        revealedDays.value += 1;
-      });
-    });
-    stage((): void => {
-      isBalanceShown.value = true;
-    });
-  },
-  { immediate: true },
-);
-
 // Only the savoury dishes are required: a week with no lunch cannot be spread.
 // The other steps may be skipped, so the button says so rather than blocking.
 // Every step has a floor now: a week missing a meal is one the solver has to
@@ -312,18 +288,16 @@ useHead({ bodyAttrs: { class: 'has-action-bar' } });
       <p v-if="!hasWeek" class="mt-3 text-sm text-muted">{{ $t('planner.spreadBlocked') }}</p>
 
       <section v-else class="mt-4 space-y-4">
-        <template v-for="(day, index) in days" :key="day.key">
-          <PlannerDayPlanner
-            v-if="index < revealedDays"
-            :day="day"
-            :index="index"
-            :default-open="index === 0"
-          />
-          <USkeleton v-else class="h-16 rounded-2xl" aria-hidden="true" />
-        </template>
+        <PlannerDayPlanner
+          v-for="(day, index) in days"
+          :key="day.key"
+          :day="day"
+          :index="index"
+          :default-open="index === 0"
+        />
       </section>
 
-      <PlannerHouseholdBalance v-if="hasWeek && isBalanceShown" />
+      <LazyPlannerHouseholdBalance v-if="hasWeek" hydrate-on-visible />
     </template>
 
     <!-- The way forward stays under the thumb, whatever the length of the list.

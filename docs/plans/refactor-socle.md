@@ -658,3 +658,22 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
   the coordinator.
 - Not done: the top blocks of `/` (plan-next-week, summary, adherence) are still drawn with the page; staging them
   needs a reserved height per state, otherwise it adds layout shift.
+
+### 2026-11-28 - M15, sixth cut (composer TBT, LCP path, images)
+
+- **/composer TBT 276 -> 548.** Long task: the entry script (`Bp7TQv37.js`), 247 ms -> 508 ms at the hydration
+  time. The staging of the day planners added to the composer was useless (the prerender never has a week, so
+  nothing was server-rendered there) and is reverted. A real hydration mismatch was found on /composer: the
+  prerender wrote the default targets while the first client render drew the profile skeleton
+  (`useProfile().isLoading` was true on the client only). `isLoading` is now true until mounted, on both sides;
+  /composer, /courses, /recettes and the recipe page hydrate with no mismatch. `/` still mismatches for an
+  English visitor, by design (French prerender, switched to English at hydration).
+- **LCP of the photo pages (simulated 2.7 s, observed render delay 100 ms).** The simulation charges every request
+  started before the LCP: the entry script (169 KB gz, started at 53 ms), the stylesheet (21 KB), the payload
+  (15 KB), two fonts (45 KB), against a 1.6 Mbit/s link, which is why the photograph (23 KB) lands late. The
+  entry script does nothing for what is painted, so the generated pages now start it on `load` (or after 4 s):
+  `deferEntryScript.ts`, run after the prune in `pnpm generate`. Hydration starts later by the time the page takes
+  to load; to be confirmed by the CI numbers (LCP and TBT).
+- **Images.** Source: `https://images.menu.mtxlab.xyz` (the author's own host), 169 photographs listed in the
+  manifest (9 more are listed but absent), 9.5 MB; the 1216 generated files are 23 MB. They are not in the
+  repository: left to the maintainer's decision.
