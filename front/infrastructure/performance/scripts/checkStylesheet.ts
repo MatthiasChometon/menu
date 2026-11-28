@@ -7,15 +7,9 @@ import { stylesheetProblemsOf } from '../stylesheet';
 const OUTPUT = '.output/public';
 
 const html = readFileSync(join(OUTPUT, 'index.html'), 'utf8');
-// The same file is linked twice once the critical rules are inlined (the lazy link and its
-// noscript fallback): counted once.
-const hrefs = [
-  ...new Set(
-    [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(
-      (match): string => match[1] ?? '',
-    ),
-  ),
-];
+const hrefs = [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map(
+  (match): string => match[1] ?? '',
+);
 if (hrefs.length === 0) {
   process.stderr.write('index.html links no stylesheet\n');
   process.exit(1);
