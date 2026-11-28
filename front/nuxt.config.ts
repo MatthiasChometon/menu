@@ -35,7 +35,6 @@ export default defineNuxtConfig({
     // every stylesheet rule at start-up to learn which icon classes exist
     // (about 150 ms of main thread at CPU x4); inline svg has nothing to scan.
     mode: 'svg',
-    collections: ['lucide', 'simple-icons'],
     // Most icons are named in composables (the nav entries, the profile
     // choices) rather than written in a template, and the scan only reads
     // templates by default — those icons were left out of the bundle and the app
