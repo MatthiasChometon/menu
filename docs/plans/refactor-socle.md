@@ -635,3 +635,26 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - Entry script 197 KB -> 168.7 KB gzipped (ceiling `ENTRY_CHUNK_BUDGET_GZIP_BYTES` 198 000 -> 169 000). Source-map attribution of the chunk showed `UApp` (toaster, reka tooltip and config providers), `UButton` / `UAvatar` / `ULink` (header, three FABs, `error.vue`, which Nuxt inlines in the entry) and with them `tailwind-merge` (30 KB), the button theme (12 KB) and `tailwind-variants`. Now: `UiAppProviders` gives the Nuxt UI components what they read from `UApp` (locale, portal target) and nothing else; `LazyUToaster` is mounted on the first toast (`useOpenedOnce`); header, FABs and `error.vue` use `UiPlainButton` (now also a link with `to`), the avatar is `LazyUAvatar` inside the lazy account menu, the skeleton a plain span. `@nuxtjs/i18n`: `compositionOnly` and `fullInstall: false` added to `runtimeOnly` + `dropMessageCompiler` (messages are precompiled; en and fr pages checked in the e2e runs). Locale files of Nuxt UI (fr + en, 7 KB) and the icon client bundle (57 KB) are the next largest items.
 - FAB buttons: `UiPlainButton` has no tailwind-merge, so the FABs' `rounded-full` lost to its `rounded-md`; they now use `rounded-full!`.
 - Visual baselines (fix of M5 regression, partly): ruled out by a fresh `pnpm generate` + visual run each time: the `?.` of `useHead` in `app.vue`, the strictness flags of `nuxt.config.ts`, the manifest validation (already replaced by `imageManifestFrom`, 338 webp baked in). Found while comparing the captures: below-the-fold blocks of `/` (`hydrate-on-visible`: day cards, reminders, footer) stay in the prerendered French when the visitor's locale is English until they are scrolled into view, so the baselines (English everywhere) cannot match; making them `hydrate-on-idle` gets the content right but is a TBT trade-off left to the coordinator. The 1 px height is not explained yet: with the header opaque (163d4ee) the first rows differ in colour, and the extra pixel is a sub-pixel accumulation above the footer.
+
+## 2026-11-28 - M15 front, fifth cut (English visitor, staged reveal, plain buttons, images in CI)
+
+- **English visitor seeing French (bug, fixed).** The locale arrives by client detection, not by route: `/` is
+  prerendered in French (`prefix_except_default`), then `detectBrowserLanguage` (`redirectOn: 'root'`) moves an
+  English browser to `/en` at hydration. Lazy components with `hydrate-on-visible` keep the prerendered French
+  markup until scrolled to, so every card below the fold and the footer stayed French. The cards, the reminders,
+  the footer and the composer's day planners and household balance are now drawn by `useStagedReveal` (one block per
+  task after the first paint, a skeleton holding each place), in the language the page is in. Test:
+  `domain/menu/pages/index.e2e.test.ts` (en, no scroll, no French word on the page).
+- `UiPlainButton` gained `xl`, `outline` (primary) and `block`, each checked against the Nuxt UI `button` theme in
+  `plainButton.test.ts`; the three `UButton` of `/` are replaced.
+- `localizeImages` retries a failed request (4 attempts, growing pause) and `public/img` is cached between CI runs
+  (`actions/cache`, `restore-keys`), so a run starts from the photographs already converted and a dropped
+  connection no longer fails the job.
+- **M5 regression (1 px, week-light mobile 3281 vs 3280; batch-light tablet 5614 vs 5613, desktop 5550 vs 5549).**
+  Not fixed, investigation stopped. Eliminated: the `?.` in `app.vue` `useHead`, the strictness flags of
+  `nuxt.config.ts`, the image-manifest validation (fixed upstream, 338 webp baked in), and the French/English
+  hydration gap above (still 1 px after it). Owner: M12b. Exit condition: the three baselines match on the
+  generated site with no baseline change, or the extra pixel is attributed to a named element and accepted by
+  the coordinator.
+- Not done: the top blocks of `/` (plan-next-week, summary, adherence) are still drawn with the page; staging them
+  needs a reserved height per state, otherwise it adds layout shift.

@@ -1,5 +1,5 @@
-export type PlainButtonVariant = 'ghost' | 'subtle' | 'solid' | 'soft';
-export type PlainButtonSize = 'xs' | 'sm' | 'md' | 'lg';
+export type PlainButtonVariant = 'ghost' | 'subtle' | 'solid' | 'soft' | 'outline';
+export type PlainButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type PlainButtonColor = 'primary' | 'neutral' | 'error';
 
 // Static class lists equal to what Nuxt UI's `UButton` resolves for these combinations. They are
@@ -14,6 +14,7 @@ const sizes: Record<PlainButtonSize, { text: string; padding: string; square: st
   sm: { text: 'text-xs gap-1.5', padding: 'px-2.5 py-1.5', square: 'p-1.5' },
   md: { text: 'text-sm gap-1.5', padding: 'px-2.5 py-1.5', square: 'p-1.5' },
   lg: { text: 'text-sm gap-2', padding: 'px-3 py-2', square: 'p-2' },
+  xl: { text: 'text-base gap-2', padding: 'px-3 py-2', square: 'p-2' },
 };
 
 // Only the combinations the app uses; add one here with its test row when a new one is needed.
@@ -30,6 +31,8 @@ const looks = {
     'text-inverted bg-primary hover:bg-primary/75 active:bg-primary/75 disabled:bg-primary aria-disabled:bg-primary outline-primary/25 focus-visible:outline-3',
   'primary-soft':
     'text-primary bg-primary/10 hover:bg-primary/15 active:bg-primary/15 outline-primary/25 focus-visible:outline-3 disabled:bg-primary/10 aria-disabled:bg-primary/10',
+  'primary-outline':
+    'ring ring-inset ring-primary/50 text-primary hover:bg-primary/10 active:bg-primary/10 disabled:bg-transparent aria-disabled:bg-transparent dark:disabled:bg-transparent dark:aria-disabled:bg-transparent outline-primary/25 focus-visible:outline-3 focus-visible:ring-primary',
   'error-solid':
     'text-inverted bg-error hover:bg-error/75 active:bg-error/75 disabled:bg-error aria-disabled:bg-error outline-error/25 focus-visible:outline-3',
   'error-ghost':
@@ -47,15 +50,18 @@ export const plainButtonLooks = Object.keys(looks).map(
 );
 
 const defaultColor = (variant: PlainButtonVariant): PlainButtonColor =>
-  variant === 'solid' || variant === 'soft' ? 'primary' : 'neutral';
+  variant === 'solid' || variant === 'soft' || variant === 'outline' ? 'primary' : 'neutral';
 
 export const plainButtonClasses = (
   variant: PlainButtonVariant,
   size: PlainButtonSize,
   square: boolean,
   color: PlainButtonColor = defaultColor(variant),
+  block = false,
 ): string => {
   const { text, padding, square: squarePadding } = sizes[size];
   const look = looks[`${color}-${variant}` as PlainButtonLook];
-  return [base, square ? squarePadding : padding, text, look].join(' ');
+  return [base, square ? squarePadding : padding, text, look, block ? 'w-full justify-center' : '']
+    .filter(Boolean)
+    .join(' ');
 };

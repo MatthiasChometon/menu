@@ -6,7 +6,7 @@ import { plainButtonClasses, plainButtonLooks, type PlainButtonSize } from './pl
 const classSet = (classes: string): string[] => classes.split(/\s+/).filter(Boolean).sort();
 
 describe('plainButtonClasses', () => {
-  const sizes: PlainButtonSize[] = ['xs', 'sm', 'md', 'lg'];
+  const sizes: PlainButtonSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
 
   for (const [color, variant] of plainButtonLooks) {
     for (const size of sizes) {
@@ -22,7 +22,17 @@ describe('plainButtonClasses', () => {
     }
   }
 
-  it('defaults solid and soft to primary and the others to neutral', () => {
+  for (const [color, variant] of plainButtonLooks) {
+    it(`matches UButton ${color} ${variant} block`, () => {
+      const expected = tv(theme)({ color, variant, size: 'xl', block: true }).base();
+
+      expect(classSet(plainButtonClasses(variant, 'xl', false, color, true))).toEqual(
+        classSet(expected),
+      );
+    });
+  }
+
+  it('defaults solid, soft and outline to primary and the others to neutral', () => {
     expect(plainButtonClasses('solid', 'md', false)).toBe(
       plainButtonClasses('solid', 'md', false, 'primary'),
     );

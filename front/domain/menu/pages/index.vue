@@ -67,6 +67,39 @@ const deliveryLabel = computed((): string | undefined => {
   });
 });
 
+// The week below the first screen is drawn after the page is up, one card per task. It used to be
+// server-rendered and hydrated when scrolled into view, which left an English visitor (sent from the
+// French root to /en once the browser is up) with the French markup of every card not yet reached.
+// Drawn here, in the language the page is in, it also costs the first load nothing.
+const { stage } = useStagedReveal();
+const revealedDays = ref(0);
+const areRemindersShown = ref(false);
+const hasStagedWeek = ref(false);
+
+const stageWeek = (): void => {
+  hasStagedWeek.value = true;
+  flexedDays.value.forEach((): void => {
+    stage((): void => {
+      revealedDays.value += 1;
+    });
+  });
+  stage((): void => {
+    areRemindersShown.value = true;
+  });
+};
+
+watch(
+  [isMounted, (): boolean => menu.value !== undefined],
+  ([mounted, hasMenu]): void => {
+    if (mounted && hasMenu && !hasStagedWeek.value) stageWeek();
+  },
+  { immediate: true },
+);
+
+const isWeekReady = computed(
+  (): boolean => revealedDays.value >= flexedDays.value.length && areRemindersShown.value,
+);
+
 useSeoMeta({ title: (): string => t('menu.pageTitle') });
 </script>
 
@@ -151,46 +184,46 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <MenuAdherenceCard :adherence-menu="adherenceMenu" />
 
         <section class="rise mt-6 grid gap-3 sm:grid-cols-2" style="animation-delay: 140ms">
-          <UButton
+          <UiPlainButton
             :to="localePath('/courses')"
-            icon="i-lucide-shopping-basket"
+            variant="solid"
             size="xl"
             block
             class="font-semibold text-white"
           >
+            <UIcon name="i-lucide-shopping-basket" class="size-6 shrink-0" />
             {{ $t('menu.nav.shopping') }}
-          </UButton>
-          <UButton
+          </UiPlainButton>
+          <UiPlainButton
             :to="localePath('/batch')"
-            icon="i-lucide-chef-hat"
+            variant="outline"
             size="xl"
             block
-            variant="outline"
             class="font-semibold"
           >
+            <UIcon name="i-lucide-chef-hat" class="size-6 shrink-0" />
             {{ $t('menu.nav.batch') }}
-          </UButton>
+          </UiPlainButton>
         </section>
 
-        <section class="mt-8 space-y-4">
-          <!-- Drawn on the server like the rest, interactive once it is on screen:
-               a week's seven cards are most of the page's hydration work. -->
-          <LazyMenuDayCard
-            v-for="(day, index) in flexedDays"
-            :key="day.key"
-            hydrate-on-visible
-            :day="day"
-            :targets="menu.targets"
-            :date="dateOf(index)"
-            :index="index"
-            :is-today="day.key === todayKey"
-            :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
-            :other-day-keys="otherDayKeysOf(day.key)"
-            :week-days="flexedDays"
-          />
+        <section class="mt-8 space-y-4" :aria-busy="isWeekReady ? undefined : 'true'">
+          <template v-for="(day, index) in flexedDays" :key="day.key">
+            <MenuDayCard
+              v-if="index < revealedDays"
+              :day="day"
+              :targets="menu.targets"
+              :date="dateOf(index)"
+              :index="index"
+              :is-today="day.key === todayKey"
+              :default-open="todayKey === undefined ? index === 0 : day.key === todayKey"
+              :other-day-keys="otherDayKeysOf(day.key)"
+              :week-days="flexedDays"
+            />
+            <USkeleton v-else class="h-24 rounded-2xl" aria-hidden="true" />
+          </template>
         </section>
 
-        <LazyMenuReminders hydrate-on-visible />
+        <MenuReminders v-if="areRemindersShown" />
       </template>
 
       <MenuWeekLoadFailed v-else-if="hasFailed" class="mt-6" @retry="retry" />
@@ -202,14 +235,10 @@ useSeoMeta({ title: (): string => t('menu.pageTitle') });
         <UIcon name="i-lucide-user-round-cog" class="size-12 text-dimmed" />
         <h2 class="text-xl font-bold">{{ $t('menu.needProfile.title') }}</h2>
         <p class="max-w-sm text-muted">{{ $t('menu.needProfile.hint') }}</p>
-        <UButton
-          :to="localePath('/profil')"
-          color="primary"
-          icon="i-lucide-user-round"
-          class="mt-2"
-        >
+        <UiPlainButton :to="localePath('/profil')" variant="solid" class="mt-2">
+          <UIcon name="i-lucide-user-round" class="size-5 shrink-0" />
           {{ $t('menu.needProfile.action') }}
-        </UButton>
+        </UiPlainButton>
       </div>
       <MenuComposePrompt v-else />
     </template>

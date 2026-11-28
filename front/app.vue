@@ -20,6 +20,14 @@ const bugReportOpened = useOpenedOnce(useBugReport().isOpen);
 const improvementOpened = useOpenedOnce(useImprovement().isOpen);
 const weekShareOpened = useOpenedOnce(useWeekShare().isOpen);
 
+const { stage } = useStagedReveal();
+const isFooterShown = ref(false);
+onMounted((): void => {
+  stage((): void => {
+    isFooterShown.value = true;
+  });
+});
+
 // The toaster (and the toast code of reka-ui under it) is mounted when the first toast is
 // pushed, not with every page: most visits never raise one.
 const { toasts } = useToast();
@@ -62,10 +70,10 @@ useHead({
       </template>
       <NuxtPage />
 
-      <!-- Below the fold: server-rendered as usual, but hydrated when scrolled
-           into view rather than during the first seconds the page is being made
-           usable. -->
-      <LazyLegalFooter hydrate-on-visible />
+      <!-- Below the fold: drawn once the page is up, in the language it is in (a footer
+           hydrated on scroll stayed French for an English visitor), its place held meanwhile. -->
+      <LegalFooter v-if="isFooterShown" />
+      <div v-else class="mt-12 min-h-24" aria-hidden="true" />
 
       <BugReportButton />
       <LazyBugReportDialog v-if="bugReportOpened" />

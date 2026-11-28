@@ -33,8 +33,25 @@ const writeAtomically = (file: string, content: Buffer | string): void => {
   renameSync(tmp, file);
 };
 
+const ATTEMPTS = 4;
+
+// A photograph that failed once is asked for again: one dropped connection must not fail a build
+// (the photographs already written are kept either way, so the next run resumes where this stopped).
+const fetchWithRetry = async (url: string): Promise<Response> => {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await fetch(url, { signal: AbortSignal.timeout(30_000) });
+    } catch (failure) {
+      if (attempt === ATTEMPTS) throw failure;
+      await new Promise((resolve): void => {
+        setTimeout(resolve, 1000 * attempt);
+      });
+    }
+  }
+};
+
 const fetchBytes = async (url: string): Promise<Buffer | undefined> => {
-  const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+  const response = await fetchWithRetry(url);
   // Listed by the manifest but absent from the host: the site shows its pictogram, as it does today.
   if (response.status === 404) return undefined;
   if (!response.ok) throw new Error(`${url}: ${response.status}`);
@@ -70,7 +87,7 @@ const localize = async ({ kind, file }: Job): Promise<[number, number] | undefin
 };
 
 const manifestJobs = async (): Promise<Job[]> => {
-  const manifest = (await (await fetch(`${HOST}/manifest.json`)).json()) as Partial<
+  const manifest = (await (await fetchWithRetry(`${HOST}/manifest.json`)).json()) as Partial<
     Record<LocalKind, Record<string, string>>
   >;
 

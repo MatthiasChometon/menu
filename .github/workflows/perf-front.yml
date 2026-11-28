@@ -38,6 +38,12 @@ jobs:
           cache-dependency-path: front/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Restore the localised photographs
+        uses: actions/cache@v4
+        with:
+          path: front/public/img
+          key: localised-images-${{ github.run_id }}
+          restore-keys: localised-images-
       - run: pnpm generate
       # The CPU slowdown is 4 x benchmarkIndex / reference (front/perf-calibration.cjs). A warm-up whose
       # indexes stray more than 15 % is not a measure of the runner: it is run once more, then the job fails.
@@ -93,6 +99,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: front/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Restore the localised photographs
+        uses: actions/cache@v4
+        with:
+          path: front/public/img
+          key: localised-images-${{ github.run_id }}
+          restore-keys: localised-images-
       # The image host's manifest is read while generating; an empty one ships pages with no photographs
       # and no preload, which is not the site being measured. One new attempt, then the job fails.
       - run: pnpm generate && pnpm check:generated || (pnpm generate && pnpm check:generated)

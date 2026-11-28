@@ -7,11 +7,12 @@ import { plainButtonClasses } from '../plainButton';
 // chunk. It has no loading state and no leading-icon prop: put a `UIcon` in the slot, and use
 // `UButton` where a loading state is needed. With `to` it is a link (`NuxtLink`), otherwise a
 // `button` whose `type` defaults to "button". Every other attribute falls through. `color`
-// defaults to primary for solid/soft.
+// defaults to primary for solid/soft/outline; `block` makes it full width.
 const {
   variant = 'ghost',
   size = 'md',
   square = false,
+  block = false,
   type = 'button',
   color = undefined,
   to = undefined,
@@ -19,6 +20,7 @@ const {
   variant?: PlainButtonVariant;
   size?: PlainButtonSize;
   square?: boolean;
+  block?: boolean;
   type?: 'button' | 'submit' | 'reset';
   color?: PlainButtonColor;
   to?: string;
@@ -29,11 +31,11 @@ const {
   <NuxtLink
     v-if="to !== undefined"
     :to="to"
-    :class="plainButtonClasses(variant, size, square, color)"
+    :class="plainButtonClasses(variant, size, square, color, block)"
   >
     <slot />
   </NuxtLink>
-  <button v-else :type="type" :class="plainButtonClasses(variant, size, square, color)">
+  <button v-else :type="type" :class="plainButtonClasses(variant, size, square, color, block)">
     <slot />
   </button>
 </template>
