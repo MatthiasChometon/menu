@@ -4,8 +4,7 @@
 // that grows it past this fails instead of drifting back.
 export const ENTRY_CHUNK_BUDGET_GZIP_BYTES = 169_000;
 
-// A module script, or the loader that deferEntryScript.ts leaves in its place.
-const ENTRY_SCRIPT = /<script (?:type="module" src|data-entry)="([^"]+)"/;
+const ENTRY_SCRIPT = /<script type="module" src="([^"]+)"/;
 
 export const entryScriptOf = (html: string): string | undefined => ENTRY_SCRIPT.exec(html)?.[1];
 

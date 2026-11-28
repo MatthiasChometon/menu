@@ -677,3 +677,19 @@ simulated LCP, so the -150 KB gz target is out of reach without dropping Nuxt UI
 - **Images.** Source: `https://images.menu.mtxlab.xyz` (the author's own host), 169 photographs listed in the
   manifest (9 more are listed but absent), 9.5 MB; the 1216 generated files are 23 MB. They are not in the
   repository: left to the maintainer's decision.
+
+### 2026-11-28 - M15, seventh cut (LHR of 283822d read, defer reverted)
+
+- `deferEntryScript.ts` reverted: no effect on the simulated LCP (2640 / 2709 before and after), and a 4 s fallback
+  on hydration is a risk for INP.
+- LHR of the CI run (recipe / `/recettes` / `/composer`): simulated FCP 1844 / 1884 / 1849 ms against observed
+  119 / 154 / 154 ms; simulated LCP 2640 / 2709 / 2526 ms against observed 119 / 154 / 154. The lcp-breakdown is
+  TTFB 455 ms (17 %), render delay 1968 / 1783 / 2071 ms (66-82 %): the load of the photograph is not the cost, the
+  simulated paint is. Critical chain, identical on the three pages: document 16 KB -> entry CSS 20 KB (the only
+  render-blocking resource, 455 ms wasted) -> two woff2 fonts 30 + 15 KB, and the entry script 165 KB with its
+  imports 32 + 5 + 21 + 3 KB. Largest element: the `<img>` (avif 768 w, eager, fetchpriority high, discoverable) on
+  the two photo pages, a `<p>` of text on /composer. The payload preload is not in the chain.
+- TBT by URL: the entry chunk evaluates 287 / 475 / 572 ms (long tasks 194 / 192 / 458 ms); `/composer` adds a
+  second chunk, 199 ms (99 + 87 ms tasks).
+- `/composer`: the dish pickers are hydrated on the first interaction (`hydrate-on-interaction`), not at load. The
+  mount of the page dropped from ~600 ms to ~330 ms at 4x CPU, the longest task from ~944 to ~630 ms.
