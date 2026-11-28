@@ -35,8 +35,6 @@ export default defineNuxtConfig({
     // every stylesheet rule at start-up to learn which icon classes exist
     // (about 150 ms of main thread at CPU x4); inline svg has nothing to scan.
     mode: 'svg',
-    // Every icon of the app is Lucide, bar the Google logo. The default lists the two hundred collections
-    // Iconify knows, and that list is shipped in the entry script for nothing.
     collections: ['lucide', 'simple-icons'],
     // Most icons are named in composables (the nav entries, the profile
     // choices) rather than written in a template, and the scan only reads
